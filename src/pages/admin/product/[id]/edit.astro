@@ -1,0 +1,145 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import { supabase } from '../../../../lib/supabase';
+
+const { id } = Astro.params;
+
+const { data: product, error } = await supabase
+  .from('products')
+  .select('*, collections(title)')
+  .eq('id', id)
+  .single();
+
+if (error || !product) {
+  return Astro.redirect('/admin/producten');
+}
+
+const { data: collections } = await supabase
+  .from('collections')
+  .select('id, title')
+  .order('title', { ascending: true });
+---
+
+<Layout title={`Bewerk ${product.name}`}>
+  <div class="pt-32 pb-24 bg-accent/5 min-h-screen">
+    <div class="container mx-auto px-6">
+      <nav class="mb-12 flex items-center gap-4 text-[10px] tracking-[0.2em] uppercase text-accent/40">
+        <a href="/admin" class="hover:text-secondary">Dashboard</a>
+        <span>/</span>
+        <a href="/admin/producten" class="hover:text-secondary">Beheer Producten</a>
+        <span>/</span>
+        <span class="text-secondary">Bewerk Product</span>
+      </nav>
+
+      <div class="max-w-4xl bg-white border border-secondary/10 shadow-sm p-12">
+        <h1 class="text-3xl font-serif text-accent italic mb-12">Bewerk <span class="text-secondary opacity-50">{product.name}</span></h1>
+
+        <form id="edit-product-form" class="space-y-8">
+          <input type="hidden" name="id" value={product.id} />
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="space-y-2">
+              <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Product Naam</label>
+              <input type="text" name="name" value={product.name} required class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent" />
+            </div>
+            
+            <div class="space-y-2">
+              <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Brand</label>
+              <input type="text" name="brand" value={product.brand} class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent" />
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Collectie</label>
+              <select name="collection_id" class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent">
+                {collections?.map((col) => (
+                  <option value={col.id} selected={col.id === product.collection_id}>{col.title}</option>
+                ))}
+              </select>
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Slug</label>
+              <input type="text" name="slug" value={product.slug} required class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent" />
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Beschrijving</label>
+            <textarea name="description" rows="4" class="w-full border border-accent/10 p-4 focus:border-secondary outline-none transition-colors font-light bg-primary/10 resize-none">{product.description}</textarea>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Kenmerken (komma gescheiden)</label>
+            <input type="text" name="features" value={product.features?.join(', ')} class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent" />
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Afbeelding URL</label>
+            <input type="text" name="image_url" value={product.images?.[0]} class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent" />
+          </div>
+
+          <div class="flex gap-6 pt-8">
+            <button type="submit" class="bg-accent text-white px-10 py-3 text-xs tracking-[0.2em] uppercase hover:opacity-80 transition-all font-medium">Opslaan Wijzigingen</button>
+            <a href="/admin/producten" class="px-10 py-3 text-xs tracking-[0.2em] uppercase border border-accent/20 text-accent hover:border-accent transition-all font-medium flex items-center">Annuleren</a>
+          </div>
+
+          <p id="form-status" class="text-sm font-light hidden"></p>
+        </form>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  const form = document.getElementById('edit-product-form') as HTMLFormElement;
+  const status = document.getElementById('form-status');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!status) return;
+
+    status.textContent = 'Bezig met opslaan...';
+    status.className = 'text-sm font-light text-accent block mt-4';
+
+    const formData = new FormData(form);
+    const id = formData.get('id');
+    const name = formData.get('name');
+    const brand = formData.get('brand');
+    const collection_id = formData.get('collection_id');
+    const slug = formData.get('slug');
+    const description = formData.get('description');
+    const featuresLine = formData.get('features') as string;
+    const image_url = formData.get('image_url');
+
+    const features = featuresLine ? featuresLine.split(',').map(f => f.trim()) : [];
+    const images = image_url ? [image_url] : [];
+
+    const response = await fetch(`/api/admin/products/${id}`, {
+      method: 'PUT',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        name,
+        brand,
+        collection_id,
+        slug,
+        description,
+        features,
+        images,
+      }),
+    });
+    const result = await response.json().catch(() => ({ error: 'Onbekende fout.' }));
+
+    if (!response.ok) {
+      status.textContent = 'Fout bij opslaan: ' + result.error;
+      status.className = 'text-sm font-light text-red-500 block mt-4';
+    } else {
+      status.textContent = 'Wijzigingen succesvol opgeslagen!';
+      status.className = 'text-sm font-light text-green-600 block mt-4';
+      setTimeout(() => {
+        window.location.href = '/admin/producten';
+      }, 1500);
+    }
+  });
+</script>

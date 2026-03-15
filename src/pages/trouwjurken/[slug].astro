@@ -1,0 +1,67 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { supabase } from '../../lib/supabase';
+
+export const prerender = false;
+
+const { slug } = Astro.params;
+
+const { data: collection } = await supabase
+  .from('collections')
+  .select('*, products(*)')
+  .eq('slug', slug)
+  .single();
+
+if (!collection) {
+  return Astro.redirect('/404');
+}
+
+const dressFallbackImage = '/wp-content/uploads/2023/11/trouwjurk-ladybird-aneesa-bruidsmode-hochzeitskleid-bridal-dress-scaled-1-scaled.jpg';
+---
+
+<Layout title={`${collection.title} Collectie`}>
+  <div class="pt-32 pb-24 bg-primary/10">
+    <div class="container mx-auto px-6">
+      <nav class="mb-12 flex items-center gap-4 text-[10px] tracking-[0.2em] uppercase text-accent/40">
+        <a href="/" class="hover:text-secondary whitespace-nowrap">Home</a>
+        <span>/</span>
+        <a href="/trouwjurken" class="hover:text-secondary whitespace-nowrap">Trouwjurken</a>
+        <span>/</span>
+        <span class="text-secondary truncate">{collection.title}</span>
+      </nav>
+
+      <div class="max-w-4xl mb-20 text-center mx-auto">
+        <h1 class="text-5xl md:text-6xl font-serif text-accent mb-6 leading-tight italic font-light">{collection.title}</h1>
+        <p class="text-lg text-accent/70 font-light leading-relaxed">
+          {collection.description}
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+        {collection.products?.map((product) => (
+          <div class="group">
+            <div class="aspect-[3/4] overflow-hidden bg-primary mb-6 relative">
+              <img 
+                src={product.images?.[0] || dressFallbackImage}
+                alt={product.name} 
+                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                loading="lazy"
+              />
+              <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500"></div>
+            </div>
+            <span class="text-[10px] tracking-[0.3em] uppercase text-secondary block mb-2">{product.brand}</span>
+            <h3 class="text-xl font-serif text-accent mb-2">{product.name}</h3>
+            <p class="text-sm text-accent/60 font-light italic truncate mb-4">{product.description}</p>
+            <a href={`/product/${product.slug}`} class="text-[10px] tracking-widest uppercase border-b border-accent/20 pb-1 hover:border-secondary transition-colors">Details bekijken</a>
+          </div>
+        ))}
+      </div>
+
+      {(!collection.products || collection.products.length === 0) && (
+        <div class="py-20 text-center border border-dashed border-secondary/20 rounded-lg">
+          <p class="text-accent/40 font-light italic">Binnenkort meer jurken in deze collectie.</p>
+        </div>
+      )}
+    </div>
+  </div>
+</Layout>

@@ -1,0 +1,146 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { supabase } from '../../lib/supabase';
+
+const { data: collections } = await supabase
+  .from('collections')
+  .select('id, title, slug, type')
+  .eq('type', 'dress')
+  .order('title', { ascending: true });
+
+const collectionIds = (collections ?? []).map((col) => col.id);
+
+const { data: dressProducts } = await supabase
+  .from('products')
+  .select('id, name, slug, brand, price_range, features, images, collection_id')
+  .in('collection_id', collectionIds.length ? collectionIds : ['00000000-0000-0000-0000-000000000000'])
+  .order('created_at', { ascending: false });
+
+const collectionById = new Map((collections ?? []).map((col) => [col.id, col]));
+const dressFallbackImage = '/wp-content/uploads/2023/11/trouwjurk-ladybird-amariah-bruidsmode-2-scaled-1-scaled.jpg';
+---
+
+<Layout title="Trouwjurken — Mariage Bruidsmode Geldrop">
+  <!-- Page header -->
+  <div class="pt-36 pb-20 bg-cream border-b border-champagne">
+    <div class="container mx-auto px-6">
+      <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-4">Collecties</p>
+      <h1 class="font-display font-normal text-charcoal leading-tight mb-6" style="font-size: clamp(36px, 5vw, 72px);">
+        De nieuwste<br><em class="italic font-light">trouwjurken</em>
+      </h1>
+      <p class="text-taupe font-body font-light text-base leading-relaxed max-w-xl">
+        Stap binnen in de wereld van Mariage Bruidsmode. Een uitgebreide collectie van de meest gerenommeerde merken, zorgvuldig geselecteerd voor elke type bruid.
+      </p>
+    </div>
+  </div>
+
+  <!-- Products grid -->
+  <section class="py-20 bg-ivory">
+    <div class="container mx-auto px-6">
+      
+      <!-- Collection filter pills -->
+      {collections && collections.length > 0 && (
+        <div class="flex flex-wrap gap-3 mb-14">
+          <button class="filter-btn active text-[11px] tracking-[0.15em] uppercase font-body px-5 py-3 border border-charcoal bg-charcoal text-warm-white transitions-colors" data-filter="all">Alle jurken</button>
+          {collections.map(col => (
+            <button class="filter-btn text-[11px] tracking-[0.15em] uppercase font-body px-5 py-3 border border-champagne text-taupe hover:border-charcoal hover:text-charcoal transition-colors" data-filter={col.slug}>{col.title}</button>
+          ))}
+        </div>
+      )}
+
+      <!-- Products -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="products-grid">
+        {dressProducts?.map((prod) => (
+          <a href={`/product/${prod.slug}`} class="group product-card bg-white shadow-card hover:shadow-hover transition-all duration-500 overflow-hidden hover:-translate-y-1 block" data-collection={collectionById.get(prod.collection_id)?.slug}>
+            <div class="aspect-[3/4] bg-linen relative overflow-hidden">
+              {prod.images?.[0] ? (
+                <img 
+                  src={prod.images[0]} 
+                  alt={prod.name} 
+                  class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  loading="lazy"
+                />
+              ) : (
+                <img src={dressFallbackImage} alt={prod.name} class="w-full h-full object-cover" loading="lazy" />
+              )}
+              
+              <!-- Hover overlay -->
+              <div class="absolute inset-0 bg-charcoal/20 md:bg-charcoal/0 md:group-hover:bg-charcoal/20 transition-all duration-500 flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100">
+                <span class="bg-warm-white text-charcoal px-5 py-2.5 text-[11px] tracking-[0.15em] uppercase font-body font-medium">
+                  Bezichtig in winkel
+                </span>
+              </div>
+
+              <!-- Badge: brand -->
+              <div class="absolute top-4 left-4 bg-charcoal/80 text-warm-white text-[9px] tracking-[0.15em] uppercase font-body px-2 py-1">
+                {prod.brand}
+              </div>
+            </div>
+
+            <div class="p-5 border-t border-champagne">
+              <h3 class="font-display font-normal text-charcoal text-lg leading-tight">{prod.name}</h3>
+              <div class="flex items-center justify-between mt-2">
+                <p class="text-taupe font-body font-light text-xs">{collectionById.get(prod.collection_id)?.title}</p>
+                {prod.price_range && <p class="font-display text-charcoal text-sm">{prod.price_range}</p>}
+              </div>
+              {prod.features && prod.features.length > 0 && (
+                <div class="flex flex-wrap gap-1 mt-3">
+                  {prod.features.slice(0, 3).map(f => (
+                    <span class="text-[9px] tracking-[0.1em] uppercase font-body text-blush-deep border border-blush/40 px-2 py-1">{f}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </a>
+        ))}
+
+        {!dressProducts?.length && (
+          <div class="col-span-full py-24 text-center">
+            <p class="font-italic italic text-taupe-light text-lg">De collecties worden momenteel samengesteld.</p>
+            <a href="/afspraak-maken" class="btn-primary mt-8 inline-flex">Maak een afspraak voor persoonlijk advies</a>
+          </div>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-24 bg-charcoal text-center">
+    <div class="container mx-auto px-6 max-w-xl">
+      <p class="text-[10px] tracking-[0.3em] uppercase text-gold-light font-body mb-4">Persoonlijk advies</p>
+      <h2 class="font-display font-normal text-warm-white mb-6" style="font-size: clamp(24px, 3vw, 40px);">
+        Niet gevonden wat je zocht?
+      </h2>
+      <p class="text-taupe-light font-light text-sm leading-relaxed mb-10">
+        Onze collectie in de winkel is nog uitgebreider dan online. Maak een afspraak voor persoonlijk advies.
+      </p>
+      <a href="/afspraak-maken" class="btn-blush">Maak een pasafspraak</a>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const productCards = document.querySelectorAll('.product-card');
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const filter = btn.getAttribute('data-filter');
+      
+      // Update active button styling
+      filterBtns.forEach(b => {
+        b.classList.remove('active', 'bg-charcoal', 'text-warm-white', 'border-charcoal');
+        b.classList.add('text-taupe', 'border-champagne');
+      });
+      btn.classList.add('active', 'bg-charcoal', 'text-warm-white', 'border-charcoal');
+      btn.classList.remove('text-taupe', 'border-champagne');
+
+      // Filter cards
+      productCards.forEach(card => {
+        const cardCollection = card.getAttribute('data-collection');
+        const show = filter === 'all' || cardCollection === filter;
+        (card as HTMLElement).style.display = show ? '' : 'none';
+      });
+    });
+  });
+</script>

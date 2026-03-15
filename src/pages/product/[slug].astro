@@ -1,0 +1,230 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { supabase } from '../../lib/supabase';
+
+export const prerender = false;
+
+const { slug } = Astro.params;
+
+const { data: product } = await supabase
+  .from('products')
+  .select('*, collections(*)')
+  .eq('slug', slug)
+  .single();
+
+if (!product) {
+  return Astro.redirect('/trouwjurken');
+}
+
+// Related products from same collection
+const { data: related } = await supabase
+  .from('products')
+  .select('*')
+  .eq('collection_id', product.collection_id)
+  .neq('id', product.id)
+  .limit(4);
+
+const isGroom = product.collections?.type === 'suit';
+const backHref = isGroom ? '/trouwpakken' : '/trouwjurken';
+const backLabel = isGroom ? 'Trouwpakken' : 'Trouwjurken';
+const dressFallbackImage = '/wp-content/uploads/2023/11/trouwjurk-ladybird-aneesa-bruidsmode-hochzeitskleid-bridal-dress-scaled-1-scaled.jpg';
+const suitFallbackImage = '/wp-content/uploads/2023/11/Immediate-trouwpak-blauw-19206-54-1.jpg';
+const primaryFallbackImage = isGroom ? suitFallbackImage : dressFallbackImage;
+const productImages = product.images && product.images.length > 0 ? product.images : [primaryFallbackImage];
+---
+
+<Layout title={`${product.name} — ${product.brand} | Mariage Bruidsmode`}>
+  <!-- Breadcrumb -->
+  <div class="pt-28 pb-4 bg-cream border-b border-champagne">
+    <div class="container mx-auto px-6">
+      <nav class="flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase font-body text-taupe flex-wrap">
+        <a href="/" class="hover:text-charcoal transition-colors">Home</a>
+        <span class="text-champagne">›</span>
+        <a href={backHref} class="hover:text-charcoal transition-colors">{backLabel}</a>
+        {product.collections && (
+          <>
+            <span class="text-champagne">›</span>
+            <span class="text-blush-deep">{product.collections.title}</span>
+          </>
+        )}
+        <span class="text-champagne">›</span>
+        <span class="text-charcoal truncate max-w-[180px]">{product.name}</span>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Main product -->
+  <section class="bg-ivory py-14">
+    <div class="container mx-auto px-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 xl:gap-20">
+
+        <!-- Image gallery -->
+        <div class="flex gap-3">
+          <!-- Thumbnails column -->
+          {productImages.length > 1 && (
+            <div class="flex flex-col gap-3 w-16 sm:w-20 shrink-0">
+              {productImages.map((img: string, i: number) => (
+                <button
+                  class={`thumb-btn block aspect-square overflow-hidden border-2 transition-all ${i === 0 ? 'border-charcoal' : 'border-transparent hover:border-blush'}`}
+                  data-src={img}
+                >
+                  <img src={img} alt={`${product.name} foto ${i + 1}`} class="w-full h-full object-cover" loading="lazy" />
+                </button>
+              ))}
+            </div>
+          )}
+
+          <!-- Main image -->
+          <div class="flex-1 aspect-[3/4] bg-linen relative overflow-hidden group shadow-card">
+            {productImages?.[0] ? (
+              <img
+                id="main-product-image"
+                src={productImages[0]}
+                alt={product.name}
+                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103"
+                loading="lazy"
+              />
+            ) : (
+              <div class="w-full h-full flex flex-col items-center justify-center gap-4 bg-cream">
+                <span class="text-6xl opacity-15">👗</span>
+                <span class="font-italic italic text-taupe-light text-sm">Foto binnenkort beschikbaar</span>
+              </div>
+            )}
+
+            <!-- Brand badge -->
+            <div class="absolute top-5 left-5 bg-charcoal/85 backdrop-blur-sm text-warm-white text-[9px] tracking-[0.2em] uppercase font-body px-3 py-1.5">
+              {product.brand}
+            </div>
+          </div>
+        </div>
+
+        <!-- Product info -->
+        <div class="flex flex-col justify-center lg:py-8">
+          <p class="text-[10px] tracking-[0.35em] uppercase text-blush-deep font-body mb-3">{product.brand}</p>
+
+          <h1 class="font-display font-normal text-charcoal leading-[1.1] mb-4" style="font-size: clamp(30px, 4vw, 56px);">
+            {product.name}
+          </h1>
+
+          {product.collections && (
+            <p class="text-taupe font-body font-light text-sm mb-5">
+              Uit de <a href={`${backHref}/${product.collections.slug}`} class="text-blush-deep hover:underline">{product.collections.title}</a> collectie
+            </p>
+          )}
+
+          {product.price_range && (
+            <div class="mb-8">
+              <p class="font-display text-charcoal" style="font-size: clamp(22px, 3vw, 34px);">
+                {product.price_range}
+                <span class="text-taupe-light text-sm font-body font-light ml-2">incl. BTW</span>
+              </p>
+            </div>
+          )}
+
+          <!-- Gold ornament divider -->
+          <div class="flex items-center gap-4 mb-8">
+            <div class="w-10 h-px bg-gradient-to-r from-gold to-gold-light"></div>
+            <span class="text-gold text-sm">✦</span>
+            <div class="flex-1 h-px bg-champagne"></div>
+          </div>
+
+          {product.description && (
+            <p class="text-taupe font-body font-light text-base leading-relaxed mb-8">
+              {product.description}
+            </p>
+          )}
+
+          <!-- Features -->
+          {product.features && product.features.length > 0 && (
+            <div class="mb-10">
+              <p class="text-[10px] tracking-[0.25em] uppercase text-taupe font-body mb-4">Kenmerken</p>
+              <div class="flex flex-wrap gap-2">
+                {product.features.map((f: string) => (
+                  <span class="text-[10px] tracking-[0.1em] uppercase font-body text-blush-deep border border-blush/50 px-3 py-1.5 bg-white hover:bg-blush/10 transition-colors">
+                    {f}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <!-- CTA buttons -->
+          <div class="flex flex-col sm:flex-row gap-4 mb-6">
+            <a href="/afspraak-maken" class="btn-premium flex-1 justify-center py-4">
+              Pasafspraak maken
+            </a>
+            <a href="tel:+31402863673" class="btn-gold flex-1 justify-center py-4">
+              Bel ons
+            </a>
+          </div>
+
+          <p class="text-[11px] font-body text-taupe-light leading-relaxed">
+            ✓ Gratis persoonlijk advies &nbsp;·&nbsp; ✓ Probeer in onze winkel &nbsp;·&nbsp; ✓ Geldrop
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Related products -->
+  {related && related.length > 0 && (
+    <section class="py-20 bg-cream border-t border-champagne">
+      <div class="container mx-auto px-6">
+        <div class="text-center mb-10">
+          <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">Uit dezelfde collectie</p>
+          <h2 class="font-display font-normal text-charcoal" style="font-size: clamp(22px, 3vw, 36px);">
+            Bekijk ook <em class="italic font-light">deze jurken</em>
+          </h2>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
+          {related.map((rel) => (
+            <a href={`/product/${rel.slug}`} class="group bg-white shadow-soft hover:shadow-card transition-all duration-300 overflow-hidden hover:-translate-y-1 block">
+              <div class="aspect-[3/4] bg-linen overflow-hidden relative">
+                {(rel.images?.[0] || primaryFallbackImage) ? (
+                  <img src={rel.images?.[0] || primaryFallbackImage} alt={rel.name} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                ) : (
+                  <div class="w-full h-full flex items-center justify-center bg-cream">
+                    <span class="text-3xl opacity-20">👗</span>
+                  </div>
+                )}
+              </div>
+              <div class="p-4 border-t border-champagne">
+                <p class="text-[9px] tracking-widest uppercase text-blush-deep font-body mb-1">{rel.brand}</p>
+                <h3 class="font-display text-charcoal text-base leading-tight">{rel.name}</h3>
+                {rel.price_range && <p class="text-xs text-taupe font-body mt-1">{rel.price_range}</p>}
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+</Layout>
+
+<script>
+  // Thumbnail image switcher
+  const thumbBtns = document.querySelectorAll<HTMLButtonElement>('.thumb-btn');
+  const mainImg = document.getElementById('main-product-image') as HTMLImageElement | null;
+
+  thumbBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const newSrc = btn.getAttribute('data-src');
+      if (mainImg && newSrc) {
+        mainImg.style.opacity = '0';
+        setTimeout(() => {
+          mainImg.src = newSrc;
+          mainImg.style.opacity = '1';
+        }, 180);
+      }
+      thumbBtns.forEach(b => b.classList.remove('border-charcoal'));
+      thumbBtns.forEach(b => b.classList.add('border-transparent'));
+      btn.classList.remove('border-transparent');
+      btn.classList.add('border-charcoal');
+    });
+  });
+
+  // Smooth opacity transition on main image
+  if (mainImg) {
+    mainImg.style.transition = 'opacity 0.18s ease';
+  }
+</script>

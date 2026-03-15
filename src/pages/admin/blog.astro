@@ -1,0 +1,52 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { supabase } from '../../lib/supabase';
+
+const { data: posts } = await supabase
+  .from('blog_posts')
+  .select('*')
+  .order('published_at', { ascending: false });
+---
+
+<Layout title="Admin Blog Beheer">
+  <div class="pt-32 pb-24 bg-primary/20 min-h-screen">
+    <div class="container mx-auto px-6">
+      <div class="flex justify-between items-center mb-12">
+        <h1 class="text-3xl font-serif text-accent italic">Blog <span class="text-secondary opacity-50">Beheer</span></h1>
+        <a href="/admin" class="text-xs uppercase tracking-widest text-accent/60 hover:text-secondary underline decoration-secondary/20">Terug naar Dashboard</a>
+      </div>
+
+      <div class="bg-white shadow-xl border border-secondary/10 overflow-hidden">
+        <div class="overflow-x-auto">
+        <table class="w-full min-w-[760px] text-left border-collapse">
+          <thead class="bg-accent/5">
+            <tr>
+              <th class="p-5 text-[10px] tracking-widest uppercase text-accent font-medium border-b border-secondary/10 whitespace-nowrap">Titel</th>
+              <th class="p-5 text-[10px] tracking-widest uppercase text-accent font-medium border-b border-secondary/10 whitespace-nowrap">Auteur</th>
+              <th class="p-5 text-[10px] tracking-widest uppercase text-accent font-medium border-b border-secondary/10 whitespace-nowrap">Datum</th>
+              <th class="p-5 text-[10px] tracking-widest uppercase text-accent font-medium border-b border-secondary/10 whitespace-nowrap">Acties</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-secondary/10">
+            {posts?.map((post) => (
+              <tr class="hover:bg-primary/10 transition-colors">
+                <td class="p-5">
+                  <span class="text-accent font-serif italic text-lg">{post.title}</span>
+                </td>
+                <td class="p-5 text-sm font-light text-accent/60 whitespace-nowrap">{post.author}</td>
+                <td class="p-5 text-sm font-light text-accent/60 whitespace-nowrap">{new Date(post.published_at).toLocaleDateString()}</td>
+                <td class="p-5">
+                  <div class="flex gap-4 whitespace-nowrap">
+                    <button class="text-[11px] uppercase tracking-[0.12em] text-secondary hover:underline">Bewerken</button>
+                    <button class="text-[11px] uppercase tracking-[0.12em] text-red-400 hover:underline">Verwijderen</button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>

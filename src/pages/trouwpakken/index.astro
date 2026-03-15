@@ -1,0 +1,48 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import CollectionCard from '../../components/CollectionCard.astro';
+import { supabase } from '../../lib/supabase';
+
+const { data: collections, error } = await supabase
+  .from('collections')
+  .select('id, title, slug, image_url')
+  .eq('type', 'suit')
+  .order('created_at', { ascending: false });
+
+if (error) {
+  console.error('Error fetching suit collections:', error);
+}
+---
+
+<Layout title="Onze Trouwpakken Collecties">
+  <div class="pt-32 pb-24 bg-accent/5">
+    <div class="container mx-auto px-6">
+      <div class="max-w-3xl mb-16">
+        <span class="text-xs tracking-[0.3em] uppercase text-secondary mb-4 block">Collecties</span>
+        <h1 class="text-5xl md:text-6xl font-serif text-accent mb-8 leading-tight">
+          Stijlvolle <br/><span class="italic font-light text-secondary">trouwpakken</span>
+        </h1>
+        <p class="text-lg text-accent/70 font-light leading-relaxed">
+          Voor de moderne bruidegom die op zoek is naar perfectie. Ontdek onze collectie pakken van topmerken zoals Rembrant en meer.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {collections?.map((col) => (
+          <CollectionCard 
+            title={col.title}
+            category="Trouwpakken"
+            image={col.image_url}
+            link={`/trouwpakken/${col.slug}`}
+          />
+        ))}
+
+        {!collections?.length && (
+          <div class="col-span-full py-20 text-center border border-dashed border-secondary/20 rounded-lg">
+            <p class="text-accent/40 font-light italic">De herencollecties worden momenteel voorbereid.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+</Layout>

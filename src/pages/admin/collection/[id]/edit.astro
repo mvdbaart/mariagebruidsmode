@@ -1,0 +1,123 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import { supabase } from '../../../../lib/supabase';
+
+const { id } = Astro.params;
+
+const { data: collection, error } = await supabase
+  .from('collections')
+  .select('*')
+  .eq('id', id)
+  .single();
+
+if (error || !collection) {
+  return Astro.redirect('/admin/collecties');
+}
+---
+
+<Layout title={`Bewerk ${collection.title}`}>
+  <div class="pt-32 pb-24 bg-accent/5 min-h-screen">
+    <div class="container mx-auto px-6">
+      <nav class="mb-12 flex items-center gap-4 text-[10px] tracking-[0.2em] uppercase text-accent/40">
+        <a href="/admin" class="hover:text-secondary">Dashboard</a>
+        <span>/</span>
+        <a href="/admin/collecties" class="hover:text-secondary">Beheer Collecties</a>
+        <span>/</span>
+        <span class="text-secondary">Bewerk Collectie</span>
+      </nav>
+
+      <div class="max-w-4xl bg-white border border-secondary/10 shadow-sm p-12">
+        <h1 class="text-3xl font-serif text-accent italic mb-12">Bewerk <span class="text-secondary opacity-50">{collection.title}</span></h1>
+
+        <form id="edit-collection-form" class="space-y-8">
+          <input type="hidden" name="id" value={collection.id} />
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="space-y-2">
+              <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Collectie Titel</label>
+              <input type="text" name="title" value={collection.title} required class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent" />
+            </div>
+            
+            <div class="space-y-2">
+              <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Type</label>
+              <select name="type" class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent">
+                <option value="dress" selected={collection.type === 'dress'}>Trouwjurk</option>
+                <option value="suit" selected={collection.type === 'suit'}>Trouwpak</option>
+                <option value="accessory" selected={collection.type === 'accessory'}>Accessoire</option>
+              </select>
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Slug</label>
+              <input type="text" name="slug" value={collection.slug} required class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent" />
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Beschrijving</label>
+            <textarea name="description" rows="4" class="w-full border border-accent/10 p-4 focus:border-secondary outline-none transition-colors font-light bg-primary/10 resize-none">{collection.description}</textarea>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Cover Afbeelding URL</label>
+            <input type="text" name="image_url" value={collection.image_url} class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent" />
+          </div>
+
+          <div class="flex gap-6 pt-8">
+            <button type="submit" class="bg-accent text-white px-10 py-3 text-xs tracking-[0.2em] uppercase hover:opacity-80 transition-all font-medium">Opslaan Wijzigingen</button>
+            <a href="/admin/collecties" class="px-10 py-3 text-xs tracking-[0.2em] uppercase border border-accent/20 text-accent hover:border-accent transition-all font-medium flex items-center">Annuleren</a>
+          </div>
+
+          <p id="form-status" class="text-sm font-light hidden"></p>
+        </form>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  const form = document.getElementById('edit-collection-form') as HTMLFormElement;
+  const status = document.getElementById('form-status');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!status) return;
+
+    status.textContent = 'Bezig met opslaan...';
+    status.className = 'text-sm font-light text-accent block mt-4';
+
+    const formData = new FormData(form);
+    const id = formData.get('id');
+    const title = formData.get('title');
+    const type = formData.get('type');
+    const slug = formData.get('slug');
+    const description = formData.get('description');
+    const image_url = formData.get('image_url');
+
+    const response = await fetch(`/api/admin/collections/${id}`, {
+      method: 'PUT',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        title,
+        type,
+        slug,
+        description,
+        image_url,
+      }),
+    });
+    const result = await response.json().catch(() => ({ error: 'Onbekende fout.' }));
+
+    if (!response.ok) {
+      status.textContent = 'Fout bij opslaan: ' + result.error;
+      status.className = 'text-sm font-light text-red-500 block mt-4';
+    } else {
+      status.textContent = 'Wijzigingen succesvol opgeslagen!';
+      status.className = 'text-sm font-light text-green-600 block mt-4';
+      setTimeout(() => {
+        window.location.href = '/admin/collecties';
+      }, 1500);
+    }
+  });
+</script>

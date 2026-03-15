@@ -1,0 +1,59 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Admin Login">
+  <div class="pt-32 pb-24 bg-primary/20 min-h-screen flex items-center justify-center">
+    <div class="max-w-md w-full bg-white p-8 shadow-xl border border-secondary/10">
+      <div class="text-center mb-10">
+        <h1 class="text-3xl font-serif text-accent italic">Admin <span class="text-secondary opacity-50">Login</span></h1>
+        <p class="text-xs text-accent/40 uppercase tracking-widest mt-2">Mariage Bruidsmode</p>
+      </div>
+
+      <form id="login-form" class="space-y-6">
+        <div class="space-y-2">
+          <label for="email" class="text-[10px] tracking-widest uppercase text-accent font-medium">Email</label>
+          <input type="email" id="email" name="email" required class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent" placeholder="admin@mariage.nl" />
+        </div>
+        <div class="space-y-2">
+          <label for="password" class="text-[10px] tracking-widest uppercase text-accent font-medium">Wachtwoord</label>
+          <input type="password" id="password" name="password" required class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent" placeholder="••••••••" />
+        </div>
+
+        <button type="submit" class="btn-premium w-full mt-4">Inloggen</button>
+        <p id="error-msg" class="text-red-500 text-xs text-center hidden"></p>
+      </form>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  const form = document.getElementById('login-form') as HTMLFormElement;
+  const errorMsg = document.getElementById('error-msg');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!errorMsg) return;
+
+    errorMsg.classList.add('hidden');
+    const formData = new FormData(form);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({ email, password })
+    });
+
+    const result = await response.json().catch(() => ({ error: 'Inloggen mislukt.' }));
+    if (!response.ok) {
+      errorMsg.textContent = result.error || 'Ongeldige inloggegevens.';
+      errorMsg.classList.remove('hidden');
+    } else {
+      window.location.href = '/admin';
+    }
+  });
+</script>

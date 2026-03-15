@@ -9,9 +9,20 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "setup:buckets": "node scripts/setup_buckets.js",
+    "extract:site": "node scripts/extract_site_content.js",
+    "mirror:extract": "node scripts/mirror_and_extract.js"
   },
   "dependencies": {
-    "astro": "^6.0.4"
+    "@astrojs/node": "^10.0.1",
+    "@astrojs/react": "^5.0.0",
+    "@supabase/supabase-js": "^2.99.1",
+    "@tailwindcss/vite": "^4.2.1",
+    "astro": "^6.0.4",
+    "lucide-react": "^0.577.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "tailwindcss": "^4.2.1"
   }
 }

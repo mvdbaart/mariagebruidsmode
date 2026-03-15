@@ -1,0 +1,99 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { supabase } from '../../lib/supabase';
+
+const { data: products } = await supabase
+  .from('products')
+  .select('*, collections(title, type)')
+  .order('created_at', { ascending: false });
+
+const dressCount = products?.filter(p => p.collections?.type === 'dress').length ?? 0;
+const suitCount  = products?.filter(p => p.collections?.type === 'suit').length  ?? 0;
+---
+
+<Layout title="Beheer Producten">
+  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+    <div class="container mx-auto px-6">
+      <nav class="mb-10 flex items-center gap-3 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">
+        <a href="/admin" class="hover:text-blush-deep transition-colors">Dashboard</a>
+        <span class="text-champagne">›</span>
+        <span class="text-charcoal">Beheer Producten</span>
+      </nav>
+
+      <div class="flex items-end justify-between mb-12">
+        <div>
+          <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">Catalogus</p>
+          <h1 class="font-display font-normal text-charcoal text-4xl">
+            Beheer <em class="italic font-light text-taupe">Producten</em>
+          </h1>
+        </div>
+        <div class="flex items-center gap-4">
+          <span class="text-[11px] tracking-widest uppercase font-body text-taupe">{products?.length ?? 0} producten</span>
+          <a href="/admin/product/new" class="btn-premium text-[10px]">+ Nieuw Product</a>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+        <div class="bg-white border border-champagne p-6 shadow-soft">
+          <p class="text-3xl font-display text-charcoal">{products?.length ?? 0}</p>
+          <p class="text-[10px] tracking-[0.2em] uppercase text-taupe-light font-body mt-1">Totaal</p>
+        </div>
+        <div class="bg-white border border-champagne p-6 shadow-soft">
+          <p class="text-3xl font-display text-charcoal">{dressCount}</p>
+          <p class="text-[10px] tracking-[0.2em] uppercase text-taupe-light font-body mt-1">Trouwjurken</p>
+        </div>
+        <div class="bg-white border border-champagne p-6 shadow-soft">
+          <p class="text-3xl font-display text-charcoal">{suitCount}</p>
+          <p class="text-[10px] tracking-[0.2em] uppercase text-taupe-light font-body mt-1">Trouwpakken</p>
+        </div>
+        <div class="bg-white border border-champagne p-6 shadow-soft">
+          <p class="text-3xl font-display text-charcoal">{products?.filter(p => p.images?.[0]).length ?? 0}</p>
+          <p class="text-[10px] tracking-[0.2em] uppercase text-taupe-light font-body mt-1">Met afbeelding</p>
+        </div>
+      </div>
+
+      <!-- Products grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        {products?.map((prod) => (
+          <div class="bg-white border border-champagne shadow-soft overflow-hidden group hover:shadow-card transition-all duration-300">
+            <div class="aspect-[3/4] bg-cream overflow-hidden relative">
+              {prod.images?.[0] ? (
+                <img 
+                  src={prod.images[0]} 
+                  alt={prod.name} 
+                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+              ) : (
+                <div class="w-full h-full flex flex-col items-center justify-center gap-2 bg-linen">
+                  <span class="text-3xl opacity-20">📷</span>
+                  <span class="text-[10px] tracking-widest uppercase text-taupe-light font-body">Geen foto</span>
+                </div>
+              )}
+              <div class="absolute inset-0 bg-charcoal/30 md:bg-charcoal/0 md:group-hover:bg-charcoal/30 transition-all duration-300 flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100">
+                <a 
+                  href={`/admin/product/${prod.id}/edit`} 
+                  class="bg-warm-white text-charcoal px-5 py-2.5 text-[11px] tracking-[0.15em] uppercase font-body font-medium hover:bg-blush-deep hover:text-warm-white transition-colors shadow-hover"
+                >
+                  ✎ Bewerken
+                </a>
+              </div>
+            </div>
+            <div class="p-4 border-t border-champagne">
+              <span class="text-[9px] tracking-[0.25em] uppercase text-blush-deep font-body block mb-1">{prod.brand}</span>
+              <h3 class="font-display font-normal text-charcoal text-base leading-tight">{prod.name}</h3>
+              <div class="flex items-center justify-between mt-2">
+                <p class="text-[10px] text-taupe-light font-body">{prod.collections?.title}</p>
+                {prod.price_range && <p class="text-xs font-display text-charcoal">{prod.price_range}</p>}
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {!products?.length && (
+          <p class="col-span-full text-center py-20 font-italic italic text-taupe-light">Geen producten gevonden.</p>
+        )}
+      </div>
+    </div>
+  </div>
+</Layout>

@@ -1,0 +1,90 @@
+---
+---
+
+<section class="relative h-screen flex items-center justify-center overflow-hidden">
+  <!-- Background image -->
+  <div class="absolute inset-0">
+    <img 
+      src="/wp-content/uploads/2023/07/Home-Hero-img.jpg"
+      alt="Bruid in trouwjurk"
+      class="w-full h-full object-cover"
+      loading="lazy"
+    />
+    <div class="absolute inset-0 bg-gradient-to-b from-charcoal/40 via-charcoal/20 to-charcoal/60"></div>
+  </div>
+
+  <!-- Subtle gold ornament lines -->
+  <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent z-10"></div>
+  <div class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent z-10"></div>
+
+  <!-- Content -->
+  <div class="relative z-20 text-center px-6 max-w-4xl mx-auto hero-inner">
+    <span class="inline-block mb-6 text-[10px] font-body font-normal tracking-[0.4em] uppercase text-blush hero-eyebrow">
+      Geldrop · Exclusieve Bruidsmode · ♡
+    </span>
+    
+    <h1 class="font-display font-normal text-warm-white leading-[1.05] mb-6 hero-title" style="font-size: clamp(52px, 9vw, 104px);">
+      Vind jouw<br><em class="font-light italic text-blush">droomjurk</em>
+    </h1>
+
+    <div class="w-16 h-px bg-gradient-to-r from-transparent via-gold to-transparent mx-auto mb-8 hero-divider"></div>
+
+    <p class="font-italic italic text-warm-white/75 mb-12 mx-auto hero-sub leading-relaxed" style="font-size: clamp(15px, 2vw, 20px); max-width: 480px; font-weight: 300;">
+      Meer dan 25 jaar passie voor bruidsmode. Persoonlijk, eerlijk en magisch.
+    </p>
+
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-5 hero-cta">
+      <a href="/trouwjurken" class="btn-premium">Bekijk Collectie</a>
+      <a href="/trouwpakken" class="btn-gold">Trouwpakken</a>
+    </div>
+
+    <div class="mt-12 flex items-center justify-center gap-8 hero-badges">
+      <div class="text-center">
+        <span class="text-warm-white font-display text-2xl">25+</span>
+        <p class="text-warm-white/50 text-[10px] tracking-[0.2em] uppercase font-body mt-1">Jaar expertise</p>
+      </div>
+      <div class="w-px h-10 bg-warm-white/20"></div>
+      <div class="text-center">
+        <span class="text-warm-white font-display text-2xl">500+</span>
+        <p class="text-warm-white/50 text-[10px] tracking-[0.2em] uppercase font-body mt-1">Blije bruiden</p>
+      </div>
+      <div class="w-px h-10 bg-warm-white/20"></div>
+      <div class="text-center">
+        <span class="text-warm-white font-display text-2xl">15+</span>
+        <p class="text-warm-white/50 text-[10px] tracking-[0.2em] uppercase font-body mt-1">Designers</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 scroll-hint">
+    <div class="w-px h-16 bg-gradient-to-b from-warm-white/40 to-transparent mx-auto"></div>
+  </div>
+</section>
+
+<style>
+  .hero-inner > * {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .hero-eyebrow  { animation-delay: 0.1s; }
+  .hero-title    { animation-delay: 0.3s; }
+  .hero-divider  { animation-delay: 0.5s; }
+  .hero-sub      { animation-delay: 0.6s; }
+  .hero-cta      { animation-delay: 0.75s; }
+  .hero-badges   { animation-delay: 0.9s; }
+
+  .scroll-hint {
+    animation: scrollBob 2s ease-in-out infinite;
+    animation-delay: 2s;
+  }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes scrollBob {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50%       { transform: translateX(-50%) translateY(6px); }
+  }
+</style>
