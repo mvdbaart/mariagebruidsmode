@@ -15,8 +15,8 @@
     "mirror:extract": "node scripts/mirror_and_extract.js"
   },
   "dependencies": {
-    "@astrojs/node": "^10.0.1",
     "@astrojs/react": "^5.0.0",
+    "@astrojs/vercel": "^10.0.0",
     "@supabase/supabase-js": "^2.99.1",
     "@tailwindcss/vite": "^4.2.1",
     "astro": "^6.0.4",
