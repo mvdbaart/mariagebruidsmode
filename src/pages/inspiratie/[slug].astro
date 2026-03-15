@@ -40,12 +40,12 @@ const weddingFallbackImage = '/wp-content/uploads/2023/07/wedding-couple-kissing
       <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-20">
         <div class="space-y-8">
           <div class="overflow-hidden shadow-2xl">
-            <img src={wedding.cover_image || weddingFallbackImage} alt={`${wedding.bride_name} & ${wedding.groom_name}`} class="w-full h-auto" loading="lazy" />
+            <img src={wedding.cover_image || weddingFallbackImage} alt={`${wedding.bride_name} & ${wedding.groom_name}`} onerror={`this.onerror=null;this.src='${weddingFallbackImage}'`} class="w-full h-auto" loading="lazy" />
           </div>
           {wedding.gallery_images?.map((img, index) => (
              index % 2 === 0 && (
                 <div class="overflow-hidden shadow-2xl">
-                  <img src={img || weddingFallbackImage} alt={`Wedding photo ${index + 1}`} class="w-full h-auto" loading="lazy" />
+                  <img src={img || weddingFallbackImage} alt={`Wedding photo ${index + 1}`} onerror={`this.onerror=null;this.src='${weddingFallbackImage}'`} class="w-full h-auto" loading="lazy" />
                 </div>
              )
           ))}
@@ -57,7 +57,7 @@ const weddingFallbackImage = '/wp-content/uploads/2023/07/wedding-couple-kissing
           {wedding.gallery_images?.map((img, index) => (
              index % 2 !== 0 && (
                 <div class="overflow-hidden shadow-2xl">
-                  <img src={img || weddingFallbackImage} alt={`Wedding photo ${index + 1}`} class="w-full h-auto" loading="lazy" />
+                  <img src={img || weddingFallbackImage} alt={`Wedding photo ${index + 1}`} onerror={`this.onerror=null;this.src='${weddingFallbackImage}'`} class="w-full h-auto" loading="lazy" />
                 </div>
              )
           ))}
