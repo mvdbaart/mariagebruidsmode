@@ -41,9 +41,10 @@ const weddingFallbackImage = '/wp-content/uploads/2023/07/wedding-couple-kissing
         {weddings?.map((wedding) => (
           <a href={`/inspiratie/${wedding.slug}`} class="group">
             <div class="aspect-[4/5] overflow-hidden bg-accent/5 mb-6 relative">
-              <img 
+              <img
                 src={wedding.cover_image || wedding.gallery_images?.[0] || weddingFallbackImage}
-                alt={`${wedding.bride_name} & ${wedding.groom_name}`} 
+                alt={`${wedding.bride_name} & ${wedding.groom_name}`}
+                onerror={`this.onerror=null;this.src='${weddingFallbackImage}'`}
                 class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                 loading="lazy"
               />

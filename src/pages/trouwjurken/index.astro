@@ -53,16 +53,13 @@ const dressFallbackImage = '/wp-content/uploads/2023/11/trouwjurk-ladybird-amari
         {dressProducts?.map((prod) => (
           <a href={`/product/${prod.slug}`} class="group product-card bg-white shadow-card hover:shadow-hover transition-all duration-500 overflow-hidden hover:-translate-y-1 block" data-collection={collectionById.get(prod.collection_id)?.slug}>
             <div class="aspect-[3/4] bg-linen relative overflow-hidden">
-              {prod.images?.[0] ? (
-                <img 
-                  src={prod.images[0]} 
-                  alt={prod.name} 
-                  class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  loading="lazy"
-                />
-              ) : (
-                <img src={dressFallbackImage} alt={prod.name} class="w-full h-full object-cover" loading="lazy" />
-              )}
+              <img
+                src={prod.images?.[0] || dressFallbackImage}
+                alt={prod.name}
+                onerror={`this.onerror=null;this.src='${dressFallbackImage}'`}
+                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                loading="lazy"
+              />
               
               <!-- Hover overlay -->
               <div class="absolute inset-0 bg-charcoal/20 md:bg-charcoal/0 md:group-hover:bg-charcoal/20 transition-all duration-500 flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100">

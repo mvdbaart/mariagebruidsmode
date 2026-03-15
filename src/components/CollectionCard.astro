@@ -1,19 +1,22 @@
 ---
 interface Props {
   title: string;
-  image: string;
+  image?: string;
+  fallback?: string;
   link: string;
   category: string;
 }
 
-const { title, image, link, category } = Astro.props;
+const { title, image, fallback = '', link, category } = Astro.props;
+const src = image || fallback;
 ---
 
 <a href={link} class="group relative block overflow-hidden aspect-[3/4] bg-primary">
   <div class="absolute inset-0 z-10 bg-black/0 group-hover:bg-black/20 transition-colors duration-500"></div>
-  <img 
-    src={image} 
-    alt={title} 
+  <img
+    src={src}
+    alt={title}
+    onerror={fallback ? `this.onerror=null;this.src='${fallback}'` : undefined}
     class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
   />
   <div class="absolute bottom-0 left-0 right-0 p-8 z-20 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
