@@ -32,12 +32,17 @@ export function isAdminUser(user: User): boolean {
 }
 
 export function setAuthCookies(cookies: AstroCookies, session: Session) {
+  const accessExpires =
+    Number.isFinite(session.expires_at) && session.expires_at > 0
+      ? new Date(session.expires_at * 1000)
+      : undefined;
+
   cookies.set(ACCESS_COOKIE, session.access_token, {
     path: '/',
     httpOnly: true,
     sameSite: 'lax',
     secure: isProd,
-    maxAge: session.expires_in,
+    ...(accessExpires ? { expires: accessExpires } : {}),
   });
 
   cookies.set(REFRESH_COOKIE, session.refresh_token, {
@@ -99,4 +104,3 @@ export function getServiceRoleClient() {
     },
   });
 }
-

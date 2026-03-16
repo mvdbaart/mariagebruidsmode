@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd \"C:\\\\Users\\\\Maarten\\\\Documents\\\\vms\\\\mariagebruidsmode.nl\" && npm run build 2>&1)",
+      "Bash(cd \"C:\\\\Users\\\\Maarten\\\\Documents\\\\vms\\\\mariagebruidsmode.nl\" && node --version && npm --version)",
+      "Bash(curl -s http://localhost:4321/trouwjurken/test-slug 2>&1 | head -5\ncurl -s http://localhost:4321/blog 2>&1 | head -5\ncurl -s http://localhost:4321/inspiratie 2>&1 | head -5)"
+    ]
+  }
+}

@@ -1,0 +1,7 @@
+transport invoke timed out after 60000ms (data: {"type":"custom","event":"vite:invoke","data":{"name":"fetchModule","id":"send:QCZsA2nhkaYktzszYqbTZ","data":["/node_modules/astro/dist/assets/utils/imageKind.js","C:/Users/Maarten/Documents/vms/mariagebruidsmode.nl/node_modules/astro/dist/assets/utils/index.js",{"cached":false,"startOffset":2}]}})
+  [1mStack trace:[22m
+[2m    at reviveInvokeError (file:///C:/Users/Maarten/Documents/vms/mariagebruidsmode.nl/node_modules/vite/dist/node/module-runner.js:475:14)
+    at async ModuleRunner.getModuleInformation (file:///C:/Users/Maarten/Documents/vms/mariagebruidsmode.nl/node_modules/vite/dist/node/module-runner.js:1086:7)
+    at async eval (C:\Users\Maarten\Documents\vms\mariagebruidsmode.nl\node_modules\astro\dist\assets\utils\index.js:10:1)
+    at async ModuleRunner.directRequest (file:///C:/Users/Maarten/Documents/vms/mariagebruidsmode.nl/node_modules/vite/dist/node/module-runner.js:1146:59)
+    at async eval (C:\Users\Maarten\Documents\vms\mariagebruidsmode.nl\node_modules\astro\dist\core\app\base.js:11:1)[22m
