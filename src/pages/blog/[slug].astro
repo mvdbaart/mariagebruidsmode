@@ -38,7 +38,7 @@ const blogFallbackImage = '/wp-content/uploads/2020/05/blog-2.jpg';
         </div>
         <h1 class="text-5xl md:text-6xl font-serif text-accent italic leading-tight mb-12">{post.title}</h1>
         <div class="aspect-[21/9] overflow-hidden bg-accent/5 shadow-2xl">
-          <img src={post.cover_image || blogFallbackImage} alt={post.title} class="w-full h-full object-cover" loading="lazy" />
+          <img src={post.cover_image || blogFallbackImage} alt={post.title} onerror={`this.onerror=null;this.src='${blogFallbackImage}'`} class="w-full h-full object-cover" loading="lazy" />
         </div>
       </header>
 

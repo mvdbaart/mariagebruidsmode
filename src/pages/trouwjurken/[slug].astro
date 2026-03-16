@@ -41,9 +41,10 @@ const dressFallbackImage = '/wp-content/uploads/2023/11/trouwjurk-ladybird-anees
         {collection.products?.map((product) => (
           <div class="group">
             <div class="aspect-[3/4] overflow-hidden bg-primary mb-6 relative">
-              <img 
+              <img
                 src={product.images?.[0] || dressFallbackImage}
-                alt={product.name} 
+                alt={product.name}
+                onerror={`this.onerror=null;this.src='${dressFallbackImage}'`}
                 class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 loading="lazy"
               />
