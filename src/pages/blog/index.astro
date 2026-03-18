@@ -74,19 +74,19 @@ const blogFallbackImage = '/wp-content/uploads/2020/05/blog-1.jpg';
       </div>
 
       {totalPosts > PAGE_SIZE && (
-        <div class="mt-14 flex items-center justify-center gap-4">
+        <nav aria-label="Blogpaginering" class="mt-14 flex items-center justify-center gap-4">
           {hasPrev ? (
             <a href={page - 1 === 1 ? '/blog' : `/blog?page=${page - 1}`} class="btn-gold">Vorige</a>
           ) : (
-            <span class="btn-gold opacity-40 pointer-events-none">Vorige</span>
+            <span class="btn-gold opacity-40 pointer-events-none" aria-disabled="true">Vorige</span>
           )}
-          <span class="text-[10px] tracking-[0.2em] uppercase text-accent/50 font-body">Pagina {page}</span>
+          <span class="text-[10px] tracking-[0.2em] uppercase text-accent/50 font-body" aria-current="page">Pagina {page}</span>
           {hasNext ? (
             <a href={`/blog?page=${page + 1}`} class="btn-gold">Volgende</a>
           ) : (
-            <span class="btn-gold opacity-40 pointer-events-none">Volgende</span>
+            <span class="btn-gold opacity-40 pointer-events-none" aria-disabled="true">Volgende</span>
           )}
-        </div>
+        </nav>
       )}
     </div>
   </div>

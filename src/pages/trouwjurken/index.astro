@@ -41,9 +41,9 @@ const dressFallbackImage = '/wp-content/uploads/2023/11/trouwjurk-ladybird-amari
       <!-- Collection filter pills -->
       {collections && collections.length > 0 && (
         <div class="flex flex-wrap gap-3 mb-14">
-          <button class="filter-btn active text-[11px] tracking-[0.15em] uppercase font-body px-5 py-3 border border-charcoal bg-charcoal text-warm-white transitions-colors" data-filter="all">Alle jurken</button>
+          <button class="filter-btn active text-[11px] tracking-[0.15em] uppercase font-body px-5 py-3 border border-charcoal bg-charcoal text-warm-white transition-colors" data-filter="all" aria-pressed="true">Alle jurken</button>
           {collections.map(col => (
-            <button class="filter-btn text-[11px] tracking-[0.15em] uppercase font-body px-5 py-3 border border-champagne text-taupe hover:border-charcoal hover:text-charcoal transition-colors" data-filter={col.slug}>{col.title}</button>
+            <button class="filter-btn text-[11px] tracking-[0.15em] uppercase font-body px-5 py-3 border border-champagne text-taupe hover:border-charcoal hover:text-charcoal transition-colors" data-filter={col.slug} aria-pressed="false">{col.title}</button>
           ))}
         </div>
       )}
@@ -124,13 +124,15 @@ const dressFallbackImage = '/wp-content/uploads/2023/11/trouwjurk-ladybird-amari
     btn.addEventListener('click', () => {
       const filter = btn.getAttribute('data-filter');
       
-      // Update active button styling
+      // Update active button styling and aria-pressed
       filterBtns.forEach(b => {
         b.classList.remove('active', 'bg-charcoal', 'text-warm-white', 'border-charcoal');
         b.classList.add('text-taupe', 'border-champagne');
+        b.setAttribute('aria-pressed', 'false');
       });
       btn.classList.add('active', 'bg-charcoal', 'text-warm-white', 'border-charcoal');
       btn.classList.remove('text-taupe', 'border-champagne');
+      btn.setAttribute('aria-pressed', 'true');
 
       // Filter cards
       productCards.forEach(card => {
