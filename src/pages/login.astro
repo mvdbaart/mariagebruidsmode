@@ -3,55 +3,202 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout title="Admin Login">
-  <div class="pt-32 pb-24 bg-primary/20 min-h-screen flex items-center justify-center">
-    <div class="max-w-md w-full bg-white p-8 shadow-xl border border-secondary/10">
+  <div class="min-h-screen bg-ivory flex items-center justify-center px-4">
+    <div class="w-full max-w-md">
+
+      <!-- Logo -->
       <div class="text-center mb-10">
-        <h1 class="text-3xl font-serif text-accent italic">Admin <span class="text-secondary opacity-50">Login</span></h1>
-        <p class="text-xs text-accent/40 uppercase tracking-widest mt-2">Mariage Bruidsmode</p>
+        <a href="/" class="inline-flex flex-col items-center">
+          <span class="text-[26px] font-display font-normal text-charcoal leading-none tracking-tight">MARIAGE</span>
+          <span class="text-[8px] font-body tracking-[0.4em] uppercase text-taupe-light mt-0.5">Bruidsmode</span>
+        </a>
+        <p class="text-[10px] tracking-[0.25em] uppercase text-taupe mt-6 font-body">Admin toegang</p>
       </div>
 
-      <form id="login-form" class="space-y-6">
-        <div class="space-y-2">
-          <label for="email" class="text-[10px] tracking-widest uppercase text-accent font-medium">Email</label>
-          <input type="email" id="email" name="email" required class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent" placeholder="admin@mariage.nl" />
-        </div>
-        <div class="space-y-2">
-          <label for="password" class="text-[10px] tracking-widest uppercase text-accent font-medium">Wachtwoord</label>
-          <input type="password" id="password" name="password" required class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent" placeholder="••••••••" />
+      <!-- Card -->
+      <div class="bg-white border border-champagne shadow-card p-8 sm:p-10">
+
+        <!-- Tabs -->
+        <div class="flex border-b border-champagne mb-8">
+          <button
+            id="tab-magic"
+            class="tab-btn flex-1 pb-3 text-[10px] tracking-[0.18em] uppercase font-body font-medium text-charcoal border-b-2 border-charcoal -mb-px transition-colors"
+            aria-selected="true"
+          >
+            ✉ Magic Link
+          </button>
+          <button
+            id="tab-password"
+            class="tab-btn flex-1 pb-3 text-[10px] tracking-[0.18em] uppercase font-body text-taupe border-b-2 border-transparent -mb-px hover:text-charcoal transition-colors"
+            aria-selected="false"
+          >
+            🔒 Wachtwoord
+          </button>
         </div>
 
-        <button type="submit" class="btn-premium w-full mt-4">Inloggen</button>
-        <p id="error-msg" class="text-red-500 text-xs text-center hidden"></p>
-      </form>
+        <!-- Magic Link form -->
+        <form id="magic-form" class="space-y-6">
+          <div class="space-y-2">
+            <label for="magic-email" class="text-[10px] tracking-widest uppercase text-charcoal font-body font-medium">
+              E-mailadres
+            </label>
+            <input
+              type="email"
+              id="magic-email"
+              name="email"
+              required
+              autocomplete="email"
+              placeholder="jouw@email.nl"
+              class="w-full border-b border-champagne py-3 focus:border-charcoal outline-none transition-colors font-body font-light bg-transparent placeholder:text-taupe-light"
+            />
+          </div>
+
+          <button type="submit" id="magic-btn" class="btn-premium w-full justify-center">
+            Stuur mij een magic link
+          </button>
+
+          <p class="text-[10px] font-body text-taupe-light text-center leading-relaxed">
+            Je ontvangt een e-mail met een link waarmee je direct inlogt — geen wachtwoord nodig.
+          </p>
+
+          <!-- Success state (hidden by default) -->
+          <div id="magic-success" class="hidden text-center py-4">
+            <div class="text-3xl mb-3">📬</div>
+            <p class="text-sm font-body font-medium text-charcoal mb-1">Check je inbox!</p>
+            <p class="text-xs font-body text-taupe-light">We hebben een magic link gestuurd naar <strong id="magic-sent-to" class="text-charcoal"></strong></p>
+          </div>
+
+          <p id="magic-error" class="text-red-500 text-xs text-center hidden font-body"></p>
+        </form>
+
+        <!-- Password form (hidden by default) -->
+        <form id="password-form" class="space-y-6 hidden">
+          <div class="space-y-2">
+            <label for="pw-email" class="text-[10px] tracking-widest uppercase text-charcoal font-body font-medium">E-mailadres</label>
+            <input
+              type="email"
+              id="pw-email"
+              name="email"
+              required
+              autocomplete="email"
+              placeholder="admin@mariage.nl"
+              class="w-full border-b border-champagne py-3 focus:border-charcoal outline-none transition-colors font-body font-light bg-transparent placeholder:text-taupe-light"
+            />
+          </div>
+          <div class="space-y-2">
+            <label for="pw-password" class="text-[10px] tracking-widest uppercase text-charcoal font-body font-medium">Wachtwoord</label>
+            <input
+              type="password"
+              id="pw-password"
+              name="password"
+              required
+              autocomplete="current-password"
+              placeholder="••••••••"
+              class="w-full border-b border-champagne py-3 focus:border-charcoal outline-none transition-colors font-body font-light bg-transparent"
+            />
+          </div>
+
+          <button type="submit" class="btn-premium w-full justify-center">Inloggen</button>
+          <p id="pw-error" class="text-red-500 text-xs text-center hidden font-body"></p>
+        </form>
+
+      </div>
+
+      <p class="text-center mt-6">
+        <a href="/" class="text-[10px] font-body text-taupe hover:text-charcoal transition-colors tracking-widest uppercase">← Terug naar website</a>
+      </p>
     </div>
   </div>
 </Layout>
 
 <script>
-  const form = document.getElementById('login-form') as HTMLFormElement;
-  const errorMsg = document.getElementById('error-msg');
+  // --- Tab switching ---
+  const tabMagic    = document.getElementById('tab-magic') as HTMLButtonElement;
+  const tabPassword = document.getElementById('tab-password') as HTMLButtonElement;
+  const magicForm   = document.getElementById('magic-form') as HTMLFormElement;
+  const passwordForm = document.getElementById('password-form') as HTMLFormElement;
 
-  form?.addEventListener('submit', async (e) => {
+  function activateTab(active: 'magic' | 'password') {
+    const isMagic = active === 'magic';
+    tabMagic.classList.toggle('text-charcoal', isMagic);
+    tabMagic.classList.toggle('border-charcoal', isMagic);
+    tabMagic.classList.toggle('text-taupe', !isMagic);
+    tabMagic.classList.toggle('border-transparent', !isMagic);
+    tabMagic.setAttribute('aria-selected', String(isMagic));
+
+    tabPassword.classList.toggle('text-charcoal', !isMagic);
+    tabPassword.classList.toggle('border-charcoal', !isMagic);
+    tabPassword.classList.toggle('text-taupe', isMagic);
+    tabPassword.classList.toggle('border-transparent', isMagic);
+    tabPassword.setAttribute('aria-selected', String(!isMagic));
+
+    magicForm.classList.toggle('hidden', !isMagic);
+    passwordForm.classList.toggle('hidden', isMagic);
+  }
+
+  tabMagic?.addEventListener('click', () => activateTab('magic'));
+  tabPassword?.addEventListener('click', () => activateTab('password'));
+
+  // --- Magic Link form ---
+  const magicError   = document.getElementById('magic-error');
+  const magicSuccess = document.getElementById('magic-success');
+  const magicSentTo  = document.getElementById('magic-sent-to');
+  const magicBtn     = document.getElementById('magic-btn') as HTMLButtonElement;
+
+  magicForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!errorMsg) return;
+    if (!magicError || !magicSuccess) return;
 
-    errorMsg.classList.add('hidden');
-    const formData = new FormData(form);
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
+    magicError.classList.add('hidden');
+    magicBtn.disabled = true;
+    magicBtn.textContent = 'Versturen…';
 
-    const response = await fetch('/api/auth/login', {
+    const email = (document.getElementById('magic-email') as HTMLInputElement).value.trim();
+
+    const res = await fetch('/api/auth/magic-link', {
       method: 'POST',
-      headers: {
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify({ email, password })
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ email }),
     });
 
-    const result = await response.json().catch(() => ({ error: 'Inloggen mislukt.' }));
-    if (!response.ok) {
-      errorMsg.textContent = result.error || 'Ongeldige inloggegevens.';
-      errorMsg.classList.remove('hidden');
+    const data = await res.json().catch(() => ({ error: 'Onbekende fout.' }));
+
+    if (!res.ok) {
+      magicError.textContent = data.error ?? 'Versturen mislukt. Probeer opnieuw.';
+      magicError.classList.remove('hidden');
+      magicBtn.disabled = false;
+      magicBtn.textContent = 'Stuur mij een magic link';
+    } else {
+      // Show success state, hide form fields
+      magicForm.querySelector('.space-y-2')?.remove();
+      magicBtn.style.display = 'none';
+      magicForm.querySelector('p:not(#magic-error)')?.remove();
+      if (magicSentTo) magicSentTo.textContent = email;
+      magicSuccess?.classList.remove('hidden');
+    }
+  });
+
+  // --- Password form ---
+  const pwError = document.getElementById('pw-error');
+
+  passwordForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!pwError) return;
+
+    pwError.classList.add('hidden');
+    const email    = (document.getElementById('pw-email') as HTMLInputElement).value;
+    const password = (document.getElementById('pw-password') as HTMLInputElement).value;
+
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const result = await res.json().catch(() => ({ error: 'Inloggen mislukt.' }));
+    if (!res.ok) {
+      pwError.textContent = result.error ?? 'Ongeldige inloggegevens.';
+      pwError.classList.remove('hidden');
     } else {
       window.location.href = '/admin';
     }
