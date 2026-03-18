@@ -27,7 +27,7 @@ export const POST: APIRoute = async ({ request }) => {
   const origin = (import.meta.env.SITE_URL as string | undefined)?.replace(/\/$/, '') ?? new URL(request.url).origin;
 
   const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-    auth: { autoRefreshToken: false, persistSession: false },
+    auth: { autoRefreshToken: false, persistSession: false, flowType: 'implicit' },
   });
 
   const { error } = await supabase.auth.signInWithOtp({

@@ -59,13 +59,6 @@ export const prerender = false;
 
     <script>
       (async () => {
-        const hash = window.location.hash.slice(1); // strip leading '#'
-        const params = new URLSearchParams(hash);
-
-        const accessToken  = params.get('access_token');
-        const refreshToken = params.get('refresh_token');
-        const type         = params.get('type'); // 'magiclink' | 'recovery' | etc.
-
         const errorEl    = document.getElementById('error-msg') as HTMLElement;
         const titleEl    = document.getElementById('title') as HTMLElement;
         const subtitleEl = document.getElementById('subtitle') as HTMLElement;
@@ -78,6 +71,19 @@ export const prerender = false;
           errorEl.textContent = msg;
           errorEl.style.display = 'block';
         }
+
+        // Check for errors passed as query params by Supabase
+        const queryParams = new URLSearchParams(window.location.search);
+        if (queryParams.get('error')) {
+          showError(queryParams.get('error_description') ?? 'De link is ongeldig of verlopen. Vraag een nieuwe magic link aan.');
+          return;
+        }
+
+        // Implicit flow: tokens in URL fragment (#access_token=...&refresh_token=...)
+        const hash = window.location.hash.slice(1);
+        const params = new URLSearchParams(hash);
+        const accessToken  = params.get('access_token');
+        const refreshToken = params.get('refresh_token');
 
         if (!accessToken || !refreshToken) {
           showError('De link is ongeldig of verlopen. Vraag een nieuwe magic link aan.');
@@ -98,7 +104,6 @@ export const prerender = false;
             return;
           }
 
-          // Success — clean the fragment from the URL and redirect.
           history.replaceState(null, '', window.location.pathname);
           titleEl.textContent = 'Ingelogd!';
           subtitleEl.textContent = 'Je wordt doorgestuurd naar het dashboard…';
