@@ -1,0 +1,110 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import { getServiceRoleClient } from '../../../../lib/serverAuth';
+
+const { id } = Astro.params;
+const supabase = getServiceRoleClient();
+const { data: wedding, error } = await supabase.from('real_weddings').select('*').eq('id', id).single();
+
+if (error || !wedding) return Astro.redirect('/admin/inspiratie');
+
+const weddingDate = wedding.wedding_date ? new Date(wedding.wedding_date).toISOString().split('T')[0] : '';
+const galleryRaw = (wedding.gallery_images ?? []).join('\n');
+---
+
+<Layout title={`Bewerk: ${wedding.bride_name} & ${wedding.groom_name}`}>
+  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+    <div class="container mx-auto px-6 max-w-3xl">
+      <nav class="mb-10 flex items-center gap-3 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">
+        <a href="/admin" class="hover:text-blush-deep transition-colors">Dashboard</a>
+        <span class="text-champagne">/</span>
+        <a href="/admin/inspiratie" class="hover:text-blush-deep transition-colors">Inspiratie Beheer</a>
+        <span class="text-champagne">/</span>
+        <span class="text-charcoal">{wedding.bride_name} & {wedding.groom_name}</span>
+      </nav>
+
+      <div class="bg-white border border-champagne p-10 shadow-soft">
+        <h1 class="font-display font-normal text-charcoal text-3xl mb-10">Bewerk <em class="italic font-light text-blush-deep">{wedding.bride_name} & {wedding.groom_name}</em></h1>
+
+        <form id="edit-wedding-form" class="space-y-8">
+          <input type="hidden" name="id" value={wedding.id} />
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="space-y-2">
+              <label class="text-[10px] tracking-widest uppercase text-charcoal font-body font-medium">Naam Bruid *</label>
+              <input type="text" name="bride_name" value={wedding.bride_name} required class="w-full border-b border-champagne py-3 focus:border-charcoal outline-none transition-colors font-body font-light bg-transparent" />
+            </div>
+            <div class="space-y-2">
+              <label class="text-[10px] tracking-widest uppercase text-charcoal font-body font-medium">Naam Bruidegom *</label>
+              <input type="text" name="groom_name" value={wedding.groom_name} required class="w-full border-b border-champagne py-3 focus:border-charcoal outline-none transition-colors font-body font-light bg-transparent" />
+            </div>
+            <div class="space-y-2">
+              <label class="text-[10px] tracking-widest uppercase text-charcoal font-body font-medium">Trouwdatum</label>
+              <input type="date" name="wedding_date" value={weddingDate} class="w-full border-b border-champagne py-3 focus:border-charcoal outline-none transition-colors font-body font-light bg-transparent" />
+            </div>
+            <div class="space-y-2">
+              <label class="text-[10px] tracking-widest uppercase text-charcoal font-body font-medium">Slug (URL pad)</label>
+              <input type="text" name="slug" value={wedding.slug ?? ''} class="w-full border-b border-champagne py-3 focus:border-charcoal outline-none transition-colors font-body font-light bg-transparent" />
+            </div>
+          </div>
+          <div class="space-y-2">
+            <label class="text-[10px] tracking-widest uppercase text-charcoal font-body font-medium">Cover Afbeelding URL</label>
+            <input type="url" name="cover_image" value={wedding.cover_image ?? ''} class="w-full border-b border-champagne py-3 focus:border-charcoal outline-none transition-colors font-body font-light bg-transparent" />
+          </div>
+          <div class="space-y-2">
+            <label class="text-[10px] tracking-widest uppercase text-charcoal font-body font-medium">Galerij Afbeeldingen (één URL per regel)</label>
+            <textarea name="gallery_images_raw" rows="4" class="w-full border border-champagne p-4 focus:border-charcoal outline-none transition-colors font-body font-light bg-cream/30 resize-none">{galleryRaw}</textarea>
+          </div>
+          <div class="space-y-2">
+            <label class="text-[10px] tracking-widest uppercase text-charcoal font-body font-medium">Verhaal</label>
+            <textarea name="story" rows="8" class="w-full border border-champagne p-4 focus:border-charcoal outline-none transition-colors font-body font-light bg-cream/30 resize-none">{wedding.story ?? ''}</textarea>
+          </div>
+          <div class="flex gap-4 pt-4">
+            <button type="submit" class="btn-premium text-[10px]">Wijzigingen Opslaan</button>
+            <a href="/admin/inspiratie" class="btn-gold text-[10px]">Annuleren</a>
+          </div>
+          <p id="form-status" class="text-sm font-body font-light hidden"></p>
+        </form>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  const form = document.getElementById('edit-wedding-form') as HTMLFormElement;
+  const status = document.getElementById('form-status');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!status) return;
+    status.textContent = 'Bezig met opslaan...';
+    status.className = 'text-sm font-body font-light text-taupe block';
+
+    const data = new FormData(form);
+    const id = data.get('id');
+    const galleryRaw = (data.get('gallery_images_raw') as string ?? '').split('\n').map(s => s.trim()).filter(Boolean);
+
+    const response = await fetch(`/api/admin/inspiratie/${id}`, {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        bride_name: data.get('bride_name'),
+        groom_name: data.get('groom_name'),
+        wedding_date: data.get('wedding_date') || null,
+        slug: data.get('slug') || null,
+        cover_image: data.get('cover_image') || null,
+        gallery_images: galleryRaw,
+        story: data.get('story') || null,
+      }),
+    });
+    const result = await response.json().catch(() => ({ error: 'Onbekende fout.' }));
+
+    if (!response.ok) {
+      status.textContent = 'Fout: ' + result.error;
+      status.className = 'text-sm font-body font-light text-red-500 block';
+    } else {
+      status.textContent = 'Opgeslagen!';
+      status.className = 'text-sm font-body font-light text-green-600 block';
+      setTimeout(() => { window.location.href = '/admin/inspiratie'; }, 1200);
+    }
+  });
+</script>

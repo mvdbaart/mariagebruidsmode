@@ -1,0 +1,115 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+---
+
+<Layout title="Nieuw Blog Artikel">
+  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+    <div class="container mx-auto px-6 max-w-3xl">
+      <nav class="mb-10 flex items-center gap-3 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">
+        <a href="/admin" class="hover:text-blush-deep transition-colors">Dashboard</a>
+        <span class="text-champagne">/</span>
+        <a href="/admin/blog" class="hover:text-blush-deep transition-colors">Blog Beheer</a>
+        <span class="text-champagne">/</span>
+        <span class="text-charcoal">Nieuw Artikel</span>
+      </nav>
+
+      <div class="bg-white border border-champagne p-10 shadow-soft">
+        <h1 class="font-display font-normal text-charcoal text-3xl mb-10">Nieuw <em class="italic font-light">blog artikel</em></h1>
+
+        <form id="new-blog-form" class="space-y-8">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="space-y-2">
+              <label class="text-[10px] tracking-widest uppercase text-charcoal font-body font-medium">Titel *</label>
+              <input type="text" name="title" required id="blog-title" class="w-full border-b border-champagne py-3 focus:border-charcoal outline-none transition-colors font-body font-light bg-transparent" />
+            </div>
+            <div class="space-y-2">
+              <label class="text-[10px] tracking-widest uppercase text-charcoal font-body font-medium">Slug *</label>
+              <input type="text" name="slug" required id="blog-slug" class="w-full border-b border-champagne py-3 focus:border-charcoal outline-none transition-colors font-body font-light bg-transparent" />
+            </div>
+            <div class="space-y-2">
+              <label class="text-[10px] tracking-widest uppercase text-charcoal font-body font-medium">Auteur</label>
+              <input type="text" name="author" value="Mariage Bruidsmode" class="w-full border-b border-champagne py-3 focus:border-charcoal outline-none transition-colors font-body font-light bg-transparent" />
+            </div>
+            <div class="space-y-2">
+              <label class="text-[10px] tracking-widest uppercase text-charcoal font-body font-medium">Publicatiedatum</label>
+              <input type="date" name="published_at" class="w-full border-b border-champagne py-3 focus:border-charcoal outline-none transition-colors font-body font-light bg-transparent" />
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-[10px] tracking-widest uppercase text-charcoal font-body font-medium">Samenvatting (excerpt)</label>
+            <input type="text" name="excerpt" class="w-full border-b border-champagne py-3 focus:border-charcoal outline-none transition-colors font-body font-light bg-transparent" placeholder="Korte beschrijving voor overzichtspagina" />
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-[10px] tracking-widest uppercase text-charcoal font-body font-medium">Cover Afbeelding URL</label>
+            <input type="url" name="cover_image" class="w-full border-b border-champagne py-3 focus:border-charcoal outline-none transition-colors font-body font-light bg-transparent" placeholder="https://..." />
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-[10px] tracking-widest uppercase text-charcoal font-body font-medium">Inhoud *</label>
+            <textarea name="content" rows="12" required class="w-full border border-champagne p-4 focus:border-charcoal outline-none transition-colors font-body font-light bg-cream/30 resize-none" placeholder="Schrijf hier de volledige inhoud van het artikel..."></textarea>
+          </div>
+
+          <div class="flex gap-4 pt-4">
+            <button type="submit" class="btn-premium text-[10px]">Artikel Publiceren</button>
+            <a href="/admin/blog" class="btn-gold text-[10px]">Annuleren</a>
+          </div>
+          <p id="form-status" class="text-sm font-body font-light hidden"></p>
+        </form>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  // Auto-generate slug from title
+  const titleInput = document.getElementById('blog-title') as HTMLInputElement;
+  const slugInput = document.getElementById('blog-slug') as HTMLInputElement;
+  let slugManuallyEdited = false;
+
+  slugInput?.addEventListener('input', () => { slugManuallyEdited = true; });
+  titleInput?.addEventListener('input', () => {
+    if (!slugManuallyEdited) {
+      slugInput.value = titleInput.value.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-');
+    }
+  });
+
+  const form = document.getElementById('new-blog-form') as HTMLFormElement;
+  const status = document.getElementById('form-status');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!status) return;
+    status.textContent = 'Bezig met publiceren...';
+    status.className = 'text-sm font-body font-light text-taupe block';
+
+    const data = new FormData(form);
+    const response = await fetch('/api/admin/blog', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        title: data.get('title'),
+        slug: data.get('slug'),
+        author: data.get('author'),
+        excerpt: data.get('excerpt') || null,
+        cover_image: data.get('cover_image') || null,
+        content: data.get('content'),
+        published_at: data.get('published_at') || new Date().toISOString(),
+      }),
+    });
+    const result = await response.json().catch(() => ({ error: 'Onbekende fout.' }));
+
+    if (!response.ok) {
+      status.textContent = 'Fout: ' + result.error;
+      status.className = 'text-sm font-body font-light text-red-500 block';
+    } else {
+      status.textContent = 'Artikel gepubliceerd!';
+      status.className = 'text-sm font-body font-light text-green-600 block';
+      setTimeout(() => { window.location.href = '/admin/blog'; }, 1200);
+    }
+  });
+</script>

@@ -1,7 +1,8 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { supabase } from '../../lib/supabase';
+import { getServiceRoleClient } from '../../lib/serverAuth';
 
+const supabase = getServiceRoleClient();
 const { data: posts } = await supabase
   .from('blog_posts')
   .select('*')
@@ -9,44 +10,105 @@ const { data: posts } = await supabase
 ---
 
 <Layout title="Admin Blog Beheer">
-  <div class="pt-32 pb-24 bg-primary/20 min-h-screen">
+  <div class="pt-32 pb-24 bg-ivory min-h-screen">
     <div class="container mx-auto px-6">
       <div class="flex justify-between items-center mb-12">
-        <h1 class="text-3xl font-serif text-accent italic">Blog <span class="text-secondary opacity-50">Beheer</span></h1>
-        <a href="/admin" class="text-xs uppercase tracking-widest text-accent/60 hover:text-secondary underline decoration-secondary/20">Terug naar Dashboard</a>
+        <h1 class="font-display font-normal text-charcoal text-3xl italic">Blog <span class="text-blush-deep opacity-60">Beheer</span></h1>
+        <div class="flex gap-4 items-center">
+          <a href="/admin/blog/new" class="btn-premium text-[10px]">+ Nieuw Artikel</a>
+          <a href="/admin" class="text-[10px] uppercase tracking-widest text-taupe hover:text-blush-deep transition-colors">← Dashboard</a>
+        </div>
       </div>
 
-      <div class="bg-white shadow-xl border border-secondary/10 overflow-hidden">
+      <div class="bg-white shadow-soft border border-champagne overflow-hidden">
         <div class="overflow-x-auto">
-        <table class="w-full min-w-[760px] text-left border-collapse">
-          <thead class="bg-accent/5">
-            <tr>
-              <th class="p-5 text-[10px] tracking-widest uppercase text-accent font-medium border-b border-secondary/10 whitespace-nowrap">Titel</th>
-              <th class="p-5 text-[10px] tracking-widest uppercase text-accent font-medium border-b border-secondary/10 whitespace-nowrap">Auteur</th>
-              <th class="p-5 text-[10px] tracking-widest uppercase text-accent font-medium border-b border-secondary/10 whitespace-nowrap">Datum</th>
-              <th class="p-5 text-[10px] tracking-widest uppercase text-accent font-medium border-b border-secondary/10 whitespace-nowrap">Acties</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-secondary/10">
-            {posts?.map((post) => (
-              <tr class="hover:bg-primary/10 transition-colors">
-                <td class="p-5">
-                  <span class="text-accent font-serif italic text-lg">{post.title}</span>
-                </td>
-                <td class="p-5 text-sm font-light text-accent/60 whitespace-nowrap">{post.author}</td>
-                <td class="p-5 text-sm font-light text-accent/60 whitespace-nowrap">{new Date(post.published_at).toLocaleDateString()}</td>
-                <td class="p-5">
-                  <div class="flex gap-4 whitespace-nowrap">
-                    <button class="text-[11px] uppercase tracking-[0.12em] text-secondary hover:underline">Bewerken</button>
-                    <button class="text-[11px] uppercase tracking-[0.12em] text-red-400 hover:underline">Verwijderen</button>
-                  </div>
-                </td>
+          <table class="w-full min-w-[760px] text-left border-collapse">
+            <thead class="bg-cream">
+              <tr>
+                <th class="px-6 py-4 text-[10px] tracking-widest uppercase text-charcoal font-medium border-b border-champagne">Titel</th>
+                <th class="px-6 py-4 text-[10px] tracking-widest uppercase text-charcoal font-medium border-b border-champagne">Auteur</th>
+                <th class="px-6 py-4 text-[10px] tracking-widest uppercase text-charcoal font-medium border-b border-champagne whitespace-nowrap">Datum</th>
+                <th class="px-6 py-4 text-[10px] tracking-widest uppercase text-charcoal font-medium border-b border-champagne">Acties</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody class="divide-y divide-champagne">
+              {posts?.map((post) => (
+                <tr class="hover:bg-cream/60 transition-colors" data-id={post.id}>
+                  <td class="px-6 py-4">
+                    <span class="font-display italic text-charcoal text-lg">{post.title}</span>
+                  </td>
+                  <td class="px-6 py-4 text-sm font-body font-light text-taupe whitespace-nowrap">{post.author}</td>
+                  <td class="px-6 py-4 text-sm font-body font-light text-taupe whitespace-nowrap">{new Date(post.published_at).toLocaleDateString('nl-NL')}</td>
+                  <td class="px-6 py-4">
+                    <div class="flex gap-4 whitespace-nowrap">
+                      <a href={`/admin/blog/${post.id}/edit`} class="text-[11px] uppercase tracking-[0.12em] font-body text-blush-deep hover:underline">Bewerken</a>
+                      <button
+                        class="delete-blog-btn text-[11px] uppercase tracking-[0.12em] font-body text-red-400 hover:underline"
+                        data-id={post.id}
+                        data-title={post.title}
+                      >Verwijderen</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {!posts?.length && (
+            <div class="py-16 text-center">
+              <p class="font-italic italic text-taupe-light">Nog geen blog artikelen. <a href="/admin/blog/new" class="text-blush-deep hover:underline">Maak het eerste artikel aan.</a></p>
+            </div>
+          )}
         </div>
       </div>
     </div>
   </div>
 </Layout>
+
+<!-- Delete confirmation dialog -->
+<dialog id="delete-dialog" class="bg-white border border-champagne shadow-card p-8 max-w-sm w-full rounded-none">
+  <h2 class="font-display text-charcoal text-xl mb-3">Artikel verwijderen?</h2>
+  <p id="delete-dialog-msg" class="text-sm font-body text-taupe mb-6"></p>
+  <div class="flex gap-4">
+    <button id="confirm-delete" class="btn-premium text-[10px] bg-red-500 border-red-500 hover:bg-red-600">Verwijderen</button>
+    <button id="cancel-delete" class="btn-gold text-[10px]">Annuleren</button>
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.getElementById('delete-dialog') as HTMLDialogElement | null;
+  const confirmBtn = document.getElementById('confirm-delete');
+  const cancelBtn = document.getElementById('cancel-delete');
+  const dialogMsg = document.getElementById('delete-dialog-msg');
+  let pendingDeleteId: string | null = null;
+
+  document.querySelectorAll<HTMLButtonElement>('.delete-blog-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      pendingDeleteId = btn.getAttribute('data-id');
+      const title = btn.getAttribute('data-title') ?? 'dit artikel';
+      if (dialogMsg) dialogMsg.textContent = `Weet je zeker dat je "${title}" wilt verwijderen? Dit kan niet ongedaan worden gemaakt.`;
+      dialog?.showModal();
+    });
+  });
+
+  cancelBtn?.addEventListener('click', () => { dialog?.close(); pendingDeleteId = null; });
+  dialog?.addEventListener('click', (e) => { if (e.target === dialog) { dialog.close(); pendingDeleteId = null; } });
+
+  confirmBtn?.addEventListener('click', async () => {
+    if (!pendingDeleteId) return;
+    const id = pendingDeleteId;
+    dialog?.close();
+
+    const response = await fetch(`/api/admin/blog/${id}`, { method: 'DELETE' });
+    if (response.ok) {
+      document.querySelector(`tr[data-id="${id}"]`)?.remove();
+    } else {
+      alert('Fout bij verwijderen. Probeer opnieuw.');
+    }
+    pendingDeleteId = null;
+  });
+</script>
+
+<style>
+  #delete-dialog { border: 1px solid var(--color-champagne); }
+  #delete-dialog::backdrop { background: rgba(44,42,40,0.5); }
+</style>

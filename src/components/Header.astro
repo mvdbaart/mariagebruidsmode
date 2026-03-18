@@ -1,4 +1,4 @@
-<header id="site-header" class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-champagne shadow-soft transition-all duration-300">
+<header id="site-header" class="fixed left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-champagne shadow-soft transition-transform duration-300" style="top: var(--announcement-height, 0px)">
   <div class="container mx-auto px-6 h-[72px] flex items-center justify-between">
     
     <!-- Left: hamburger + desktop nav -->
@@ -115,4 +115,42 @@
     toggle?.setAttribute('aria-label', 'Menu openen');
     toggle?.focus();
   });
+
+  // Scroll-aware header: hide on scroll down, show on scroll up
+  const header = document.getElementById('site-header');
+  let lastScroll = 0;
+  const THRESHOLD = 120;
+
+  window.addEventListener('scroll', () => {
+    const current = window.scrollY;
+    if (current < THRESHOLD) {
+      header?.classList.remove('-translate-y-full');
+    } else if (current > lastScroll) {
+      // scrolling down
+      header?.classList.add('-translate-y-full');
+      // close mobile menu if open
+      if (!menu?.classList.contains('hidden')) {
+        menu?.classList.add('hidden');
+        menu?.setAttribute('aria-hidden', 'true');
+        iconMenu?.classList.remove('hidden');
+        iconClose?.classList.add('hidden');
+        toggle?.setAttribute('aria-expanded', 'false');
+        toggle?.setAttribute('aria-label', 'Menu openen');
+      }
+    } else {
+      // scrolling up
+      header?.classList.remove('-translate-y-full');
+    }
+    lastScroll = current;
+  }, { passive: true });
+
+  // Set CSS var for announcement bar height so header top offset works
+  const announcementBar = document.getElementById('announcement-bar');
+  if (announcementBar) {
+    const updateOffset = () => {
+      document.documentElement.style.setProperty('--announcement-height', announcementBar.offsetHeight + 'px');
+    };
+    updateOffset();
+    new ResizeObserver(updateOffset).observe(announcementBar);
+  }
 </script>

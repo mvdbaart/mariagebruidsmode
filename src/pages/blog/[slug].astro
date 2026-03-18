@@ -16,7 +16,14 @@ if (!post) {
   return Astro.redirect('/404');
 }
 
+// Related products: 3 random products to cross-link to the shop
+const { data: relatedProducts } = await supabase
+  .from('products')
+  .select('id, name, slug, brand, images, price_range')
+  .limit(3);
+
 const blogFallbackImage = '/wp-content/uploads/2020/05/blog-2.jpg';
+const dressFallback = '/wp-content/uploads/2023/11/trouwjurk-ladybird-amariah-bruidsmode-2-scaled-1-scaled.jpg';
 ---
 
 <Layout title={`${post.title} | Mariage Blog`}>
@@ -54,4 +61,41 @@ const blogFallbackImage = '/wp-content/uploads/2020/05/blog-2.jpg';
       </footer>
     </div>
   </article>
+
+  <!-- Related products strip -->
+  {relatedProducts && relatedProducts.length > 0 && (
+    <section class="py-16 bg-cream border-t border-champagne">
+      <div class="container mx-auto px-6 max-w-5xl">
+        <div class="text-center mb-10">
+          <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">Bekijk ook</p>
+          <h2 class="font-display font-normal text-charcoal" style="font-size: clamp(20px, 2.5vw, 30px);">
+            Onze <em class="italic font-light">collectie</em>
+          </h2>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          {relatedProducts.map((prod) => (
+            <a href={`/product/${prod.slug}`} class="group bg-white shadow-soft hover:shadow-card transition-all duration-300 overflow-hidden hover:-translate-y-1 block">
+              <div class="aspect-[3/4] bg-linen overflow-hidden">
+                <img
+                  src={prod.images?.[0] || dressFallback}
+                  alt={prod.name}
+                  onerror={`this.onerror=null;this.src='${dressFallback}'`}
+                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
+                />
+              </div>
+              <div class="p-4 border-t border-champagne">
+                <p class="text-[9px] tracking-widest uppercase text-blush-deep font-body mb-1">{prod.brand}</p>
+                <h3 class="font-display text-charcoal text-base leading-tight">{prod.name}</h3>
+                {prod.price_range && <p class="text-xs text-taupe font-body mt-1">{prod.price_range}</p>}
+              </div>
+            </a>
+          ))}
+        </div>
+        <div class="text-center mt-8">
+          <a href="/trouwjurken" class="btn-gold text-[11px]">Bekijk alle trouwjurken →</a>
+        </div>
+      </div>
+    </section>
+  )}
 </Layout>

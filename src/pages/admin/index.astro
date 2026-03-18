@@ -1,95 +1,127 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { supabase } from '../../lib/supabase';
+import { getServiceRoleClient } from '../../lib/serverAuth';
 
-const { data: appointments } = await supabase
-  .from('appointments')
-  .select('*')
-  .order('created_at', { ascending: false })
-  .limit(5);
+const supabase = getServiceRoleClient();
 
-const { data: products } = await supabase
-  .from('products')
-  .select('*, collections(title)')
-  .order('created_at', { ascending: false })
-  .limit(5);
+// Load all stats in parallel
+const [
+  { count: productCount },
+  { count: collectionCount },
+  { count: blogCount },
+  { count: appointmentCount },
+  { count: weddingCount },
+  { data: recentAppointments },
+  { data: recentProducts },
+] = await Promise.all([
+  supabase.from('products').select('*', { count: 'exact', head: true }),
+  supabase.from('collections').select('*', { count: 'exact', head: true }),
+  supabase.from('blog_posts').select('*', { count: 'exact', head: true }),
+  supabase.from('appointments').select('*', { count: 'exact', head: true }),
+  supabase.from('real_weddings').select('*', { count: 'exact', head: true }),
+  supabase.from('appointments').select('*').order('created_at', { ascending: false }).limit(5),
+  supabase.from('products').select('*, collections(title)').order('created_at', { ascending: false }).limit(5),
+]);
+
+const stats = [
+  { label: 'Producten', value: productCount ?? 0, href: '/admin/producten' },
+  { label: 'Collecties', value: collectionCount ?? 0, href: '/admin/collecties' },
+  { label: 'Blog Artikelen', value: blogCount ?? 0, href: '/admin/blog' },
+  { label: 'Afspraken', value: appointmentCount ?? 0, href: '/admin/afspraken' },
+  { label: 'Bruidsverhalen', value: weddingCount ?? 0, href: '/admin/inspiratie' },
+];
 ---
 
 <Layout title="Admin Dashboard">
-  <div class="pt-32 pb-24 bg-accent/5 min-h-screen">
+  <div class="pt-32 pb-24 bg-ivory min-h-screen">
     <div class="container mx-auto px-6">
       <div class="flex items-center justify-between mb-12">
-        <h1 class="text-4xl font-serif text-accent italic">Mariage <span class="text-secondary opacity-50">Control</span></h1>
+        <h1 class="font-display font-normal text-charcoal text-4xl italic">Mariage <span class="text-blush-deep opacity-60">Control</span></h1>
         <div class="flex gap-4">
-          <a href="/" class="text-xs tracking-widest uppercase border border-secondary px-4 py-2 hover:bg-secondary hover:text-white transition-all font-medium">Bekijk Website</a>
+          <a href="/" class="btn-gold text-[10px]">Bekijk Website</a>
           <form action="/api/auth/logout" method="POST">
-            <button type="submit" class="text-xs tracking-widest uppercase bg-accent text-white px-4 py-2 hover:opacity-80 transition-all font-medium">Uitloggen</button>
+            <button type="submit" class="btn-premium text-[10px]">Uitloggen</button>
           </form>
         </div>
       </div>
 
+      <!-- Live stats row -->
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-14">
+        {stats.map(stat => (
+          <a href={stat.href} class="bg-white border border-champagne p-6 shadow-soft hover:shadow-card transition-all duration-300 hover:-translate-y-0.5 group">
+            <p class="text-3xl font-display text-charcoal group-hover:text-blush-deep transition-colors">{stat.value}</p>
+            <p class="text-[10px] tracking-[0.2em] uppercase text-taupe-light font-body mt-1">{stat.label}</p>
+          </a>
+        ))}
+      </div>
+
       <!-- Quick Links -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-        <a href="/admin/collecties" class="bg-white p-10 border border-secondary/10 hover:border-secondary transition-colors group">
-          <span class="text-[10px] tracking-[0.3em] uppercase text-accent/40 block mb-4 group-hover:text-secondary">Beheer Pagina</span>
-          <span class="text-4xl font-serif text-accent italic">Collecties</span>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-14">
+        <a href="/admin/collecties" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
+          <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Beheer Pagina</span>
+          <span class="font-display text-charcoal text-3xl italic">Collecties</span>
         </a>
-        <a href="/admin/producten" class="bg-white p-10 border border-secondary/10 hover:border-secondary transition-colors group">
-          <span class="text-[10px] tracking-[0.3em] uppercase text-accent/40 block mb-4 group-hover:text-secondary">Beheer Pagina</span>
-          <span class="text-4xl font-serif text-accent italic">Producten</span>
+        <a href="/admin/producten" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
+          <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Beheer Pagina</span>
+          <span class="font-display text-charcoal text-3xl italic">Producten</span>
         </a>
-        <a href="/admin/blog" class="bg-white p-10 border border-secondary/10 hover:border-secondary transition-colors group">
-          <span class="text-[10px] tracking-[0.3em] uppercase text-accent/40 block mb-4 group-hover:text-secondary">Beheer Pagina</span>
-          <span class="text-4xl font-serif text-accent italic">Blog</span>
+        <a href="/admin/blog" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
+          <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Beheer Pagina</span>
+          <span class="font-display text-charcoal text-3xl italic">Blog</span>
         </a>
-        <a href="/admin/inspiratie" class="bg-white p-10 border border-secondary/10 hover:border-secondary transition-colors group">
-          <span class="text-[10px] tracking-[0.3em] uppercase text-accent/40 block mb-4 group-hover:text-secondary">Beheer Pagina</span>
-          <span class="text-4xl font-serif text-accent italic">Inspiratie</span>
+        <a href="/admin/inspiratie" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
+          <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Beheer Pagina</span>
+          <span class="font-display text-charcoal text-3xl italic">Inspiratie</span>
+        </a>
+        <a href="/admin/afspraken" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
+          <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Beheer Pagina</span>
+          <span class="font-display text-charcoal text-3xl italic">Afspraken</span>
         </a>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
         <!-- Recent Appointments -->
-        <div class="bg-white p-8 border border-secondary/10 shadow-sm">
-          <div class="flex items-center justify-between mb-8 pb-4 border-b border-accent/10">
-            <h2 class="text-xl font-serif italic text-accent">Recente Afspraken</h2>
-            <span class="text-[10px] tracking-widest uppercase text-secondary font-medium">{appointments?.length || 0} Totaal</span>
+        <div class="bg-white p-8 border border-champagne shadow-soft">
+          <div class="flex items-center justify-between mb-8 pb-4 border-b border-champagne">
+            <h2 class="font-display text-charcoal text-xl italic">Recente Afspraken</h2>
+            <a href="/admin/afspraken" class="text-[10px] tracking-widest uppercase text-blush-deep hover:underline font-body">Alle bekijken</a>
           </div>
-          <div class="space-y-6">
-            {appointments?.map((app) => (
-              <div class="flex items-start justify-between group">
+          <div class="space-y-5">
+            {recentAppointments?.map((app) => (
+              <div class="flex items-start justify-between">
                 <div>
-                  <p class="text-sm font-medium text-accent uppercase tracking-wide">{app.full_name}</p>
-                  <p class="text-xs text-accent/50 font-light mt-1">{new Date(app.preferred_date).toLocaleDateString()} — {app.appointment_type}</p>
+                  <p class="text-sm font-body font-medium text-charcoal">{app.full_name}</p>
+                  <p class="text-xs font-body text-taupe-light mt-0.5">
+                    {app.preferred_date ? new Date(app.preferred_date).toLocaleDateString('nl-NL') : '—'} — {app.appointment_type}
+                  </p>
                 </div>
-                <div class="flex gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button class="text-[10px] uppercase text-secondary hover:underline">Details</button>
-                </div>
+                <a href={`mailto:${app.email}`} class="text-[10px] uppercase tracking-wider font-body text-blush-deep hover:underline">Contact</a>
               </div>
             ))}
-            {!appointments?.length && <p class="text-sm text-accent/40 italic">Geen afspraken gevonden.</p>}
+            {!recentAppointments?.length && <p class="text-sm font-body text-taupe-light italic">Geen afspraken gevonden.</p>}
           </div>
         </div>
 
         <!-- Recent Products -->
-        <div class="bg-white p-8 border border-secondary/10 shadow-sm">
-          <div class="flex items-center justify-between mb-8 pb-4 border-b border-accent/10">
-            <h2 class="text-xl font-serif italic text-accent">Nieuwe Producten</h2>
-            <a href="/trouwjurken" class="text-[10px] tracking-widest uppercase text-secondary hover:underline">Shop Pagina</a>
+        <div class="bg-white p-8 border border-champagne shadow-soft">
+          <div class="flex items-center justify-between mb-8 pb-4 border-b border-champagne">
+            <h2 class="font-display text-charcoal text-xl italic">Nieuwste Producten</h2>
+            <a href="/admin/producten" class="text-[10px] tracking-widest uppercase text-blush-deep hover:underline font-body">Alle bekijken</a>
           </div>
-          <div class="space-y-6">
-            {products?.map((prod) => (
+          <div class="space-y-5">
+            {recentProducts?.map((prod) => (
               <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-primary overflow-hidden">
-                  <img src={prod.images?.[0]} alt={prod.name} class="w-full h-full object-cover" />
+                <div class="w-12 h-12 bg-linen overflow-hidden shrink-0">
+                  {prod.images?.[0] && <img src={prod.images[0]} alt={prod.name} class="w-full h-full object-cover" />}
                 </div>
-                <div>
-                  <p class="text-sm font-medium text-accent uppercase tracking-wide">{prod.name}</p>
-                  <p class="text-xs text-accent/50 font-light mt-1">{prod.collections?.title} — {prod.brand}</p>
+                <div class="min-w-0">
+                  <p class="text-sm font-body font-medium text-charcoal truncate">{prod.name}</p>
+                  <p class="text-xs font-body text-taupe-light">{prod.collections?.title} — {prod.brand}</p>
                 </div>
+                <a href={`/admin/product/${prod.id}/edit`} class="ml-auto text-[10px] uppercase tracking-wider font-body text-blush-deep hover:underline shrink-0">Bewerk</a>
               </div>
             ))}
-            {!products?.length && <p class="text-sm text-accent/40 italic">Geen producten gevonden.</p>}
+            {!recentProducts?.length && <p class="text-sm font-body text-taupe-light italic">Geen producten gevonden.</p>}
           </div>
         </div>
       </div>

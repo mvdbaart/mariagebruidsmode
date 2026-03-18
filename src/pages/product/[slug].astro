@@ -77,20 +77,26 @@ const productImages = product.images && product.images.length > 0 ? product.imag
           <!-- Main image -->
           <div class="flex-1 aspect-[3/4] bg-linen relative overflow-hidden group shadow-card">
             {productImages?.[0] ? (
-              <img
-                id="main-product-image"
-                src={productImages[0]}
-                alt={product.name}
-                onerror={`this.onerror=null;this.src='${primaryFallbackImage}'`}
-                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103"
-                loading="eager"
-              />
+              <button id="open-lightbox" class="block w-full h-full cursor-zoom-in" aria-label="Afbeelding vergroten">
+                <img
+                  id="main-product-image"
+                  src={productImages[0]}
+                  alt={product.name}
+                  onerror={`this.onerror=null;this.src='${primaryFallbackImage}'`}
+                  class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103"
+                  loading="eager"
+                />
+              </button>
             ) : (
               <div class="w-full h-full flex flex-col items-center justify-center gap-4 bg-cream">
                 <span class="text-6xl opacity-15">👗</span>
                 <span class="font-italic italic text-taupe-light text-sm">Foto binnenkort beschikbaar</span>
               </div>
             )}
+            <!-- Zoom hint -->
+            <div class="absolute bottom-3 right-3 bg-charcoal/70 text-warm-white text-[9px] tracking-wider uppercase font-body px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+              Klik om te vergroten
+            </div>
 
             <!-- Brand badge -->
             <div class="absolute top-5 left-5 bg-charcoal/85 backdrop-blur-sm text-warm-white text-[9px] tracking-[0.2em] uppercase font-body px-3 py-1.5">
@@ -167,6 +173,31 @@ const productImages = product.images && product.images.length > 0 ? product.imag
     </div>
   </section>
 
+  <!-- Image lightbox -->
+  <dialog
+    id="image-lightbox"
+    class="fixed inset-0 w-full h-full max-w-none max-h-none m-0 p-0 bg-charcoal/95 flex items-center justify-center z-[100]"
+    aria-label="Productafbeelding vergroot"
+  >
+    <button id="lightbox-close" class="absolute top-4 right-4 text-warm-white/70 hover:text-warm-white transition-colors z-10" aria-label="Sluiten">
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+    <button id="lightbox-prev" class="absolute left-4 top-1/2 -translate-y-1/2 text-warm-white/70 hover:text-warm-white transition-colors z-10 hidden" aria-label="Vorige afbeelding">
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+    </button>
+    <img id="lightbox-img" src="" alt={product.name} class="max-h-[90vh] max-w-[90vw] object-contain" />
+    <button id="lightbox-next" class="absolute right-4 top-1/2 -translate-y-1/2 text-warm-white/70 hover:text-warm-white transition-colors z-10 hidden" aria-label="Volgende afbeelding">
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    </button>
+  </dialog>
+
   <!-- Related products -->
   {related && related.length > 0 && (
     <section class="py-20 bg-cream border-t border-champagne">
@@ -207,6 +238,14 @@ const productImages = product.images && product.images.length > 0 ? product.imag
   const thumbBtns = document.querySelectorAll<HTMLButtonElement>('.thumb-btn');
   const mainImg = document.getElementById('main-product-image') as HTMLImageElement | null;
 
+  // Collect all image srcs for lightbox navigation
+  const allImages: string[] = [];
+  if (mainImg?.src) allImages.push(mainImg.src);
+  thumbBtns.forEach(btn => {
+    const src = btn.getAttribute('data-src');
+    if (src && !allImages.includes(src)) allImages.push(src);
+  });
+
   thumbBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       const newSrc = btn.getAttribute('data-src');
@@ -228,4 +267,76 @@ const productImages = product.images && product.images.length > 0 ? product.imag
   if (mainImg) {
     mainImg.style.transition = 'opacity 0.18s ease';
   }
+
+  // Lightbox
+  const lightbox = document.getElementById('image-lightbox') as HTMLDialogElement | null;
+  const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement | null;
+  const lightboxClose = document.getElementById('lightbox-close');
+  const lightboxPrev = document.getElementById('lightbox-prev');
+  const lightboxNext = document.getElementById('lightbox-next');
+  let currentLightboxIndex = 0;
+
+  function openLightbox(src: string) {
+    if (!lightbox || !lightboxImg) return;
+    currentLightboxIndex = allImages.indexOf(src);
+    if (currentLightboxIndex === -1) currentLightboxIndex = 0;
+    lightboxImg.src = src;
+    updateLightboxNav();
+    lightbox.showModal();
+  }
+
+  function updateLightboxNav() {
+    if (!lightboxPrev || !lightboxNext) return;
+    if (allImages.length > 1) {
+      lightboxPrev.classList.toggle('hidden', currentLightboxIndex === 0);
+      lightboxNext.classList.toggle('hidden', currentLightboxIndex === allImages.length - 1);
+    }
+  }
+
+  document.getElementById('open-lightbox')?.addEventListener('click', () => {
+    openLightbox(mainImg?.src ?? allImages[0]);
+  });
+
+  lightboxClose?.addEventListener('click', () => lightbox?.close());
+  lightboxPrev?.addEventListener('click', () => {
+    if (currentLightboxIndex > 0) {
+      currentLightboxIndex--;
+      if (lightboxImg) lightboxImg.src = allImages[currentLightboxIndex];
+      updateLightboxNav();
+    }
+  });
+  lightboxNext?.addEventListener('click', () => {
+    if (currentLightboxIndex < allImages.length - 1) {
+      currentLightboxIndex++;
+      if (lightboxImg) lightboxImg.src = allImages[currentLightboxIndex];
+      updateLightboxNav();
+    }
+  });
+
+  // Close on backdrop click
+  lightbox?.addEventListener('click', (e) => {
+    if (e.target === lightbox) lightbox.close();
+  });
+
+  // Keyboard navigation
+  lightbox?.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') lightboxPrev?.click();
+    if (e.key === 'ArrowRight') lightboxNext?.click();
+  });
 </script>
+
+<style>
+  #image-lightbox {
+    background: rgba(44, 42, 40, 0.95);
+    border: none;
+    display: none;
+  }
+  #image-lightbox[open] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #image-lightbox::backdrop {
+    background: transparent;
+  }
+</style>

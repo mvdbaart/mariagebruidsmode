@@ -52,3 +52,24 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
     headers: { 'content-type': 'application/json' },
   });
 };
+
+export const DELETE: APIRoute = async ({ params, cookies }) => {
+  const adminAuth = await getAdminAuthFromCookies(cookies);
+  if (!adminAuth) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'content-type': 'application/json' } });
+  }
+
+  const id = params.id;
+  if (!id) {
+    return new Response(JSON.stringify({ error: 'Ongeldig product ID.' }), { status: 400, headers: { 'content-type': 'application/json' } });
+  }
+
+  const supabase = getServiceRoleClient();
+  const { error } = await supabase.from('products').delete().eq('id', id);
+
+  if (error) {
+    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { 'content-type': 'application/json' } });
+  }
+
+  return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'content-type': 'application/json' } });
+};
