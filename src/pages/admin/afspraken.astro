@@ -1,0 +1,78 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getServiceRoleClient } from '../../lib/serverAuth';
+
+const supabase = getServiceRoleClient();
+const { data: appointments } = await supabase
+  .from('appointments')
+  .select('*')
+  .order('created_at', { ascending: false });
+
+const today = new Date().toISOString().split('T')[0];
+---
+
+<Layout title="Admin Afspraken">
+  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+    <div class="container mx-auto px-6">
+      <div class="flex justify-between items-center mb-12">
+        <h1 class="font-display font-normal text-charcoal text-3xl italic">Afspraken <span class="text-blush-deep opacity-60">Inbox</span></h1>
+        <a href="/admin" class="text-[10px] uppercase tracking-widest text-taupe hover:text-blush-deep transition-colors">← Dashboard</a>
+      </div>
+
+      <div class="bg-white shadow-soft border border-champagne overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[700px] text-left border-collapse">
+            <thead class="bg-cream">
+              <tr>
+                <th class="px-6 py-4 text-[10px] tracking-widest uppercase text-charcoal font-medium border-b border-champagne">Naam</th>
+                <th class="px-6 py-4 text-[10px] tracking-widest uppercase text-charcoal font-medium border-b border-champagne">E-mail / Telefoon</th>
+                <th class="px-6 py-4 text-[10px] tracking-widest uppercase text-charcoal font-medium border-b border-champagne">Datum</th>
+                <th class="px-6 py-4 text-[10px] tracking-widest uppercase text-charcoal font-medium border-b border-champagne">Type</th>
+                <th class="px-6 py-4 text-[10px] tracking-widest uppercase text-charcoal font-medium border-b border-champagne">Bericht</th>
+                <th class="px-6 py-4 text-[10px] tracking-widest uppercase text-charcoal font-medium border-b border-champagne">Ontvangen</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-champagne">
+              {appointments?.map((app) => {
+                const isToday = app.preferred_date?.startsWith(today);
+                return (
+                  <tr class={`hover:bg-cream/60 transition-colors ${isToday ? 'bg-blush/10' : ''}`}>
+                    <td class="px-6 py-4">
+                      <p class="font-body font-medium text-sm text-charcoal">{app.full_name}</p>
+                      {isToday && <span class="text-[9px] uppercase tracking-wider text-blush-deep font-body">Vandaag</span>}
+                    </td>
+                    <td class="px-6 py-4">
+                      <a href={`mailto:${app.email}`} class="text-sm font-body text-taupe hover:text-blush-deep block">{app.email}</a>
+                      {app.phone && <a href={`tel:${app.phone}`} class="text-xs font-body text-taupe-light">{app.phone}</a>}
+                    </td>
+                    <td class="px-6 py-4 text-sm font-body text-taupe whitespace-nowrap">
+                      {app.preferred_date ? new Date(app.preferred_date).toLocaleDateString('nl-NL') : '—'}
+                    </td>
+                    <td class="px-6 py-4">
+                      <span class={`text-[9px] uppercase tracking-wider font-body px-2 py-1 ${app.appointment_type === 'vip' ? 'bg-gold/20 text-charcoal' : 'bg-champagne text-taupe'}`}>
+                        {app.appointment_type === 'vip' ? 'VIP (120 min)' : 'Standaard (90 min)'}
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 max-w-[220px]">
+                      <p class="text-xs font-body text-taupe-light line-clamp-2">{app.message || '—'}</p>
+                    </td>
+                    <td class="px-6 py-4 text-xs font-body text-taupe-light whitespace-nowrap">
+                      {app.created_at ? new Date(app.created_at).toLocaleDateString('nl-NL') : '—'}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          {!appointments?.length && (
+            <div class="py-16 text-center">
+              <p class="font-italic italic text-taupe-light">Nog geen afspraken ontvangen.</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <p class="text-[10px] font-body text-taupe-light mt-4">{appointments?.length ?? 0} afspraken totaal</p>
+    </div>
+  </div>
+</Layout>

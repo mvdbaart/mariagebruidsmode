@@ -1,0 +1,112 @@
+---
+// This page is the emailRedirectTo target for Supabase magic links.
+// Supabase appends tokens in the URL *fragment* (#access_token=…&refresh_token=…)
+// which is only readable by client-side JavaScript — not the server.
+// The <script> below reads them, POSTs to /api/auth/session, then redirects.
+export const prerender = false;
+---
+
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Inloggen… | Mariage Bruidsmode</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400&display=swap" rel="stylesheet" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: 'Jost', sans-serif;
+        font-weight: 300;
+        background: #FAF7F4;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        color: #2C2A28;
+      }
+      .card {
+        text-align: center;
+        padding: 3rem;
+        background: white;
+        border: 1px solid #E8DDD0;
+        max-width: 380px;
+        width: 100%;
+      }
+      h1 { font-size: 1.5rem; font-weight: 400; margin-bottom: .5rem; }
+      p  { font-size: .85rem; color: #7A6F67; margin: 0; }
+      .spinner {
+        width: 28px; height: 28px;
+        border: 2px solid #E8DDD0;
+        border-top-color: #C9A96E;
+        border-radius: 50%;
+        animation: spin .8s linear infinite;
+        margin: 1.5rem auto .5rem;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .error { color: #ef4444; font-size: .8rem; margin-top: 1rem; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div id="spinner" class="spinner"></div>
+      <h1 id="title">Even geduld…</h1>
+      <p id="subtitle">Je wordt ingelogd.</p>
+      <p id="error-msg" class="error" style="display:none"></p>
+    </div>
+
+    <script>
+      (async () => {
+        const hash = window.location.hash.slice(1); // strip leading '#'
+        const params = new URLSearchParams(hash);
+
+        const accessToken  = params.get('access_token');
+        const refreshToken = params.get('refresh_token');
+        const type         = params.get('type'); // 'magiclink' | 'recovery' | etc.
+
+        const errorEl    = document.getElementById('error-msg') as HTMLElement;
+        const titleEl    = document.getElementById('title') as HTMLElement;
+        const subtitleEl = document.getElementById('subtitle') as HTMLElement;
+        const spinnerEl  = document.getElementById('spinner') as HTMLElement;
+
+        function showError(msg: string) {
+          spinnerEl.style.display = 'none';
+          titleEl.textContent = 'Inloggen mislukt';
+          subtitleEl.textContent = 'Sluit dit venster en probeer opnieuw.';
+          errorEl.textContent = msg;
+          errorEl.style.display = 'block';
+        }
+
+        if (!accessToken || !refreshToken) {
+          showError('De link is ongeldig of verlopen. Vraag een nieuwe magic link aan.');
+          return;
+        }
+
+        try {
+          const res = await fetch('/api/auth/session', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ access_token: accessToken, refresh_token: refreshToken }),
+          });
+
+          const data = await res.json().catch(() => ({ error: 'Onbekende fout.' }));
+
+          if (!res.ok) {
+            showError(data.error ?? 'Inloggen mislukt.');
+            return;
+          }
+
+          // Success — clean the fragment from the URL and redirect.
+          history.replaceState(null, '', window.location.pathname);
+          titleEl.textContent = 'Ingelogd!';
+          subtitleEl.textContent = 'Je wordt doorgestuurd naar het dashboard…';
+          window.location.href = '/admin';
+        } catch {
+          showError('Netwerkfout. Controleer je verbinding en probeer opnieuw.');
+        }
+      })();
+    </script>
+  </body>
+</html>

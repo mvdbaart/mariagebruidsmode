@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import AnnouncementBar from '../components/AnnouncementBar.astro';
 
 interface Props {
 	title: string;
@@ -23,12 +24,41 @@ const { title } = Astro.props;
 		<title>{title} | Mariage Bruidsmode</title>
 	</head>
 	<body>
+    <script>document.documentElement.style.setProperty('--announcement-height', '36px');</script>
     <a href="#main-content" class="skip-link">Direct naar inhoud</a>
+    <AnnouncementBar />
     <Header />
-    <main id="main-content" tabindex="-1">
+    <main id="main-content" tabindex="-1" style="padding-top: calc(72px + var(--announcement-height, 36px))">
 		  <slot />
     </main>
     <Footer />
+
+    <!-- Back-to-top button -->
+    <button
+      id="back-to-top"
+      aria-label="Terug naar boven"
+      class="fixed bottom-6 right-4 z-40 w-10 h-10 bg-charcoal text-warm-white flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300 shadow-card"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="18 15 12 9 6 15"></polyline>
+      </svg>
+    </button>
+
+    <!-- Floating mobile CTA -->
+    <div
+      id="mobile-cta"
+      class="fixed bottom-0 left-0 right-0 z-40 md:hidden px-4 pb-4 pt-2 bg-gradient-to-t from-ivory to-transparent opacity-0 pointer-events-none transition-opacity duration-300"
+    >
+      <a href="/afspraak-maken" class="btn-blush w-full flex items-center justify-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+        Afspraak maken
+      </a>
+    </div>
 	</body>
 </html>
 
@@ -40,3 +70,30 @@ const { title } = Astro.props;
 		height: 100%;
 	}
 </style>
+
+<script>
+  const backToTop = document.getElementById('back-to-top');
+  const mobileCta = document.getElementById('mobile-cta');
+
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+
+    // Back-to-top: show after 400px
+    if (scrolled > 400) {
+      backToTop?.classList.remove('opacity-0', 'pointer-events-none');
+    } else {
+      backToTop?.classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    // Mobile CTA: show after 300px
+    if (scrolled > 300) {
+      mobileCta?.classList.remove('opacity-0', 'pointer-events-none');
+    } else {
+      mobileCta?.classList.add('opacity-0', 'pointer-events-none');
+    }
+  }, { passive: true });
+
+  backToTop?.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+</script>

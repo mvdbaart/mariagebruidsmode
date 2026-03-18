@@ -1,0 +1,51 @@
+---
+const messages = [
+  "🌸 Lenteactie | Accessoirecheque t.w.v. € 150,- bij elke aankoop",
+  "🥂 Prosecco bij ontvangst | Plan jouw droomafspraak",
+  "✨ Nieuwe collecties 2026 | Bekijk onze trouwjurken en pakken",
+];
+---
+
+<div id="announcement-bar" class="relative bg-charcoal text-warm-white text-center py-2 px-10 overflow-hidden">
+  {messages.map((msg, i) => (
+    <p
+      class={`announcement-msg text-[10px] font-body tracking-[0.16em] uppercase transition-opacity duration-500 ${i === 0 ? 'opacity-100' : 'opacity-0 absolute inset-0 flex items-center justify-center'}`}
+      aria-hidden={i !== 0 ? "true" : undefined}
+    >
+      {msg}
+    </p>
+  ))}
+  <button
+    id="close-announcement"
+    aria-label="Sluitmededeling"
+    class="absolute right-3 top-1/2 -translate-y-1/2 text-warm-white/60 hover:text-warm-white transition-colors"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+  </button>
+</div>
+
+<script>
+  const bar = document.getElementById('announcement-bar');
+  const msgs = document.querySelectorAll<HTMLElement>('.announcement-msg');
+  const closeBtn = document.getElementById('close-announcement');
+  let current = 0;
+
+  // Rotate messages
+  if (msgs.length > 1) {
+    setInterval(() => {
+      msgs[current].classList.add('opacity-0');
+      msgs[current].setAttribute('aria-hidden', 'true');
+      current = (current + 1) % msgs.length;
+      msgs[current].classList.remove('opacity-0');
+      msgs[current].removeAttribute('aria-hidden');
+    }, 4000);
+  }
+
+  // Dismiss bar
+  closeBtn?.addEventListener('click', () => {
+    bar?.remove();
+  });
+</script>

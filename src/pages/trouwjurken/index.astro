@@ -98,6 +98,12 @@ const dressFallbackImage = '/wp-content/uploads/2023/11/trouwjurk-ladybird-amari
           </div>
         )}
       </div>
+
+      <!-- Filter empty state (hidden by default, shown by JS) -->
+      <div id="filter-empty" class="hidden py-24 text-center">
+        <p class="font-italic italic text-taupe-light text-lg mb-4">Geen jurken gevonden in deze collectie.</p>
+        <button class="filter-btn btn-gold text-[11px]" data-filter="all">Bekijk alle jurken →</button>
+      </div>
     </div>
   </section>
 
@@ -135,11 +141,21 @@ const dressFallbackImage = '/wp-content/uploads/2023/11/trouwjurk-ladybird-amari
       btn.setAttribute('aria-pressed', 'true');
 
       // Filter cards
+      let visibleCount = 0;
       productCards.forEach(card => {
         const cardCollection = card.getAttribute('data-collection');
         const show = filter === 'all' || cardCollection === filter;
         (card as HTMLElement).style.display = show ? '' : 'none';
+        if (show) visibleCount++;
       });
+
+      // Show/hide empty state
+      const emptyState = document.getElementById('filter-empty');
+      const grid = document.getElementById('products-grid');
+      if (emptyState && grid) {
+        emptyState.classList.toggle('hidden', visibleCount > 0);
+        grid.classList.toggle('hidden', visibleCount === 0);
+      }
     });
   });
 </script>
