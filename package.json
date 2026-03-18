@@ -14,7 +14,8 @@
     "astro": "astro",
     "setup:buckets": "node scripts/setup_buckets.js",
     "extract:site": "node scripts/extract_site_content.js",
-    "mirror:extract": "node scripts/mirror_and_extract.js"
+    "mirror:extract": "node scripts/mirror_and_extract.js",
+    "grant:admin": "node scripts/grant_admin_role.js"
   },
   "dependencies": {
     "@astrojs/react": "^5.0.0",
