@@ -22,9 +22,9 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
-  // Derive the site origin from the request so the redirect URL works in
-  // all environments (local, preview, production).
-  const origin = new URL(request.url).origin;
+  // Use SITE_URL env var when set (reliable in all proxy/SSR environments).
+  // Falls back to the request origin for local development without the env var.
+  const origin = (import.meta.env.SITE_URL as string | undefined)?.replace(/\/$/, '') ?? new URL(request.url).origin;
 
   const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     auth: { autoRefreshToken: false, persistSession: false },
