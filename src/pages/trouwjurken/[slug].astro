@@ -38,7 +38,7 @@ const dressFallbackImage = '/images/jurkvormen/a-lijn.png';
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-        {collection.products?.map((product) => (
+        {collection.products?.map((product: any) => (
           <div class="group">
             <div class="aspect-[3/4] overflow-hidden bg-primary mb-6 relative">
               <img

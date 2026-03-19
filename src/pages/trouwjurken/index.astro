@@ -97,7 +97,7 @@ const dressFallbackImage = '/images/jurkvormen/a-lijn.png';
               </div>
               {prod.features && prod.features.length > 0 && (
                 <div class="flex flex-wrap gap-1 mt-3">
-                  {prod.features.slice(0, 3).map(f => (
+                  {prod.features.slice(0, 3).map((f: string) => (
                     <span class="text-[9px] tracking-[0.1em] uppercase font-body text-blush-deep border border-blush/40 px-2 py-1">{f}</span>
                   ))}
                 </div>

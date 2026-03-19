@@ -42,7 +42,7 @@ const weddingFallbackImage = '/images/team/TKF_9422-scaled.jpg';
           <div class="overflow-hidden shadow-2xl">
             <img src={wedding.cover_image || weddingFallbackImage} alt={`${wedding.bride_name} & ${wedding.groom_name}`} onerror={`this.onerror=null;this.src='${weddingFallbackImage}'`} class="w-full h-auto" loading="lazy" />
           </div>
-          {wedding.gallery_images?.map((img, index) => (
+          {wedding.gallery_images?.map((img: string, index: number) => (
              index % 2 === 0 && (
                 <div class="overflow-hidden shadow-2xl">
                   <img src={img || weddingFallbackImage} alt={`Wedding photo ${index + 1}`} onerror={`this.onerror=null;this.src='${weddingFallbackImage}'`} class="w-full h-auto" loading="lazy" />
@@ -54,7 +54,7 @@ const weddingFallbackImage = '/images/team/TKF_9422-scaled.jpg';
            <div class="prose prose-accent font-light text-accent/70 text-lg leading-relaxed italic mb-12">
             <p>{wedding.story}</p>
           </div>
-          {wedding.gallery_images?.map((img, index) => (
+          {wedding.gallery_images?.map((img: string, index: number) => (
              index % 2 !== 0 && (
                 <div class="overflow-hidden shadow-2xl">
                   <img src={img || weddingFallbackImage} alt={`Wedding photo ${index + 1}`} onerror={`this.onerror=null;this.src='${weddingFallbackImage}'`} class="w-full h-auto" loading="lazy" />

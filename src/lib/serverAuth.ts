@@ -33,7 +33,7 @@ export function isAdminUser(user: User): boolean {
 
 export function setAuthCookies(cookies: AstroCookies, session: Session) {
   const accessExpires =
-    Number.isFinite(session.expires_at) && session.expires_at > 0
+    typeof session.expires_at === 'number' && session.expires_at > 0
       ? new Date(session.expires_at * 1000)
       : undefined;
 
