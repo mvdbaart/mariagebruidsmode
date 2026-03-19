@@ -1,6 +1,6 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import { getAdminAuthFromCookies, getServiceRoleClient } from '../../lib/serverAuth';
+import Layout from '../../../layouts/Layout.astro';
+import { getAdminAuthFromCookies, getServiceRoleClient } from '../../../lib/serverAuth';
 
 const adminAuth = await getAdminAuthFromCookies(Astro.cookies);
 if (!adminAuth) {
@@ -39,8 +39,8 @@ if (error) {
               <div class="space-y-3">
                 <label class="text-[10px] tracking-widest uppercase text-accent font-medium block">{key.replace('_', ' ')}</label>
                 <div class="flex items-center gap-4">
-                  <input type="color" name={`color_${key}`} value={value} class="w-12 h-12 rounded cursor-pointer border-none bg-transparent" />
-                  <input type="text" name={`color_text_${key}`} value={value} class="flex-grow border-b border-accent/20 py-2 focus:border-secondary outline-none transition-colors font-mono text-sm uppercase bg-transparent" />
+                  <input type="color" name={`color_${key}`} value={String(value)} class="w-12 h-12 rounded cursor-pointer border-none bg-transparent" />
+                  <input type="text" name={`color_text_${key}`} value={String(value)} class="flex-grow border-b border-accent/20 py-2 focus:border-secondary outline-none transition-colors font-mono text-sm uppercase bg-transparent" />
                 </div>
               </div>
             ))}

@@ -1,0 +1,216 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getAdminAuthFromCookies, getServiceRoleClient } from '../../../lib/serverAuth';
+
+const adminAuth = await getAdminAuthFromCookies(Astro.cookies);
+if (!adminAuth) {
+  return Astro.redirect('/admin/login');
+}
+
+// Get current week dates from URL or now
+const url = new URL(Astro.request.url);
+const weekParam = url.searchParams.get('week');
+const now = weekParam ? new Date(weekParam) : new Date();
+
+const firstDayOfWeek = new Date(now);
+firstDayOfWeek.setDate(now.getDate() - (now.getDay() === 0 ? 6 : now.getDay() - 1));
+firstDayOfWeek.setHours(0, 0, 0, 0);
+
+const weekDates = Array.from({ length: 7 }, (_, i) => {
+  const d = new Date(firstDayOfWeek);
+  d.setDate(d.getDate() + i);
+  return d;
+});
+
+const prevWeek = new Date(firstDayOfWeek);
+prevWeek.setDate(prevWeek.getDate() - 7);
+const nextWeek = new Date(firstDayOfWeek);
+nextWeek.setDate(nextWeek.getDate() + 7);
+
+const supabase = getServiceRoleClient();
+const { data: employees } = await supabase.from('employees').select('id, first_name, last_name').eq('is_active', true);
+const { data: shifts } = await supabase
+  .from('shifts')
+  .select('*')
+  .gte('date', weekDates[0].toISOString().split('T')[0])
+  .lte('date', weekDates[6].toISOString().split('T')[0]);
+
+const { data: weekAbsences } = await supabase
+  .from('absences')
+  .select('*')
+  .lte('start_date', weekDates[6].toISOString().split('T')[0])
+  .gte('end_date', weekDates[0].toISOString().split('T')[0]);
+
+const dayNames = ['Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag', 'Zondag'];
+---
+
+<Layout title="Planning Kalender - Admin">
+  <main class="min-h-screen bg-primary py-20 px-4">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center gap-4">
+          <a href="/admin/planner/medewerkers" class="text-[10px] uppercase tracking-widest text-accent/60 hover:text-accent transition-colors flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+            Medewerkers
+          </a>
+          <h1 class="text-3xl font-serif text-accent">Weekplanning</h1>
+        </div>
+        <div class="flex gap-2">
+            <a href={`/admin/planner/kalender?week=${prevWeek.toISOString().split('T')[0]}`} class="p-2 border border-accent/10 rounded hover:bg-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-accent/60" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+            </a>
+            <span class="px-4 py-2 bg-white/50 backdrop-blur-sm border border-accent/10 rounded text-xs font-medium text-accent">
+                {weekDates[0].toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })} - {weekDates[6].toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}
+            </span>
+            <a href={`/admin/planner/kalender?week=${nextWeek.toISOString().split('T')[0]}`} class="p-2 border border-accent/10 rounded hover:bg-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-accent/60" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+            </a>
+        </div>
+      </div>
+
+      <div class="bg-white/80 backdrop-blur-md border border-accent/10 rounded-xl overflow-hidden shadow-sm">
+        <div class="grid grid-cols-[150px_repeat(7,1fr)] border-b border-accent/10 bg-accent/5">
+          <div class="p-4 border-r border-accent/10"></div>
+          {weekDates.map((date, i) => (
+            <div class="p-4 text-center border-r border-accent/10 last:border-0">
+              <span class="block text-[10px] uppercase tracking-widest text-accent/40 mb-1">{dayNames[i]}</span>
+              <span class="text-lg font-serif text-accent">{date.getDate()}</span>
+            </div>
+          ))}
+        </div>
+
+        <div class="divide-y divide-accent/10">
+          {employees?.map(emp => (
+            <div class="grid grid-cols-[150px_repeat(7,1fr)] group hover:bg-accent/[0.01] transition-colors">
+              <div class="p-4 border-r border-accent/10 flex items-center">
+                <p class="text-sm font-medium text-accent truncate">{emp.first_name} {emp.last_name}</p>
+              </div>
+              {weekDates.map(date => {
+                const dayStr = date.toISOString().split('T')[0];
+                const dayShifts = shifts?.filter(s => s.employee_id === emp.id && s.date === dayStr);
+                const dayAbsences = weekAbsences?.filter(a => 
+                  a.employee_id === emp.id && 
+                  dayStr >= a.start_date && 
+                  dayStr <= a.end_date
+                );
+                
+                return (
+                  <div class="p-2 min-h-[100px] border-r border-accent/10 last:border-0 relative group/cell">
+                    {dayAbsences?.map(a => (
+                      <div class="mb-1 p-2 bg-blue-50 border-l-2 border-blue-400 rounded text-[10px] text-blue-600 font-bold shadow-sm">
+                        {a.type === 'sick' ? 'ZIEK' : 'VERLOF'}
+                      </div>
+                    ))}
+                    {dayShifts?.map(s => (
+                      <div class="mb-1 p-2 bg-secondary/10 border-l-2 border-secondary rounded text-[10px] text-secondary font-medium shadow-sm hover:bg-secondary/20 transition-all cursor-pointer">
+                        {s.start_time.slice(0, 5)} - {s.end_time.slice(0, 5)}
+                      </div>
+                    ))}
+                    <button 
+                        class="add-shift-btn absolute bottom-2 right-2 p-1 bg-accent text-white rounded-full opacity-0 group-hover/cell:opacity-100 transition-opacity hover:bg-secondary"
+                        data-emp-id={emp.id}
+                        data-date={dayStr}
+                        data-name={`${emp.first_name} ${emp.last_name}`}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      <div class="mt-8 flex justify-end gap-4">
+          <div class="flex items-center gap-2 text-[10px] uppercase tracking-widest text-accent/40">
+              <span class="w-3 h-3 bg-secondary/20 border-l-2 border-secondary rounded"></span>
+              Ingepland
+          </div>
+          <div class="flex items-center gap-2 text-[10px] uppercase tracking-widest text-accent/40">
+              <span class="w-3 h-3 bg-blue-100 border-l-2 border-blue-400 rounded"></span>
+              Verlof / Afwezig
+          </div>
+      </div>
+    </div>
+
+    <!-- Add Shift Modal -->
+    <div id="shift-modal" class="fixed inset-0 bg-accent/40 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+      <div class="bg-primary w-full max-w-sm p-8 rounded-lg shadow-xl border border-accent/10">
+        <h2 class="text-2xl font-serif text-accent mb-1">Dienst Inplannen</h2>
+        <p id="modal-subtitle" class="text-[10px] uppercase tracking-widest text-secondary font-medium mb-6"></p>
+        
+        <form id="shift-form" class="space-y-4">
+          <input type="hidden" name="employee_id" />
+          <input type="hidden" name="date" />
+          
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Begin</label>
+              <input type="time" name="start_time" required value="09:00" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary outline-none" />
+            </div>
+            <div>
+              <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Eind</label>
+              <input type="time" name="end_time" required value="17:00" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary outline-none" />
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Opmerkingen</label>
+            <textarea name="notes" rows="2" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary outline-none resize-none"></textarea>
+          </div>
+
+          <div class="flex gap-4 mt-8">
+            <button type="button" id="close-shift-modal" class="flex-1 py-3 text-[10px] uppercase tracking-widest text-accent/60 hover:text-accent transition-colors">Annuleren</button>
+            <button type="submit" class="flex-2 bg-accent text-white px-8 py-3 text-[10px] uppercase tracking-widest hover:bg-secondary transition-all rounded">Inplannen</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  const modal = document.getElementById('shift-modal');
+  const subtitle = document.getElementById('modal-subtitle');
+  const form = document.getElementById('shift-form') as HTMLFormElement;
+  const closeBtn = document.getElementById('close-shift-modal');
+
+  document.querySelectorAll('.add-shift-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const target = e.currentTarget as HTMLButtonElement;
+      const { empId, date, name } = target.dataset;
+      
+      form.employee_id.value = empId;
+      form.date.value = date;
+      subtitle!.textContent = `${name} • ${new Date(date!).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long' })}`;
+      
+      modal?.classList.remove('hidden');
+    });
+  });
+
+  closeBtn?.addEventListener('click', () => modal?.classList.add('hidden'));
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+      const resp = await fetch('/api/admin/shifts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      if (resp.ok) {
+        window.location.reload();
+      } else {
+        const err = await resp.json();
+        alert('Fout: ' + err.error);
+      }
+    } catch (err) {
+      alert('Er is een fout opgetreden.');
+    }
+  });
+</script>

@@ -1,0 +1,155 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getAdminAuthFromCookies, getServiceRoleClient } from '../../../lib/serverAuth';
+
+const adminAuth = await getAdminAuthFromCookies(Astro.cookies);
+if (!adminAuth) {
+  return Astro.redirect('/admin/login');
+}
+
+const supabase = getServiceRoleClient();
+const { data: employees } = await supabase.from('employees').select('*').eq('is_active', true);
+const { data: absences } = await supabase
+  .from('absences')
+  .select('*, employees(first_name, last_name)')
+  .order('start_date', { ascending: false });
+---
+
+<Layout title="Verlof & Ziekte - Admin">
+  <main class="min-h-screen bg-primary py-20 px-4">
+    <div class="max-w-6xl mx-auto">
+      <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center gap-4">
+          <a href="/admin/planning/medewerkers" class="text-[10px] uppercase tracking-widest text-accent/60 hover:text-accent transition-colors flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+            Planning
+          </a>
+          <h1 class="text-3xl font-serif text-accent">Verlof & Ziekte</h1>
+        </div>
+        <button id="add-absence-btn" class="px-6 py-2 bg-secondary text-white text-[10px] uppercase tracking-widest rounded hover:bg-accent transition-all">
+          Registreren
+        </button>
+      </div>
+
+      <div class="flex gap-8 mb-12 border-b border-accent/10">
+          <a href="/admin/planner/medewerkers" class="pb-4 text-[10px] uppercase tracking-widest text-accent/40 hover:text-accent transition-colors">Medewerkers</a>
+          <a href="/admin/planner/kalender" class="pb-4 text-[10px] uppercase tracking-widest text-accent/40 hover:text-accent transition-colors">Weekrooster</a>
+          <a href="/admin/planner/uren" class="pb-4 text-[10px] uppercase tracking-widest text-accent/40 hover:text-accent transition-colors">Urenregistratie</a>
+          <a href="/admin/planner/verlof" class="pb-4 text-[10px] uppercase tracking-widest font-bold border-b-2 border-secondary text-secondary">Verlof & Ziekte</a>
+      </div>
+
+      <div class="bg-white/50 backdrop-blur-sm border border-accent/10 rounded-lg overflow-hidden shadow-sm">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-accent/5">
+              <th class="px-6 py-4 text-[10px] uppercase tracking-widest text-accent font-medium">Medewerker</th>
+              <th class="px-6 py-4 text-[10px] uppercase tracking-widest text-accent font-medium">Type</th>
+              <th class="px-6 py-4 text-[10px] uppercase tracking-widest text-accent font-medium">Periode</th>
+              <th class="px-6 py-4 text-[10px] uppercase tracking-widest text-accent font-medium">Status</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-accent/10">
+            {absences?.map(abs => (
+              <tr class="hover:bg-accent/[0.02] transition-colors">
+                <td class="px-6 py-4 text-sm font-medium text-accent">
+                  {abs.employees?.first_name} {abs.employees?.last_name}
+                </td>
+                <td class="px-6 py-4">
+                  <span class={`text-[10px] uppercase tracking-widest px-2 py-1 rounded ${
+                    abs.type === 'sick' ? 'bg-red-100 text-red-600' : 
+                    abs.type === 'vacation' ? 'bg-blue-100 text-blue-600' : 'bg-accent/5 text-accent/60'
+                  }`}>
+                    {abs.type === 'sick' ? 'Ziek' : abs.type === 'vacation' ? 'Verlof' : abs.type}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-xs text-accent/60">
+                  {new Date(abs.start_date).toLocaleDateString('nl-NL')} - {new Date(abs.end_date).toLocaleDateString('nl-NL')}
+                </td>
+                <td class="px-6 py-4">
+                    <span class="text-[10px] uppercase tracking-widest text-accent/40 font-bold">{abs.status}</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Modal for adding absences -->
+    <div id="absence-modal" class="fixed inset-0 bg-accent/40 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+      <div class="bg-primary w-full max-w-sm p-8 rounded-lg shadow-xl border border-accent/10">
+        <h2 class="text-2xl font-serif text-accent mb-6">Absentie Registreren</h2>
+        <form id="absence-form" class="space-y-4">
+          <div>
+            <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Medewerker</label>
+            <select name="employee_id" required class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary outline-none">
+              {employees?.map(emp => (
+                <option value={emp.id}>{emp.first_name} {emp.last_name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Type</label>
+            <select name="type" required class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary outline-none">
+              <option value="vacation">Verlof / Vakantie</option>
+              <option value="sick">Ziekte</option>
+              <option value="holiday">Feestdag</option>
+              <option value="other">Overig</option>
+            </select>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Start Datum</label>
+              <input type="date" name="start_date" required class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary outline-none" />
+            </div>
+            <div>
+              <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Eind Datum</label>
+              <input type="date" name="end_date" required class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary outline-none" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Opmerkingen</label>
+            <textarea name="notes" rows="2" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary outline-none resize-none"></textarea>
+          </div>
+          <div class="flex gap-4 mt-8">
+            <button type="button" id="close-absence-modal" class="flex-1 py-3 text-[10px] uppercase tracking-widest text-accent/60 hover:text-accent transition-colors">Annuleren</button>
+            <button type="submit" class="flex-2 bg-accent text-white px-8 py-3 text-[10px] uppercase tracking-widest hover:bg-secondary transition-all rounded">Opslaan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  const modal = document.getElementById('absence-modal');
+  const addBtn = document.getElementById('add-absence-btn');
+  const closeBtn = document.getElementById('close-absence-modal');
+  const form = document.getElementById('absence-form') as HTMLFormElement;
+
+  addBtn?.addEventListener('click', () => modal?.classList.remove('hidden'));
+  closeBtn?.addEventListener('click', () => modal?.classList.add('hidden'));
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+      const resp = await fetch('/api/admin/absences', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      if (resp.ok) {
+        window.location.reload();
+      } else {
+        const err = await resp.json();
+        alert('Fout: ' + err.error);
+      }
+    } catch (err) {
+      alert('Er is een fout opgetreden.');
+    }
+  });
+</script>

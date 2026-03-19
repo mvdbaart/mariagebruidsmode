@@ -1,0 +1,10 @@
+﻿C:\Users\Maarten\Documents\vms\mariagebruidsmode.nl\src\pages\api\admin\absences.ts: import { getAdminAuthFromCookies, getServiceRoleClient } from '../../../lib/serverAuth';
+C:\Users\Maarten\Documents\vms\mariagebruidsmode.nl\src\pages\api\admin\employees.ts: import { getAdminAuthFromCookies, getServiceRoleClient } from '../../../lib/serverAuth';
+C:\Users\Maarten\Documents\vms\mariagebruidsmode.nl\src\pages\api\admin\settings.ts: import { getAdminAuthFromCookies, getServiceRoleClient } from '../../lib/serverAuth';
+C:\Users\Maarten\Documents\vms\mariagebruidsmode.nl\src\pages\api\admin\shifts.ts: import { getAdminAuthFromCookies, getServiceRoleClient } from '../../../lib/serverAuth';
+C:\Users\Maarten\Documents\vms\mariagebruidsmode.nl\src\pages\api\admin\time_entries.ts: import { getAdminAuthFromCookies, getServiceRoleClient } from '../../../lib/serverAuth';
+C:\Users\Maarten\Documents\vms\mariagebruidsmode.nl\src\pages\api\admin\upload.ts: import { getAdminAuthFromCookies, getServiceRoleClient } from '../../../lib/serverAuth';
+C:\Users\Maarten\Documents\vms\mariagebruidsmode.nl\src\pages\api\admin\users.ts: import { getAdminAuthFromCookies, getServiceRoleClient, getUserRole } from '../../lib/serverAuth';
+C:\Users\Maarten\Documents\vms\mariagebruidsmode.nl\src\pages\api\admin\blog\index.ts: import { getAdminAuthFromCookies, getServiceRoleClient } from '../../../../lib/serverAuth';
+C:\Users\Maarten\Documents\vms\mariagebruidsmode.nl\src\pages\api\admin\inspiratie\index.ts: import { getAdminAuthFromCookies, getServiceRoleClient } from '../../../../lib/serverAuth';
+C:\Users\Maarten\Documents\vms\mariagebruidsmode.nl\src\pages\api\admin\products\index.ts: import { getAdminAuthFromCookies, getServiceRoleClient } from '../../../../lib/serverAuth';

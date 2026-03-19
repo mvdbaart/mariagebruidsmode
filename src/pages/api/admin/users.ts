@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { getAdminAuthFromCookies, getServiceRoleClient, getUserRole } from '../../lib/serverAuth';
+import { getAdminAuthFromCookies, getServiceRoleClient, getUserRole } from '../../../lib/serverAuth';
 
 export const GET: APIRoute = async ({ cookies }) => {
   const adminAuth = await getAdminAuthFromCookies(cookies);

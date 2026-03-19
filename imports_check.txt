@@ -1,0 +1,11 @@
+﻿C:\Users\Maarten\Documents\vms\mariagebruidsmode.nl\src\pages\admin\afspraken.astro: import { getServiceRoleClient } from '../../lib/serverAuth';
+C:\Users\Maarten\Documents\vms\mariagebruidsmode.nl\src\pages\admin\blog.astro: import { getServiceRoleClient } from '../../lib/serverAuth';
+C:\Users\Maarten\Documents\vms\mariagebruidsmode.nl\src\pages\admin\gebruikers.astro: import { getAdminAuthFromCookies, getServiceRoleClient, getUserRole } from '../../lib/serverAuth';
+C:\Users\Maarten\Documents\vms\mariagebruidsmode.nl\src\pages\admin\index.astro: import { getServiceRoleClient } from '../../lib/serverAuth';
+C:\Users\Maarten\Documents\vms\mariagebruidsmode.nl\src\pages\admin\inspiratie.astro: import { getServiceRoleClient } from '../../lib/serverAuth';
+C:\Users\Maarten\Documents\vms\mariagebruidsmode.nl\src\pages\admin\instellingen\uiterlijk.astro: import { getAdminAuthFromCookies, getServiceRoleClient } from '../../lib/serverAuth';
+C:\Users\Maarten\Documents\vms\mariagebruidsmode.nl\src\pages\admin\planner\kalender.astro: import { getAdminAuthFromCookies, getServiceRoleClient } from '../../../lib/serverAuth';
+C:\Users\Maarten\Documents\vms\mariagebruidsmode.nl\src\pages\admin\planner\medewerkers.astro: import { getAdminAuthFromCookies, getServiceRoleClient } from '../../../lib/serverAuth';
+C:\Users\Maarten\Documents\vms\mariagebruidsmode.nl\src\pages\admin\planner\uren.astro: import { getAdminAuthFromCookies, getServiceRoleClient } from '../../../lib/serverAuth';
+C:\Users\Maarten\Documents\vms\mariagebruidsmode.nl\src\pages\admin\planner\verlof.astro: import { getAdminAuthFromCookies, getServiceRoleClient } from '../../../lib/serverAuth';
+C:\Users\Maarten\Documents\vms\mariagebruidsmode.nl\src\pages\admin\product\new.astro: import { getServiceRoleClient } from '../../../lib/serverAuth';
