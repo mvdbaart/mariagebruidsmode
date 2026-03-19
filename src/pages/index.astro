@@ -14,7 +14,10 @@ const { data: heroSuit } = await supabase
   .order('created_at', { ascending: false })
   .limit(30);
 
-const suitProduct = heroSuit?.find((p) => p.collections?.type === 'suit' && p.images?.[0]);
+const suitProduct = heroSuit?.find((p) => {
+  const collection = Array.isArray(p.collections) ? p.collections[0] : p.collections;
+  return collection?.type === 'suit' && p.images?.[0];
+});
 const dbHeroImage = suitProduct?.images?.[0];
 const heroImage = (dbHeroImage && dbHeroImage.startsWith('/images/'))
   ? dbHeroImage

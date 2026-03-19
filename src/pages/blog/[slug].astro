@@ -50,7 +50,7 @@ const dressFallback = '/wp-content/uploads/2023/11/trouwjurk-ladybird-amariah-br
       </header>
 
       <div class="prose prose-accent mx-auto font-light text-accent/70 leading-relaxed space-y-6">
-        {post.content.split('\n').map((para) => (
+        {post.content.split('\n').map((para: string) => (
           <p>{para}</p>
         ))}
       </div>
