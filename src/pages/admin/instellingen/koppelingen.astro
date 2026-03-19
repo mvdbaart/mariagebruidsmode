@@ -1,0 +1,236 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getServiceRoleClient } from '../../../lib/serverAuth';
+
+const supabase = getServiceRoleClient();
+const { data: settings } = await supabase.from('site_settings').select('integrations').eq('id', 'current').single();
+const integrations = settings?.integrations ?? {};
+
+const INTEGRATIONS = [
+  {
+    key: 'mollie',
+    name: 'Mollie',
+    description: 'Betalingsprovider voor iDEAL, creditcard en meer.',
+    fields: [
+      { name: 'api_key', label: 'API Sleutel', type: 'password', placeholder: 'live_...' },
+      { name: 'test_mode', label: 'Testmodus', type: 'checkbox' },
+    ],
+  },
+  {
+    key: 'stripe',
+    name: 'Stripe',
+    description: 'Internationaal betalingsplatform voor kaartbetalingen.',
+    fields: [
+      { name: 'api_key', label: 'Secret Key', type: 'password', placeholder: 'sk_live_...' },
+      { name: 'publishable_key', label: 'Publishable Key', type: 'text', placeholder: 'pk_live_...' },
+      { name: 'test_mode', label: 'Testmodus', type: 'checkbox' },
+    ],
+  },
+  {
+    key: 'bridallive',
+    name: 'BridalLive',
+    description: 'Bruidssalon beheer- en POS-software.',
+    fields: [
+      { name: 'api_key', label: 'API Token', type: 'password', placeholder: 'uw token' },
+      { name: 'store_id', label: 'Store ID', type: 'text', placeholder: '' },
+    ],
+  },
+  {
+    key: 'theperfectwedding',
+    name: 'ThePerfectWedding',
+    description: 'Trouwgids platform voor advertenties en leads.',
+    fields: [
+      { name: 'api_key', label: 'API Sleutel', type: 'password', placeholder: '' },
+      { name: 'partner_id', label: 'Partner ID', type: 'text', placeholder: '' },
+    ],
+  },
+  {
+    key: 'mailchimp',
+    name: 'Mailchimp',
+    description: 'E-mailmarketing voor nieuwsbrieven en campagnes.',
+    fields: [
+      { name: 'api_key', label: 'API Sleutel', type: 'password', placeholder: 'xxxxxxxx-us1' },
+      { name: 'list_id', label: 'Lijst ID (Audience)', type: 'text', placeholder: '' },
+    ],
+  },
+  {
+    key: 'google_analytics',
+    name: 'Google Analytics',
+    description: 'Websitestatistieken en bezoekersgedrag.',
+    fields: [
+      { name: 'measurement_id', label: 'Measurement ID', type: 'text', placeholder: 'G-XXXXXXXXXX' },
+    ],
+  },
+];
+---
+
+<Layout title="Koppelingen & Integraties">
+  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+    <div class="container mx-auto px-6 max-w-4xl">
+      <nav class="mb-10 flex items-center gap-3 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">
+        <a href="/admin" class="hover:text-charcoal transition-colors">Dashboard</a>
+        <span class="text-champagne">›</span>
+        <a href="/admin/instellingen" class="hover:text-charcoal transition-colors">Instellingen</a>
+        <span class="text-champagne">›</span>
+        <span class="text-charcoal">Koppelingen</span>
+      </nav>
+
+      <div class="mb-10">
+        <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">Instellingen</p>
+        <h1 class="font-display font-normal text-charcoal text-4xl leading-tight">
+          Koppelingen <em class="font-normal italic text-taupe">& Integraties</em>
+        </h1>
+        <p class="text-sm font-body text-taupe mt-3">API-sleutels worden veilig opgeslagen. Vul alleen in wat u gebruikt.</p>
+      </div>
+
+      <form id="integrations-form" class="space-y-6">
+        {INTEGRATIONS.map(integration => {
+          const saved = integrations[integration.key] ?? {};
+          const hasKey = !!(saved.api_key || saved.measurement_id);
+          return (
+            <section class="bg-white border border-champagne shadow-soft overflow-hidden">
+              <button
+                type="button"
+                class="accordion-toggle w-full flex items-center justify-between px-8 py-5 hover:bg-[#faf9f7] transition-colors"
+                data-target={`integration-${integration.key}`}
+              >
+                <div class="flex items-center gap-4 text-left">
+                  <div class="text-left">
+                    <div class="flex items-center gap-3">
+                      <span class="font-body font-medium text-charcoal text-sm">{integration.name}</span>
+                      {hasKey && (
+                        <span class="text-[8px] tracking-widest uppercase bg-green-50 text-green-700 px-2 py-0.5">Geconfigureerd</span>
+                      )}
+                    </div>
+                    <p class="text-xs font-body text-taupe mt-0.5">{integration.description}</p>
+                  </div>
+                </div>
+                <svg class="accordion-icon w-4 h-4 text-taupe transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              <div id={`integration-${integration.key}`} class="accordion-content hidden border-t border-champagne px-8 py-6 space-y-5">
+                {integration.fields.map(field => {
+                  if (field.type === 'checkbox') {
+                    return (
+                      <label class="flex items-center gap-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          name={`${integration.key}_${field.name}`}
+                          checked={saved[field.name] === true}
+                          class="w-4 h-4 accent-blush-deep"
+                        />
+                        <span class="text-sm font-body text-charcoal">{field.label}</span>
+                      </label>
+                    );
+                  }
+                  return (
+                    <div>
+                      <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">{field.label}</label>
+                      <input
+                        type={field.type}
+                        name={`${integration.key}_${field.name}`}
+                        value={saved[field.name] ?? ''}
+                        placeholder={field.placeholder}
+                        autocomplete="off"
+                        class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors font-mono"
+                      />
+                    </div>
+                  );
+                })}
+                <button
+                  type="button"
+                  class="clear-btn text-[9px] uppercase tracking-wider font-body text-red-400 hover:underline"
+                  data-key={integration.key}
+                >
+                  Gegevens wissen
+                </button>
+              </div>
+            </section>
+          );
+        })}
+
+        <div id="save-error" class="hidden bg-red-50 border border-red-200 px-4 py-3 text-sm font-body text-red-700"></div>
+        <div id="save-success" class="hidden bg-green-50 border border-green-200 px-4 py-3 text-sm font-body text-green-700">Koppelingen opgeslagen.</div>
+
+        <div class="flex gap-4 pt-2">
+          <button type="submit" id="save-btn" class="btn-premium text-[10px]">Koppelingen Opslaan</button>
+          <a href="/admin/instellingen" class="border border-champagne px-8 py-3 text-[10px] tracking-widest uppercase font-body text-taupe hover:border-charcoal hover:text-charcoal transition-colors">Terug</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</Layout>
+
+<script define:vars={{ INTEGRATIONS }}>
+  // Accordion
+  document.querySelectorAll('.accordion-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.getAttribute('data-target');
+      const content = document.getElementById(targetId);
+      const icon = btn.querySelector('.accordion-icon');
+      content?.classList.toggle('hidden');
+      icon?.classList.toggle('rotate-180');
+    });
+  });
+
+  // Clear buttons
+  document.querySelectorAll('.clear-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.getAttribute('data-key');
+      document.querySelectorAll(`[name^="${key}_"]`).forEach(input => {
+        if (input.type === 'checkbox') input.checked = false;
+        else input.value = '';
+      });
+    });
+  });
+
+  // Save form
+  const form = document.getElementById('integrations-form');
+  const saveBtn = document.getElementById('save-btn');
+  const errorEl = document.getElementById('save-error');
+  const successEl = document.getElementById('save-success');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (errorEl) { errorEl.textContent = ''; errorEl.classList.add('hidden'); }
+    if (successEl) successEl.classList.add('hidden');
+    if (saveBtn) { saveBtn.textContent = 'Opslaan...'; saveBtn.setAttribute('disabled', 'true'); }
+
+    const fd = new FormData(form);
+    const integrations = {};
+
+    for (const integration of INTEGRATIONS) {
+      const entry = {};
+      for (const field of integration.fields) {
+        const formKey = `${integration.key}_${field.name}`;
+        if (field.type === 'checkbox') {
+          entry[field.name] = fd.has(formKey);
+        } else {
+          const val = fd.get(formKey);
+          if (val) entry[field.name] = val;
+        }
+      }
+      if (Object.keys(entry).length > 0) integrations[integration.key] = entry;
+    }
+
+    try {
+      const res = await fetch('/api/admin/settings/integrations', {
+        method: 'PUT',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ integrations }),
+      });
+      if (res.ok) {
+        successEl?.classList.remove('hidden');
+      } else {
+        const err = await res.json();
+        if (errorEl) { errorEl.textContent = 'Fout: ' + (err.error ?? 'Onbekend'); errorEl.classList.remove('hidden'); }
+      }
+    } catch {
+      if (errorEl) { errorEl.textContent = 'Netwerkfout.'; errorEl.classList.remove('hidden'); }
+    } finally {
+      if (saveBtn) { saveBtn.textContent = 'Koppelingen Opslaan'; saveBtn.removeAttribute('disabled'); }
+    }
+  });
+</script>

@@ -1,0 +1,179 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getServiceRoleClient } from '../../../lib/serverAuth';
+
+// Load collections and products for the selects
+const supabase = getServiceRoleClient();
+const { data: products } = await supabase.from('products').select('id, name, brand').order('name');
+---
+
+<Layout title="Nieuwe Klant">
+  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+    <div class="container mx-auto px-6 max-w-4xl">
+      <nav class="mb-10 flex items-center gap-3 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">
+        <a href="/admin" class="hover:text-charcoal transition-colors">Dashboard</a>
+        <span class="text-champagne">›</span>
+        <a href="/admin/klanten" class="hover:text-charcoal transition-colors">Klanten</a>
+        <span class="text-champagne">›</span>
+        <span class="text-charcoal">Nieuwe Klant</span>
+      </nav>
+
+      <div class="mb-10">
+        <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">Klanten</p>
+        <h1 class="font-display font-normal text-charcoal text-4xl leading-tight">
+          Nieuwe <em class="font-normal italic text-taupe">Klant</em>
+        </h1>
+      </div>
+
+      <form id="klant-form" class="space-y-10">
+        <!-- Persoonsgegevens -->
+        <section class="bg-white border border-champagne p-8 shadow-soft space-y-6">
+          <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium border-b border-champagne pb-4">Persoonsgegevens</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Voornaam *</label>
+              <input type="text" name="first_name" required class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+            </div>
+            <div>
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Achternaam *</label>
+              <input type="text" name="last_name" required class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+            </div>
+            <div>
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">E-mailadres</label>
+              <input type="email" name="email" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+            </div>
+            <div>
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Telefoonnummer</label>
+              <input type="tel" name="phone" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+            </div>
+            <div>
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Trouwdatum</label>
+              <input type="date" name="wedding_date" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+            </div>
+            <div>
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Trouwlocatie</label>
+              <input type="text" name="wedding_venue" placeholder="Bijv. De Orangerie, Amsterdam" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+            </div>
+          </div>
+        </section>
+
+        <!-- Maten & Wensen -->
+        <section class="bg-white border border-champagne p-8 shadow-soft space-y-6">
+          <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium border-b border-champagne pb-4">Maten & Wensen</h2>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div>
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Kledingmaat</label>
+              <input type="text" name="size_clothing" placeholder="Bijv. 38" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+            </div>
+            <div>
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Schoenmaat</label>
+              <input type="text" name="size_shoe" placeholder="Bijv. 38" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+            </div>
+            <div>
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Borstemaat (cm)</label>
+              <input type="text" name="measure_bust" placeholder="Bijv. 92" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+            </div>
+            <div>
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Taille (cm)</label>
+              <input type="text" name="measure_waist" placeholder="Bijv. 72" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+            </div>
+            <div>
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Heupen (cm)</label>
+              <input type="text" name="measure_hips" placeholder="Bijv. 96" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+            </div>
+            <div>
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Lengte (cm)</label>
+              <input type="text" name="measure_height" placeholder="Bijv. 168" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Wensen & Stijlvoorkeur</label>
+            <textarea name="style_wishes" rows={3} placeholder="Bijv. voorkeur voor A-lijn, geen kant, romantisch..." class="w-full border border-champagne bg-transparent p-3 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors resize-none"></textarea>
+          </div>
+        </section>
+
+        <!-- Productkeuze -->
+        <section class="bg-white border border-champagne p-8 shadow-soft space-y-6">
+          <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium border-b border-champagne pb-4">Productkeuze</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Gekozen Product</label>
+              <select name="chosen_product_id" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors">
+                <option value="">— Nog geen keuze —</option>
+                {products?.map(p => (
+                  <option value={p.id}>{p.brand ? `${p.brand} — ` : ''}{p.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Status Bestelling</label>
+              <select name="order_status" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors">
+                <option value="orientation">Oriëntatie</option>
+                <option value="interested">Geïnteresseerd</option>
+                <option value="ordered">Besteld</option>
+                <option value="alterations">In aanpassing</option>
+                <option value="ready">Klaar voor ophalen</option>
+                <option value="collected">Opgehaald</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Verwachte Leveringsdatum</label>
+              <input type="date" name="delivery_date" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+            </div>
+            <div>
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Prijs</label>
+              <input type="text" name="price" placeholder="Bijv. €2.450" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+            </div>
+          </div>
+        </section>
+
+        <!-- Opmerkingen -->
+        <section class="bg-white border border-champagne p-8 shadow-soft space-y-4">
+          <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium border-b border-champagne pb-4">Opmerkingen</h2>
+          <textarea name="notes" rows={5} placeholder="Interne notities over deze klant..." class="w-full border border-champagne bg-transparent p-3 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors resize-none"></textarea>
+        </section>
+
+        <div id="form-error" class="hidden bg-red-50 border border-red-200 px-4 py-3 text-sm font-body text-red-700"></div>
+
+        <div class="flex gap-4">
+          <button type="submit" id="save-btn" class="btn-premium text-[10px]">Klant Opslaan</button>
+          <a href="/admin/klanten" class="border border-champagne px-8 py-3 text-[10px] tracking-widest uppercase font-body text-taupe hover:border-charcoal hover:text-charcoal transition-colors">Annuleren</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  const form = document.getElementById('klant-form') as HTMLFormElement | null;
+  const saveBtn = document.getElementById('save-btn');
+  const errorEl = document.getElementById('form-error');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (errorEl) { errorEl.textContent = ''; errorEl.classList.add('hidden'); }
+    if (saveBtn) { saveBtn.textContent = 'Opslaan...'; saveBtn.setAttribute('disabled', 'true'); }
+
+    const fd = new FormData(form);
+    const body: Record<string, string | null> = {};
+    fd.forEach((v, k) => { body[k] = v?.toString().trim() || null; });
+
+    try {
+      const res = await fetch('/api/admin/customers', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const json = await res.json();
+      if (res.ok) {
+        window.location.href = `/admin/klanten/${json.id}`;
+      } else {
+        if (errorEl) { errorEl.textContent = json.error ?? 'Opslaan mislukt.'; errorEl.classList.remove('hidden'); }
+        if (saveBtn) { saveBtn.textContent = 'Klant Opslaan'; saveBtn.removeAttribute('disabled'); }
+      }
+    } catch {
+      if (errorEl) { errorEl.textContent = 'Netwerkfout.'; errorEl.classList.remove('hidden'); }
+      if (saveBtn) { saveBtn.textContent = 'Klant Opslaan'; saveBtn.removeAttribute('disabled'); }
+    }
+  });
+</script>

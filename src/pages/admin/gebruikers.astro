@@ -77,9 +77,18 @@ const users = authUsers.map(u => ({
                     {u.last_login ? new Date(u.last_login).toLocaleString('nl-NL') : 'Nooit'}
                   </td>
                   <td class="px-6 py-4 text-right">
-                    <button class="save-user-btn opacity-0 group-hover:opacity-100 disabled:hidden px-4 py-1.5 bg-accent text-white text-[10px] uppercase tracking-widest rounded transition-all hover:bg-secondary" data-user-id={u.id}>
-                      Opslaan
-                    </button>
+                    <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        class="edit-email-btn px-3 py-1.5 border border-accent/20 text-accent text-[10px] uppercase tracking-widest rounded transition-all hover:border-secondary hover:text-secondary"
+                        data-user-id={u.id}
+                        data-email={u.email}
+                      >
+                        E-mail
+                      </button>
+                      <button class="save-user-btn disabled:hidden px-4 py-1.5 bg-accent text-white text-[10px] uppercase tracking-widest rounded transition-all hover:bg-secondary" data-user-id={u.id}>
+                        Opslaan
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -101,7 +110,80 @@ const users = authUsers.map(u => ({
   </main>
 </Layout>
 
+<dialog id="edit-email-dialog" style="border:1px solid #e8e0d5;padding:2rem;max-width:400px;width:100%;background:#fff;">
+  <h2 style="font-family:serif;font-size:1.25rem;margin-bottom:0.75rem;color:#2c2a28;">E-mailadres wijzigen</h2>
+  <p style="font-size:0.75rem;color:#9b8e82;margin-bottom:1rem;">Huidig: <span id="current-email-display" style="font-family:monospace;"></span></p>
+  <input
+    id="new-email-input"
+    type="email"
+    placeholder="nieuw@email.nl"
+    style="width:100%;border:0;border-bottom:1px solid #e8e0d5;padding:0.5rem 0;font-size:0.875rem;outline:none;background:transparent;margin-bottom:1.5rem;"
+  />
+  <p id="edit-email-error" style="display:none;font-size:0.75rem;color:rgb(239,68,68);margin-bottom:1rem;"></p>
+  <div style="display:flex;gap:1rem;">
+    <button id="confirm-email-edit" style="background:#2c2a28;color:#fff;padding:0.625rem 1.5rem;font-size:0.625rem;letter-spacing:0.15em;text-transform:uppercase;border:none;cursor:pointer;">Opslaan</button>
+    <button id="cancel-email-edit" style="border:1px solid #e8e0d5;padding:0.625rem 1.25rem;font-size:0.625rem;letter-spacing:0.15em;text-transform:uppercase;background:transparent;cursor:pointer;color:#9b8e82;">Annuleren</button>
+  </div>
+</dialog>
+
 <script>
+  // Edit email dialog
+  const emailDialog = document.getElementById('edit-email-dialog') as HTMLDialogElement | null;
+  const newEmailInput = document.getElementById('new-email-input') as HTMLInputElement | null;
+  const currentEmailDisplay = document.getElementById('current-email-display');
+  const confirmEmailBtn = document.getElementById('confirm-email-edit');
+  const cancelEmailBtn = document.getElementById('cancel-email-edit');
+  const editEmailError = document.getElementById('edit-email-error');
+  let editingUserId: string | null = null;
+
+  document.querySelectorAll<HTMLButtonElement>('.edit-email-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      editingUserId = btn.dataset.userId ?? null;
+      if (currentEmailDisplay) currentEmailDisplay.textContent = btn.dataset.email ?? '';
+      if (newEmailInput) newEmailInput.value = '';
+      if (editEmailError) { editEmailError.textContent = ''; editEmailError.style.display = 'none'; }
+      emailDialog?.showModal();
+      setTimeout(() => newEmailInput?.focus(), 50);
+    });
+  });
+
+  cancelEmailBtn?.addEventListener('click', () => { emailDialog?.close(); editingUserId = null; });
+  emailDialog?.addEventListener('click', (e) => { if (e.target === emailDialog) { emailDialog.close(); editingUserId = null; } });
+
+  confirmEmailBtn?.addEventListener('click', async () => {
+    if (!editingUserId || !newEmailInput) return;
+    const email = newEmailInput.value.trim();
+    if (!email) return;
+
+    confirmEmailBtn.textContent = '...';
+    confirmEmailBtn.setAttribute('disabled', 'true');
+    if (editEmailError) { editEmailError.textContent = ''; editEmailError.style.display = 'none'; }
+
+    const res = await fetch('/api/admin/users', {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ userId: editingUserId, email }),
+    });
+    const json = await res.json();
+
+    confirmEmailBtn.textContent = 'Opslaan';
+    confirmEmailBtn.removeAttribute('disabled');
+
+    if (res.ok) {
+      // Update the displayed email in the table
+      const editBtn = document.querySelector<HTMLButtonElement>(`.edit-email-btn[data-user-id="${editingUserId}"]`);
+      if (editBtn) {
+        editBtn.dataset.email = email;
+        const emailCell = editBtn.closest('tr')?.querySelector('td:first-child span:first-child');
+        if (emailCell) emailCell.textContent = email;
+      }
+      emailDialog?.close();
+      editingUserId = null;
+    } else {
+      if (editEmailError) { editEmailError.textContent = json.error ?? 'Fout bij opslaan.'; editEmailError.style.display = 'block'; }
+    }
+  });
+
   document.querySelectorAll('.save-user-btn').forEach(btn => {
     btn.addEventListener('click', async (e) => {
       const target = e.target as HTMLButtonElement;

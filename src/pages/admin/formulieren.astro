@@ -1,0 +1,164 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getServiceRoleClient } from '../../lib/serverAuth';
+
+const supabase = getServiceRoleClient();
+const { data: forms } = await supabase
+  .from('forms')
+  .select('*')
+  .order('created_at', { ascending: false });
+
+const totalSubmissions = forms?.reduce((sum, f) => sum + (f.submission_count ?? 0), 0) ?? 0;
+const activeForms = forms?.filter(f => f.is_active).length ?? 0;
+---
+
+<Layout title="Formulieren Beheer">
+  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+    <div class="container mx-auto px-6">
+      <nav class="mb-10 flex items-center gap-3 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">
+        <a href="/admin" class="hover:text-charcoal transition-colors">Dashboard</a>
+        <span class="text-champagne">›</span>
+        <span class="text-charcoal">Formulieren</span>
+      </nav>
+
+      <div class="flex items-end justify-between mb-12">
+        <div>
+          <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">Backoffice</p>
+          <h1 class="font-display font-normal text-charcoal text-4xl leading-tight">
+            Beheer <em class="font-normal italic text-taupe">Formulieren</em>
+          </h1>
+        </div>
+        <a href="/admin/formulier/new" class="bg-charcoal text-warm-white px-8 py-3 text-[10px] tracking-widest uppercase hover:bg-taupe transition-all font-medium">
+          + Nieuw Formulier
+        </a>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-5 mb-16">
+        <div class="bg-white border border-champagne p-8 shadow-soft">
+          <p class="text-4xl font-display text-charcoal leading-none mb-2">{forms?.length ?? 0}</p>
+          <p class="text-[9px] tracking-[0.25em] uppercase text-taupe font-body">Formulieren</p>
+        </div>
+        <div class="bg-white border border-champagne p-8 shadow-soft">
+          <p class="text-4xl font-display text-charcoal leading-none mb-2">{activeForms}</p>
+          <p class="text-[9px] tracking-[0.25em] uppercase text-taupe font-body">Actief</p>
+        </div>
+        <div class="bg-white border border-champagne p-8 shadow-soft">
+          <p class="text-4xl font-display text-charcoal leading-none mb-2">{totalSubmissions}</p>
+          <p class="text-[9px] tracking-[0.25em] uppercase text-taupe font-body">Inzendingen</p>
+        </div>
+      </div>
+
+      <!-- Forms list -->
+      {forms && forms.length > 0 ? (
+        <div class="bg-white border border-champagne shadow-soft overflow-hidden">
+          <table class="w-full text-sm font-body">
+            <thead>
+              <tr class="border-b border-champagne bg-[#faf9f7]">
+                <th class="text-left px-6 py-4 text-[9px] tracking-[0.25em] uppercase text-taupe font-medium">Naam</th>
+                <th class="text-left px-6 py-4 text-[9px] tracking-[0.25em] uppercase text-taupe font-medium hidden md:table-cell">Slug</th>
+                <th class="text-center px-6 py-4 text-[9px] tracking-[0.25em] uppercase text-taupe font-medium">Status</th>
+                <th class="text-center px-6 py-4 text-[9px] tracking-[0.25em] uppercase text-taupe font-medium">Inzendingen</th>
+                <th class="text-left px-6 py-4 text-[9px] tracking-[0.25em] uppercase text-taupe font-medium hidden lg:table-cell">Laatste inzending</th>
+                <th class="px-6 py-4"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-champagne">
+              {forms.map(form => (
+                <tr class="hover:bg-[#faf9f7] transition-colors group">
+                  <td class="px-6 py-4">
+                    <span class="font-medium text-charcoal">{form.name}</span>
+                    <span class="ml-2 text-[9px] text-taupe">{form.fields?.length ?? 0} velden</span>
+                  </td>
+                  <td class="px-6 py-4 hidden md:table-cell">
+                    <code class="text-xs text-taupe bg-linen px-2 py-1">{form.slug}</code>
+                  </td>
+                  <td class="px-6 py-4 text-center">
+                    <span class={`text-[9px] tracking-widest uppercase px-2 py-1 ${form.is_active ? 'bg-green-50 text-green-700' : 'bg-linen text-taupe'}`}>
+                      {form.is_active ? 'Actief' : 'Inactief'}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 text-center">
+                    <a href={`/admin/formulier/${form.id}/inzendingen`} class="font-display text-xl text-charcoal hover:text-blush-deep transition-colors">
+                      {form.submission_count ?? 0}
+                    </a>
+                  </td>
+                  <td class="px-6 py-4 text-taupe text-xs hidden lg:table-cell">
+                    {form.last_submission_at
+                      ? new Date(form.last_submission_at).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })
+                      : '—'
+                    }
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <a href={`/admin/formulier/${form.id}/inzendingen`} class="text-[9px] uppercase tracking-wider text-taupe hover:text-charcoal">Inzendingen</a>
+                      <a href={`/admin/formulier/${form.id}/edit`} class="text-[9px] uppercase tracking-wider text-blush-deep hover:underline">Bewerk</a>
+                      <button
+                        class="delete-form-btn text-[9px] uppercase tracking-wider text-red-400 hover:underline"
+                        data-id={form.id}
+                        data-name={form.name}
+                      >Verwijder</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div class="text-center py-24 bg-white border border-dashed border-champagne">
+          <p class="font-display text-xl text-taupe italic mb-4">Nog geen formulieren.</p>
+          <a href="/admin/formulier/new" class="btn-premium text-[10px]">+ Eerste formulier aanmaken</a>
+        </div>
+      )}
+    </div>
+  </div>
+</Layout>
+
+<dialog id="delete-dialog" class="bg-white border border-champagne shadow-card p-8 max-w-sm w-full">
+  <h2 class="font-display text-charcoal text-xl mb-3">Formulier verwijderen?</h2>
+  <p id="delete-dialog-msg" class="text-sm font-body text-taupe mb-2"></p>
+  <p class="text-xs font-body text-red-500 mb-6">Alle inzendingen worden ook verwijderd.</p>
+  <div class="flex gap-4">
+    <button id="confirm-delete" class="btn-premium text-[10px]" style="background-color: rgb(239,68,68); border-color: rgb(239,68,68)">Verwijderen</button>
+    <button id="cancel-delete" class="btn-gold text-[10px]">Annuleren</button>
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.getElementById('delete-dialog') as HTMLDialogElement | null;
+  const confirmBtn = document.getElementById('confirm-delete');
+  const cancelBtn = document.getElementById('cancel-delete');
+  const dialogMsg = document.getElementById('delete-dialog-msg');
+  let pendingDeleteId: string | null = null;
+
+  document.querySelectorAll<HTMLButtonElement>('.delete-form-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      pendingDeleteId = btn.getAttribute('data-id');
+      const name = btn.getAttribute('data-name') ?? 'dit formulier';
+      if (dialogMsg) dialogMsg.textContent = `Weet je zeker dat je "${name}" wilt verwijderen?`;
+      dialog?.showModal();
+    });
+  });
+
+  cancelBtn?.addEventListener('click', () => { dialog?.close(); pendingDeleteId = null; });
+  dialog?.addEventListener('click', (e) => { if (e.target === dialog) { dialog.close(); pendingDeleteId = null; } });
+
+  confirmBtn?.addEventListener('click', async () => {
+    if (!pendingDeleteId) return;
+    const id = pendingDeleteId;
+    dialog?.close();
+    const res = await fetch(`/api/admin/forms/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      document.querySelector(`.delete-form-btn[data-id="${id}"]`)?.closest('tr')?.remove();
+    } else {
+      alert('Fout bij verwijderen. Probeer opnieuw.');
+    }
+    pendingDeleteId = null;
+  });
+</script>
+
+<style>
+  #delete-dialog { border: 1px solid var(--color-champagne); }
+  #delete-dialog::backdrop { background: rgba(44,42,40,0.5); }
+</style>

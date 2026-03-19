@@ -1,0 +1,177 @@
+---
+import type { Form, FieldDefinition } from '../lib/forms';
+
+interface Props {
+  form: Form;
+  successMessage?: string;
+}
+
+const { form, successMessage = 'Bedankt! Uw bericht is ontvangen.' } = Astro.props;
+const fields: FieldDefinition[] = form.fields ?? [];
+const formEmbedId = `form-embed-${form.slug}`;
+---
+
+<div id={formEmbedId} class="form-embed">
+  {form.description && (
+    <p class="text-sm font-body text-taupe mb-6">{form.description}</p>
+  )}
+
+  <form id={`${formEmbedId}-form`} novalidate class="space-y-6">
+    <!-- Honeypot -->
+    <div style="display:none" aria-hidden="true">
+      <input type="text" name="_hp" tabindex="-1" autocomplete="off" />
+    </div>
+
+    {fields.map((field) => (
+      <div class="form-field">
+        <label
+          for={`${formEmbedId}-${field.id}`}
+          class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2"
+        >
+          {field.label}
+          {field.required && <span class="text-blush-deep ml-1">*</span>}
+        </label>
+
+        {field.type === 'textarea' && (
+          <textarea
+            id={`${formEmbedId}-${field.id}`}
+            name={field.id}
+            placeholder={field.placeholder}
+            required={field.required}
+            rows={5}
+            class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors resize-none"
+          ></textarea>
+        )}
+
+        {field.type === 'select' && (
+          <select
+            id={`${formEmbedId}-${field.id}`}
+            name={field.id}
+            required={field.required}
+            class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors"
+          >
+            <option value="">— Kies een optie —</option>
+            {(field.options ?? []).map(opt => (
+              <option value={opt}>{opt}</option>
+            ))}
+          </select>
+        )}
+
+        {field.type === 'radio' && (
+          <div class="space-y-2">
+            {(field.options ?? []).map(opt => (
+              <label class="flex items-center gap-3 cursor-pointer text-sm font-body text-charcoal">
+                <input
+                  type="radio"
+                  name={field.id}
+                  value={opt}
+                  required={field.required}
+                  class="accent-blush-deep"
+                />
+                {opt}
+              </label>
+            ))}
+          </div>
+        )}
+
+        {field.type === 'checkbox' && (
+          <div class="space-y-2">
+            {(field.options ?? []).map(opt => (
+              <label class="flex items-center gap-3 cursor-pointer text-sm font-body text-charcoal">
+                <input
+                  type="checkbox"
+                  name={field.id}
+                  value={opt}
+                  class="accent-blush-deep"
+                />
+                {opt}
+              </label>
+            ))}
+          </div>
+        )}
+
+        {!['textarea', 'select', 'radio', 'checkbox'].includes(field.type) && (
+          <input
+            type={field.type}
+            id={`${formEmbedId}-${field.id}`}
+            name={field.id}
+            placeholder={field.placeholder}
+            required={field.required}
+            class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors"
+          />
+        )}
+      </div>
+    ))}
+
+    <div id={`${formEmbedId}-error`} class="hidden text-sm font-body text-red-600 py-2"></div>
+
+    <button
+      type="submit"
+      id={`${formEmbedId}-submit`}
+      class="btn-premium text-[10px]"
+    >
+      Versturen
+    </button>
+  </form>
+
+  <div id={`${formEmbedId}-success`} class="hidden py-8 text-center">
+    <p class="font-display text-2xl text-charcoal italic mb-2">Verstuurd</p>
+    <p class="text-sm font-body text-taupe">{successMessage}</p>
+  </div>
+</div>
+
+<script define:vars={{ formSlug: form.slug, formEmbedId }}>
+  const formEl = document.getElementById(`${formEmbedId}-form`);
+  const successEl = document.getElementById(`${formEmbedId}-success`);
+  const errorEl = document.getElementById(`${formEmbedId}-error`);
+  const submitBtn = document.getElementById(`${formEmbedId}-submit`);
+
+  formEl?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!formEl || !submitBtn) return;
+
+    submitBtn.setAttribute('disabled', 'true');
+    submitBtn.textContent = 'Versturen...';
+    if (errorEl) { errorEl.textContent = ''; errorEl.classList.add('hidden'); }
+
+    const formData = new FormData(formEl);
+    const body = {};
+
+    for (const [key, value] of formData.entries()) {
+      if (key in body) {
+        if (!Array.isArray(body[key])) body[key] = [body[key]];
+        body[key].push(value);
+      } else {
+        body[key] = value;
+      }
+    }
+
+    try {
+      const res = await fetch(`/api/forms/${formSlug}`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const json = await res.json();
+
+      if (res.ok) {
+        formEl.classList.add('hidden');
+        successEl?.classList.remove('hidden');
+      } else {
+        if (errorEl) {
+          errorEl.textContent = json.error ?? 'Er is iets misgegaan. Probeer opnieuw.';
+          errorEl.classList.remove('hidden');
+        }
+        submitBtn.removeAttribute('disabled');
+        submitBtn.textContent = 'Versturen';
+      }
+    } catch {
+      if (errorEl) {
+        errorEl.textContent = 'Netwerkfout. Controleer uw verbinding en probeer opnieuw.';
+        errorEl.classList.remove('hidden');
+      }
+      submitBtn.removeAttribute('disabled');
+      submitBtn.textContent = 'Versturen';
+    }
+  });
+</script>

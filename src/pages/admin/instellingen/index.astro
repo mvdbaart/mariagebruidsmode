@@ -1,0 +1,76 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getServiceRoleClient } from '../../../lib/serverAuth';
+
+const supabase = getServiceRoleClient();
+const { data: settings } = await supabase.from('site_settings').select('*').eq('id', 'current').single();
+
+const integrations = settings?.integrations ?? {};
+const activeIntegrations = Object.values(integrations).filter((v: any) => v?.api_key || v?.enabled).length;
+---
+
+<Layout title="Site Instellingen">
+  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+    <div class="container mx-auto px-6">
+      <nav class="mb-10 flex items-center gap-3 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">
+        <a href="/admin" class="hover:text-charcoal transition-colors">Dashboard</a>
+        <span class="text-champagne">›</span>
+        <span class="text-charcoal">Instellingen</span>
+      </nav>
+
+      <div class="mb-12">
+        <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">Beheer</p>
+        <h1 class="font-display font-normal text-charcoal text-4xl leading-tight">
+          Site <em class="font-normal italic text-taupe">Instellingen</em>
+        </h1>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Uiterlijk -->
+        <a href="/admin/instellingen/uiterlijk" class="bg-white border border-champagne p-8 shadow-soft hover:border-blush-deep transition-colors group">
+          <div class="flex items-start justify-between mb-6">
+            <div class="w-10 h-10 bg-linen flex items-center justify-center">
+              <svg class="w-5 h-5 text-taupe" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+              </svg>
+            </div>
+            <span class="text-[9px] tracking-widest uppercase font-body text-blush-deep group-hover:underline">Bewerken →</span>
+          </div>
+          <h2 class="font-display text-charcoal text-2xl italic mb-2">Uiterlijk</h2>
+          <p class="text-xs font-body text-taupe leading-relaxed">Kleuren, typografie, UI-stijl en algemene site-informatie.</p>
+        </a>
+
+        <!-- Koppelingen -->
+        <a href="/admin/instellingen/koppelingen" class="bg-white border border-champagne p-8 shadow-soft hover:border-blush-deep transition-colors group">
+          <div class="flex items-start justify-between mb-6">
+            <div class="w-10 h-10 bg-linen flex items-center justify-center">
+              <svg class="w-5 h-5 text-taupe" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+              </svg>
+            </div>
+            <span class="text-[9px] tracking-widest uppercase font-body text-blush-deep group-hover:underline">Bewerken →</span>
+          </div>
+          <h2 class="font-display text-charcoal text-2xl italic mb-2">Koppelingen</h2>
+          <p class="text-xs font-body text-taupe leading-relaxed">
+            Integraties met betalingsproviders en externe platformen.
+            {activeIntegrations > 0 && <span class="block mt-1 text-green-600">{activeIntegrations} actief</span>}
+          </p>
+        </a>
+
+        <!-- Placeholder: SEO (toekomstig) -->
+        <div class="bg-white border border-dashed border-champagne p-8 opacity-50 cursor-not-allowed">
+          <div class="flex items-start justify-between mb-6">
+            <div class="w-10 h-10 bg-linen flex items-center justify-center">
+              <svg class="w-5 h-5 text-taupe" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <span class="text-[9px] tracking-widest uppercase font-body text-taupe">Binnenkort</span>
+          </div>
+          <h2 class="font-display text-charcoal text-2xl italic mb-2">SEO & Meta</h2>
+          <p class="text-xs font-body text-taupe leading-relaxed">Sitemap, meta-tags, Open Graph en sociale media previews.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>

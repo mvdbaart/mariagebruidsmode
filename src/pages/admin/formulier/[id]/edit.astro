@@ -1,0 +1,50 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import FormBuilderEditor from '../../../../components/admin/FormBuilderEditor';
+import { getServiceRoleClient } from '../../../../lib/serverAuth';
+
+const { id } = Astro.params;
+const supabase = getServiceRoleClient();
+const { data: form, error } = await supabase.from('forms').select('*').eq('id', id).single();
+
+if (error || !form) return Astro.redirect('/admin/formulieren');
+---
+
+<Layout title={`Bewerk: ${form.name}`}>
+  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+    <div class="container mx-auto px-6 max-w-4xl">
+      <nav class="mb-10 flex items-center gap-3 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">
+        <a href="/admin" class="hover:text-charcoal transition-colors">Dashboard</a>
+        <span class="text-champagne">›</span>
+        <a href="/admin/formulieren" class="hover:text-charcoal transition-colors">Formulieren</a>
+        <span class="text-champagne">›</span>
+        <span class="text-charcoal">Bewerken</span>
+      </nav>
+
+      <div class="flex items-end justify-between mb-10">
+        <div>
+          <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">Formulieren</p>
+          <h1 class="font-display font-normal text-charcoal text-4xl leading-tight">
+            Bewerk <em class="font-normal italic text-taupe">{form.name}</em>
+          </h1>
+        </div>
+        <a
+          href={`/admin/formulier/${form.id}/inzendingen`}
+          class="border border-champagne px-6 py-3 text-[10px] tracking-widest uppercase font-body text-taupe hover:border-charcoal hover:text-charcoal transition-colors"
+        >
+          {form.submission_count ?? 0} Inzendingen
+        </a>
+      </div>
+
+      <FormBuilderEditor
+        client:only="react"
+        initialName={form.name}
+        initialSlug={form.slug}
+        initialDescription={form.description ?? ''}
+        initialFields={form.fields ?? []}
+        formId={form.id}
+        isEdit={true}
+      />
+    </div>
+  </div>
+</Layout>

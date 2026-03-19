@@ -1,0 +1,276 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getServiceRoleClient } from '../../../lib/serverAuth';
+
+const { id } = Astro.params;
+const supabase = getServiceRoleClient();
+
+const [{ data: klant }, { data: appointments }, { data: products }] = await Promise.all([
+  supabase.from('customers').select('*').eq('id', id).single(),
+  supabase.from('appointments').select('*').eq('customer_id', id).order('created_at', { ascending: false }),
+  supabase.from('products').select('id, name, brand').order('name'),
+]);
+
+if (!klant) return Astro.redirect('/admin/klanten');
+
+const ORDER_STATUS_LABELS: Record<string, string> = {
+  orientation: 'Oriëntatie',
+  interested: 'Geïnteresseerd',
+  ordered: 'Besteld',
+  alterations: 'In aanpassing',
+  ready: 'Klaar voor ophalen',
+  collected: 'Opgehaald',
+};
+---
+
+<Layout title={`${klant.first_name} ${klant.last_name}`}>
+  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+    <div class="container mx-auto px-6 max-w-5xl">
+      <nav class="mb-10 flex items-center gap-3 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">
+        <a href="/admin" class="hover:text-charcoal transition-colors">Dashboard</a>
+        <span class="text-champagne">›</span>
+        <a href="/admin/klanten" class="hover:text-charcoal transition-colors">Klanten</a>
+        <span class="text-champagne">›</span>
+        <span class="text-charcoal">{klant.first_name} {klant.last_name}</span>
+      </nav>
+
+      <div class="flex items-start justify-between mb-12">
+        <div>
+          <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">Klantprofiel</p>
+          <h1 class="font-display font-normal text-charcoal text-4xl leading-tight">
+            {klant.first_name} <em class="font-normal italic text-taupe">{klant.last_name}</em>
+          </h1>
+          <p class="text-xs font-body text-taupe mt-2">Aangemeld op {new Date(klant.created_at).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+        </div>
+        <div class="flex items-center gap-3">
+          {klant.order_status && (
+            <span class="text-[9px] tracking-widest uppercase font-body bg-linen text-charcoal px-3 py-1.5">
+              {ORDER_STATUS_LABELS[klant.order_status] ?? klant.order_status}
+            </span>
+          )}
+          <button id="delete-btn" class="border border-red-200 px-4 py-2 text-[9px] uppercase tracking-wider font-body text-red-400 hover:bg-red-50 transition-colors">Verwijder</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left: main form -->
+        <div class="lg:col-span-2 space-y-8">
+          <form id="klant-form" class="space-y-8">
+            <!-- Persoonsgegevens -->
+            <section class="bg-white border border-champagne p-8 shadow-soft space-y-6">
+              <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium border-b border-champagne pb-4">Persoonsgegevens</h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Voornaam *</label>
+                  <input type="text" name="first_name" value={klant.first_name} required class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+                </div>
+                <div>
+                  <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Achternaam *</label>
+                  <input type="text" name="last_name" value={klant.last_name} required class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+                </div>
+                <div>
+                  <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">E-mailadres</label>
+                  <input type="email" name="email" value={klant.email ?? ''} class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+                </div>
+                <div>
+                  <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Telefoonnummer</label>
+                  <input type="tel" name="phone" value={klant.phone ?? ''} class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+                </div>
+                <div>
+                  <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Trouwdatum</label>
+                  <input type="date" name="wedding_date" value={klant.wedding_date ?? ''} class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+                </div>
+                <div>
+                  <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Trouwlocatie</label>
+                  <input type="text" name="wedding_venue" value={klant.wedding_venue ?? ''} placeholder="Bijv. De Orangerie, Amsterdam" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+                </div>
+              </div>
+            </section>
+
+            <!-- Maten -->
+            <section class="bg-white border border-champagne p-8 shadow-soft space-y-6">
+              <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium border-b border-champagne pb-4">Maten & Wensen</h2>
+              <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+                {[
+                  { name: 'size_clothing', label: 'Kledingmaat', placeholder: '38' },
+                  { name: 'size_shoe', label: 'Schoenmaat', placeholder: '38' },
+                  { name: 'measure_bust', label: 'Borst (cm)', placeholder: '92' },
+                  { name: 'measure_waist', label: 'Taille (cm)', placeholder: '72' },
+                  { name: 'measure_hips', label: 'Heupen (cm)', placeholder: '96' },
+                  { name: 'measure_height', label: 'Lengte (cm)', placeholder: '168' },
+                ].map(f => (
+                  <div>
+                    <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">{f.label}</label>
+                    <input type="text" name={f.name} value={(klant as any)[f.name] ?? ''} placeholder={f.placeholder} class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+                  </div>
+                ))}
+              </div>
+              <div>
+                <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Wensen & Stijlvoorkeur</label>
+                <textarea name="style_wishes" rows={3} placeholder="Bijv. voorkeur voor A-lijn, geen kant..." class="w-full border border-champagne bg-transparent p-3 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors resize-none">{klant.style_wishes ?? ''}</textarea>
+              </div>
+            </section>
+
+            <!-- Productkeuze -->
+            <section class="bg-white border border-champagne p-8 shadow-soft space-y-6">
+              <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium border-b border-champagne pb-4">Productkeuze</h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Gekozen Product</label>
+                  <select name="chosen_product_id" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors">
+                    <option value="">— Nog geen keuze —</option>
+                    {products?.map(p => (
+                      <option value={p.id} selected={klant.chosen_product_id === p.id}>
+                        {p.brand ? `${p.brand} — ` : ''}{p.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Status Bestelling</label>
+                  <select name="order_status" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors">
+                    {Object.entries(ORDER_STATUS_LABELS).map(([val, label]) => (
+                      <option value={val} selected={klant.order_status === val}>{label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Verwachte Levering</label>
+                  <input type="date" name="delivery_date" value={klant.delivery_date ?? ''} class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+                </div>
+                <div>
+                  <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Prijs</label>
+                  <input type="text" name="price" value={klant.price ?? ''} placeholder="Bijv. €2.450" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+                </div>
+              </div>
+            </section>
+
+            <!-- Opmerkingen -->
+            <section class="bg-white border border-champagne p-8 shadow-soft space-y-4">
+              <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium border-b border-champagne pb-4">Opmerkingen</h2>
+              <textarea name="notes" rows={6} placeholder="Interne notities..." class="w-full border border-champagne bg-transparent p-3 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors resize-none">{klant.notes ?? ''}</textarea>
+            </section>
+
+            <div id="form-error" class="hidden bg-red-50 border border-red-200 px-4 py-3 text-sm font-body text-red-700"></div>
+            <div id="form-success" class="hidden bg-green-50 border border-green-200 px-4 py-3 text-sm font-body text-green-700">Klantgegevens opgeslagen.</div>
+
+            <button type="submit" id="save-btn" class="btn-premium text-[10px]">Opslaan</button>
+          </form>
+        </div>
+
+        <!-- Right: sidebar -->
+        <div class="space-y-6">
+          <!-- Quick info -->
+          <div class="bg-white border border-champagne p-6 shadow-soft space-y-4">
+            <h3 class="text-[10px] uppercase tracking-[0.2em] text-taupe font-body border-b border-champagne pb-3">Snel overzicht</h3>
+            {klant.email && (
+              <div>
+                <p class="text-[9px] uppercase tracking-wider text-taupe font-body mb-1">E-mail</p>
+                <a href={`mailto:${klant.email}`} class="text-sm font-body text-blush-deep hover:underline break-all">{klant.email}</a>
+              </div>
+            )}
+            {klant.phone && (
+              <div>
+                <p class="text-[9px] uppercase tracking-wider text-taupe font-body mb-1">Telefoon</p>
+                <a href={`tel:${klant.phone}`} class="text-sm font-body text-charcoal hover:text-blush-deep">{klant.phone}</a>
+              </div>
+            )}
+            {klant.wedding_date && (
+              <div>
+                <p class="text-[9px] uppercase tracking-wider text-taupe font-body mb-1">Trouwdatum</p>
+                <p class="text-sm font-body text-charcoal">{new Date(klant.wedding_date).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+              </div>
+            )}
+            {klant.price && (
+              <div>
+                <p class="text-[9px] uppercase tracking-wider text-taupe font-body mb-1">Prijs</p>
+                <p class="text-sm font-display text-charcoal">{klant.price}</p>
+              </div>
+            )}
+          </div>
+
+          <!-- Afspraken -->
+          <div class="bg-white border border-champagne p-6 shadow-soft">
+            <h3 class="text-[10px] uppercase tracking-[0.2em] text-taupe font-body border-b border-champagne pb-3 mb-4">Afspraken</h3>
+            {appointments && appointments.length > 0 ? (
+              <div class="space-y-3">
+                {appointments.map(app => (
+                  <div class="text-sm font-body">
+                    <p class="text-charcoal font-medium">{app.appointment_type}</p>
+                    <p class="text-xs text-taupe">
+                      {app.preferred_date ? new Date(app.preferred_date).toLocaleDateString('nl-NL') : '—'}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p class="text-xs font-body text-taupe italic">Geen afspraken gevonden.</p>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<dialog id="delete-dialog" class="bg-white border border-champagne shadow-card p-8 max-w-sm w-full">
+  <h2 class="font-display text-charcoal text-xl mb-3">Klant verwijderen?</h2>
+  <p class="text-sm font-body text-taupe mb-6">Alle gegevens van <strong>{klant.first_name} {klant.last_name}</strong> worden permanent verwijderd.</p>
+  <div class="flex gap-4">
+    <button id="confirm-delete" class="btn-premium text-[10px]" style="background-color: rgb(239,68,68); border-color: rgb(239,68,68)">Verwijderen</button>
+    <button id="cancel-delete" class="btn-gold text-[10px]">Annuleren</button>
+  </div>
+</dialog>
+
+<script define:vars={{ customerId: klant.id }}>
+  const form = document.getElementById('klant-form');
+  const saveBtn = document.getElementById('save-btn');
+  const errorEl = document.getElementById('form-error');
+  const successEl = document.getElementById('form-success');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (errorEl) { errorEl.textContent = ''; errorEl.classList.add('hidden'); }
+    if (successEl) successEl.classList.add('hidden');
+    if (saveBtn) { saveBtn.textContent = 'Opslaan...'; saveBtn.setAttribute('disabled', 'true'); }
+
+    const fd = new FormData(form);
+    const body = {};
+    fd.forEach((v, k) => { body[k] = v?.toString().trim() || null; });
+
+    const res = await fetch(`/api/admin/customers/${customerId}`, {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const json = await res.json();
+    if (saveBtn) { saveBtn.textContent = 'Opslaan'; saveBtn.removeAttribute('disabled'); }
+
+    if (res.ok) {
+      successEl?.classList.remove('hidden');
+      setTimeout(() => successEl?.classList.add('hidden'), 3000);
+    } else {
+      if (errorEl) { errorEl.textContent = json.error ?? 'Fout bij opslaan.'; errorEl.classList.remove('hidden'); }
+    }
+  });
+
+  // Delete
+  const deleteBtn = document.getElementById('delete-btn');
+  const deleteDialog = document.getElementById('delete-dialog');
+  const confirmDelete = document.getElementById('confirm-delete');
+  const cancelDelete = document.getElementById('cancel-delete');
+
+  deleteBtn?.addEventListener('click', () => deleteDialog?.showModal());
+  cancelDelete?.addEventListener('click', () => deleteDialog?.close());
+  confirmDelete?.addEventListener('click', async () => {
+    deleteDialog?.close();
+    const res = await fetch(`/api/admin/customers/${customerId}`, { method: 'DELETE' });
+    if (res.ok) window.location.href = '/admin/klanten';
+    else alert('Verwijderen mislukt.');
+  });
+</script>
+
+<style>
+  #delete-dialog { border: 1px solid var(--color-champagne); }
+  #delete-dialog::backdrop { background: rgba(44,42,40,0.5); }
+</style>

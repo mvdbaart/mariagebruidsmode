@@ -11,6 +11,8 @@ const [
   { count: blogCount },
   { count: appointmentCount },
   { count: weddingCount },
+  { count: formCount },
+  { count: customerCount },
   { data: recentAppointments },
   { data: recentProducts },
 ] = await Promise.all([
@@ -19,6 +21,8 @@ const [
   supabase.from('blog_posts').select('*', { count: 'exact', head: true }),
   supabase.from('appointments').select('*', { count: 'exact', head: true }),
   supabase.from('real_weddings').select('*', { count: 'exact', head: true }),
+  supabase.from('forms').select('*', { count: 'exact', head: true }),
+  supabase.from('customers').select('*', { count: 'exact', head: true }),
   supabase.from('appointments').select('*').order('created_at', { ascending: false }).limit(5),
   supabase.from('products').select('*, collections(title)').order('created_at', { ascending: false }).limit(5),
 ]);
@@ -29,6 +33,8 @@ const stats = [
   { label: 'Blog Artikelen', value: blogCount ?? 0, href: '/admin/blog' },
   { label: 'Afspraken', value: appointmentCount ?? 0, href: '/admin/afspraken' },
   { label: 'Bruidsverhalen', value: weddingCount ?? 0, href: '/admin/inspiratie' },
+  { label: 'Formulieren', value: formCount ?? 0, href: '/admin/formulieren' },
+  { label: 'Klanten', value: customerCount ?? 0, href: '/admin/klanten' },
 ];
 ---
 
@@ -46,7 +52,7 @@ const stats = [
       </div>
 
       <!-- Live stats row -->
-      <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-14">
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-14">
         {stats.map(stat => (
           <a href={stat.href} class="bg-white border border-champagne p-6 shadow-soft hover:shadow-card transition-all duration-300 hover:-translate-y-0.5 group">
             <p class="text-3xl font-display text-charcoal group-hover:text-blush-deep transition-colors">{stat.value}</p>
@@ -82,13 +88,21 @@ const stats = [
           <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Beheer Pagina</span>
           <span class="font-display text-charcoal text-3xl italic">Gebruikers</span>
         </a>
-        <a href="/admin/instellingen/uiterlijk" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
+        <a href="/admin/instellingen" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
           <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Beheer Pagina</span>
-          <span class="font-display text-charcoal text-3xl italic">Uiterlijk</span>
+          <span class="font-display text-charcoal text-3xl italic">Instellingen</span>
         </a>
         <a href="/admin/planner/medewerkers" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
           <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Planning & Personeel</span>
           <span class="font-display text-charcoal text-3xl italic">Planning</span>
+        </a>
+        <a href="/admin/formulieren" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
+          <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Beheer Pagina</span>
+          <span class="font-display text-charcoal text-3xl italic">Formulieren</span>
+        </a>
+        <a href="/admin/klanten" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
+          <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Beheer Pagina</span>
+          <span class="font-display text-charcoal text-3xl italic">Klanten</span>
         </a>
       </div>
 

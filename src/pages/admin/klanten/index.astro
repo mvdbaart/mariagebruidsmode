@@ -1,0 +1,141 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getServiceRoleClient } from '../../../lib/serverAuth';
+
+const supabase = getServiceRoleClient();
+const { data: klanten } = await supabase
+  .from('customers')
+  .select('id, first_name, last_name, email, phone, wedding_date, created_at, notes')
+  .order('created_at', { ascending: false });
+
+const total = klanten?.length ?? 0;
+const thisMonth = klanten?.filter(k => {
+  const d = new Date(k.created_at);
+  const now = new Date();
+  return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+}).length ?? 0;
+const withDate = klanten?.filter(k => k.wedding_date).length ?? 0;
+---
+
+<Layout title="Klanten Beheer">
+  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+    <div class="container mx-auto px-6">
+      <nav class="mb-10 flex items-center gap-3 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">
+        <a href="/admin" class="hover:text-charcoal transition-colors">Dashboard</a>
+        <span class="text-champagne">›</span>
+        <span class="text-charcoal">Klanten</span>
+      </nav>
+
+      <div class="flex items-end justify-between mb-12">
+        <div>
+          <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">Backoffice</p>
+          <h1 class="font-display font-normal text-charcoal text-4xl leading-tight">
+            Beheer <em class="font-normal italic text-taupe">Klanten</em>
+          </h1>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="relative">
+            <input
+              id="search-input"
+              type="text"
+              placeholder="Zoeken op naam of e-mail..."
+              class="border border-champagne bg-white px-4 py-2.5 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep w-72 transition-colors"
+            />
+          </div>
+          <a href="/admin/klanten/new" class="bg-charcoal text-warm-white px-8 py-3 text-[10px] tracking-widest uppercase hover:bg-taupe transition-all font-medium">
+            + Nieuwe Klant
+          </a>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-5 mb-16">
+        <div class="bg-white border border-champagne p-8 shadow-soft">
+          <p class="text-4xl font-display text-charcoal leading-none mb-2">{total}</p>
+          <p class="text-[9px] tracking-[0.25em] uppercase text-taupe font-body">Klanten</p>
+        </div>
+        <div class="bg-white border border-champagne p-8 shadow-soft">
+          <p class="text-4xl font-display text-charcoal leading-none mb-2">{thisMonth}</p>
+          <p class="text-[9px] tracking-[0.25em] uppercase text-taupe font-body">Deze maand</p>
+        </div>
+        <div class="bg-white border border-champagne p-8 shadow-soft">
+          <p class="text-4xl font-display text-charcoal leading-none mb-2">{withDate}</p>
+          <p class="text-[9px] tracking-[0.25em] uppercase text-taupe font-body">Met trouwdatum</p>
+        </div>
+      </div>
+
+      <!-- Klanten tabel -->
+      {klanten && klanten.length > 0 ? (
+        <div class="bg-white border border-champagne shadow-soft overflow-hidden">
+          <table class="w-full text-sm font-body" id="klanten-table">
+            <thead>
+              <tr class="border-b border-champagne bg-[#faf9f7]">
+                <th class="text-left px-6 py-4 text-[9px] tracking-[0.25em] uppercase text-taupe font-medium">Naam</th>
+                <th class="text-left px-6 py-4 text-[9px] tracking-[0.25em] uppercase text-taupe font-medium hidden md:table-cell">E-mail</th>
+                <th class="text-left px-6 py-4 text-[9px] tracking-[0.25em] uppercase text-taupe font-medium hidden lg:table-cell">Telefoon</th>
+                <th class="text-left px-6 py-4 text-[9px] tracking-[0.25em] uppercase text-taupe font-medium hidden lg:table-cell">Trouwdatum</th>
+                <th class="text-left px-6 py-4 text-[9px] tracking-[0.25em] uppercase text-taupe font-medium hidden xl:table-cell">Aangemeld</th>
+                <th class="px-6 py-4"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-champagne" id="klanten-tbody">
+              {klanten.map(klant => (
+                <tr
+                  class="hover:bg-[#faf9f7] transition-colors group klant-row"
+                  data-search={`${klant.first_name} ${klant.last_name} ${klant.email}`.toLowerCase()}
+                >
+                  <td class="px-6 py-4">
+                    <a href={`/admin/klanten/${klant.id}`} class="font-medium text-charcoal hover:text-blush-deep transition-colors">
+                      {klant.first_name} {klant.last_name}
+                    </a>
+                  </td>
+                  <td class="px-6 py-4 hidden md:table-cell">
+                    <a href={`mailto:${klant.email}`} class="text-taupe hover:text-charcoal transition-colors">{klant.email}</a>
+                  </td>
+                  <td class="px-6 py-4 text-taupe hidden lg:table-cell">{klant.phone || '—'}</td>
+                  <td class="px-6 py-4 hidden lg:table-cell">
+                    {klant.wedding_date
+                      ? <span class="text-charcoal">{new Date(klant.wedding_date).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                      : <span class="text-taupe">—</span>
+                    }
+                  </td>
+                  <td class="px-6 py-4 text-taupe text-xs hidden xl:table-cell">
+                    {new Date(klant.created_at).toLocaleDateString('nl-NL')}
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <a href={`/admin/klanten/${klant.id}`} class="text-[9px] uppercase tracking-wider text-blush-deep hover:underline">Bekijk</a>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div id="no-results" class="hidden text-center py-12 text-sm font-body text-taupe italic">Geen klanten gevonden voor deze zoekopdracht.</div>
+        </div>
+      ) : (
+        <div class="text-center py-24 bg-white border border-dashed border-champagne">
+          <p class="font-display text-xl text-taupe italic mb-4">Nog geen klanten.</p>
+          <a href="/admin/klanten/new" class="btn-premium text-[10px]">+ Eerste klant toevoegen</a>
+        </div>
+      )}
+    </div>
+  </div>
+</Layout>
+
+<script>
+  const searchInput = document.getElementById('search-input') as HTMLInputElement | null;
+  const rows = document.querySelectorAll<HTMLTableRowElement>('.klant-row');
+  const noResults = document.getElementById('no-results');
+
+  searchInput?.addEventListener('input', () => {
+    const query = searchInput.value.toLowerCase().trim();
+    let visible = 0;
+    rows.forEach(row => {
+      const match = !query || row.dataset.search?.includes(query);
+      row.style.display = match ? '' : 'none';
+      if (match) visible++;
+    });
+    if (noResults) noResults.classList.toggle('hidden', visible > 0);
+  });
+</script>

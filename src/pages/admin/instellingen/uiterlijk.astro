@@ -1,46 +1,50 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
-import { getAdminAuthFromCookies, getServiceRoleClient } from '../../../lib/serverAuth';
-
-const adminAuth = await getAdminAuthFromCookies(Astro.cookies);
-if (!adminAuth) {
-  return Astro.redirect('/admin/login');
-}
+import { getServiceRoleClient } from '../../../lib/serverAuth';
 
 const supabase = getServiceRoleClient();
-const { data: settings, error } = await supabase
-  .from('site_settings')
-  .select('*')
-  .eq('id', 'current')
-  .single();
-
-if (error) {
-  console.error('Error fetching settings:', error);
-}
+const { data: settings } = await supabase.from('site_settings').select('*').eq('id', 'current').single();
 ---
 
-<Layout title="Uiterlijk Instellingen - Admin">
-  <main class="min-h-screen bg-primary py-20 px-4">
-    <div class="max-w-4xl mx-auto">
-      <div class="flex items-center gap-4 mb-12">
-        <a href="/admin" class="text-[10px] uppercase tracking-widest text-accent/60 hover:text-accent transition-colors flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-          Dashboard
-        </a>
-        <h1 class="text-3xl font-serif text-accent">Uiterlijk Instellingen</h1>
+<Layout title="Uiterlijk Instellingen">
+  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+    <div class="container mx-auto px-6 max-w-4xl">
+      <nav class="mb-10 flex items-center gap-3 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">
+        <a href="/admin" class="hover:text-charcoal transition-colors">Dashboard</a>
+        <span class="text-champagne">›</span>
+        <a href="/admin/instellingen" class="hover:text-charcoal transition-colors">Instellingen</a>
+        <span class="text-champagne">›</span>
+        <span class="text-charcoal">Uiterlijk</span>
+      </nav>
+
+      <div class="mb-10">
+        <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">Instellingen</p>
+        <h1 class="font-display font-normal text-charcoal text-4xl leading-tight">
+          Uiterlijk <em class="font-normal italic text-taupe">& Stijl</em>
+        </h1>
       </div>
 
-      <form id="settings-form" class="space-y-12">
+      <form id="settings-form" class="space-y-10">
         <!-- Kleurenpalet -->
-        <section class="bg-white/50 backdrop-blur-sm border border-accent/10 p-8 rounded-lg space-y-8">
-          <h2 class="text-xs uppercase tracking-[0.3em] text-secondary font-medium border-b border-accent/10 pb-4">Kleurenpalet</h2>
+        <section class="bg-white border border-champagne p-8 shadow-soft space-y-8">
+          <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium border-b border-champagne pb-4">Kleurenpalet</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             {Object.entries(settings?.colors || {}).map(([key, value]) => (
-              <div class="space-y-3">
-                <label class="text-[10px] tracking-widest uppercase text-accent font-medium block">{key.replace('_', ' ')}</label>
+              <div class="space-y-2">
+                <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body">{key.replace(/_/g, ' ')}</label>
                 <div class="flex items-center gap-4">
-                  <input type="color" name={`color_${key}`} value={String(value)} class="w-12 h-12 rounded cursor-pointer border-none bg-transparent" />
-                  <input type="text" name={`color_text_${key}`} value={String(value)} class="flex-grow border-b border-accent/20 py-2 focus:border-secondary outline-none transition-colors font-mono text-sm uppercase bg-transparent" />
+                  <input
+                    type="color"
+                    name={`color_${key}`}
+                    value={String(value)}
+                    class="w-10 h-10 cursor-pointer border border-champagne bg-transparent p-0.5"
+                  />
+                  <input
+                    type="text"
+                    name={`color_text_${key}`}
+                    value={String(value)}
+                    class="flex-grow border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors font-mono uppercase"
+                  />
                 </div>
               </div>
             ))}
@@ -48,147 +52,146 @@ if (error) {
         </section>
 
         <!-- Typografie -->
-        <section class="bg-white/50 backdrop-blur-sm border border-accent/10 p-8 rounded-lg space-y-8">
-          <h2 class="text-xs uppercase tracking-[0.3em] text-secondary font-medium border-b border-accent/10 pb-4">Typografie</h2>
+        <section class="bg-white border border-champagne p-8 shadow-soft space-y-8">
+          <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium border-b border-champagne pb-4">Typografie</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="space-y-3">
-              <label class="text-[10px] tracking-widest uppercase text-accent font-medium block">Heading Font (URL of Family)</label>
-              <input type="text" name="heading_font" value={settings?.typography?.heading_font} class="w-full border-b border-accent/20 py-2 focus:border-secondary outline-none transition-colors font-light bg-transparent" />
+            <div>
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Heading Font</label>
+              <input type="text" name="heading_font" value={settings?.typography?.heading_font}
+                class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
             </div>
-            <div class="space-y-3">
-              <label class="text-[10px] tracking-widest uppercase text-accent font-medium block">Body Font (URL of Family)</label>
-              <input type="text" name="body_font" value={settings?.typography?.body_font} class="w-full border-b border-accent/20 py-2 focus:border-secondary outline-none transition-colors font-light bg-transparent" />
+            <div>
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Body Font</label>
+              <input type="text" name="body_font" value={settings?.typography?.body_font}
+                class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
             </div>
-            <div class="space-y-3">
-              <label class="text-[10px] tracking-widest uppercase text-accent font-medium block">Basis Tekstgrootte</label>
-              <input type="text" name="base_size" value={settings?.typography?.base_size} class="w-full border-b border-accent/20 py-2 focus:border-secondary outline-none transition-colors font-light bg-transparent" placeholder="16px" />
+            <div>
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Basis Tekstgrootte</label>
+              <input type="text" name="base_size" value={settings?.typography?.base_size} placeholder="16px"
+                class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
             </div>
-            <div class="space-y-3">
-              <label class="text-[10px] tracking-widest uppercase text-accent font-medium block">Heading Dikte</label>
-              <select name="heading_weight" class="w-full border-b border-accent/20 py-2 focus:border-secondary outline-none transition-colors font-light bg-transparent">
-                <option value="300" selected={settings?.typography?.heading_weight === '300'}>Light (300)</option>
-                <option value="400" selected={settings?.typography?.heading_weight === '400'}>Regular (400)</option>
-                <option value="500" selected={settings?.typography?.heading_weight === '500'}>Medium (500)</option>
-                <option value="600" selected={settings?.typography?.heading_weight === '600'}>Semi-Bold (600)</option>
-                <option value="700" selected={settings?.typography?.heading_weight === '700'}>Bold (700)</option>
+            <div>
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Heading Dikte</label>
+              <select name="heading_weight"
+                class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors">
+                {['300','400','500','600','700'].map(w => (
+                  <option value={w} selected={settings?.typography?.heading_weight === w}>
+                    {w === '300' ? 'Light' : w === '400' ? 'Regular' : w === '500' ? 'Medium' : w === '600' ? 'Semi-Bold' : 'Bold'} ({w})
+                  </option>
+                ))}
               </select>
             </div>
           </div>
         </section>
 
         <!-- UI Stijl -->
-        <section class="bg-white/50 backdrop-blur-sm border border-accent/10 p-8 rounded-lg space-y-8">
-          <h2 class="text-xs uppercase tracking-[0.3em] text-secondary font-medium border-b border-accent/10 pb-4">UI Stijl & Rundingen</h2>
+        <section class="bg-white border border-champagne p-8 shadow-soft space-y-8">
+          <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium border-b border-champagne pb-4">UI Stijl & Rundingen</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="space-y-3">
-              <label class="text-[10px] tracking-widest uppercase text-accent font-medium block">Border Radius (bijv. 8px)</label>
-              <input type="text" name="border_radius" value={settings?.ui_styles?.border_radius} class="w-full border-b border-accent/20 py-2 focus:border-secondary outline-none transition-colors font-light bg-transparent" />
+            <div>
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Border Radius</label>
+              <input type="text" name="border_radius" value={settings?.ui_styles?.border_radius} placeholder="0px"
+                class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
             </div>
-            <div class="space-y-3">
-              <label class="text-[10px] tracking-widest uppercase text-accent font-medium block">Button Padding</label>
-              <input type="text" name="button_padding" value={settings?.ui_styles?.button_padding} class="w-full border-b border-accent/20 py-2 focus:border-secondary outline-none transition-colors font-light bg-transparent" />
+            <div>
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Button Padding</label>
+              <input type="text" name="button_padding" value={settings?.ui_styles?.button_padding} placeholder="12px 32px"
+                class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
             </div>
           </div>
         </section>
 
         <!-- Algemeen -->
-        <section class="bg-white/50 backdrop-blur-sm border border-accent/10 p-8 rounded-lg space-y-8">
-          <h2 class="text-xs uppercase tracking-[0.3em] text-secondary font-medium border-b border-accent/10 pb-4">Algemeen</h2>
+        <section class="bg-white border border-champagne p-8 shadow-soft space-y-8">
+          <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium border-b border-champagne pb-4">Algemeen</h2>
           <div class="space-y-6">
-            <div class="space-y-3">
-              <label class="text-[10px] tracking-widest uppercase text-accent font-medium block">Website Titel</label>
-              <input type="text" name="site_title" value={settings?.site_metadata?.title} class="w-full border-b border-accent/20 py-2 focus:border-secondary outline-none transition-colors font-light bg-transparent" />
+            <div>
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Website Titel</label>
+              <input type="text" name="site_title" value={settings?.site_metadata?.title}
+                class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
             </div>
-            <div class="space-y-3">
-              <label class="text-[10px] tracking-widest uppercase text-accent font-medium block">Website Beschrijving (SEO)</label>
-              <textarea name="site_description" class="w-full border-b border-accent/20 py-2 focus:border-secondary outline-none transition-colors font-light bg-transparent h-20" spellcheck="false">{settings?.site_metadata?.description}</textarea>
+            <div>
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Website Beschrijving (SEO)</label>
+              <textarea name="site_description" rows={3} spellcheck="false"
+                class="w-full border border-champagne bg-transparent p-3 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors resize-none"
+              >{settings?.site_metadata?.description}</textarea>
             </div>
           </div>
         </section>
 
-        <div class="flex justify-end gap-6 pt-8">
-          <button type="submit" id="save-btn" class="bg-accent text-white px-12 py-4 text-xs tracking-[0.2em] uppercase hover:opacity-80 transition-all font-medium rounded-sm">Instellingen Opslaan</button>
+        <div id="save-error" class="hidden bg-red-50 border border-red-200 px-4 py-3 text-sm font-body text-red-700"></div>
+        <div id="save-success" class="hidden bg-green-50 border border-green-200 px-4 py-3 text-sm font-body text-green-700">Instellingen opgeslagen. Herlaad de pagina om wijzigingen overal te zien.</div>
+
+        <div class="flex gap-4 pt-2">
+          <button type="submit" id="save-btn" class="btn-premium text-[10px]">Instellingen Opslaan</button>
+          <a href="/admin/instellingen" class="border border-champagne px-8 py-3 text-[10px] tracking-widest uppercase font-body text-taupe hover:border-charcoal hover:text-charcoal transition-colors">Terug</a>
         </div>
       </form>
     </div>
-  </main>
+  </div>
 </Layout>
 
 <script>
+  // Sync color pickers with text inputs
+  document.querySelectorAll<HTMLInputElement>('input[type="color"]').forEach(input => {
+    const textInput = input.nextElementSibling as HTMLInputElement;
+    input.addEventListener('input', () => { if (textInput) textInput.value = input.value.toUpperCase(); });
+    textInput?.addEventListener('input', () => { input.value = textInput.value; });
+  });
+
   const form = document.getElementById('settings-form') as HTMLFormElement;
   const saveBtn = document.getElementById('save-btn');
-
-  // Sync color inputs
-  document.querySelectorAll('input[type="color"]').forEach((input: any) => {
-    const textInput = input.nextElementSibling as HTMLInputElement;
-    input.addEventListener('input', () => {
-      if (textInput) textInput.value = input.value.toUpperCase();
-    });
-    textInput.addEventListener('input', () => {
-      input.value = textInput.value;
-    });
-  });
+  const errorEl = document.getElementById('save-error');
+  const successEl = document.getElementById('save-success');
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (saveBtn) {
-      saveBtn.textContent = 'Bezig met opslaan...';
-      saveBtn.setAttribute('disabled', 'true');
-    }
+    if (errorEl) { errorEl.textContent = ''; errorEl.classList.add('hidden'); }
+    if (successEl) successEl.classList.add('hidden');
+    if (saveBtn) { saveBtn.textContent = 'Bezig met opslaan...'; saveBtn.setAttribute('disabled', 'true'); }
 
-    const formData = new FormData(form);
+    const fd = new FormData(form);
     const data = {
-      colors: {
-        primary: formData.get('color_primary'),
-        secondary: formData.get('color_secondary'),
-        accent: formData.get('color_accent'),
-        blush: formData.get('color_blush'),
-        taupe: formData.get('color_taupe'),
-        champagne: formData.get('color_champagne'),
-        linen: formData.get('color_linen'),
-        charcoal: formData.get('color_charcoal'),
-        cream: formData.get('color_cream'),
-        blush_deep: formData.get('color_blush_deep'),
-      },
+      colors: Object.fromEntries(
+        Array.from(fd.entries())
+          .filter(([k]) => k.startsWith('color_') && !k.startsWith('color_text_'))
+          .map(([k, v]) => [k.replace('color_', ''), v])
+      ),
       typography: {
-        heading_font: formData.get('heading_font'),
-        body_font: formData.get('body_font'),
-        base_size: formData.get('base_size'),
-        heading_weight: formData.get('heading_weight'),
+        heading_font: fd.get('heading_font'),
+        body_font: fd.get('body_font'),
+        base_size: fd.get('base_size'),
+        heading_weight: fd.get('heading_weight'),
         body_weight: '400',
       },
       ui_styles: {
-        border_radius: formData.get('border_radius'),
-        button_padding: formData.get('button_padding'),
+        border_radius: fd.get('border_radius'),
+        button_padding: fd.get('button_padding'),
         container_width: '1280px',
       },
       site_metadata: {
-        title: formData.get('site_title'),
-        description: formData.get('site_description'),
-        footer_text: '© 2026 Mariage Bruidsmode. Alle rechten voorbehouden.'
-      }
+        title: fd.get('site_title'),
+        description: fd.get('site_description'),
+        footer_text: '© 2026 Mariage Bruidsmode. Alle rechten voorbehouden.',
+      },
     };
 
     try {
-      const response = await fetch('/api/admin/settings', {
+      const res = await fetch('/api/admin/settings', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(data),
       });
-      
-      if (response.ok) {
-        alert('Instellingen zijn succesvol opgeslagen! Herlaad de pagina om de wijzigingen over de hele site te zien.');
+      if (res.ok) {
+        successEl?.classList.remove('hidden');
       } else {
-        const err = await response.json();
-        alert('Fout bij opslaan: ' + err.error);
+        const err = await res.json();
+        if (errorEl) { errorEl.textContent = 'Fout: ' + (err.error ?? 'Onbekend'); errorEl.classList.remove('hidden'); }
       }
-    } catch (err) {
-      alert('Er is een onbekende fout opgetreden.');
+    } catch {
+      if (errorEl) { errorEl.textContent = 'Netwerkfout. Probeer opnieuw.'; errorEl.classList.remove('hidden'); }
     } finally {
-      if (saveBtn) {
-        saveBtn.textContent = 'Instellingen Opslaan';
-        saveBtn.removeAttribute('disabled');
-      }
+      if (saveBtn) { saveBtn.textContent = 'Instellingen Opslaan'; saveBtn.removeAttribute('disabled'); }
     }
   });
 </script>
