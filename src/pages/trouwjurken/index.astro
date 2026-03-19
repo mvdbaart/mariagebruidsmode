@@ -17,20 +17,29 @@ const { data: dressProducts } = await supabase
   .order('created_at', { ascending: false });
 
 const collectionById = new Map((collections ?? []).map((col) => [col.id, col]));
-const dressFallbackImage = '/wp-content/uploads/2023/11/trouwjurk-ladybird-amariah-bruidsmode-2-scaled-1-scaled.jpg';
+const dressFallbackImage = '/images/jurkvormen/a-lijn.png';
 ---
 
-<Layout title="Trouwjurken — Mariage Bruidsmode Geldrop">
+<Layout title="Trouwjurken | Mariage Bruidsmode">
   <!-- Page header -->
-  <div class="pt-36 pb-20 bg-cream border-b border-champagne">
+  <div class="pt-40 pb-20 bg-ivory border-b border-champagne">
     <div class="container mx-auto px-6">
-      <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-4">Collecties</p>
-      <h1 class="font-display font-normal text-charcoal leading-tight mb-6" style="font-size: clamp(36px, 5vw, 72px);">
-        De nieuwste<br><em class="italic font-light">trouwjurken</em>
-      </h1>
-      <p class="text-taupe font-body font-light text-base leading-relaxed max-w-xl">
-        Stap binnen in de wereld van Mariage Bruidsmode. Een uitgebreide collectie van de meest gerenommeerde merken, zorgvuldig geselecteerd voor elke type bruid.
-      </p>
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-8">
+        <div class="max-w-2xl">
+          <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-6">Collecties</p>
+          <h1 class="font-display font-normal text-charcoal leading-tight mb-8" style="font-size: clamp(40px, 6vw, 64px);">
+            De nieuwste <em class="italic font-light text-taupe">trouwjurken</em>
+          </h1>
+          <p class="text-taupe font-light leading-relaxed max-w-xl">
+            Stap binnen in de wereld van Mariage Bruidsmode. Een zorgvuldig geselecteerde collectie van de meest gerenommeerde merken voor elke type bruid.
+          </p>
+        </div>
+        <div class="pb-2">
+          <a href="/trouwjurken/vormen" class="inline-block bg-white border border-champagne text-charcoal px-8 py-4 text-[10px] tracking-[0.3em] uppercase hover:bg-ivory transition-all shadow-soft group">
+            Vind jouw <em class="italic group-hover:text-blush-deep transition-colors">silhouet</em>
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -53,13 +62,19 @@ const dressFallbackImage = '/wp-content/uploads/2023/11/trouwjurk-ladybird-amari
         {dressProducts?.map((prod) => (
           <a href={`/product/${prod.slug}`} class="group product-card bg-white shadow-card hover:shadow-hover transition-all duration-500 overflow-hidden hover:-translate-y-1 block" data-collection={collectionById.get(prod.collection_id)?.slug}>
             <div class="aspect-[3/4] bg-linen relative overflow-hidden">
-              <img
-                src={prod.images?.[0] || dressFallbackImage}
-                alt={prod.name}
-                onerror={`this.onerror=null;this.src='${dressFallbackImage}'`}
-                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                loading="lazy"
-              />
+              {(() => {
+                const img = prod.images?.[0];
+                const displayImg = (img && img.startsWith('/images/')) ? img : dressFallbackImage;
+                return (
+                  <img
+                    src={displayImg}
+                    alt={prod.name}
+                    onerror={`this.onerror=null;this.src='${dressFallbackImage}'`}
+                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                );
+              })()}
               
               <!-- Hover overlay -->
               <div class="absolute inset-0 bg-charcoal/20 md:bg-charcoal/0 md:group-hover:bg-charcoal/20 transition-all duration-500 flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100">

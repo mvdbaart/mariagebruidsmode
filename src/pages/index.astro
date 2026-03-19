@@ -15,9 +15,10 @@ const { data: heroSuit } = await supabase
   .limit(30);
 
 const suitProduct = heroSuit?.find((p) => p.collections?.type === 'suit' && p.images?.[0]);
-const heroImage =
-  suitProduct?.images?.[0] ??
-  '/wp-content/uploads/2020/05/hero-afbeelding_jurken-rek_coral-overlay_v1.jpg';
+const dbHeroImage = suitProduct?.images?.[0];
+const heroImage = (dbHeroImage && dbHeroImage.startsWith('/images/'))
+  ? dbHeroImage
+  : '/wp-content/uploads/2023/07/Home-Hero-img.jpg';
 
 const { data: featuredWedding } = await supabase
   .from('real_weddings')
@@ -26,11 +27,14 @@ const { data: featuredWedding } = await supabase
   .limit(1)
   .maybeSingle();
 
-const featuredWeddingCard = featuredWedding ?? {
-  slug: '',
-  bride_name: 'Joyce',
-  groom_name: 'Christiaan',
-  cover_image: '/wp-content/uploads/2023/07/wedding-couple-kissing-each-other-1295941-scaled-scaled.jpg',
+const featuredCover = featuredWedding?.cover_image;
+const featuredWeddingCard = {
+  slug: featuredWedding?.slug ?? '',
+  bride_name: featuredWedding?.bride_name ?? 'Mariage',
+  groom_name: featuredWedding?.groom_name ?? 'Bruidsmode',
+  cover_image: (featuredCover && featuredCover.startsWith('/images/'))
+    ? featuredCover
+    : '/images/team/TKF_9432-scaled-scaled.jpg',
 };
 
 const { data: latestWeddings } = await supabase
@@ -46,29 +50,32 @@ const { data: latestPosts } = await supabase
   .limit(3);
 
 const galleryImages = (latestProducts ?? [])
-  .map((p) => ({
-    src: p.images?.[0],
-    alt: p.name,
-    href: `/product/${p.slug}`,
-  }))
+  .map((p) => {
+    const img = p.images?.[0];
+    return {
+      src: (img && img.startsWith('/images/')) ? img : null,
+      alt: p.name,
+      href: `/product/${p.slug}`,
+    };
+  })
   .filter((item) => item.src)
   .slice(0, 8);
 
 const galleryFallbacks = [
-  '/wp-content/uploads/2023/11/Immediate-trouwpak-blauw-19206-54-1.jpg',
-  '/wp-content/uploads/2023/11/Immediate-trouwpak-blauwgroen-ruit-20116-75.jpg',
-  '/wp-content/uploads/2023/11/Immediate-trouwpak-donkergrijs-20110-75.jpg',
-  '/wp-content/uploads/2023/11/trouwjurk-ladybird-amariah-bruidsmode-2-scaled-1-scaled.jpg',
-  '/wp-content/uploads/2023/11/trouwjurk-ladybird-aneesa-bruidsmode-hochzeitskleid-bridal-dress-scaled-1-scaled.jpg',
-  '/wp-content/uploads/2023/11/trouwjurk-ladybird-chara-bruidsmode-hochzeitskleid-bridal-dress-scaled-1-scaled.jpg',
-  '/wp-content/uploads/2023/11/home-banner-Jill.jpg',
-  '/wp-content/uploads/2023/07/Home-Hero-img.jpg',
+  '/images/team/TKF_9016-scaled.jpg',
+  '/images/team/TKF_9043-scaled.jpg',
+  '/images/team/TKF_8994-scaled.jpg',
+  '/images/jurkvormen/a-lijn.png',
+  '/images/team/TKF_9208-scaled-scaled.jpg',
+  '/images/team/TKF_9276-scaled-scaled.jpg',
+  '/images/team/TKF_9054-1-scaled-scaled.jpg',
+  '/images/team/TKF_8818-scaled.jpg',
 ];
 
 const blogFallbacks = [
-  '/wp-content/uploads/2020/05/blog-1.jpg',
-  '/wp-content/uploads/2020/05/blog-2.jpg',
-  '/wp-content/uploads/2020/05/blog-3.jpg',
+  '/images/team/TKF_9597-scaled-scaled.jpg',
+  '/images/team/TKF_9303-scaled-scaled.jpg',
+  '/images/team/TKF_9055-1-scaled-e1704372521721.jpg',
 ];
 
 const galleryItems = galleryImages.length
@@ -80,167 +87,180 @@ const galleryItems = galleryImages.length
     }));
 ---
 
-<Layout title="Mariage Bruidsmode | De Mooiste Trouwmode Van Nu">
-  <section class="pt-28 pb-6 bg-ivory">
-    <div class="container mx-auto px-4 sm:px-6 max-w-3xl">
-      <div class="overflow-hidden border border-champagne bg-linen">
-        <img src={heroImage} alt="Trouwpak collectie bij Mariage" class="w-full object-cover hero-image" loading="eager" />
-      </div>
-      <div class="text-center mt-5">
-        <h1 class="font-display text-charcoal leading-tight mb-4" style="font-size: clamp(26px, 4.2vw, 40px);">
-          De mooiste trouwmode van nu
-        </h1>
-        <a href="/trouwpakken" class="btn-premium text-[10px]">Bekijk collectie</a>
+  <!-- Full Width Hero -->
+  <section class="w-full relative bg-linen pt-20">
+    <div class="w-full aspect-[21/9] md:aspect-[21/7] overflow-hidden">
+      <img src={heroImage} alt="Trouwpak collectie bij Mariage" class="w-full h-full object-cover" loading="eager" />
+    </div>
+    
+    <div class="text-center py-10 px-4 bg-white">
+      <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-3">Onze collecties</p>
+      <h1 class="font-display text-charcoal leading-tight mb-8" style="font-size: clamp(32px, 5vw, 48px); font-weight: 300;">
+        De mooiste bruidsmode van nu
+      </h1>
+      <div class="flex flex-col items-center gap-3">
+        <a href="/trouwjurken" class="inline-block bg-[#e8bfae] text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-[#d8a892] transition-colors min-w-[220px]">
+          BEKIJK TROUWJURKEN
+        </a>
+        <a href="/afspraak-maken" class="inline-block bg-black text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-gray-900 transition-colors min-w-[220px]">
+          AFSPRAAK MAKEN
+        </a>
       </div>
     </div>
   </section>
 
-  <section class="py-8 bg-ivory">
-    <div class="container mx-auto px-4 sm:px-6 max-w-3xl">
-      <h2 class="sr-only">Collectie galerie</h2>
-      <div class="grid grid-cols-3 gap-2 md:gap-3">
-        {galleryItems.length > 0 ? (
-          galleryItems.map((item) => (
-            <a href={item.href} class="block overflow-hidden bg-linen border border-champagne/60">
-              <img src={item.src!} alt={item.alt} class="w-full h-full object-cover gallery-image" loading="lazy" />
+  <!-- Product Grid (Exact Copy Design) -->
+  <section class="pb-16 bg-white">
+    <div class="container mx-auto px-4 lg:px-8 max-w-[1400px]">
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-1 md:gap-4">
+        {galleryItems.slice(0, 6).map((item) => (
+          <div class="flex flex-col mb-4">
+            <a href={item.href} class="block relative overflow-hidden aspect-[3/4] group mb-3">
+              <img src={item.src!} alt={item.alt} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+              <!-- Hover Overlay with Brand -->
+              <div class="absolute inset-0 bg-black/20 flex flex-col justify-end items-center pb-8 opacity-90 transition-opacity">
+                <span class="text-white font-display text-2xl mb-1">{item.alt.split(' ')[0] || 'Merk'}</span>
+                <span class="text-white/80 text-[10px] uppercase tracking-widest border-t border-white/40 pt-1 px-4">{item.alt}</span>
+              </div>
             </a>
-          ))
-        ) : (
-          <p class="col-span-full text-center text-taupe-light py-8">Nieuwe collectiebeelden volgen binnenkort.</p>
-        )}
-      </div>
-    </div>
-  </section>
-
-  <section class="py-9 bg-ivory text-center border-t border-champagne">
-    <div class="container mx-auto px-6 max-w-3xl">
-      <h2 class="font-display text-charcoal mb-4" style="font-size: clamp(24px, 3.5vw, 36px);">Real Brides &amp; Grooms</h2>
-      <a href="/inspiratie" class="btn-gold text-[10px]">Bekijk verhalen</a>
-    </div>
-  </section>
-
-  <section class="py-8 bg-ivory">
-    <div class="container mx-auto px-4 sm:px-6 max-w-3xl">
-      <a href={featuredWeddingCard.slug ? `/inspiratie/${featuredWeddingCard.slug}` : '/inspiratie'} class="block relative overflow-hidden border border-champagne">
-        <img src={featuredWeddingCard.cover_image} alt={`${featuredWeddingCard.bride_name} en ${featuredWeddingCard.groom_name}`} class="w-full featured-image object-cover" loading="lazy" />
-        <div class="absolute inset-0 bg-gradient-to-t from-charcoal/70 via-charcoal/25 to-transparent"></div>
-        <div class="absolute bottom-0 left-0 right-0 p-4 sm:p-6 text-warm-white">
-          <p class="text-[10px] tracking-[0.2em] uppercase mb-2 text-gold-light font-body">Uitgelicht bruidsverhaal</p>
-          <h3 class="font-display leading-tight mb-3" style="font-size: clamp(22px, 3.7vw, 36px);">
-            {featuredWeddingCard.bride_name} &amp; {featuredWeddingCard.groom_name}
-          </h3>
-          <span class="btn-premium inline-flex text-[10px]">Lees het verhaal</span>
-        </div>
-      </a>
-    </div>
-  </section>
-
-  <section class="py-8 bg-ivory">
-    <div class="container mx-auto px-4 sm:px-6 max-w-4xl">
-      <div class="text-center mb-6">
-        <h2 class="font-display text-charcoal mb-2" style="font-size: clamp(24px, 3.4vw, 36px);">Mariage blog</h2>
-        <p class="text-[11px] tracking-[0.2em] uppercase text-taupe-light">Tips, trends &amp; echte verhalen</p>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {(latestPosts ?? []).map((post, i) => (
-          <article class="bg-white border border-champagne overflow-hidden">
-            <a href={`/blog/${post.slug}`} class="block aspect-[16/10] overflow-hidden bg-linen">
-              <img src={post.cover_image ?? blogFallbacks[i % blogFallbacks.length]} alt={post.title} class="w-full h-full object-cover" loading="lazy" />
-            </a>
-            <div class="p-3">
-              <p class="text-[10px] tracking-[0.12em] uppercase text-taupe mb-2">
-                {new Date(post.published_at).toLocaleDateString('nl-NL')}
-              </p>
-              <h3 class="font-display text-charcoal text-lg leading-tight mb-2">
-                <a href={`/blog/${post.slug}`}>{post.title}</a>
-              </h3>
-              <p class="text-sm text-taupe-light leading-relaxed line-clamp-3">{post.excerpt ?? ''}</p>
+            <div class="flex items-start justify-between px-1">
+              <div class="flex items-center gap-2 group cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-400 group-hover:text-red-500 transition-colors">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                </svg>
+                <span class="text-xs text-gray-500 font-light">Sla jurk op</span>
+              </div>
+              <a href={item.href} class="text-xs text-gray-500 font-light hover:text-black">Bekijk merk &nbsp;›</a>
             </div>
-          </article>
+            <p class="text-[11px] text-gray-400 font-light mt-3 px-1 leading-relaxed">
+              Prachtige trouwjurk uit de nieuwste collectie. Vind vergelijkbare stijlen in de winkel.
+            </p>
+          </div>
         ))}
       </div>
     </div>
   </section>
 
-  <section class="py-8 bg-ivory">
-    <div class="container mx-auto px-4 sm:px-6 max-w-4xl">
-      <div class="grid grid-cols-1 md:grid-cols-2 overflow-hidden border border-champagne bg-[#cbc5a7]">
-        <div class="aspect-[4/3] md:aspect-auto bg-linen">
-          <img
-            src={latestWeddings?.[0]?.cover_image ?? '/wp-content/uploads/2023/07/VIP-in-winkel-724x1024-1-e1698927468338.jpg'}
-            alt="Uitnodiging en trouwinspiratie"
-            class="w-full h-full object-cover"
-            loading="lazy"
-          />
-        </div>
-        <div class="p-6 md:p-8 flex flex-col justify-center">
-          <p class="text-[10px] tracking-[0.24em] uppercase text-charcoal/70 font-body mb-3">The wedding issue</p>
-          <h3 class="font-display text-charcoal leading-tight mb-4" style="font-size: clamp(24px, 3vw, 38px);">
-            Vraag nu jouw
-            <em class="italic font-light"> pasafspraak</em>
-            aan
+  <!-- Real Brides & Grooms -->
+  <section class="py-16 bg-white text-center">
+    <div class="container mx-auto px-4">
+      <p class="text-[12px] italic text-[#e8bfae] font-serif mb-2">Liefde vieren</p>
+      <h2 class="font-display text-charcoal mb-8" style="font-size: clamp(28px, 4vw, 42px); font-weight: 300;">Real Brides &amp; Grooms</h2>
+      
+      <div class="flex flex-col sm:flex-row justify-center items-center gap-3 mb-10">
+        <a href="/inspiratie" class="inline-block bg-[#8b8772] text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-opacity-90 transition-colors min-w-[200px]">
+          BEKIJK VERHALEN
+        </a>
+        <a href="/inspiratie" class="inline-block bg-[#e8bfae] text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-[#d8a892] transition-colors min-w-[200px]">
+          LEES MEER
+        </a>
+      </div>
+
+      <div class="max-w-5xl mx-auto">
+        <a href={featuredWeddingCard.slug ? `/inspiratie/${featuredWeddingCard.slug}` : '/inspiratie'} class="block relative overflow-hidden group">
+          <div class="aspect-[16/8] w-full">
+            <img src={featuredWeddingCard.cover_image} alt={`${featuredWeddingCard.bride_name} en ${featuredWeddingCard.groom_name}`} class="w-full h-full object-cover" loading="lazy" />
+          </div>
+          <div class="absolute inset-0 bg-black/40 flex flex-col justify-center items-center text-white px-4">
+            <h3 class="font-display italic text-center leading-tight mb-4 max-w-2xl" style="font-size: clamp(20px, 3.5vw, 36px);">
+              "We voelden ons helemaal onszelf en we vonden elkaar adembenemend prachtig!"
+            </h3>
+            <p class="text-xs uppercase tracking-widest font-light">{featuredWeddingCard.bride_name} &amp; {featuredWeddingCard.groom_name}</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mariage Blog -->
+  <section class="py-16 bg-white text-center">
+    <div class="container mx-auto px-4 max-w-6xl">
+      <p class="text-[12px] italic text-[#e8bfae] font-serif mb-2">Tips & inspiratie</p>
+      <h2 class="font-display text-charcoal mb-10" style="font-size: clamp(28px, 4vw, 42px); font-weight: 300;">Mariage blog</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+        {(latestPosts ?? []).map((post, i) => {
+          const postImg = post.cover_image;
+          const displayImg = (postImg && postImg.startsWith('/images/'))
+            ? postImg
+            : blogFallbacks[i % blogFallbacks.length];
+          return (
+            <article class="group">
+              <a href={`/blog/${post.slug}`} class="block aspect-[16/10] overflow-hidden mb-4 rounded-xl">
+                <img src={displayImg} alt={post.title} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+              </a>
+              <p class="text-[10px] tracking-[0.15em] uppercase text-[#e8bfae] font-semibold mb-2">
+                {new Date(post.published_at).toLocaleDateString('nl-NL')}
+              </p>
+              <h3 class="font-display text-charcoal text-xl leading-tight mb-2 group-hover:text-taupe transition-colors">
+                <a href={`/blog/${post.slug}`}>{post.title}</a>
+              </h3>
+              <p class="text-xs text-gray-500 leading-relaxed line-clamp-2">{post.excerpt ?? ''}</p>
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Form Section -->
+  <section class="py-16 bg-white border-t border-gray-100">
+    <div class="container mx-auto px-4 max-w-5xl">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div class="flex flex-col items-center justify-center text-center">
+          <p class="text-[12px] italic text-[#e8bfae] font-serif mb-2">Vragen?</p>
+          <h3 class="font-display text-charcoal mb-4" style="font-size: clamp(24px, 3vw, 36px); font-weight: 300;">
+            Algemeen contact formulier
           </h3>
-          <p class="text-charcoal/80 font-body font-light mb-6">
-            Persoonlijke begeleiding, tijd voor jouw stijl en een selectie die echt bij je past.
+          <p class="text-xs text-gray-400 mb-8 max-w-sm leading-relaxed">
+            Heb je een vraag, wil je een afspraak maken of ben je op zoek naar iets specifieks? Bel direct of vul het formulier in.
           </p>
-          <a href="/afspraak-maken" class="btn-premium text-[10px] w-fit">Afspraak plannen</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="py-8 bg-white border-t border-champagne">
-    <div class="container mx-auto px-4 sm:px-6 max-w-5xl">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div class="bg-ivory border border-champagne p-5">
-          <h4 class="font-display text-charcoal text-xl mb-4">Openingstijden</h4>
-          <ul class="space-y-2 text-sm text-taupe">
-            <li>Maandag: gesloten</li>
-            <li>Dinsdag: 10:00 - 17:30</li>
-            <li>Woensdag: 10:00 - 17:30</li>
-            <li>Donderdag: 10:00 - 17:30</li>
-            <li>Vrijdag: 10:00 - 20:00</li>
-            <li>Zaterdag: 10:00 - 17:00</li>
-            <li>Zondag: op afspraak</li>
-          </ul>
+          
+          <div class="text-sm text-gray-600 mb-6">
+            <p>Langstraat 128, 5664 GK Geldrop</p>
+            <p class="mt-1"><a href="tel:0402863673" class="hover:text-[#e8bfae] transition-colors">040 286 3673</a></p>
+            <p class="mt-1"><a href="mailto:info@mariagebruidsmode.nl" class="hover:text-[#e8bfae] transition-colors">info@mariagebruidsmode.nl</a></p>
+          </div>
         </div>
 
-        <div class="bg-ivory border border-champagne p-5">
-          <h4 class="font-display text-charcoal text-xl mb-4">Contact</h4>
-          <p class="text-sm text-taupe mb-3">Langstraat 128, 5664 GK Geldrop</p>
-          <p class="text-sm text-taupe mb-1"><a href="tel:+31402863673">040 286 3673</a></p>
-          <p class="text-sm text-taupe mb-4"><a href="mailto:info@mariagebruidsmode.nl">info@mariagebruidsmode.nl</a></p>
-          <a href="/afspraak-maken" class="btn-gold">Maak afspraak</a>
-        </div>
-
-        <div class="bg-ivory border border-champagne p-5">
-          <h4 class="font-display text-charcoal text-xl mb-4">Snel bericht</h4>
-          <form id="quick-contact-form" class="space-y-3">
-            <label class="sr-only" for="quick-name">Naam</label>
-            <input id="quick-name" name="full_name" required placeholder="Naam" class="w-full border border-champagne px-3 py-2 text-sm bg-white" />
-            <label class="sr-only" for="quick-email">E-mail</label>
-            <input id="quick-email" name="email" type="email" required placeholder="E-mail" class="w-full border border-champagne px-3 py-2 text-sm bg-white" />
-            <label class="sr-only" for="quick-date">Voorkeursdatum</label>
-            <input id="quick-date" name="preferred_date" type="date" required class="w-full border border-champagne px-3 py-2 text-sm bg-white" />
+        <div>
+          <form id="quick-contact-form" class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="sr-only" for="quick-name">Naam</label>
+                <input id="quick-name" name="full_name" required placeholder="Naam *" class="w-full border-b border-gray-300 px-3 py-3 text-sm bg-transparent focus:outline-none focus:border-[#e8bfae] transition-colors" />
+              </div>
+              <div>
+                <label class="sr-only" for="quick-email">E-mail</label>
+                <input id="quick-email" name="email" type="email" required placeholder="E-mail *" class="w-full border-b border-gray-300 px-3 py-3 text-sm bg-transparent focus:outline-none focus:border-[#e8bfae] transition-colors" />
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="sr-only" for="quick-phone">Telefoonnummer</label>
+                <input id="quick-phone" name="phone" type="tel" placeholder="Telefoonnummer" class="w-full border-b border-gray-300 px-3 py-3 text-sm bg-transparent focus:outline-none focus:border-[#e8bfae] transition-colors" />
+              </div>
+              <div>
+                <label class="sr-only" for="quick-date">Voorkeursdatum</label>
+                <input id="quick-date" name="preferred_date" type="date" class="w-full border-b border-gray-300 px-3 py-3 text-sm flex min-w-0 bg-transparent focus:outline-none focus:border-[#e8bfae] transition-colors text-gray-500" />
+              </div>
+            </div>
+            
+            <div class="pt-2">
+              <label class="sr-only" for="quick-message">Bericht</label>
+              <textarea id="quick-message" name="message" rows="4" placeholder="Opmerking of vraag" class="w-full border border-gray-200 bg-gray-50/50 p-4 text-sm focus:outline-none focus:border-[#e8bfae] transition-colors"></textarea>
+            </div>
+            
             <input type="hidden" name="appointment_type" value="standard" />
-            <button type="submit" class="btn-premium w-full justify-center">Versturen</button>
+            <div class="pt-4 text-right">
+              <button type="submit" class="inline-block bg-[#e8bfae] text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-[#d8a892] transition-colors border-none cursor-pointer">
+                VERSTUREN
+              </button>
+            </div>
           </form>
-          <p id="quick-contact-status" class="text-xs text-taupe mt-3 hidden" role="status" aria-live="polite"></p>
+          <p id="quick-contact-status" class="text-xs mt-3 text-right hidden" role="status" aria-live="polite"></p>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="bg-ivory border-y border-champagne">
-    <div class="container mx-auto px-4 sm:px-6 max-w-6xl py-8">
-      <div class="overflow-hidden border border-champagne">
-        <iframe
-          title="Locatie Mariage Bruidsmode"
-          src="https://www.google.com/maps?q=Langstraat+128+Geldrop&output=embed"
-          class="w-full h-[320px] md:h-[420px] border-0"
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"
-        ></iframe>
       </div>
     </div>
   </section>

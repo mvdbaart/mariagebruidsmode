@@ -1,15 +1,29 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+// List of team images from public/images/team/
+const teamImages = [
+  "TKF_8811-scaled.jpg", "TKF_8818-scaled.jpg", "TKF_8994-scaled.jpg", "TKF_9004-scaled.jpg",
+  "TKF_9016-scaled.jpg", "TKF_9043-scaled.jpg", "TKF_9054-1-scaled-scaled.jpg", "TKF_9055-1-scaled-e1704372521721.jpg",
+  "TKF_9055-scaled-e1704372195953.jpg", "TKF_9055-scaled-e1704372242248.jpg", "TKF_9069-scaled-e1704371934815.jpg", "TKF_9080-scaled.jpg",
+  "TKF_9092-scaled.jpg", "TKF_9208-scaled-scaled.jpg", "TKF_9250-scaled-scaled.jpg", "TKF_9276-scaled-scaled.jpg",
+  "TKF_9303-scaled-scaled.jpg", "TKF_9331-scaled-scaled.jpg", "TKF_9422-scaled.jpg", "TKF_9432-scaled-scaled.jpg",
+  "TKF_9452-scaled-e1704364640971.jpg", "TKF_9488-scaled-e1704364582984.jpg", "TKF_9528-scaled.jpg", "TKF_9597-scaled-scaled.jpg",
+  "TKF_9637-scaled.jpg"
+];
 ---
 
-<Layout title="Over Mariage Bruidsmode">
-  <section class="pt-32 pb-24 bg-primary/20">
+<Layout title="Over Ons | Mariage Bruidsmode">
+  <!-- Hero Section -->
+  <section class="pt-40 pb-24 bg-ivory">
     <div class="container mx-auto px-6">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
         <div>
-          <span class="text-xs tracking-[0.3em] uppercase text-secondary mb-4 block">Onze Passie</span>
-          <h1 class="text-5xl md:text-6xl font-serif text-accent mb-8 leading-tight italic font-light">Het verhaal van <br/><span class="text-secondary opacity-80">Mariage</span></h1>
-          <div class="prose prose-accent font-light text-accent/70 leading-relaxed space-y-6">
+          <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-6">Onze Passie</p>
+          <h1 class="font-display text-charcoal leading-tight mb-8" style="font-size: clamp(40px, 8vw, 72px); font-weight: 300;">
+            Het verhaal van <br/><em class="italic font-light text-taupe">Mariage</em>
+          </h1>
+          <div class="prose prose-accent font-light text-taupe leading-relaxed space-y-8 max-w-lg">
             <p>
               Al meer dan 30 jaar is Mariage Bruidsmode een begrip in Eindhoven en omstreken. Wat begon als een kleine boetiek is uitgegroeid tot een van de meest exclusieve bruidshuizen van Nederland.
             </p>
@@ -22,37 +36,69 @@ import Layout from '../layouts/Layout.astro';
           </div>
         </div>
         <div class="relative">
-          <div class="aspect-[4/5] overflow-hidden shadow-2xl">
-            <img src="/wp-content/uploads/2023/07/about-hero-img.jpg" alt="Mariage Store" class="w-full h-full object-cover" loading="lazy" />
+          <div class="aspect-[4/5] overflow-hidden shadow-soft grayscale hover:grayscale-0 transition-all duration-700">
+            <img src="/images/team/TKF_9080-scaled.jpg" alt="Mariage Store Entrance" class="w-full h-full object-cover scale-105 hover:scale-100 transition-transform duration-1000" />
           </div>
-          <div class="absolute -bottom-8 -left-8 bg-secondary p-8 hidden md:block">
-            <p class="text-white font-serif italic text-2xl">"Persoonlijk & Exclusief"</p>
+          <div class="absolute -bottom-10 -left-10 bg-charcoal p-12 hidden md:block shadow-2xl">
+            <p class="text-warm-white font-display italic text-3xl">Persoonlijk & <br/>Exclusief</p>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="py-24 bg-white">
-    <div class="container mx-auto px-6 text-center max-w-3xl">
-      <h2 class="text-3xl md:text-4xl font-serif mb-12 italic">Waarom kiezen voor Mariage?</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
-        <div class="space-y-4">
-          <div class="w-12 h-12 bg-primary flex items-center justify-center mx-auto text-secondary text-xl">★</div>
-          <h3 class="text-sm font-medium tracking-widest uppercase">Expertise</h3>
-          <p class="text-xs text-accent/60 font-light">Meer dan 30 jaar ervaring in de bruidsmode industrie.</p>
+  <!-- Team Section -->
+  <section class="py-32 bg-white">
+    <div class="container mx-auto px-6">
+      <div class="text-center mb-20">
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">Het Team</p>
+        <h2 class="font-display text-charcoal text-4xl mb-6">Ontmoet onze <em class="italic font-light text-taupe">specialisten</em></h2>
+        <p class="text-taupe max-w-2xl mx-auto font-light leading-relaxed">
+          Onze stylistes en coupeuses staan elke dag voor je klaar om jouw droom werkelijkheid te maken. Vakmanschap en passie staan bij ons centraal.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-8">
+        {teamImages.map((img) => (
+          <div class="group">
+            <div class="aspect-[3/4] overflow-hidden bg-ivory mb-4 shadow-soft grayscale group-hover:grayscale-0 transition-all duration-500">
+              <img 
+                src={`/images/team/${img}`} 
+                alt="Mariage Team Member" 
+                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                loading="lazy"
+              />
+            </div>
+            <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <p class="text-[10px] tracking-widest uppercase text-charcoal font-medium">Mariage Specialiste</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Values Section -->
+  <section class="py-32 bg-ivory border-t border-champagne">
+    <div class="container mx-auto px-6 text-center">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-20 max-w-5xl mx-auto">
+        <div class="space-y-6">
+          <div class="text-blush-deep text-4xl font-light">30+</div>
+          <h3 class="text-[10px] font-medium tracking-[0.3em] uppercase text-charcoal">Jaar Expertise</h3>
+          <p class="text-xs text-taupe font-light leading-relaxed">Drie decennia aan ervaring in het creëren van onvergetelijke momenten voor bruiden.</p>
         </div>
-        <div class="space-y-4">
-          <div class="w-12 h-12 bg-primary flex items-center justify-center mx-auto text-secondary text-xl">♥</div>
-          <h3 class="text-sm font-medium tracking-widest uppercase">Persoonlijk</h3>
-          <p class="text-xs text-accent/60 font-light">Eén-op-één aandacht in een private suite.</p>
+        <div class="space-y-6">
+          <div class="text-blush-deep text-4xl font-light">Personal</div>
+          <h3 class="text-[10px] font-medium tracking-[0.3em] uppercase text-charcoal">Eén-op-één aandacht</h3>
+          <p class="text-xs text-taupe font-light leading-relaxed">Jouw eigen private suite voor volledige rust en focus tijdens het passen.</p>
         </div>
-        <div class="space-y-4">
-          <div class="w-12 h-12 bg-primary flex items-center justify-center mx-auto text-secondary text-xl">✂</div>
-          <h3 class="text-sm font-medium tracking-widest uppercase">Eigen Atelier</h3>
-          <p class="text-xs text-accent/60 font-light">Perfecte pasvorm gegarandeerd door onze coupeuses.</p>
+        <div class="space-y-6">
+          <div class="text-blush-deep text-4xl font-light">Atelier</div>
+          <h3 class="text-[10px] font-medium tracking-[0.3em] uppercase text-charcoal">Eigen Coupeuses</h3>
+          <p class="text-xs text-taupe font-light leading-relaxed">Vakkundige aanpassingen in ons eigen atelier voor de perfecte pasvorm.</p>
         </div>
       </div>
     </div>
   </section>
 </Layout>
+

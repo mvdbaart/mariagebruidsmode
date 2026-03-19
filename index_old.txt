@@ -1,0 +1,298 @@
+﻿---
+import Layout from '../layouts/Layout.astro';
+import { supabase } from '../lib/supabase';
+
+const { data: latestProducts } = await supabase
+  .from('products')
+  .select('id, name, slug, brand, images, collections(title, type)')
+  .order('created_at', { ascending: false })
+  .limit(8);
+
+const { data: heroSuit } = await supabase
+  .from('products')
+  .select('id, name, images, collections(type)')
+  .order('created_at', { ascending: false })
+  .limit(30);
+
+const suitProduct = heroSuit?.find((p) => p.collections?.type === 'suit' && p.images?.[0]);
+const heroImage =
+  suitProduct?.images?.[0] ??
+  '/wp-content/uploads/2020/05/hero-afbeelding_jurken-rek_coral-overlay_v1.jpg';
+
+const { data: featuredWedding } = await supabase
+  .from('real_weddings')
+  .select('id, slug, bride_name, groom_name, cover_image, wedding_date')
+  .order('wedding_date', { ascending: false })
+  .limit(1)
+  .maybeSingle();
+
+const featuredWeddingCard = featuredWedding ?? {
+  slug: '',
+  bride_name: 'Joyce',
+  groom_name: 'Christiaan',
+  cover_image: '/wp-content/uploads/2023/07/wedding-couple-kissing-each-other-1295941-scaled-scaled.jpg',
+};
+
+const { data: latestWeddings } = await supabase
+  .from('real_weddings')
+  .select('id, slug, bride_name, groom_name, cover_image')
+  .order('wedding_date', { ascending: false })
+  .limit(3);
+
+const { data: latestPosts } = await supabase
+  .from('blog_posts')
+  .select('id, slug, title, excerpt, cover_image, published_at')
+  .order('published_at', { ascending: false })
+  .limit(3);
+
+const galleryImages = (latestProducts ?? [])
+  .map((p) => ({
+    src: p.images?.[0],
+    alt: p.name,
+    href: `/product/${p.slug}`,
+  }))
+  .filter((item) => item.src)
+  .slice(0, 8);
+
+const galleryFallbacks = [
+  '/wp-content/uploads/2023/11/Immediate-trouwpak-blauw-19206-54-1.jpg',
+  '/wp-content/uploads/2023/11/Immediate-trouwpak-blauwgroen-ruit-20116-75.jpg',
+  '/wp-content/uploads/2023/11/Immediate-trouwpak-donkergrijs-20110-75.jpg',
+  '/wp-content/uploads/2023/11/trouwjurk-ladybird-amariah-bruidsmode-2-scaled-1-scaled.jpg',
+  '/wp-content/uploads/2023/11/trouwjurk-ladybird-aneesa-bruidsmode-hochzeitskleid-bridal-dress-scaled-1-scaled.jpg',
+  '/wp-content/uploads/2023/11/trouwjurk-ladybird-chara-bruidsmode-hochzeitskleid-bridal-dress-scaled-1-scaled.jpg',
+  '/wp-content/uploads/2023/11/home-banner-Jill.jpg',
+  '/wp-content/uploads/2023/07/Home-Hero-img.jpg',
+];
+
+const blogFallbacks = [
+  '/wp-content/uploads/2020/05/blog-1.jpg',
+  '/wp-content/uploads/2020/05/blog-2.jpg',
+  '/wp-content/uploads/2020/05/blog-3.jpg',
+];
+
+const galleryItems = galleryImages.length
+  ? galleryImages
+  : galleryFallbacks.map((src, index) => ({
+      src,
+      alt: `Galerij foto ${index + 1}`,
+      href: '/trouwjurken',
+    }));
+---
+
+<Layout title="Mariage Bruidsmode | De Mooiste Trouwmode Van Nu">
+  <section class="pt-28 pb-6 bg-ivory">
+    <div class="container mx-auto px-4 sm:px-6 max-w-3xl">
+      <div class="overflow-hidden border border-champagne bg-linen">
+        <img src={heroImage} alt="Trouwpak collectie bij Mariage" class="w-full object-cover hero-image" loading="eager" />
+      </div>
+      <div class="text-center mt-5">
+        <h1 class="font-display text-charcoal leading-tight mb-4" style="font-size: clamp(26px, 4.2vw, 40px);">
+          De mooiste trouwmode van nu
+        </h1>
+        <a href="/trouwpakken" class="btn-premium text-[10px]">Bekijk collectie</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-8 bg-ivory">
+    <div class="container mx-auto px-4 sm:px-6 max-w-3xl">
+      <div class="grid grid-cols-3 gap-2 md:gap-3">
+        {galleryItems.length > 0 ? (
+          galleryItems.map((item) => (
+            <a href={item.href} class="block overflow-hidden bg-linen border border-champagne/60">
+              <img src={item.src!} alt={item.alt} class="w-full h-full object-cover gallery-image" loading="lazy" />
+            </a>
+          ))
+        ) : (
+          <p class="col-span-full text-center text-taupe-light py-8">Nieuwe collectiebeelden volgen binnenkort.</p>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <section class="py-9 bg-ivory text-center border-t border-champagne">
+    <div class="container mx-auto px-6 max-w-3xl">
+      <h2 class="font-display text-charcoal mb-4" style="font-size: clamp(24px, 3.5vw, 36px);">Real Brides &amp; Grooms</h2>
+      <a href="/inspiratie" class="btn-gold text-[10px]">Bekijk verhalen</a>
+    </div>
+  </section>
+
+  <section class="py-8 bg-ivory">
+    <div class="container mx-auto px-4 sm:px-6 max-w-3xl">
+      <a href={featuredWeddingCard.slug ? `/inspiratie/${featuredWeddingCard.slug}` : '/inspiratie'} class="block relative overflow-hidden border border-champagne">
+        <img src={featuredWeddingCard.cover_image} alt={`${featuredWeddingCard.bride_name} en ${featuredWeddingCard.groom_name}`} class="w-full featured-image object-cover" loading="lazy" />
+        <div class="absolute inset-0 bg-gradient-to-t from-charcoal/70 via-charcoal/25 to-transparent"></div>
+        <div class="absolute bottom-0 left-0 right-0 p-4 sm:p-6 text-warm-white">
+          <p class="text-[10px] tracking-[0.2em] uppercase mb-2 text-gold-light font-body">Uitgelicht bruidsverhaal</p>
+          <h3 class="font-display leading-tight mb-3" style="font-size: clamp(22px, 3.7vw, 36px);">
+            {featuredWeddingCard.bride_name} &amp; {featuredWeddingCard.groom_name}
+          </h3>
+          <span class="btn-premium inline-flex text-[10px]">Lees het verhaal</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section class="py-8 bg-ivory">
+    <div class="container mx-auto px-4 sm:px-6 max-w-4xl">
+      <div class="text-center mb-6">
+        <h2 class="font-display text-charcoal mb-2" style="font-size: clamp(24px, 3.4vw, 36px);">Mariage blog</h2>
+        <p class="text-[11px] tracking-[0.2em] uppercase text-taupe-light">Tips, trends &amp; echte verhalen</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {(latestPosts ?? []).map((post, i) => (
+          <article class="bg-white border border-champagne overflow-hidden">
+            <a href={`/blog/${post.slug}`} class="block aspect-[16/10] overflow-hidden bg-linen">
+              <img src={post.cover_image ?? blogFallbacks[i % blogFallbacks.length]} alt={post.title} class="w-full h-full object-cover" loading="lazy" />
+            </a>
+            <div class="p-3">
+              <p class="text-[10px] tracking-[0.12em] uppercase text-taupe mb-2">
+                {new Date(post.published_at).toLocaleDateString('nl-NL')}
+              </p>
+              <h3 class="font-display text-charcoal text-lg leading-tight mb-2">
+                <a href={`/blog/${post.slug}`}>{post.title}</a>
+              </h3>
+              <p class="text-sm text-taupe-light leading-relaxed line-clamp-3">{post.excerpt ?? ''}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="py-8 bg-ivory">
+    <div class="container mx-auto px-4 sm:px-6 max-w-4xl">
+      <div class="grid grid-cols-1 md:grid-cols-2 overflow-hidden border border-champagne bg-[#cbc5a7]">
+        <div class="aspect-[4/3] md:aspect-auto bg-linen">
+          <img
+            src={latestWeddings?.[0]?.cover_image ?? '/wp-content/uploads/2023/07/VIP-in-winkel-724x1024-1-e1698927468338.jpg'}
+            alt="Uitnodiging en trouwinspiratie"
+            class="w-full h-full object-cover"
+            loading="lazy"
+          />
+        </div>
+        <div class="p-6 md:p-8 flex flex-col justify-center">
+          <p class="text-[10px] tracking-[0.24em] uppercase text-charcoal/70 font-body mb-3">The wedding issue</p>
+          <h3 class="font-display text-charcoal leading-tight mb-4" style="font-size: clamp(24px, 3vw, 38px);">
+            Vraag nu jouw
+            <em class="italic font-light"> pasafspraak</em>
+            aan
+          </h3>
+          <p class="text-charcoal/80 font-body font-light mb-6">
+            Persoonlijke begeleiding, tijd voor jouw stijl en een selectie die echt bij je past.
+          </p>
+          <a href="/afspraak-maken" class="btn-premium text-[10px] w-fit">Afspraak plannen</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-8 bg-white border-t border-champagne">
+    <div class="container mx-auto px-4 sm:px-6 max-w-5xl">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="bg-ivory border border-champagne p-5">
+          <h4 class="font-display text-charcoal text-xl mb-4">Openingstijden</h4>
+          <ul class="space-y-2 text-sm text-taupe">
+            <li>Maandag: gesloten</li>
+            <li>Dinsdag: 10:00 - 17:30</li>
+            <li>Woensdag: 10:00 - 17:30</li>
+            <li>Donderdag: 10:00 - 17:30</li>
+            <li>Vrijdag: 10:00 - 20:00</li>
+            <li>Zaterdag: 10:00 - 17:00</li>
+            <li>Zondag: op afspraak</li>
+          </ul>
+        </div>
+
+        <div class="bg-ivory border border-champagne p-5">
+          <h4 class="font-display text-charcoal text-xl mb-4">Contact</h4>
+          <p class="text-sm text-taupe mb-3">Langstraat 128, 5664 GK Geldrop</p>
+          <p class="text-sm text-taupe mb-1"><a href="tel:+31402863673">040 286 3673</a></p>
+          <p class="text-sm text-taupe mb-4"><a href="mailto:info@mariagebruidsmode.nl">info@mariagebruidsmode.nl</a></p>
+          <a href="/afspraak-maken" class="btn-gold">Maak afspraak</a>
+        </div>
+
+        <div class="bg-ivory border border-champagne p-5">
+          <h4 class="font-display text-charcoal text-xl mb-4">Snel bericht</h4>
+          <form id="quick-contact-form" class="space-y-3">
+            <label class="sr-only" for="quick-name">Naam</label>
+            <input id="quick-name" name="full_name" required placeholder="Naam" class="w-full border border-champagne px-3 py-2 text-sm bg-white" />
+            <label class="sr-only" for="quick-email">E-mail</label>
+            <input id="quick-email" name="email" type="email" required placeholder="E-mail" class="w-full border border-champagne px-3 py-2 text-sm bg-white" />
+            <label class="sr-only" for="quick-date">Voorkeursdatum</label>
+            <input id="quick-date" name="preferred_date" type="date" required class="w-full border border-champagne px-3 py-2 text-sm bg-white" />
+            <input type="hidden" name="appointment_type" value="standard" />
+            <button type="submit" class="btn-premium w-full justify-center">Versturen</button>
+          </form>
+          <p id="quick-contact-status" class="text-xs text-taupe mt-3 hidden" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-ivory border-y border-champagne">
+    <div class="container mx-auto px-4 sm:px-6 max-w-6xl py-8">
+      <div class="overflow-hidden border border-champagne">
+        <iframe
+          title="Locatie Mariage Bruidsmode"
+          src="https://www.google.com/maps?q=Langstraat+128+Geldrop&output=embed"
+          class="w-full h-[320px] md:h-[420px] border-0"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .hero-image {
+    aspect-ratio: 16 / 10;
+  }
+
+  .gallery-image {
+    aspect-ratio: 3 / 4;
+  }
+
+  .featured-image {
+    aspect-ratio: 16 / 9;
+  }
+</style>
+
+<script>
+  const quickForm = document.getElementById('quick-contact-form') as HTMLFormElement | null;
+  const quickStatus = document.getElementById('quick-contact-status');
+
+  quickForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!quickStatus || !quickForm) return;
+
+    const formData = new FormData(quickForm);
+    const payload = {
+      full_name: formData.get('full_name'),
+      email: formData.get('email'),
+      preferred_date: formData.get('preferred_date'),
+      appointment_type: formData.get('appointment_type'),
+      phone: null,
+      message: 'Snelle aanvraag vanaf homepage',
+    };
+
+    quickStatus.textContent = 'Bezig met verzenden...';
+    quickStatus.className = 'text-xs text-taupe mt-3 block';
+
+    try {
+      const response = await fetch('/api/appointments', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) throw new Error('request failed');
+      quickStatus.textContent = 'Bedankt, we nemen snel contact op.';
+      quickStatus.className = 'text-xs text-green-700 mt-3 block';
+      quickForm.reset();
+    } catch {
+      quickStatus.textContent = 'Versturen mislukt. Probeer opnieuw.';
+      quickStatus.className = 'text-xs text-red-600 mt-3 block';
+    }
+  });
+</script>

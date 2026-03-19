@@ -27,8 +27,8 @@ const { data: related } = await supabase
 const isGroom = product.collections?.type === 'suit';
 const backHref = isGroom ? '/trouwpakken' : '/trouwjurken';
 const backLabel = isGroom ? 'Trouwpakken' : 'Trouwjurken';
-const dressFallbackImage = '/wp-content/uploads/2023/11/trouwjurk-ladybird-aneesa-bruidsmode-hochzeitskleid-bridal-dress-scaled-1-scaled.jpg';
-const suitFallbackImage = '/wp-content/uploads/2023/11/Immediate-trouwpak-blauw-19206-54-1.jpg';
+const dressFallbackImage = '/images/jurkvormen/a-lijn.png';
+const suitFallbackImage = '/images/team/TKF_9016-scaled.jpg';
 const primaryFallbackImage = isGroom ? suitFallbackImage : dressFallbackImage;
 const productImages = product.images && product.images.length > 0 ? product.images : [primaryFallbackImage];
 ---

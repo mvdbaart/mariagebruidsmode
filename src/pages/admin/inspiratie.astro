@@ -42,6 +42,12 @@ const { data: weddings } = await supabase
             </div>
           </div>
         ))}
+
+        {!weddings?.length && (
+          <div class="col-span-full text-center py-24 bg-white border border-dashed border-champagne">
+            <p class="font-display text-xl text-taupe italic">Geen inspiratie-verhalen gevonden.</p>
+          </div>
+        )}
       </div>
 
       {!weddings?.length && (

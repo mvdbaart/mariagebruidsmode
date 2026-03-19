@@ -9,40 +9,40 @@ const { data: collections } = await supabase
 ---
 
 <Layout title="Beheer Collecties">
-  <div class="pt-32 pb-24 bg-accent/5 min-h-screen">
+  <div class="pt-32 pb-24 bg-ivory min-h-screen">
     <div class="container mx-auto px-6">
-      <nav class="mb-12 flex items-center gap-4 text-[10px] tracking-[0.2em] uppercase text-accent/40">
-        <a href="/admin" class="hover:text-secondary">Dashboard</a>
-        <span>/</span>
-        <span class="text-secondary text-secondary">Beheer Collecties</span>
+      <nav class="mb-12 flex items-center gap-4 text-[10px] tracking-[0.2em] uppercase font-body text-taupe">
+        <a href="/admin" class="hover:text-charcoal transition-colors">Dashboard</a>
+        <span class="text-champagne">›</span>
+        <span class="text-charcoal">Beheer Collecties</span>
       </nav>
 
       <div class="flex items-center justify-between mb-12">
-        <h1 class="text-4xl font-serif text-accent italic">Beheer <span class="text-secondary opacity-50">Collecties</span></h1>
-        <button class="bg-accent text-white px-6 py-2 text-xs tracking-widest uppercase hover:opacity-80 transition-all font-medium">Nieuwe Collectie</button>
+        <h1 class="text-4xl font-display text-charcoal">Beheer <em class="font-normal italic text-taupe">Collecties</em></h1>
+        <button class="bg-charcoal text-warm-white px-8 py-3 text-[10px] tracking-widest uppercase hover:bg-taupe transition-all font-medium">Nieuwe Collectie</button>
       </div>
 
-      <div class="bg-white border border-secondary/10 shadow-sm overflow-hidden">
+      <div class="bg-white border border-champagne shadow-soft overflow-hidden">
         <div class="overflow-x-auto">
-        <table class="w-full min-w-[760px] text-left">
+        <table class="w-full min-w-[760px] text-left border-collapse">
           <thead>
-            <tr class="bg-primary/50 text-[10px] tracking-widest uppercase text-accent/60 border-b border-secondary/10">
-              <th class="px-6 py-4 font-medium whitespace-nowrap">Titel</th>
-              <th class="px-6 py-4 font-medium whitespace-nowrap">Type</th>
-              <th class="px-6 py-4 font-medium whitespace-nowrap">Slug</th>
-              <th class="px-6 py-4 font-medium text-right whitespace-nowrap">Acties</th>
+            <tr class="bg-linen/50 text-[10px] tracking-[0.2em] uppercase text-charcoal border-b border-champagne">
+              <th class="px-6 py-5 font-medium">Titel</th>
+              <th class="px-6 py-5 font-medium">Type</th>
+              <th class="px-6 py-5 font-medium">Slug</th>
+              <th class="px-6 py-5 font-medium text-right">Acties</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-secondary/5 text-sm font-light text-accent">
+          <tbody class="divide-y divide-champagne text-sm text-charcoal font-body">
             {collections?.map((col) => (
-              <tr class="hover:bg-primary/20 transition-colors">
-                <td class="px-6 py-4 font-medium uppercase tracking-wide whitespace-nowrap">{col.title}</td>
-                <td class="px-6 py-4 italic whitespace-nowrap">{col.type === 'dress' ? 'Jurken' : 'Pakken'}</td>
-                <td class="px-6 py-4 text-accent/40 whitespace-nowrap">{col.slug}</td>
-                <td class="px-6 py-4 text-right">
-                  <div class="flex justify-end gap-4 uppercase text-[11px] tracking-[0.12em] font-medium whitespace-nowrap">
-                    <a href={`/admin/collection/${col.id}/edit`} class="text-secondary hover:underline">Aanpassen</a>
-                    <button class="text-red-400 hover:underline">Verwijderen</button>
+              <tr class="hover:bg-ivory/50 transition-colors">
+                <td class="px-6 py-5 font-medium uppercase tracking-wider">{col.title}</td>
+                <td class="px-6 py-5 text-taupe">{col.type === 'dress' ? 'Jurken' : 'Pakken'}</td>
+                <td class="px-6 py-5 text-taupe-light font-light">{col.slug}</td>
+                <td class="px-6 py-5 text-right">
+                  <div class="flex justify-end gap-5 uppercase text-[10px] tracking-[0.15em] font-medium whitespace-nowrap">
+                    <a href={`/admin/collection/${col.id}/edit`} class="text-blush-deep hover:text-charcoal hover:underline transition-colors">Aanpassen</a>
+                    <button class="text-red-700 hover:text-red-900 transition-colors">Verwijderen</button>
                   </div>
                 </td>
               </tr>
@@ -50,7 +50,7 @@ const { data: collections } = await supabase
           </tbody>
         </table>
         </div>
-        {!collections?.length && <p class="p-12 text-center text-accent/40 italic">Geen collecties gevonden.</p>}
+        {!collections?.length && <p class="p-16 text-center text-taupe font-italic italic">Geen collecties gevonden.</p>}
       </div>
     </div>
   </div>

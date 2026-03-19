@@ -8,7 +8,7 @@ interface Props {
 }
 
 const { title, image, fallback = '', link, category } = Astro.props;
-const src = image || fallback;
+const src = (image && image.startsWith('/images/')) ? image : fallback;
 ---
 
 <a href={link} class="group relative block overflow-hidden aspect-[3/4] bg-primary">
