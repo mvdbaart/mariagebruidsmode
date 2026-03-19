@@ -59,9 +59,9 @@ const dressFallbackImage = '/images/jurkvormen/a-lijn.png';
 
       <!-- Products -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="products-grid">
-        {dressProducts?.map((prod) => (
-          <a href={`/product/${prod.slug}`} class="group product-card bg-white shadow-card hover:shadow-hover transition-all duration-500 overflow-hidden hover:-translate-y-1 block" data-collection={collectionById.get(prod.collection_id)?.slug}>
-            <div class="aspect-[3/4] bg-linen relative overflow-hidden">
+        {dressProducts?.map((prod, index) => (
+          <a href={`/product/${prod.slug}`} class="group product-card block relative overflow-hidden aspect-[3/4]" data-collection={collectionById.get(prod.collection_id)?.slug}>
+            <div class="w-full h-full bg-linen relative overflow-hidden">
               {(() => {
                 const img = prod.images?.[0];
                 const displayImg = (img && img.startsWith('/images/')) ? img : dressFallbackImage;
@@ -70,7 +70,7 @@ const dressFallbackImage = '/images/jurkvormen/a-lijn.png';
                     src={displayImg}
                     alt={prod.name}
                     onerror={`this.onerror=null;this.src='${dressFallbackImage}'`}
-                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    class={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${index % 3 === 0 ? 'animate-pan-right' : index % 3 === 1 ? 'animate-pan-left' : 'animate-zoom'}`}
                     loading="lazy"
                   />
                 );

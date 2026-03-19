@@ -3,12 +3,25 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import AnnouncementBar from '../components/AnnouncementBar.astro';
+import { getServiceRoleClient } from '../lib/serverAuth';
 
 interface Props {
 	title: string;
 }
 
 const { title } = Astro.props;
+
+const supabase = getServiceRoleClient();
+const { data: settings } = await supabase
+  .from('site_settings')
+  .select('*')
+  .eq('id', 'current')
+  .single();
+
+const colors = settings?.colors || {};
+const typography = settings?.typography || {};
+const ui = settings?.ui_styles || {};
+const meta = settings?.site_metadata || {};
 ---
 
 <!doctype html>
@@ -20,8 +33,59 @@ const { title } = Astro.props;
 		<meta name="generator" content={Astro.generator} />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Cormorant+Infant:ital,wght@0,300;1,300&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
-		<title>{title} | Mariage Bruidsmode</title>
+    <link href={`https://fonts.googleapis.com/css2?family=${typography.heading_font?.replace(/ /g, '+')}:wght@${typography.heading_weight}&family=${typography.body_font?.replace(/ /g, '+')}:wght@${typography.body_weight}&display=swap`} rel="stylesheet">
+		<title>{title} | {meta.title || 'Mariage Bruidsmode'}</title>
+    <meta name="description" content={meta.description} />
+
+    <style define:vars={{
+      colorPrimary: colors.primary,
+      colorSecondary: colors.secondary,
+      colorAccent: colors.accent,
+      colorBlush: colors.blush,
+      colorTaupe: colors.taupe,
+      colorChampagne: colors.champagne,
+      colorLinen: colors.linen,
+      colorCharcoal: colors.charcoal,
+      colorCream: colors.cream,
+      colorBlushDeep: colors.blush_deep,
+      fontHeading: typography.heading_font,
+      fontBody: typography.body_font,
+      baseSize: typography.base_size,
+      borderRadius: ui.border_radius,
+      buttonPadding: ui.button_padding,
+      headingWeight: typography.heading_weight,
+    }}>
+      :root {
+        --color-primary-dynamic: var(--colorPrimary);
+        --color-secondary-dynamic: var(--colorSecondary);
+        --color-accent-dynamic: var(--colorAccent);
+        --color-blush-dynamic: var(--colorBlush);
+        --color-taupe-dynamic: var(--colorTaupe);
+        --color-champagne-dynamic: var(--colorChampagne);
+        --color-linen-dynamic: var(--colorLinen);
+        --color-charcoal-dynamic: var(--colorCharcoal);
+        --color-cream-dynamic: var(--colorCream);
+        --color-blush-deep-dynamic: var(--colorBlushDeep);
+        
+        --font-heading-dynamic: var(--fontHeading);
+        --font-body-dynamic: var(--fontBody);
+        --base-font-size-dynamic: var(--baseSize);
+        --heading-weight-dynamic: var(--headingWeight);
+        
+        --radius-base-dynamic: var(--borderRadius);
+        --button-padding-dynamic: var(--buttonPadding);
+      }
+
+      body {
+        font-family: var(--font-body-dynamic), var(--font-body), sans-serif;
+        font-size: var(--base-font-size-dynamic, 16px);
+      }
+
+      h1, h2, h3, h4, h5, h6, .font-serif {
+        font-family: var(--font-heading-dynamic), var(--font-display), serif;
+        font-weight: var(--heading-weight-dynamic, 400);
+      }
+    </style>
 	</head>
 	<body>
     <script>document.documentElement.style.setProperty('--announcement-height', '36px');</script>

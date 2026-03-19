@@ -1,0 +1,136 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getAdminAuthFromCookies, getServiceRoleClient, getUserRole } from '../../lib/serverAuth';
+
+const adminAuth = await getAdminAuthFromCookies(Astro.cookies);
+if (!adminAuth) {
+  return Astro.redirect('/admin/login');
+}
+
+// Security: Only super-admins (from ENV) or users with 'admin' role in DB can access this
+const userRole = await getUserRole(adminAuth.user.id);
+const isAdmin = userRole === 'admin' || (import.meta.env.ADMIN_EMAILS ?? '').includes(adminAuth.user.email!);
+
+if (!isAdmin) {
+  return Astro.redirect('/admin');
+}
+
+// Fetch users for initial server-side render
+const supabase = getServiceRoleClient();
+const { data: { users: authUsers } } = await supabase.auth.admin.listUsers();
+const { data: roles } = await supabase.from('user_roles').select('*');
+
+const users = authUsers.map(u => ({
+  id: u.id,
+  email: u.email,
+  role: roles?.find(r => r.id === u.id)?.role || 'none',
+  last_login: u.last_sign_in_at
+}));
+---
+
+<Layout title="Gebruikersbeheer - Admin">
+  <main class="min-h-screen bg-primary py-20 px-4">
+    <div class="max-w-5xl mx-auto">
+      <div class="flex items-center justify-between mb-12">
+        <div class="flex items-center gap-4">
+          <a href="/admin" class="text-[10px] uppercase tracking-widest text-accent/60 hover:text-accent transition-colors flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+            Dashboard
+          </a>
+          <h1 class="text-3xl font-serif text-accent">Gebruikersbeheer</h1>
+        </div>
+      </div>
+
+      <div class="bg-white/50 backdrop-blur-sm border border-accent/10 rounded-lg overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-accent/5">
+                <th class="px-6 py-4 text-[10px] uppercase tracking-widest text-accent font-medium">Gebruiker</th>
+                <th class="px-6 py-4 text-[10px] uppercase tracking-widest text-accent font-medium">Rol</th>
+                <th class="px-6 py-4 text-[10px] uppercase tracking-widest text-accent font-medium">Laatste Login</th>
+                <th class="px-6 py-4 text-[10px] uppercase tracking-widest text-accent font-medium text-right">Acties</th>
+              </tr>
+            </thead>
+            <tbody id="user-table-body">
+              {users.map(u => (
+                <tr class="border-t border-accent/10 hover:bg-accent/[0.02] transition-colors group">
+                  <td class="px-6 py-4">
+                    <div class="flex flex-col">
+                      <span class="text-sm font-medium text-accent">{u.email}</span>
+                      <span class="text-[10px] text-accent/40 font-mono uppercase">{u.id}</span>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <select 
+                      class="role-select bg-transparent border-b border-accent/20 py-1 text-xs focus:border-secondary outline-none transition-colors"
+                      data-user-id={u.id}
+                    >
+                      <option value="none" selected={u.role === 'none'}>Geen toegang</option>
+                      <option value="admin" selected={u.role === 'admin'}>Admin</option>
+                      <option value="moderator" selected={u.role === 'moderator'}>Moderator</option>
+                      <option value="marketing" selected={u.role === 'marketing'}>Marketing</option>
+                      <option value="extern" selected={u.role === 'extern'}>Extern</option>
+                    </select>
+                  </td>
+                  <td class="px-6 py-4 text-xs text-accent/60">
+                    {u.last_login ? new Date(u.last_login).toLocaleString('nl-NL') : 'Nooit'}
+                  </td>
+                  <td class="px-6 py-4 text-right">
+                    <button class="save-user-btn opacity-0 group-hover:opacity-100 disabled:hidden px-4 py-1.5 bg-accent text-white text-[10px] uppercase tracking-widest rounded transition-all hover:bg-secondary" data-user-id={u.id}>
+                      Opslaan
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="mt-8 p-6 bg-secondary/5 rounded-lg border border-secondary/10">
+        <h3 class="text-xs uppercase tracking-widest text-secondary font-semibold mb-3">Over Rollen</h3>
+        <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-[11px] text-accent/70">
+          <li class="flex gap-2"><strong>Admin:</strong> Volledige toegang tot alles, inclusief instellingen en gebruikers.</li>
+          <li class="flex gap-2"><strong>Moderator:</strong> Kan producten, collecties en 'Real Weddings' beheren.</li>
+          <li class="flex gap-2"><strong>Marketing:</strong> Kan blogposts en inspiratie pagina's beheren.</li>
+          <li class="flex gap-2"><strong>Extern:</strong> Beperkte toegang (View-only / specifieke collecties).</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  document.querySelectorAll('.save-user-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const target = e.target as HTMLButtonElement;
+      const userId = target.dataset.userId;
+      const select = document.querySelector(`.role-select[data-user-id="${userId}"]`) as HTMLSelectElement;
+      const newRole = select.value;
+
+      target.disabled = true;
+      target.textContent = '...';
+
+      try {
+        const response = await fetch('/api/admin/users', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId, newRole })
+        });
+
+        if (response.ok) {
+          alert('Rol succesvol bijgewerkt.');
+        } else {
+          const err = await response.json();
+          alert('Fout: ' + err.error);
+        }
+      } catch (err) {
+        alert('Er is een fout opgetreden.');
+      } finally {
+        target.disabled = false;
+        target.textContent = 'Opslaan';
+      }
+    });
+  });
+</script>

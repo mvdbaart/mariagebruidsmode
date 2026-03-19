@@ -1,0 +1,44 @@
+﻿
+> mariagebruidsmode.nl@0.0.1 preview
+> astro preview
+
+node.exe : [preview] Th
+e @astrojs/vercel adapt
+er does not support the
+ preview command.
+At C:\Program Files\nod
+ejs\npm.ps1:29 char:3
++   & $NODE_EXE $NPM_CL
+I_JS $args
++   ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: ([preview] The   
+  @...review comman    
+d.:String) [], Rem    o
+teException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+  [1mLocation:[22m
+    [4mC:\Users\Maarte
+n\Documents\vms\mariage
+bruidsmode.nl\node_modu
+les\astro\dist\core\pre
+view\index.js:48:11[24
+m
+  [1mStack trace:[22m
+[2m    at preview (fil
+e:///C:/Users/Maarten/D
+ocuments/vms/mariagebru
+idsmode.nl/node_modules
+/astro/dist/core/previe
+w/index.js:48:11)
+    at async runCommand
+ (file:///C:/Users/Maar
+ten/Documents/vms/maria
+gebruidsmode.nl/node_mo
+dules/astro/dist/cli/in
+dex.js:211:22)[22m

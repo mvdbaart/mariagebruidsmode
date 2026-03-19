@@ -1,17 +1,15 @@
 import { createClient, type Session, type User } from '@supabase/supabase-js';
 import type { AstroCookies } from 'astro';
 
-const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
-const supabaseServiceKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
-
 const isProd = import.meta.env.PROD;
 const ACCESS_COOKIE = 'sb-access-token';
 const REFRESH_COOKIE = 'sb-refresh-token';
 const REFRESH_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
 
 function requirePublicSupabaseConfig() {
-  if (!supabaseUrl || !supabaseAnonKey) {
+  const url = import.meta.env.PUBLIC_SUPABASE_URL;
+  const key = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) {
     throw new Error('Missing PUBLIC_SUPABASE_URL or PUBLIC_SUPABASE_ANON_KEY.');
   }
 }
@@ -23,12 +21,30 @@ function getAdminEmails(): string[] {
     .filter(Boolean);
 }
 
-export function isAdminUser(user: User): boolean {
+export async function getUserRole(userId: string): Promise<string> {
+  const supabase = getServiceRoleClient();
+  const { data, error } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('id', userId)
+    .single();
+  
+  if (error || !data) return 'none';
+  return data.role;
+}
+
+export async function isAdminUser(user: User): Promise<boolean> {
   const email = user.email?.toLowerCase();
   const adminEmails = getAdminEmails();
+  
+  // 1. Check environment variable (Super Admin)
   if (email && adminEmails.includes(email)) return true;
-  if (user.app_metadata?.role === 'admin') return true;
-  return false;
+  
+  // 2. Check user_roles table
+  const role = await getUserRole(user.id);
+  const validRoles = ['admin', 'moderator', 'marketing', 'extern'];
+  
+  return validRoles.includes(role);
 }
 
 export function setAuthCookies(cookies: AstroCookies, session: Session) {
@@ -69,12 +85,16 @@ export async function getAdminAuthFromCookies(cookies: AstroCookies): Promise<{
   const refreshToken = cookies.get(REFRESH_COOKIE)?.value;
   if (!accessToken || !refreshToken) return null;
 
-  const client = createClient(supabaseUrl!, supabaseAnonKey!, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  });
+  const client = createClient(
+    import.meta.env.PUBLIC_SUPABASE_URL!, 
+    import.meta.env.PUBLIC_SUPABASE_ANON_KEY!, 
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    }
+  );
 
   const { data, error } = await client.auth.setSession({
     access_token: accessToken,
@@ -82,7 +102,8 @@ export async function getAdminAuthFromCookies(cookies: AstroCookies): Promise<{
   });
 
   if (error || !data.session || !data.user) return null;
-  if (!isAdminUser(data.user)) return null;
+  const isAllowed = await isAdminUser(data.user);
+  if (!isAllowed) return null;
 
   setAuthCookies(cookies, data.session);
   return {
@@ -93,14 +114,19 @@ export async function getAdminAuthFromCookies(cookies: AstroCookies): Promise<{
 
 export function getServiceRoleClient() {
   requirePublicSupabaseConfig();
-  if (!supabaseServiceKey) {
+  const serviceKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) {
     throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY.');
   }
 
-  return createClient(supabaseUrl!, supabaseServiceKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  });
+  return createClient(
+    import.meta.env.PUBLIC_SUPABASE_URL!, 
+    serviceKey, 
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    }
+  );
 }

@@ -1,0 +1,75 @@
+﻿
+> mariagebruidsmode.nl@0.0.1 build
+> astro build
+
+[2m11:22:59[22m [34m[types][39m Generated [2m82ms[22m
+[2m11:22:59[22m [34m[build][39m output: [34m"server"[39m
+[2m11:22:59[22m [34m[build][39m mode: [34m"server"[39m
+[2m11:22:59[22m [34m[build][39m directory: [34mC:\Users\Maarten\Documents\vms\mariagebruidsmode.nl\dist\[39m
+[2m11:22:59[22m [34m[build][39m adapter: [32m@astrojs/vercel[39m
+[2m11:22:59[22m [34m[build][39m Collecting build info...
+[2m11:22:59[22m [34m[build][39m [32mÔ£ô Completed in 159ms.[39m
+[2m11:22:59[22m [34m[build][39m Building server entrypoints...
+node.exe : [31m[1m11:23:01
+[22m [ERROR] [vite][39m [31
+mÔ£ù[39m Build failed in 1.3
+7s
+At C:\Program Files\nodejs\np
+m.ps1:29 char:3
++   & $NODE_EXE $NPM_CLI_JS $
+args
++   ~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~
+    + CategoryInfo           
+   : NotSpecifi    ed: ([31m
+[1m11:2    3:...failed in 1.
+3    7s:String) [], Rem    ot
+eException
+    + FullyQualifiedEr    ror
+Id : NativeComm    andError
+ 
+[31m[CompilerError][39m [as
+tro:build] Unable to assign a
+ttributes when using <> Fragm
+ent shorthand syntax!
+file: C:/Users/Maarten/Docume
+nts/vms/mariagebruidsmode.nl/
+src/pages/admin/index.astro:5
+9:1
+  [1mHint:[22m
+[33m    To fix this, please 
+change < <<<<< Updated upstre
+am
+          <div class="grid gr
+id-cols-1 md:grid-cols-2 lg:g
+rid-cols-3 gap-6 mb-14"> to u
+se the longhand Fragment synt
+ax: <Fragment <<<<< Updated u
+pstream
+          <div class="grid gr
+id-cols-1 md:grid-cols-2 lg:g
+rid-cols-3 gap-6 mb-14">[39m
+  [1mLocation:[22m
+    [4mC:/Users/Maarten/Docu
+ments/vms/mariagebruidsmode.n
+l/src/pages/admin/index.astro
+:59:1[24m
+  [1mStack trace:[22m
+[2m    at handleCompileResul
+tErrors (file:///C:/Users/Maa
+rten/Documents/vms/mariagebru
+idsmode.nl/node_modules/astro
+/dist/core/compile/compile.js
+:63:11)
+    at async compileAstro (fi
+le:///C:/Users/Maarten/Docume
+nts/vms/mariagebruidsmode.nl/
+node_modules/astro/dist/vite-
+plugin-astro/compile.js:13:23
+)
+    at async transform (file:
+///C:/Users/Maarten/Documents
+/vms/mariagebruidsmode.nl/nod
+e_modules/rollup/dist/es/shar
+ed/node-entry.js:21269:16)[2
+2m

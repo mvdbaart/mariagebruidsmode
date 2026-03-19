@@ -90,10 +90,11 @@ const galleryItems = galleryImages.length
     }));
 ---
 
+<Layout title="Home">
   <!-- Full Width Hero -->
   <section class="w-full relative bg-linen pt-20">
     <div class="w-full aspect-[21/9] md:aspect-[21/7] overflow-hidden">
-      <img src={heroImage} alt="Trouwpak collectie bij Mariage" class="w-full h-full object-cover" loading="eager" />
+      <img src={heroImage} alt="Trouwpak collectie bij Mariage" class="w-full h-full object-cover animate-pan-right" loading="eager" />
     </div>
     
     <div class="text-center py-10 px-4 bg-white">
@@ -102,7 +103,7 @@ const galleryItems = galleryImages.length
         De mooiste bruidsmode van nu
       </h1>
       <div class="flex flex-col items-center gap-3">
-        <a href="/trouwjurken" class="inline-block bg-[#e8bfae] text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-[#d8a892] transition-colors min-w-[220px]">
+        <a href="/trouwjurken" class="inline-block bg-[#A66352] text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-opacity-90 transition-colors min-w-[220px]">
           BEKIJK TROUWJURKEN
         </a>
         <a href="/afspraak-maken" class="inline-block bg-black text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-gray-900 transition-colors min-w-[220px]">
@@ -116,10 +117,10 @@ const galleryItems = galleryImages.length
   <section class="pb-16 bg-white">
     <div class="container mx-auto px-4 lg:px-8 max-w-[1400px]">
       <div class="grid grid-cols-2 md:grid-cols-3 gap-1 md:gap-4">
-        {galleryItems.slice(0, 6).map((item) => (
+        {galleryItems.slice(0, 6).map((item, index) => (
           <div class="flex flex-col mb-4">
             <a href={item.href} class="block relative overflow-hidden aspect-[3/4] group mb-3">
-              <img src={item.src!} alt={item.alt} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+              <img src={item.src!} alt={item.alt} class={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${index % 3 === 0 ? 'animate-pan-right' : index % 3 === 1 ? 'animate-pan-left' : 'animate-zoom'}`} loading="lazy" />
               <!-- Hover Overlay with Brand -->
               <div class="absolute inset-0 bg-black/20 flex flex-col justify-end items-center pb-8 opacity-90 transition-opacity">
                 <span class="text-white font-display text-2xl mb-1">{item.alt.split(' ')[0] || 'Merk'}</span>
@@ -147,22 +148,22 @@ const galleryItems = galleryImages.length
   <!-- Real Brides & Grooms -->
   <section class="py-16 bg-white text-center">
     <div class="container mx-auto px-4">
-      <p class="text-[12px] italic text-[#e8bfae] font-serif mb-2">Liefde vieren</p>
+      <p class="text-[12px] italic text-[#A66352] font-serif mb-2">Liefde vieren</p>
       <h2 class="font-display text-charcoal mb-8" style="font-size: clamp(28px, 4vw, 42px); font-weight: 300;">Real Brides &amp; Grooms</h2>
       
       <div class="flex flex-col sm:flex-row justify-center items-center gap-3 mb-10">
         <a href="/inspiratie" class="inline-block bg-[#8b8772] text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-opacity-90 transition-colors min-w-[200px]">
           BEKIJK VERHALEN
         </a>
-        <a href="/inspiratie" class="inline-block bg-[#e8bfae] text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-[#d8a892] transition-colors min-w-[200px]">
+        <a href="/inspiratie" class="inline-block bg-[#A66352] text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-opacity-90 transition-colors min-w-[200px]">
           LEES MEER
         </a>
       </div>
 
       <div class="max-w-5xl mx-auto">
         <a href={featuredWeddingCard.slug ? `/inspiratie/${featuredWeddingCard.slug}` : '/inspiratie'} class="block relative overflow-hidden group">
-          <div class="aspect-[16/8] w-full">
-            <img src={featuredWeddingCard.cover_image} alt={`${featuredWeddingCard.bride_name} en ${featuredWeddingCard.groom_name}`} class="w-full h-full object-cover" loading="lazy" />
+          <div class="aspect-[16/8] w-full overflow-hidden">
+            <img src={featuredWeddingCard.cover_image} alt={`${featuredWeddingCard.bride_name} en ${featuredWeddingCard.groom_name}`} class="w-full h-full object-cover animate-zoom" loading="lazy" />
           </div>
           <div class="absolute inset-0 bg-black/40 flex flex-col justify-center items-center text-white px-4">
             <h3 class="font-display italic text-center leading-tight mb-4 max-w-2xl" style="font-size: clamp(20px, 3.5vw, 36px);">
@@ -178,7 +179,7 @@ const galleryItems = galleryImages.length
   <!-- Mariage Blog -->
   <section class="py-16 bg-white text-center">
     <div class="container mx-auto px-4 max-w-6xl">
-      <p class="text-[12px] italic text-[#e8bfae] font-serif mb-2">Tips & inspiratie</p>
+      <p class="text-[12px] italic text-[#A66352] font-serif mb-2">Tips & inspiratie</p>
       <h2 class="font-display text-charcoal mb-10" style="font-size: clamp(28px, 4vw, 42px); font-weight: 300;">Mariage blog</h2>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
@@ -190,7 +191,7 @@ const galleryItems = galleryImages.length
           return (
             <article class="group">
               <a href={`/blog/${post.slug}`} class="block aspect-[16/10] overflow-hidden mb-4 rounded-xl">
-                <img src={displayImg} alt={post.title} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                <img src={displayImg} alt={post.title} class={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${i % 2 === 0 ? 'animate-pan-right' : 'animate-pan-left'}`} loading="lazy" />
               </a>
               <p class="text-[10px] tracking-[0.15em] uppercase text-[#e8bfae] font-semibold mb-2">
                 {new Date(post.published_at).toLocaleDateString('nl-NL')}
@@ -257,7 +258,7 @@ const galleryItems = galleryImages.length
             
             <input type="hidden" name="appointment_type" value="standard" />
             <div class="pt-4 text-right">
-              <button type="submit" class="inline-block bg-[#e8bfae] text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-[#d8a892] transition-colors border-none cursor-pointer">
+              <button type="submit" class="inline-block bg-[#A66352] text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-opacity-90 transition-colors border-none cursor-pointer">
                 VERSTUREN
               </button>
             </div>
@@ -269,19 +270,7 @@ const galleryItems = galleryImages.length
   </section>
 </Layout>
 
-<style>
-  .hero-image {
-    aspect-ratio: 16 / 10;
-  }
 
-  .gallery-image {
-    aspect-ratio: 3 / 4;
-  }
-
-  .featured-image {
-    aspect-ratio: 16 / 9;
-  }
-</style>
 
 <script>
   const quickForm = document.getElementById('quick-contact-form') as HTMLFormElement | null;

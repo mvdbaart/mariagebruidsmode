@@ -73,10 +73,194 @@ const { data: collections } = await supabase
             <input type="text" name="features" value={product.features?.join(', ')} class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent" />
           </div>
 
-          <div class="space-y-2">
-            <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Afbeelding URL</label>
-            <input type="text" name="image_url" value={product.images?.[0]} class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent" />
+          <div class="space-y-6" id="file-uploader">
+            <label class="text-[10px] tracking-widest uppercase text-accent font-medium block">Product Media (Afbeeldingen & Video)</label>
+            
+            <!-- Drop Zone -->
+            <div id="drop-zone" class="border-2 border-dashed border-accent/20 p-12 text-center hover:bg-accent/5 transition-all cursor-pointer rounded-lg group">
+              <input type="file" id="file-input" multiple accept="image/*,video/*" class="hidden" />
+              <div class="flex flex-col items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-accent/30 group-hover:text-secondary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <p class="text-[11px] uppercase tracking-widest text-accent/60 group-hover:text-accent transition-colors">Sleep bestanden hierheen of klik om te uploaden</p>
+                <p class="text-[10px] text-accent/40 italic">Ondersteunt: JPG, PNG, WEBP, MP4</p>
+              </div>
+            </div>
+
+            <!-- Uploading Progress -->
+            <div id="upload-status" class="hidden space-y-2">
+              <div class="flex justify-between text-[10px] uppercase tracking-wider text-secondary">
+                <span>Uploaden...</span>
+                <span id="upload-progress">0%</span>
+              </div>
+              <div class="w-full bg-accent/10 h-1 rounded-full overflow-hidden">
+                <div id="progress-bar" class="bg-secondary h-full transition-all duration-300" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <!-- Gallery -->
+            <div id="file-gallery" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 pt-4">
+              <!-- Files will be injected here -->
+            </div>
+            
+            <p class="text-[10px] text-accent/50 uppercase tracking-wider italic">De eerste afbeelding in de rij wordt gebruikt als preview image.</p>
           </div>
+
+          <script define:vars={{ initialImages: product.images }}>
+            const dropZone = document.getElementById('drop-zone');
+            const fileInput = document.getElementById('file-input');
+            const gallery = document.getElementById('file-gallery');
+            const statusDiv = document.getElementById('upload-status');
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('upload-progress');
+
+            let files = initialImages || [];
+
+            function renderGallery() {
+              if (!gallery) return;
+              gallery.innerHTML = '';
+              
+              files.forEach((url, index) => {
+                const item = document.createElement('div');
+                item.className = 'relative aspect-[3/4] bg-primary/5 border border-accent/10 group overflow-hidden rounded-md shadow-sm';
+                
+                const isVideo = url.toLowerCase().endsWith('.mp4');
+                
+                item.innerHTML = `
+                  <div class="w-full h-full">
+                    ${isVideo 
+                      ? `<div class="w-full h-full flex flex-col items-center justify-center bg-accent/10">
+                           <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-accent/30" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                           <span class="text-[8px] uppercase tracking-tighter text-accent/50 mt-2 truncate max-w-full px-2">Video</span>
+                         </div>`
+                      : `<img src="${url}" class="w-full h-full object-cover" />`
+                    }
+                  </div>
+                  
+                  <!-- Preview Badge -->
+                  ${index === 0 ? `<div class="absolute top-2 left-2 bg-secondary text-white text-[8px] uppercase tracking-wider px-2 py-0.5 rounded-full z-10 shadow-sm">Preview</div>` : ''}
+
+                  <!-- Actions Overlay -->
+                  <div class="absolute inset-x-0 bottom-0 bg-accent/80 backdrop-blur-sm p-3 flex justify-between items-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
+                    <div class="flex gap-1">
+                      <button type="button" class="move-up-btn p-1.5 bg-white/10 hover:bg-white/20 text-white rounded transition-colors disabled:opacity-20" data-index="${index}" ${index === 0 ? 'disabled' : ''}>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                      </button>
+                      <button type="button" class="move-down-btn p-1.5 bg-white/10 hover:bg-white/20 text-white rounded transition-colors disabled:opacity-20" data-index="${index}" ${index === files.length - 1 ? 'disabled' : ''}>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                      </button>
+                    </div>
+                    <button type="button" class="remove-btn p-1.5 bg-red-500/20 hover:bg-red-500 text-white rounded transition-colors" data-index="${index}">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                  </div>
+                `;
+                gallery.appendChild(item);
+              });
+
+              // Add event listeners
+              document.querySelectorAll('.move-up-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                  e.stopPropagation();
+                  const idx = parseInt(btn.dataset.index);
+                  if (idx > 0) {
+                    [files[idx], files[idx-1]] = [files[idx-1], files[idx]];
+                    renderGallery();
+                  }
+                });
+              });
+
+              document.querySelectorAll('.move-down-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                  e.stopPropagation();
+                  const idx = parseInt(btn.dataset.index);
+                  if (idx < files.length - 1) {
+                    [files[idx], files[idx+1]] = [files[idx+1], files[idx]];
+                    renderGallery();
+                  }
+                });
+              });
+
+              document.querySelectorAll('.remove-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                  e.stopPropagation();
+                  const idx = parseInt(btn.dataset.index);
+                  files.splice(idx, 1);
+                  renderGallery();
+                });
+              });
+            }
+
+            async function uploadFiles(newFiles) {
+              if (!statusDiv || !progressBar || !progressText) return;
+              statusDiv.classList.remove('hidden');
+              
+              const total = newFiles.length;
+              let uploaded = 0;
+
+              for (const file of newFiles) {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('bucket', 'products');
+
+                try {
+                  const response = await fetch('/api/admin/upload', {
+                    method: 'POST',
+                    body: formData
+                  });
+                  const result = await response.json();
+                  if (result.url) {
+                    files.push(result.url);
+                  }
+                } catch (err) {
+                  console.error('Upload failed:', err);
+                }
+
+                uploaded++;
+                const percent = Math.round((uploaded / total) * 100);
+                progressBar.style.width = `${percent}%`;
+                progressText.textContent = `${percent}%`;
+              }
+
+              setTimeout(() => {
+                statusDiv.classList.add('hidden');
+                progressBar.style.width = '0%';
+                renderGallery();
+              }, 1000);
+            }
+
+            // Drag & Drop
+            dropZone?.addEventListener('click', () => fileInput.click());
+            
+            dropZone?.addEventListener('dragover', (e) => {
+              e.preventDefault();
+              dropZone.classList.add('bg-accent/5', 'border-secondary');
+            });
+
+            ['dragleave', 'dragend'].forEach(type => {
+              dropZone?.addEventListener(type, () => {
+                dropZone.classList.remove('bg-accent/5', 'border-secondary');
+              });
+            });
+
+            dropZone?.addEventListener('drop', (e) => {
+              e.preventDefault();
+              dropZone.classList.remove('bg-accent/5', 'border-secondary');
+              const droppedFiles = Array.from(e.dataTransfer.files);
+              if (droppedFiles.length) uploadFiles(droppedFiles);
+            });
+
+            fileInput?.addEventListener('change', () => {
+              const selectedFiles = Array.from(fileInput.files);
+              if (selectedFiles.length) uploadFiles(selectedFiles);
+              fileInput.value = ''; // Reset
+            });
+
+            renderGallery();
+
+            (window as any).getCurrentImages = () => files;
+          </script>
 
           <div class="flex gap-6 pt-8">
             <button type="submit" class="bg-accent text-white px-10 py-3 text-xs tracking-[0.2em] uppercase hover:opacity-80 transition-all font-medium">Opslaan Wijzigingen</button>
@@ -112,7 +296,7 @@ const { data: collections } = await supabase
     const image_url = formData.get('image_url');
 
     const features = featuresLine ? featuresLine.split(',').map(f => f.trim()) : [];
-    const images = image_url ? [image_url] : [];
+    const images = (window as any).getCurrentImages ? (window as any).getCurrentImages() : [];
 
     const response = await fetch(`/api/admin/products/${id}`, {
       method: 'PUT',

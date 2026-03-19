@@ -4,29 +4,20 @@
   --color-ivory: #FAF7F4;
   --color-cream: #F3EDE6;
   --color-blush: #E8C9BB;
-  --color-blush-mid: #D4A090;
-  --color-blush-deep: #B87865;
-  --color-dusty-rose: #C4917E;
+  --color-blush-deep: #A66352;
   --color-champagne: #E8DDD0;
   --color-linen: #EDE5DC;
   --color-warm-white: #FDFAF8;
   --color-charcoal: #2C2A28;
-  --color-taupe: #7A6F67;
-  --color-taupe-light: #8F837B;
+  --color-taupe: #5E534D;
   --color-gold: #C9A96E;
-  --color-gold-light: #E0C99A;
-  /* Legacy token aliases used across older pages */
-  --color-accent: var(--color-charcoal);
-  --color-primary: var(--color-ivory);
-  --color-secondary: var(--color-blush-deep);
-
+  
   --font-display: 'Cormorant Garamond', Georgia, serif;
   --font-body: 'Jost', sans-serif;
-  --font-italic: 'Cormorant Infant', Georgia, serif;
   --font-serif: var(--font-display);
 
   --radius-sm: 2px;
-  --radius-md: 6px;
+  --radius-md: 8px;
   --radius-lg: 16px;
   --radius-pill: 100px;
 
@@ -36,7 +27,25 @@
 }
 
 :root {
-  /* Legacy mappings for components already using these */
+  /* Dynamic overrides from database */
+  --color-primary: var(--color-primary-dynamic, #FAF7F4);
+  --color-secondary: var(--color-secondary-dynamic, #A66352);
+  --color-accent: var(--color-accent-dynamic, #2C2A28);
+  
+  --color-ivory: var(--color-primary-dynamic, #FAF7F4);
+  --color-blush-deep: var(--color-blush-deep-dynamic, #A66352);
+  --color-charcoal: var(--color-charcoal-dynamic, #2C2A28);
+  
+  --color-cream: var(--color-cream-dynamic, #F3EDE6);
+  --color-blush: var(--color-blush-dynamic, #E8C9BB);
+  --color-champagne: var(--color-champagne-dynamic, #E8DDD0);
+  --color-linen: var(--color-linen-dynamic, #EDE5DC);
+  --color-taupe: var(--color-taupe-dynamic, #5E534D);
+  
+  --radius-base: var(--radius-base-dynamic, 8px);
+  --radius-md: var(--radius-base-dynamic, 8px);
+
+  /* Legacy mappings */
   --mariage-ivory: var(--color-ivory);
   --mariage-gold: var(--color-gold);
   --mariage-charcoal: var(--color-charcoal);
@@ -53,7 +62,7 @@ html {
 
 body {
   font-family: var(--font-body);
-  font-weight: 300;
+  font-weight: 400; /* Increased from 300 for better legibility */
   line-height: 1.6;
   margin: 0;
 }
@@ -169,5 +178,56 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .ds-quote {
-  @apply font-italic italic text-[clamp(18px,2.5vw,26px)] font-light leading-[1.6] text-charcoal;
+  font-family: var(--font-italic, serif);
+  @apply italic text-[clamp(18px,2.5vw,26px)] font-light leading-[1.6] text-charcoal;
+}
+
+.hero-image {
+  aspect-ratio: 16 / 10;
+}
+
+.gallery-image {
+  aspect-ratio: 3 / 4;
+}
+
+.featured-image {
+  aspect-ratio: 16 / 9;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Keyframe Animations for Images (Ken Burns effect / Video-like feel)          */
+/* -------------------------------------------------------------------------- */
+
+@keyframes slow-pan-right {
+  0% { transform: scale(1.1) translateX(0); }
+  50% { transform: scale(1.1) translateX(-2%); }
+  100% { transform: scale(1.1) translateX(0); }
+}
+
+@keyframes slow-pan-left {
+  0% { transform: scale(1.1) translateX(-2%); }
+  50% { transform: scale(1.1) translateX(0); }
+  100% { transform: scale(1.1) translateX(-2%); }
+}
+
+@keyframes slow-zoom-in-out {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+/* Utility classes to apply to <img> or containers with overflow-hidden */
+.animate-pan-right {
+  animation: slow-pan-right 24s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.animate-pan-left {
+  animation: slow-pan-left 28s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.animate-zoom {
+  animation: slow-zoom-in-out 32s ease-in-out infinite;
+  will-change: transform;
 }

@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "mariagebruidsmode.nl",
   "type": "module",
   "version": "0.0.1",
@@ -7,31 +7,22 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "clean:cache": "node -e \"const fs=require('fs'); for (const p of ['.astro','node_modules/.vite']) fs.rmSync(p,{recursive:true,force:true}); console.log('cache cleared')\"",
-    "dev:clean": "npm run clean:cache && npm run dev",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
     "setup:buckets": "node scripts/setup_buckets.js",
     "extract:site": "node scripts/extract_site_content.js",
-    "mirror:extract": "node scripts/mirror_and_extract.js",
-    "grant:admin": "node scripts/grant_admin_role.js"
+    "mirror:extract": "node scripts/mirror_and_extract.js"
   },
   "dependencies": {
-    "@astrojs/check": "^0.9.8",
+    "@astrojs/node": "^10.0.1",
     "@astrojs/react": "^5.0.0",
-    "@astrojs/vercel": "^10.0.0",
     "@supabase/supabase-js": "^2.99.1",
     "@tailwindcss/vite": "^4.2.1",
     "astro": "^6.0.4",
     "lucide-react": "^0.577.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "tailwindcss": "^4.2.1",
-    "typescript": "^5.9.3",
-    "uuid": "^13.0.0"
-  },
-  "devDependencies": {
-    "@types/uuid": "^10.0.0"
+    "tailwindcss": "^4.2.1"
   }
 }
