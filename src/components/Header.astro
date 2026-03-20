@@ -1,16 +1,53 @@
+---
+import { getServiceRoleClient } from '../lib/serverAuth';
+const supabase = getServiceRoleClient();
+const { data: settings } = await supabase.from('site_settings').select('logo_url').eq('id', 'current').single();
+const logoUrl = settings?.logo_url ?? null;
+---
 <header id="site-header" class="fixed left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-champagne shadow-soft transition-transform duration-300" style="top: var(--announcement-height, 0px)">
   <div class="container mx-auto px-6 h-[72px] flex items-center justify-between">
-    
+
     <!-- Left: navigation links -->
-    <nav class="hidden lg:flex items-center gap-10">
-      <a href="/trouwjurken" class="text-[9px] font-body font-normal tracking-[0.25em] uppercase text-charcoal hover:opacity-60 transition-opacity">Trouwjurken</a>
-      <a href="/trouwpakken" class="text-[9px] font-body font-normal tracking-[0.25em] uppercase text-charcoal hover:opacity-60 transition-opacity">Trouwpakken</a>
+    <nav class="hidden lg:flex items-center gap-10 h-full">
+
+      <!-- Bruid dropdown -->
+      <div class="relative group h-full flex items-center">
+        <a href="/trouwjurken" class="text-[9px] font-body font-normal tracking-[0.25em] uppercase text-charcoal hover:opacity-60 transition-opacity flex items-center gap-1">
+          Bruid
+          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="transition-transform duration-200 group-hover:rotate-180"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </a>
+        <div class="absolute top-full left-1/2 -translate-x-1/2 hidden group-hover:block pt-0">
+          <div class="bg-white border border-champagne shadow-md min-w-[180px] py-2">
+            <a href="/trouwjurken" class="block px-5 py-2.5 text-[9px] font-body font-normal tracking-[0.2em] uppercase text-charcoal hover:bg-ivory hover:text-charcoal transition-colors">Trouwjurken</a>
+            <a href="/kinderjurkjes" class="block px-5 py-2.5 text-[9px] font-body font-normal tracking-[0.2em] uppercase text-charcoal hover:bg-ivory hover:text-charcoal transition-colors">Kinderjurkjes</a>
+            <a href="/bruid/accessoires" class="block px-5 py-2.5 text-[9px] font-body font-normal tracking-[0.2em] uppercase text-charcoal hover:bg-ivory hover:text-charcoal transition-colors">Accessoires</a>
+            <a href="/bruidsschoenen" class="block px-5 py-2.5 text-[9px] font-body font-normal tracking-[0.2em] uppercase text-charcoal hover:bg-ivory hover:text-charcoal transition-colors">Bruidsschoenen</a>
+            <a href="/vip-arrangement" class="block px-5 py-2.5 text-[9px] font-body font-normal tracking-[0.2em] uppercase text-charcoal hover:bg-ivory hover:text-charcoal transition-colors">VIP Arrangement</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bruidegom dropdown -->
+      <div class="relative group h-full flex items-center">
+        <a href="/trouwpakken" class="text-[9px] font-body font-normal tracking-[0.25em] uppercase text-charcoal hover:opacity-60 transition-opacity flex items-center gap-1">
+          Bruidegom
+          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="transition-transform duration-200 group-hover:rotate-180"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </a>
+        <div class="absolute top-full left-1/2 -translate-x-1/2 hidden group-hover:block pt-0">
+          <div class="bg-white border border-champagne shadow-md min-w-[180px] py-2">
+            <a href="/trouwpakken" class="block px-5 py-2.5 text-[9px] font-body font-normal tracking-[0.2em] uppercase text-charcoal hover:bg-ivory hover:text-charcoal transition-colors">Trouwkostuums</a>
+            <a href="/bruidegom/accessoires" class="block px-5 py-2.5 text-[9px] font-body font-normal tracking-[0.2em] uppercase text-charcoal hover:bg-ivory hover:text-charcoal transition-colors">Accessoires</a>
+            <a href="/trouwschoenen" class="block px-5 py-2.5 text-[9px] font-body font-normal tracking-[0.2em] uppercase text-charcoal hover:bg-ivory hover:text-charcoal transition-colors">Trouwschoenen</a>
+          </div>
+        </div>
+      </div>
+
       <a href="/inspiratie" class="text-[9px] font-body font-normal tracking-[0.25em] uppercase text-charcoal hover:opacity-60 transition-opacity">Inspiratie</a>
       <a href="/over-ons" class="text-[9px] font-body font-normal tracking-[0.25em] uppercase text-charcoal hover:opacity-60 transition-opacity">Over Ons</a>
     </nav>
 
     <!-- Mobile toggle (left on mobile) -->
-    <button 
+    <button
       id="menu-toggle"
       aria-label="Menu openen"
       aria-expanded="false"
@@ -34,8 +71,14 @@
 
     <!-- Center: logo -->
     <a href="/" class="absolute left-1/2 -translate-x-1/2 flex flex-col items-center">
-      <span class="text-[20px] font-display font-normal text-charcoal leading-none tracking-[0.15em]">MARIAGE</span>
-      <span class="text-[6px] font-body font-normal tracking-[0.5em] uppercase text-taupe-light mt-1">Bruidsmode</span>
+      {logoUrl ? (
+        <img src={logoUrl} alt="Mariage Bruidsmode" class="h-9 w-auto object-contain" />
+      ) : (
+        <>
+          <span class="text-[20px] font-display font-normal text-charcoal leading-none tracking-[0.15em]">MARIAGE</span>
+          <span class="text-[6px] font-body font-normal tracking-[0.5em] uppercase text-taupe-light mt-1">Bruidsmode</span>
+        </>
+      )}
     </a>
 
     <!-- Right: menu, blog, icons -->
@@ -61,14 +104,55 @@
   </div>
 
   <!-- Mobile menu (hidden by default) -->
-  <div 
+  <div
     id="mobile-menu"
     aria-hidden="true"
     class="hidden lg:hidden border-t border-champagne bg-white"
   >
     <nav class="flex flex-col py-6 px-8 gap-1">
-      <a href="/trouwjurken" class="py-4 text-xs font-body font-normal tracking-[0.16em] uppercase text-taupe hover:text-charcoal transition-colors border-b border-champagne">Trouwjurken</a>
-      <a href="/trouwpakken" class="py-4 text-xs font-body font-normal tracking-[0.16em] uppercase text-taupe hover:text-charcoal transition-colors border-b border-champagne">Trouwpakken</a>
+
+      <!-- Bruid accordion -->
+      <div data-accordion="bruid" class="border-b border-champagne">
+        <div class="flex items-center justify-between">
+          <a href="/trouwjurken" class="py-4 text-xs font-body font-normal tracking-[0.16em] uppercase text-taupe hover:text-charcoal transition-colors">Bruid</a>
+          <button
+            data-accordion-toggle="bruid"
+            aria-expanded="false"
+            aria-label="Bruid submenu uitklappen"
+            class="p-2 text-taupe hover:text-charcoal transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="accordion-chevron transition-transform duration-200"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+        </div>
+        <div data-accordion-content="bruid" class="hidden pb-2 pl-4">
+          <a href="/trouwjurken" class="block py-2.5 text-[10px] font-body font-normal tracking-[0.16em] uppercase text-taupe hover:text-charcoal transition-colors">Trouwjurken</a>
+          <a href="/kinderjurkjes" class="block py-2.5 text-[10px] font-body font-normal tracking-[0.16em] uppercase text-taupe hover:text-charcoal transition-colors">Kinderjurkjes</a>
+          <a href="/bruid/accessoires" class="block py-2.5 text-[10px] font-body font-normal tracking-[0.16em] uppercase text-taupe hover:text-charcoal transition-colors">Accessoires</a>
+          <a href="/bruidsschoenen" class="block py-2.5 text-[10px] font-body font-normal tracking-[0.16em] uppercase text-taupe hover:text-charcoal transition-colors">Bruidsschoenen</a>
+          <a href="/vip-arrangement" class="block py-2.5 text-[10px] font-body font-normal tracking-[0.16em] uppercase text-taupe hover:text-charcoal transition-colors">VIP Arrangement</a>
+        </div>
+      </div>
+
+      <!-- Bruidegom accordion -->
+      <div data-accordion="bruidegom" class="border-b border-champagne">
+        <div class="flex items-center justify-between">
+          <a href="/trouwpakken" class="py-4 text-xs font-body font-normal tracking-[0.16em] uppercase text-taupe hover:text-charcoal transition-colors">Bruidegom</a>
+          <button
+            data-accordion-toggle="bruidegom"
+            aria-expanded="false"
+            aria-label="Bruidegom submenu uitklappen"
+            class="p-2 text-taupe hover:text-charcoal transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="accordion-chevron transition-transform duration-200"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+        </div>
+        <div data-accordion-content="bruidegom" class="hidden pb-2 pl-4">
+          <a href="/trouwpakken" class="block py-2.5 text-[10px] font-body font-normal tracking-[0.16em] uppercase text-taupe hover:text-charcoal transition-colors">Trouwkostuums</a>
+          <a href="/bruidegom/accessoires" class="block py-2.5 text-[10px] font-body font-normal tracking-[0.16em] uppercase text-taupe hover:text-charcoal transition-colors">Accessoires</a>
+          <a href="/trouwschoenen" class="block py-2.5 text-[10px] font-body font-normal tracking-[0.16em] uppercase text-taupe hover:text-charcoal transition-colors">Trouwschoenen</a>
+        </div>
+      </div>
+
       <a href="/inspiratie" class="py-4 text-xs font-body font-normal tracking-[0.16em] uppercase text-taupe hover:text-charcoal transition-colors border-b border-champagne">Inspiratie</a>
       <a href="/over-ons" class="py-4 text-xs font-body font-normal tracking-[0.16em] uppercase text-taupe hover:text-charcoal transition-colors border-b border-champagne">Over Ons</a>
       <a href="/blog" class="py-4 text-xs font-body font-normal tracking-[0.16em] uppercase text-taupe hover:text-charcoal transition-colors border-b border-champagne">Blog</a>
@@ -78,10 +162,20 @@
 </header>
 
 <script>
+  // --- Hamburger toggle ---
   const toggle = document.getElementById('menu-toggle');
   const menu = document.getElementById('mobile-menu');
   const iconMenu = document.getElementById('icon-menu');
   const iconClose = document.getElementById('icon-close');
+
+  function closeMobileMenu() {
+    menu?.classList.add('hidden');
+    menu?.setAttribute('aria-hidden', 'true');
+    iconMenu?.classList.remove('hidden');
+    iconClose?.classList.add('hidden');
+    toggle?.setAttribute('aria-expanded', 'false');
+    toggle?.setAttribute('aria-label', 'Menu openen');
+  }
 
   toggle?.addEventListener('click', () => {
     const isOpen = !menu?.classList.contains('hidden');
@@ -93,30 +187,32 @@
     toggle.setAttribute('aria-expanded', String(!isOpen));
   });
 
-  // Close menu when a link is clicked
+  // Close menu when a non-toggle link is clicked
   menu?.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', () => {
-      menu.classList.add('hidden');
-      menu.setAttribute('aria-hidden', 'true');
-      iconMenu?.classList.remove('hidden');
-      iconClose?.classList.add('hidden');
-      toggle?.setAttribute('aria-expanded', 'false');
-      toggle?.setAttribute('aria-label', 'Menu openen');
-    });
+    link.addEventListener('click', closeMobileMenu);
   });
 
   document.addEventListener('keydown', (event) => {
     if (event.key !== 'Escape' || !menu || menu.classList.contains('hidden')) return;
-    menu.classList.add('hidden');
-    menu.setAttribute('aria-hidden', 'true');
-    iconMenu?.classList.remove('hidden');
-    iconClose?.classList.add('hidden');
-    toggle?.setAttribute('aria-expanded', 'false');
-    toggle?.setAttribute('aria-label', 'Menu openen');
+    closeMobileMenu();
     toggle?.focus();
   });
 
-  // Scroll-aware header: hide on scroll down, show on scroll up
+  // --- Accordion toggles ---
+  document.querySelectorAll<HTMLButtonElement>('[data-accordion-toggle]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.getAttribute('data-accordion-toggle')!;
+      const content = document.querySelector(`[data-accordion-content="${key}"]`);
+      const chevron = btn.querySelector('.accordion-chevron') as SVGElement | null;
+      const isOpen = !content?.classList.contains('hidden');
+
+      content?.classList.toggle('hidden', isOpen);
+      btn.setAttribute('aria-expanded', String(!isOpen));
+      chevron?.style.setProperty('transform', isOpen ? '' : 'rotate(180deg)');
+    });
+  });
+
+  // --- Scroll-aware header ---
   const header = document.getElementById('site-header');
   let lastScroll = 0;
   const THRESHOLD = 120;
@@ -126,25 +222,17 @@
     if (current < THRESHOLD) {
       header?.classList.remove('-translate-y-full');
     } else if (current > lastScroll) {
-      // scrolling down
       header?.classList.add('-translate-y-full');
-      // close mobile menu if open
       if (!menu?.classList.contains('hidden')) {
-        menu?.classList.add('hidden');
-        menu?.setAttribute('aria-hidden', 'true');
-        iconMenu?.classList.remove('hidden');
-        iconClose?.classList.add('hidden');
-        toggle?.setAttribute('aria-expanded', 'false');
-        toggle?.setAttribute('aria-label', 'Menu openen');
+        closeMobileMenu();
       }
     } else {
-      // scrolling up
       header?.classList.remove('-translate-y-full');
     }
     lastScroll = current;
   }, { passive: true });
 
-  // Set CSS var for announcement bar height so header top offset works
+  // Set CSS var for announcement bar height
   const announcementBar = document.getElementById('announcement-bar');
   if (announcementBar) {
     const updateOffset = () => {

@@ -1,0 +1,399 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getServiceRoleClient } from '../../../lib/serverAuth';
+
+const supabase = getServiceRoleClient();
+const { data: redirects } = await supabase
+  .from('redirects')
+  .select('*')
+  .order('created_at', { ascending: false });
+
+const total = redirects?.length ?? 0;
+const active = redirects?.filter((r: any) => r.is_active).length ?? 0;
+---
+
+<Layout title="Redirects — Instellingen">
+  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+    <div class="container mx-auto px-6 max-w-6xl">
+      <nav class="mb-10 flex items-center gap-3 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">
+        <a href="/admin" class="hover:text-charcoal transition-colors">Dashboard</a>
+        <span class="text-champagne">›</span>
+        <a href="/admin/instellingen" class="hover:text-charcoal transition-colors">Instellingen</a>
+        <span class="text-champagne">›</span>
+        <span class="text-charcoal">Redirects</span>
+      </nav>
+
+      <div class="mb-10 flex items-end justify-between flex-wrap gap-4">
+        <div>
+          <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">Instellingen</p>
+          <h1 class="font-display font-normal text-charcoal text-4xl leading-tight">
+            URL <em class="font-normal italic text-taupe">Redirects</em>
+          </h1>
+        </div>
+        <div class="flex gap-6 text-xs font-body text-taupe">
+          <span><span id="stat-total" class="text-charcoal font-medium text-base">{total}</span> totaal</span>
+          <span><span id="stat-active" class="text-green-600 font-medium text-base">{active}</span> actief</span>
+        </div>
+      </div>
+
+      <!-- Formulier -->
+      <section class="bg-white border border-champagne p-8 shadow-soft mb-8">
+        <h2 id="form-title" class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium border-b border-champagne pb-4 mb-8">
+          Redirect toevoegen
+        </h2>
+        <div id="form-error" class="hidden mb-6 bg-red-50 border border-red-200 px-4 py-3 text-sm font-body text-red-700"></div>
+        <div id="form-success" class="hidden mb-6 bg-green-50 border border-green-200 px-4 py-3 text-sm font-body text-green-700"></div>
+
+        <form id="redirect-form" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <input type="hidden" id="edit-id" value="" />
+
+          <div>
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Van-pad <span class="text-red-400">*</span></label>
+            <input id="f-from" type="text" placeholder="/oud-pad"
+              class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+            <p class="mt-1 text-[10px] font-body text-taupe">Moet beginnen met /</p>
+          </div>
+
+          <div>
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Naar-pad <span class="text-red-400">*</span></label>
+            <input id="f-to" type="text" placeholder="/nieuw-pad"
+              class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+          </div>
+
+          <div>
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Notitie</label>
+            <input id="f-note" type="text" placeholder="Optionele omschrijving"
+              class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+          </div>
+
+          <div>
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Status</label>
+            <select id="f-status"
+              class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors">
+              <option value="301">301 — Permanent</option>
+              <option value="302">302 — Tijdelijk</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Type</label>
+            <select id="f-type"
+              class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors">
+              <option value="exact">Exact</option>
+              <option value="prefix">Prefix</option>
+            </select>
+          </div>
+
+          <div class="flex items-end gap-3 pb-1">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input id="f-active" type="checkbox" checked class="w-4 h-4 accent-blush-deep" />
+              <span class="text-xs font-body text-charcoal">Actief</span>
+            </label>
+          </div>
+
+          <div class="lg:col-span-3 flex gap-4 pt-2">
+            <button type="submit" id="form-submit-btn" class="btn-premium text-[10px]">Opslaan</button>
+            <button type="button" id="form-cancel-btn" class="hidden border border-champagne px-8 py-3 text-[10px] tracking-widest uppercase font-body text-taupe hover:border-charcoal hover:text-charcoal transition-colors">
+              Annuleren
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Tabel -->
+      <section class="bg-white border border-champagne shadow-soft">
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs font-body">
+            <thead>
+              <tr class="border-b border-champagne">
+                <th class="text-left text-[10px] tracking-widest uppercase text-taupe font-body font-normal px-6 py-4">Van</th>
+                <th class="text-left text-[10px] tracking-widest uppercase text-taupe font-body font-normal px-4 py-4">Naar</th>
+                <th class="text-left text-[10px] tracking-widest uppercase text-taupe font-body font-normal px-4 py-4">Type</th>
+                <th class="text-left text-[10px] tracking-widest uppercase text-taupe font-body font-normal px-4 py-4">Status</th>
+                <th class="text-left text-[10px] tracking-widest uppercase text-taupe font-body font-normal px-4 py-4">Notitie</th>
+                <th class="text-center text-[10px] tracking-widest uppercase text-taupe font-body font-normal px-4 py-4">Actief</th>
+                <th class="px-4 py-4"></th>
+              </tr>
+            </thead>
+            <tbody id="redirects-tbody">
+              {redirects?.map((r: any) => (
+                <tr class="border-b border-champagne/50 hover:bg-linen/30 transition-colors redirect-row" data-id={r.id}>
+                  <td class="px-6 py-4 font-mono text-charcoal">{r.from_path}</td>
+                  <td class="px-4 py-4 font-mono text-taupe">{r.to_path}</td>
+                  <td class="px-4 py-4 text-taupe">{r.match_type}</td>
+                  <td class="px-4 py-4">
+                    <span class={`inline-block px-2 py-0.5 text-[9px] tracking-widest uppercase font-body ${r.status_code === 301 ? 'bg-linen text-taupe' : 'bg-champagne/30 text-taupe'}`}>
+                      {r.status_code}
+                    </span>
+                  </td>
+                  <td class="px-4 py-4 text-taupe">{r.note ?? '—'}</td>
+                  <td class="px-4 py-4 text-center">
+                    <button
+                      class="toggle-active-btn w-8 h-4 rounded-full transition-colors relative"
+                      data-id={r.id}
+                      data-active={r.is_active ? 'true' : 'false'}
+                      title={r.is_active ? 'Deactiveren' : 'Activeren'}
+                    >
+                    </button>
+                  </td>
+                  <td class="px-4 py-4">
+                    <div class="flex items-center gap-4 justify-end">
+                      <button
+                        class="edit-btn text-[9px] tracking-widest uppercase font-body text-taupe hover:text-charcoal transition-colors"
+                        data-id={r.id}
+                        data-from={r.from_path}
+                        data-to={r.to_path}
+                        data-status={r.status_code}
+                        data-type={r.match_type}
+                        data-note={r.note ?? ''}
+                        data-active={r.is_active ? 'true' : 'false'}
+                      >Bewerken</button>
+                      <button
+                        class="delete-btn text-[9px] tracking-widest uppercase font-body text-red-300 hover:text-red-600 transition-colors"
+                        data-id={r.id}
+                      >Verwijder</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {(!redirects || redirects.length === 0) && (
+            <div class="px-6 py-12 text-center text-sm font-body text-taupe">Geen redirects gevonden.</div>
+          )}
+        </div>
+      </section>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  // ---- State ----
+  let editingId: string | null = null;
+
+  const form = document.getElementById('redirect-form') as HTMLFormElement;
+  const formTitle = document.getElementById('form-title')!;
+  const formError = document.getElementById('form-error')!;
+  const formSuccess = document.getElementById('form-success')!;
+  const submitBtn = document.getElementById('form-submit-btn') as HTMLButtonElement;
+  const cancelBtn = document.getElementById('form-cancel-btn') as HTMLButtonElement;
+  const editIdInput = document.getElementById('edit-id') as HTMLInputElement;
+  const fFrom = document.getElementById('f-from') as HTMLInputElement;
+  const fTo = document.getElementById('f-to') as HTMLInputElement;
+  const fStatus = document.getElementById('f-status') as HTMLSelectElement;
+  const fType = document.getElementById('f-type') as HTMLSelectElement;
+  const fNote = document.getElementById('f-note') as HTMLInputElement;
+  const fActive = document.getElementById('f-active') as HTMLInputElement;
+
+  // ---- Helpers ----
+  function showMsg(el: HTMLElement, msg: string) {
+    el.textContent = msg;
+    el.classList.remove('hidden');
+  }
+
+  function resetForm() {
+    editingId = null;
+    editIdInput.value = '';
+    form.reset();
+    fActive.checked = true;
+    formTitle.textContent = 'Redirect toevoegen';
+    submitBtn.textContent = 'Opslaan';
+    cancelBtn.classList.add('hidden');
+    formError.classList.add('hidden');
+    formSuccess.classList.add('hidden');
+  }
+
+  function updateStats() {
+    const rows = document.querySelectorAll('.redirect-row');
+    const activeRows = document.querySelectorAll('.redirect-row .toggle-active-btn[data-active="true"]');
+    const statTotal = document.getElementById('stat-total');
+    const statActive = document.getElementById('stat-active');
+    if (statTotal) statTotal.textContent = String(rows.length);
+    if (statActive) statActive.textContent = String(activeRows.length);
+  }
+
+  function applyToggleStyle(btn: HTMLButtonElement) {
+    const isActive = btn.dataset.active === 'true';
+    btn.className = `toggle-active-btn w-8 h-4 rounded-full transition-colors relative ${isActive ? 'bg-green-400' : 'bg-champagne'}`;
+    btn.title = isActive ? 'Deactiveren' : 'Activeren';
+  }
+
+  function buildRow(r: any): string {
+    const statusClass = r.status_code === 301 ? 'bg-linen text-taupe' : 'bg-champagne/30 text-taupe';
+    const toggleClass = r.is_active ? 'bg-green-400' : 'bg-champagne';
+    return `
+      <tr class="border-b border-champagne/50 hover:bg-linen/30 transition-colors redirect-row" data-id="${r.id}">
+        <td class="px-6 py-4 font-mono text-charcoal">${escHtml(r.from_path)}</td>
+        <td class="px-4 py-4 font-mono text-taupe">${escHtml(r.to_path)}</td>
+        <td class="px-4 py-4 text-taupe">${escHtml(r.match_type)}</td>
+        <td class="px-4 py-4">
+          <span class="inline-block px-2 py-0.5 text-[9px] tracking-widest uppercase font-body ${statusClass}">${r.status_code}</span>
+        </td>
+        <td class="px-4 py-4 text-taupe">${r.note ? escHtml(r.note) : '—'}</td>
+        <td class="px-4 py-4 text-center">
+          <button class="toggle-active-btn w-8 h-4 rounded-full transition-colors relative ${toggleClass}"
+            data-id="${r.id}" data-active="${r.is_active}" title="${r.is_active ? 'Deactiveren' : 'Activeren'}"></button>
+        </td>
+        <td class="px-4 py-4">
+          <div class="flex items-center gap-4 justify-end">
+            <button class="edit-btn text-[9px] tracking-widest uppercase font-body text-taupe hover:text-charcoal transition-colors"
+              data-id="${r.id}" data-from="${escAttr(r.from_path)}" data-to="${escAttr(r.to_path)}"
+              data-status="${r.status_code}" data-type="${r.match_type}"
+              data-note="${escAttr(r.note ?? '')}" data-active="${r.is_active}">Bewerken</button>
+            <button class="delete-btn text-[9px] tracking-widest uppercase font-body text-red-300 hover:text-red-600 transition-colors"
+              data-id="${r.id}">Verwijder</button>
+          </div>
+        </td>
+      </tr>`;
+  }
+
+  function escHtml(s: string): string {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function escAttr(s: string): string {
+    return s.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  // ---- Init toggle styles ----
+  document.querySelectorAll<HTMLButtonElement>('.toggle-active-btn').forEach(applyToggleStyle);
+  updateStats();
+
+  // ---- Cancel ----
+  cancelBtn.addEventListener('click', resetForm);
+
+  // ---- Form submit (create / update) ----
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    formError.classList.add('hidden');
+    formSuccess.classList.add('hidden');
+
+    const from_path = fFrom.value.trim();
+    if (!from_path.startsWith('/')) {
+      showMsg(formError, 'Van-pad moet beginnen met /');
+      return;
+    }
+    const payload = {
+      from_path,
+      to_path: fTo.value.trim(),
+      status_code: Number(fStatus.value),
+      match_type: fType.value,
+      note: fNote.value.trim() || null,
+      is_active: fActive.checked,
+    };
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Bezig…';
+
+    try {
+      const url = editingId ? `/api/admin/redirects/${editingId}` : '/api/admin/redirects';
+      const method = editingId ? 'PUT' : 'POST';
+      const res = await fetch(url, {
+        method,
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        showMsg(formError, json.error ?? 'Onbekende fout');
+        return;
+      }
+
+      if (editingId) {
+        // Update existing row
+        const row = document.querySelector(`.redirect-row[data-id="${editingId}"]`);
+        if (row) {
+          const tmp = document.createElement('tbody');
+          tmp.innerHTML = buildRow(json);
+          const newRow = tmp.firstElementChild!;
+          row.replaceWith(newRow);
+          const toggleBtn = newRow.querySelector<HTMLButtonElement>('.toggle-active-btn');
+          if (toggleBtn) applyToggleStyle(toggleBtn);
+        }
+        showMsg(formSuccess, 'Redirect bijgewerkt.');
+      } else {
+        // Prepend new row
+        const tbody = document.getElementById('redirects-tbody')!;
+        const tmp = document.createElement('tbody');
+        tmp.innerHTML = buildRow(json);
+        const newRow = tmp.firstElementChild!;
+        tbody.prepend(newRow);
+        const toggleBtn = newRow.querySelector<HTMLButtonElement>('.toggle-active-btn');
+        if (toggleBtn) applyToggleStyle(toggleBtn);
+        showMsg(formSuccess, 'Redirect aangemaakt.');
+      }
+
+      updateStats();
+      resetForm();
+    } catch {
+      showMsg(formError, 'Netwerkfout. Probeer opnieuw.');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Opslaan';
+    }
+  });
+
+  // ---- Delegated: edit, delete, toggle ----
+  document.addEventListener('click', async (e) => {
+    const target = e.target as HTMLElement;
+
+    // Edit
+    const editBtn = target.closest<HTMLButtonElement>('.edit-btn');
+    if (editBtn) {
+      const d = editBtn.dataset;
+      editingId = d.id!;
+      editIdInput.value = editingId;
+      fFrom.value = d.from!;
+      fTo.value = d.to!;
+      fStatus.value = d.status!;
+      fType.value = d.type!;
+      fNote.value = d.note ?? '';
+      fActive.checked = d.active === 'true';
+      formTitle.textContent = 'Redirect bewerken';
+      submitBtn.textContent = 'Bijwerken';
+      cancelBtn.classList.remove('hidden');
+      formError.classList.add('hidden');
+      formSuccess.classList.add('hidden');
+      form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+
+    // Delete
+    const deleteBtn = target.closest<HTMLButtonElement>('.delete-btn');
+    if (deleteBtn) {
+      if (!confirm('Redirect verwijderen?')) return;
+      const id = deleteBtn.dataset.id!;
+      try {
+        const res = await fetch(`/api/admin/redirects/${id}`, { method: 'DELETE' });
+        if (res.ok || res.status === 204) {
+          document.querySelector(`.redirect-row[data-id="${id}"]`)?.remove();
+          updateStats();
+          if (editingId === id) resetForm();
+        }
+      } catch {
+        alert('Verwijderen mislukt. Probeer opnieuw.');
+      }
+      return;
+    }
+
+    // Toggle active
+    const toggleBtn = target.closest<HTMLButtonElement>('.toggle-active-btn');
+    if (toggleBtn) {
+      const id = toggleBtn.dataset.id!;
+      const newActive = toggleBtn.dataset.active !== 'true';
+      try {
+        const res = await fetch(`/api/admin/redirects/${id}`, {
+          method: 'PUT',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ is_active: newActive }),
+        });
+        if (res.ok) {
+          toggleBtn.dataset.active = String(newActive);
+          applyToggleStyle(toggleBtn);
+          updateStats();
+        }
+      } catch {
+        alert('Bijwerken mislukt. Probeer opnieuw.');
+      }
+    }
+  });
+</script>

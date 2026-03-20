@@ -1,0 +1,478 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getServiceRoleClient } from '../../../lib/serverAuth';
+
+const supabase = getServiceRoleClient();
+const [
+  { data: slides },
+  { data: settings },
+] = await Promise.all([
+  supabase.from('hero_slides').select('*').order('sort_order', { ascending: true }),
+  supabase.from('site_settings').select('homepage').eq('id', 'current').single(),
+]);
+
+const hp = (settings?.homepage ?? {}) as Record<string, string>;
+---
+
+<Layout title="Homepage Beheer">
+  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+    <div class="container mx-auto px-6 max-w-5xl">
+
+      <nav class="mb-10 flex items-center gap-3 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">
+        <a href="/admin" class="hover:text-charcoal transition-colors">Dashboard</a>
+        <span class="text-champagne">›</span>
+        <span class="text-charcoal">Homepage</span>
+      </nav>
+
+      <div class="mb-12">
+        <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">Beheer</p>
+        <h1 class="font-display font-normal text-charcoal text-4xl leading-tight">
+          Homepage <em class="font-normal italic text-taupe">Beheer</em>
+        </h1>
+      </div>
+
+      <!-- ===== HERO SLIDER ===== -->
+      <section class="mb-14">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium">Hero Slider</h2>
+          <span class="text-[10px] font-body text-taupe">
+            <span id="slide-count">{slides?.length ?? 0}</span> slide{(slides?.length ?? 0) !== 1 ? 's' : ''}
+          </span>
+        </div>
+
+        <!-- Drop zone -->
+        <div
+          id="drop-zone"
+          class="relative border-2 border-dashed border-champagne bg-white p-12 text-center hover:border-taupe transition-colors mb-6"
+        >
+          <input
+            type="file"
+            id="bulk-input"
+            multiple
+            accept="image/jpeg,image/png,image/webp,image/avif"
+            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            aria-label="Foto's uploaden"
+          />
+          <div class="pointer-events-none">
+            <svg class="w-10 h-10 text-champagne mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <p class="font-body text-charcoal text-sm mb-1">Sleep foto's hierheen of klik om te selecteren</p>
+            <p class="font-body text-taupe text-xs">Meerdere foto's tegelijk • Automatisch gecomprimeerd naar WebP • Aanbevolen: 2560×1080px</p>
+          </div>
+        </div>
+
+        <!-- Upload progress -->
+        <div id="upload-progress" class="hidden space-y-2 mb-6"></div>
+
+        <!-- Slides list -->
+        <div id="slides-list" class="space-y-3">
+          {(slides ?? []).map((slide, idx) => (
+            <div
+              class="bg-white border border-champagne shadow-soft flex items-center gap-4 p-4 slide-card"
+              data-id={slide.id}
+            >
+              <div class="w-24 h-16 bg-linen shrink-0 overflow-hidden">
+                <img src={slide.image_url} alt={slide.title || 'Slide'} class="w-full h-full object-cover" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-body font-medium text-charcoal truncate">{slide.title || <em class="text-taupe font-normal">Geen titel</em>}</p>
+                <p class="text-[10px] tracking-widest uppercase font-body text-taupe mt-0.5">
+                  {slide.text_align} · Overlay {slide.overlay_opacity}%
+                  {slide.button1_text && ` · ${slide.button1_text}`}
+                </p>
+              </div>
+              <button
+                data-toggle-id={slide.id}
+                data-toggle-active={slide.is_active ? 'true' : 'false'}
+                class={`shrink-0 text-[9px] tracking-widest uppercase font-body px-3 py-1.5 border transition-colors ${slide.is_active ? 'border-green-400 text-green-700 bg-green-50' : 'border-champagne text-taupe'}`}
+              >{slide.is_active ? 'Actief' : 'Inactief'}</button>
+              <div class="flex flex-col gap-0.5 shrink-0">
+                <button data-move-id={slide.id} data-move-dir="up" disabled={idx === 0}
+                  class="px-2 py-1 text-taupe hover:text-charcoal disabled:opacity-20 transition-colors text-xs" title="Omhoog">▲</button>
+                <button data-move-id={slide.id} data-move-dir="down" disabled={idx === (slides?.length ?? 0) - 1}
+                  class="px-2 py-1 text-taupe hover:text-charcoal disabled:opacity-20 transition-colors text-xs" title="Omlaag">▼</button>
+              </div>
+              <div class="flex items-center gap-3 shrink-0">
+                <a href={`/admin/homepage/slide/${slide.id}/edit`}
+                  class="text-[9px] tracking-widest uppercase font-body text-blush-deep hover:underline">Bewerken</a>
+                <button data-delete-id={slide.id}
+                  class="text-[9px] tracking-widest uppercase font-body text-red-400 hover:text-red-600 transition-colors">Verwijder</button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {(!slides || slides.length === 0) && (
+          <p id="empty-msg" class="text-xs font-body text-taupe italic text-center py-4">
+            Nog geen slides. Upload hierboven foto's om te beginnen.
+          </p>
+        )}
+      </section>
+
+      <!-- ===== PAGINA TEKSTEN ===== -->
+      <section>
+        <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium mb-6">Sectieteksten</h2>
+        <form id="hp-settings-form" class="space-y-8">
+          <div class="bg-white border border-champagne p-8 shadow-soft space-y-6">
+            <h3 class="text-[10px] uppercase tracking-[0.2em] text-taupe font-body border-b border-champagne pb-3">Real Brides &amp; Grooms</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Eyebrow tekst</label>
+                <input type="text" name="brides_eyebrow" value={hp.brides_eyebrow ?? 'Liefde vieren'}
+                  class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+              </div>
+              <div>
+                <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Heading</label>
+                <input type="text" name="brides_heading" value={hp.brides_heading ?? 'Real Brides & Grooms'}
+                  class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+              </div>
+              <div>
+                <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Knop tekst</label>
+                <input type="text" name="brides_btn1_text" value={hp.brides_btn1_text ?? 'Bekijk verhalen'}
+                  class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+              </div>
+              <div>
+                <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Knop URL</label>
+                <input type="text" name="brides_btn1_url" value={hp.brides_btn1_url ?? '/inspiratie'}
+                  class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+              </div>
+              <div class="md:col-span-2">
+                <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Uitgelicht citaat</label>
+                <input type="text" name="brides_quote" value={hp.brides_quote ?? 'We voelden ons helemaal onszelf en we vonden elkaar adembenemend prachtig!'}
+                  class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white border border-champagne p-8 shadow-soft space-y-6">
+            <h3 class="text-[10px] uppercase tracking-[0.2em] text-taupe font-body border-b border-champagne pb-3">Blog</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Eyebrow tekst</label>
+                <input type="text" name="blog_eyebrow" value={hp.blog_eyebrow ?? 'Tips & inspiratie'}
+                  class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+              </div>
+              <div>
+                <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Heading</label>
+                <input type="text" name="blog_heading" value={hp.blog_heading ?? 'Mariage blog'}
+                  class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+              </div>
+            </div>
+          </div>
+
+          <div id="hp-error" class="hidden bg-red-50 border border-red-200 px-4 py-3 text-sm font-body text-red-700"></div>
+          <div id="hp-success" class="hidden bg-green-50 border border-green-200 px-4 py-3 text-sm font-body text-green-700">Instellingen opgeslagen.</div>
+
+          <div class="flex gap-4">
+            <button type="submit" id="hp-save-btn" class="btn-premium text-[10px]">Opslaan</button>
+            <a href="/admin" class="border border-champagne px-8 py-3 text-[10px] tracking-widest uppercase font-body text-taupe hover:border-charcoal hover:text-charcoal transition-colors">Dashboard</a>
+          </div>
+        </form>
+      </section>
+    </div>
+  </div>
+</Layout>
+
+<script>
+// ─── Compression ────────────────────────────────────────────────────────────
+async function compressToWebP(file: File, maxWidth = 2560): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const ratio = Math.min(1, maxWidth / img.naturalWidth);
+      const w = Math.round(img.naturalWidth * ratio);
+      const h = Math.round(img.naturalHeight * ratio);
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext('2d')!.drawImage(img, 0, 0, w, h);
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) { reject(new Error('Compressie mislukt')); return; }
+          resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.webp'), { type: 'image/webp' }));
+        },
+        'image/webp',
+        0.92,
+      );
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Afbeelding laden mislukt')); };
+    img.src = url;
+  });
+}
+
+function formatKB(bytes: number) {
+  return bytes < 1024 * 1024
+    ? Math.round(bytes / 1024) + ' KB'
+    : (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+// ─── Progress items ──────────────────────────────────────────────────────────
+function createProgressItem(name: string) {
+  const el = document.createElement('div');
+  el.className = 'flex items-center gap-3 bg-white border border-champagne px-4 py-3 text-sm font-body';
+  el.innerHTML = `
+    <span class="text-taupe shrink-0">⟳</span>
+    <span class="flex-1 truncate text-charcoal">${name}</span>
+    <span class="status text-taupe text-xs shrink-0">Wachten...</span>
+  `;
+  const statusEl = el.querySelector<HTMLElement>('.status')!;
+  const iconEl = el.querySelector<HTMLElement>('span')!;
+
+  return {
+    el,
+    setStatus(msg: string, state?: 'success' | 'error') {
+      statusEl.textContent = msg;
+      if (state === 'success') {
+        iconEl.textContent = '✓';
+        iconEl.className = 'text-green-600 shrink-0';
+      } else if (state === 'error') {
+        iconEl.textContent = '✗';
+        iconEl.className = 'text-red-500 shrink-0';
+        statusEl.className = 'status text-red-500 text-xs shrink-0';
+      } else {
+        iconEl.textContent = '⟳';
+        iconEl.className = 'text-taupe shrink-0 animate-spin';
+      }
+    },
+  };
+}
+
+// ─── Append new slide card ───────────────────────────────────────────────────
+function appendSlideCard(slide: Record<string, unknown>) {
+  document.getElementById('empty-msg')?.remove();
+
+  const list = document.getElementById('slides-list')!;
+  const existing = list.querySelectorAll('.slide-card');
+  const idx = existing.length;
+
+  const card = document.createElement('div');
+  card.className = 'bg-white border border-champagne shadow-soft flex items-center gap-4 p-4 slide-card';
+  card.dataset.id = String(slide.id);
+  card.innerHTML = `
+    <div class="w-24 h-16 bg-linen shrink-0 overflow-hidden">
+      <img src="${slide.image_url}" alt="${slide.title || 'Slide'}" class="w-full h-full object-cover" />
+    </div>
+    <div class="flex-1 min-w-0">
+      <p class="text-sm font-body font-medium text-charcoal truncate italic text-taupe">Geen titel — klik Bewerken</p>
+      <p class="text-[10px] tracking-widest uppercase font-body text-taupe mt-0.5">center · Overlay 40%</p>
+    </div>
+    <button data-toggle-id="${slide.id}" data-toggle-active="true"
+      class="shrink-0 text-[9px] tracking-widest uppercase font-body px-3 py-1.5 border transition-colors border-green-400 text-green-700 bg-green-50">
+      Actief
+    </button>
+    <div class="flex flex-col gap-0.5 shrink-0">
+      <button data-move-id="${slide.id}" data-move-dir="up" ${idx === 0 ? 'disabled' : ''}
+        class="px-2 py-1 text-taupe hover:text-charcoal disabled:opacity-20 transition-colors text-xs" title="Omhoog">▲</button>
+      <button data-move-id="${slide.id}" data-move-dir="down"
+        class="px-2 py-1 text-taupe hover:text-charcoal disabled:opacity-20 transition-colors text-xs" title="Omlaag">▼</button>
+    </div>
+    <div class="flex items-center gap-3 shrink-0">
+      <a href="/admin/homepage/slide/${slide.id}/edit"
+        class="text-[9px] tracking-widest uppercase font-body text-blush-deep hover:underline">Bewerken</a>
+      <button data-delete-id="${slide.id}"
+        class="text-[9px] tracking-widest uppercase font-body text-red-400 hover:text-red-600 transition-colors">Verwijder</button>
+    </div>
+  `;
+  list.appendChild(card);
+
+  // Update counter
+  const countEl = document.getElementById('slide-count');
+  if (countEl) countEl.textContent = String(list.querySelectorAll('.slide-card').length);
+
+  updateMoveButtons();
+}
+
+// ─── Reorder helpers ─────────────────────────────────────────────────────────
+function updateMoveButtons() {
+  const cards = Array.from(document.querySelectorAll<HTMLElement>('#slides-list .slide-card'));
+  cards.forEach((card, i) => {
+    const up = card.querySelector<HTMLButtonElement>('[data-move-dir="up"]');
+    const down = card.querySelector<HTMLButtonElement>('[data-move-dir="down"]');
+    if (up) up.disabled = i === 0;
+    if (down) down.disabled = i === cards.length - 1;
+  });
+}
+
+async function saveOrder() {
+  const cards = Array.from(document.querySelectorAll<HTMLElement>('#slides-list .slide-card'));
+  const slides = cards.map((c, i) => ({ id: c.dataset.id!, sort_order: i }));
+  await fetch('/api/admin/homepage/slides/reorder', {
+    method: 'PUT',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ slides }),
+  });
+  updateMoveButtons();
+}
+
+// ─── Upload pipeline ─────────────────────────────────────────────────────────
+async function handleFiles(files: FileList | File[]) {
+  const progressWrap = document.getElementById('upload-progress')!;
+  progressWrap.classList.remove('hidden');
+
+  for (const file of Array.from(files)) {
+    const item = createProgressItem(file.name);
+    progressWrap.appendChild(item.el);
+
+    try {
+      // 1. Compress
+      item.setStatus('Comprimeren...');
+      const compressed = await compressToWebP(file);
+      const before = formatKB(file.size);
+      const after = formatKB(compressed.size);
+      const pct = Math.round((1 - compressed.size / file.size) * 100);
+
+      // 2. Upload image
+      item.setStatus(`Uploaden (${before} → ${after}, ${pct}% kleiner)...`);
+      const fd = new FormData();
+      fd.append('image', compressed);
+      const uploadRes = await fetch('/api/admin/homepage/slides/image', { method: 'POST', body: fd });
+      const uploadJson = await uploadRes.json();
+      if (!uploadRes.ok) throw new Error(uploadJson.error ?? 'Upload mislukt');
+
+      // 3. Create slide
+      item.setStatus('Slide aanmaken...');
+      const slideRes = await fetch('/api/admin/homepage/slides', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ image_url: uploadJson.url, title: '', is_active: true }),
+      });
+      const slide = await slideRes.json();
+      if (!slideRes.ok) throw new Error(slide.error ?? 'Slide aanmaken mislukt');
+
+      appendSlideCard(slide);
+      item.setStatus(`${before} → ${after} (${pct}% kleiner)`, 'success');
+    } catch (err: any) {
+      item.setStatus(err.message, 'error');
+    }
+  }
+}
+
+// ─── Drop zone ───────────────────────────────────────────────────────────────
+const dropZone = document.getElementById('drop-zone')!;
+const bulkInput = document.getElementById('bulk-input') as HTMLInputElement;
+
+bulkInput.addEventListener('change', () => {
+  if (bulkInput.files?.length) handleFiles(bulkInput.files);
+  bulkInput.value = '';
+});
+
+dropZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  dropZone.classList.add('border-taupe', 'bg-linen');
+});
+dropZone.addEventListener('dragleave', () => {
+  dropZone.classList.remove('border-taupe', 'bg-linen');
+});
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('border-taupe', 'bg-linen');
+  const files = Array.from(e.dataTransfer?.files ?? []).filter(f =>
+    ['image/jpeg', 'image/png', 'image/webp', 'image/avif'].includes(f.type)
+  );
+  if (files.length) handleFiles(files);
+});
+
+// ─── Event delegation for slide cards ────────────────────────────────────────
+document.getElementById('slides-list')!.addEventListener('click', async (e) => {
+  const btn = (e.target as HTMLElement).closest('button') as HTMLButtonElement | null;
+  if (!btn) return;
+
+  // Toggle active
+  if (btn.dataset.toggleId) {
+    const id = btn.dataset.toggleId;
+    const newActive = btn.dataset.toggleActive !== 'true';
+    const res = await fetch(`/api/admin/homepage/slides/${id}`, {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ is_active: newActive }),
+    });
+    if (res.ok) {
+      btn.dataset.toggleActive = String(newActive);
+      btn.textContent = newActive ? 'Actief' : 'Inactief';
+      btn.className = `shrink-0 text-[9px] tracking-widest uppercase font-body px-3 py-1.5 border transition-colors ${
+        newActive ? 'border-green-400 text-green-700 bg-green-50' : 'border-champagne text-taupe'
+      }`;
+    }
+    return;
+  }
+
+  // Delete
+  if (btn.dataset.deleteId) {
+    if (!confirm('Deze slide verwijderen?')) return;
+    const id = btn.dataset.deleteId;
+    const res = await fetch(`/api/admin/homepage/slides/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      btn.closest('.slide-card')?.remove();
+      const countEl = document.getElementById('slide-count');
+      if (countEl) {
+        const n = document.querySelectorAll('#slides-list .slide-card').length;
+        countEl.textContent = String(n);
+        if (n === 0) {
+          const msg = document.createElement('p');
+          msg.id = 'empty-msg';
+          msg.className = 'text-xs font-body text-taupe italic text-center py-4';
+          msg.textContent = 'Nog geen slides. Upload hierboven foto\'s om te beginnen.';
+          document.getElementById('slides-list')!.after(msg);
+        }
+      }
+      updateMoveButtons();
+    }
+    return;
+  }
+
+  // Move up/down
+  if (btn.dataset.moveId) {
+    const dir = btn.dataset.moveDir!;
+    const card = btn.closest<HTMLElement>('.slide-card')!;
+    const list = document.getElementById('slides-list')!;
+    if (dir === 'up' && card.previousElementSibling) {
+      list.insertBefore(card, card.previousElementSibling);
+    } else if (dir === 'down' && card.nextElementSibling) {
+      card.nextElementSibling.after(card);
+    }
+    saveOrder();
+  }
+});
+
+// ─── Homepage settings form ──────────────────────────────────────────────────
+const form = document.getElementById('hp-settings-form') as HTMLFormElement;
+const saveBtn = document.getElementById('hp-save-btn') as HTMLButtonElement;
+const errorEl = document.getElementById('hp-error')!;
+const successEl = document.getElementById('hp-success')!;
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  errorEl.classList.add('hidden');
+  successEl.classList.add('hidden');
+  saveBtn.textContent = 'Bezig…';
+  saveBtn.disabled = true;
+
+  const fd = new FormData(form);
+  const homepage: Record<string, string> = {};
+  for (const [k, v] of fd.entries()) homepage[k] = v as string;
+
+  try {
+    const res = await fetch('/api/admin/settings', {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ homepage }),
+    });
+    if (res.ok) {
+      successEl.classList.remove('hidden');
+    } else {
+      const err = await res.json();
+      errorEl.textContent = 'Fout: ' + (err.error ?? 'Onbekend');
+      errorEl.classList.remove('hidden');
+    }
+  } catch {
+    errorEl.textContent = 'Netwerkfout.';
+    errorEl.classList.remove('hidden');
+  } finally {
+    saveBtn.textContent = 'Opslaan';
+    saveBtn.disabled = false;
+  }
+});
+</script>

@@ -67,6 +67,14 @@ const BUCKETS = [
       allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/avif'],
     },
   },
+  {
+    id: 'settings',
+    options: {
+      public: true,
+      fileSizeLimit: '5MB',
+      allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/svg+xml'],
+    },
+  },
 ];
 
 async function ensureBuckets() {

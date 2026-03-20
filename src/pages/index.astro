@@ -2,67 +2,33 @@
 import Layout from '../layouts/Layout.astro';
 import { supabase } from '../lib/supabase';
 
-const { data: latestProducts } = await supabase
-  .from('products')
-  .select('id, name, slug, brand, images, collections(title, type)')
-  .order('created_at', { ascending: false })
-  .limit(8);
+const [
+  { data: latestProducts },
+  { data: heroSlides },
+  { data: featuredWedding },
+  { data: latestWeddings },
+  { data: latestPosts },
+  { data: settings },
+] = await Promise.all([
+  supabase.from('products').select('id, name, slug, brand, images, collections(title, type)').order('created_at', { ascending: false }).limit(8),
+  supabase.from('hero_slides').select('*').eq('is_active', true).order('sort_order', { ascending: true }),
+  supabase.from('real_weddings').select('id, slug, bride_name, groom_name, cover_image, wedding_date').order('wedding_date', { ascending: false }).limit(1).maybeSingle(),
+  supabase.from('real_weddings').select('id, slug, bride_name, groom_name, cover_image').order('wedding_date', { ascending: false }).limit(3),
+  supabase.from('blog_posts').select('id, slug, title, excerpt, cover_image, published_at').order('published_at', { ascending: false }).limit(3),
+  supabase.from('site_settings').select('homepage').eq('id', 'current').single(),
+]);
 
-const { data: heroSuit } = await supabase
-  .from('products')
-  .select('id, name, images, collections(type)')
-  .order('created_at', { ascending: false })
-  .limit(30);
+const hp = (settings?.homepage ?? {}) as Record<string, string>;
 
-const suitProduct = heroSuit?.find((p) => {
-  const collection = Array.isArray(p.collections) ? p.collections[0] : p.collections;
-  return collection?.type === 'suit' && p.images?.[0];
-});
-const dbHeroImage = suitProduct?.images?.[0];
-const heroImage = (dbHeroImage && dbHeroImage.startsWith('/images/'))
-  ? dbHeroImage
-  : '/wp-content/uploads/2023/07/Home-Hero-img.jpg';
+// Fallback hero: pick a suit product image
+const heroFallbackImage = '/wp-content/uploads/2023/07/Home-Hero-img.jpg';
 
-const { data: featuredWedding } = await supabase
-  .from('real_weddings')
-  .select('id, slug, bride_name, groom_name, cover_image, wedding_date')
-  .order('wedding_date', { ascending: false })
-  .limit(1)
-  .maybeSingle();
-
-const featuredCover = featuredWedding?.cover_image;
 const featuredWeddingCard = {
   slug: featuredWedding?.slug ?? '',
   bride_name: featuredWedding?.bride_name ?? 'Mariage',
   groom_name: featuredWedding?.groom_name ?? 'Bruidsmode',
-  cover_image: (featuredCover && featuredCover.startsWith('/images/'))
-    ? featuredCover
-    : '/images/team/TKF_9432-scaled-scaled.jpg',
+  cover_image: featuredWedding?.cover_image ?? '/images/team/TKF_9432-scaled-scaled.jpg',
 };
-
-const { data: latestWeddings } = await supabase
-  .from('real_weddings')
-  .select('id, slug, bride_name, groom_name, cover_image')
-  .order('wedding_date', { ascending: false })
-  .limit(3);
-
-const { data: latestPosts } = await supabase
-  .from('blog_posts')
-  .select('id, slug, title, excerpt, cover_image, published_at')
-  .order('published_at', { ascending: false })
-  .limit(3);
-
-const galleryImages = (latestProducts ?? [])
-  .map((p) => {
-    const img = p.images?.[0];
-    return {
-      src: (img && img.startsWith('/images/')) ? img : null,
-      alt: p.name,
-      href: `/product/${p.slug}`,
-    };
-  })
-  .filter((item) => item.src)
-  .slice(0, 8);
 
 const galleryFallbacks = [
   '/images/team/TKF_9016-scaled.jpg',
@@ -81,39 +47,137 @@ const blogFallbacks = [
   '/images/team/TKF_9055-1-scaled-e1704372521721.jpg',
 ];
 
+const galleryImages = (latestProducts ?? [])
+  .map((p) => {
+    const img = p.images?.[0];
+    return {
+      src: (img && img.startsWith('/images/')) ? img : null,
+      alt: p.name,
+      href: `/product/${p.slug}`,
+    };
+  })
+  .filter((item) => item.src)
+  .slice(0, 6);
+
 const galleryItems = galleryImages.length
   ? galleryImages
-  : galleryFallbacks.map((src, index) => ({
-      src,
-      alt: `Galerij foto ${index + 1}`,
-      href: '/trouwjurken',
-    }));
+  : galleryFallbacks.slice(0, 6).map((src, i) => ({ src, alt: `Galerij foto ${i + 1}`, href: '/trouwjurken' }));
+
+const activeSlides = heroSlides ?? [];
+const hasSlider = activeSlides.length > 0;
 ---
 
 <Layout title="Home">
-  <!-- Full Width Hero -->
-  <section class="w-full relative bg-linen pt-20">
-    <div class="w-full aspect-[21/9] md:aspect-[21/7] overflow-hidden">
-      <img src={heroImage} alt="Trouwpak collectie bij Mariage" class="w-full h-full object-cover animate-pan-right" loading="eager" />
-    </div>
-    
-    <div class="text-center py-10 px-4 bg-white">
-      <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-3">Onze collecties</p>
-      <h1 class="font-display text-charcoal leading-tight mb-8" style="font-size: clamp(32px, 5vw, 48px); font-weight: 300;">
-        De mooiste bruidsmode van nu
-      </h1>
-      <div class="flex flex-col items-center gap-3">
-        <a href="/trouwjurken" class="inline-block bg-[#A66352] text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-opacity-90 transition-colors min-w-[220px]">
-          BEKIJK TROUWJURKEN
-        </a>
-        <a href="/afspraak-maken" class="inline-block bg-black text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-gray-900 transition-colors min-w-[220px]">
-          AFSPRAAK MAKEN
-        </a>
-      </div>
-    </div>
-  </section>
 
-  <!-- Product Grid (Exact Copy Design) -->
+  <!-- ===== HERO ===== -->
+  {hasSlider ? (
+    <!-- SLIDER -->
+    <section class="w-full relative bg-linen pt-20 overflow-hidden" id="hero-slider">
+      <!-- Track -->
+      <div id="hero-track" class="flex transition-transform duration-700 ease-in-out will-change-transform">
+        {activeSlides.map((slide) => {
+          const alignClass = slide.text_align === 'left'
+            ? 'items-start text-left pl-8 md:pl-20'
+            : slide.text_align === 'right'
+            ? 'items-end text-right pr-8 md:pr-20'
+            : 'items-center text-center px-6';
+          return (
+            <div class="slide w-full shrink-0 relative">
+              <div class="w-full aspect-[21/9] md:aspect-[21/7] overflow-hidden">
+                <img
+                  src={slide.image_url}
+                  alt={slide.title || 'Hero slide'}
+                  class="w-full h-full object-cover"
+                  loading="eager"
+                />
+              </div>
+              <!-- Overlay -->
+              <div
+                class="absolute inset-0 bg-black pointer-events-none"
+                style={`opacity: ${(slide.overlay_opacity ?? 40) / 100}`}
+              ></div>
+              <!-- Text -->
+              <div class={`absolute inset-0 flex flex-col justify-center gap-4 ${alignClass}`}>
+                {slide.eyebrow && (
+                  <p class="text-[10px] tracking-[0.35em] uppercase text-white/80 font-body">{slide.eyebrow}</p>
+                )}
+                {slide.title && (
+                  <h1 class="font-display text-white leading-tight drop-shadow-lg" style="font-size: clamp(28px, 5vw, 56px); font-weight: 300;">
+                    {slide.title}
+                  </h1>
+                )}
+                {slide.subtitle && (
+                  <p class="text-white/90 font-body font-light text-sm md:text-base max-w-xl drop-shadow">{slide.subtitle}</p>
+                )}
+                {(slide.button1_text || slide.button2_text) && (
+                  <div class={`flex flex-wrap gap-3 mt-2 ${slide.text_align === 'right' ? 'justify-end' : slide.text_align === 'left' ? 'justify-start' : 'justify-center'}`}>
+                    {slide.button1_text && slide.button1_url && (
+                      <a href={slide.button1_url} class="inline-block bg-[#A66352] text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-opacity-90 transition-colors min-w-[180px] text-center">
+                        {slide.button1_text}
+                      </a>
+                    )}
+                    {slide.button2_text && slide.button2_url && (
+                      <a href={slide.button2_url} class="inline-block bg-black text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-gray-900 transition-colors min-w-[180px] text-center">
+                        {slide.button2_text}
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {activeSlides.length > 1 && (
+        <>
+          <!-- Prev/Next -->
+          <button id="hero-prev" aria-label="Vorige slide"
+            class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center text-white transition-colors z-10">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
+          <button id="hero-next" aria-label="Volgende slide"
+            class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center text-white transition-colors z-10">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+
+          <!-- Dots -->
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+            {activeSlides.map((_, i) => (
+              <button
+                class={`hero-dot w-2 h-2 rounded-full transition-colors ${i === 0 ? 'bg-white' : 'bg-white/40'}`}
+                data-index={i}
+                aria-label={`Slide ${i + 1}`}
+              ></button>
+            ))}
+          </div>
+        </>
+      )}
+    </section>
+  ) : (
+    <!-- STATIC FALLBACK -->
+    <section class="w-full relative bg-linen pt-20">
+      <div class="w-full aspect-[21/9] md:aspect-[21/7] overflow-hidden">
+        <img src={heroFallbackImage} alt="Trouwjurken bij Mariage" class="w-full h-full object-cover animate-pan-right" loading="eager" />
+      </div>
+      <div class="text-center py-10 px-4 bg-white">
+        <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-3">Onze collecties</p>
+        <h1 class="font-display text-charcoal leading-tight mb-8" style="font-size: clamp(32px, 5vw, 48px); font-weight: 300;">
+          De mooiste bruidsmode van nu
+        </h1>
+        <div class="flex flex-col items-center gap-3">
+          <a href="/trouwjurken" class="inline-block bg-[#A66352] text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-opacity-90 transition-colors min-w-[220px]">
+            BEKIJK TROUWJURKEN
+          </a>
+          <a href="/afspraak-maken" class="inline-block bg-black text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-gray-900 transition-colors min-w-[220px]">
+            AFSPRAAK MAKEN
+          </a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Product Grid -->
   <section class="pb-16 bg-white">
     <div class="container mx-auto px-4 lg:px-8 max-w-[1400px]">
       <div class="grid grid-cols-2 md:grid-cols-3 gap-1 md:gap-4">
@@ -121,7 +185,6 @@ const galleryItems = galleryImages.length
           <div class="flex flex-col mb-4">
             <a href={item.href} class="block relative overflow-hidden aspect-[3/4] group mb-3">
               <img src={item.src!} alt={item.alt} class={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${index % 3 === 0 ? 'animate-pan-right' : index % 3 === 1 ? 'animate-pan-left' : 'animate-zoom'}`} loading="lazy" />
-              <!-- Hover Overlay with Brand -->
               <div class="absolute inset-0 bg-black/20 flex flex-col justify-end items-center pb-8 opacity-90 transition-opacity">
                 <span class="text-white font-display text-2xl mb-1">{item.alt.split(' ')[0] || 'Merk'}</span>
                 <span class="text-white/80 text-[10px] uppercase tracking-widest border-t border-white/40 pt-1 px-4">{item.alt}</span>
@@ -148,12 +211,12 @@ const galleryItems = galleryImages.length
   <!-- Real Brides & Grooms -->
   <section class="py-16 bg-white text-center">
     <div class="container mx-auto px-4">
-      <p class="text-[12px] italic text-[#A66352] font-serif mb-2">Liefde vieren</p>
-      <h2 class="font-display text-charcoal mb-8" style="font-size: clamp(28px, 4vw, 42px); font-weight: 300;">Real Brides &amp; Grooms</h2>
-      
+      <p class="text-[12px] italic text-[#A66352] font-serif mb-2">{hp.brides_eyebrow || 'Liefde vieren'}</p>
+      <h2 class="font-display text-charcoal mb-8" style="font-size: clamp(28px, 4vw, 42px); font-weight: 300;">{hp.brides_heading || 'Real Brides & Grooms'}</h2>
+
       <div class="flex flex-col sm:flex-row justify-center items-center gap-3 mb-10">
-        <a href="/inspiratie" class="inline-block bg-[#8b8772] text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-opacity-90 transition-colors min-w-[200px]">
-          BEKIJK VERHALEN
+        <a href={hp.brides_btn1_url || '/inspiratie'} class="inline-block bg-[#8b8772] text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-opacity-90 transition-colors min-w-[200px]">
+          {hp.brides_btn1_text?.toUpperCase() || 'BEKIJK VERHALEN'}
         </a>
         <a href="/inspiratie" class="inline-block bg-[#A66352] text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-opacity-90 transition-colors min-w-[200px]">
           LEES MEER
@@ -167,7 +230,7 @@ const galleryItems = galleryImages.length
           </div>
           <div class="absolute inset-0 bg-black/40 flex flex-col justify-center items-center text-white px-4">
             <h3 class="font-display italic text-center leading-tight mb-4 max-w-2xl" style="font-size: clamp(20px, 3.5vw, 36px);">
-              "We voelden ons helemaal onszelf en we vonden elkaar adembenemend prachtig!"
+              "{hp.brides_quote || 'We voelden ons helemaal onszelf en we vonden elkaar adembenemend prachtig!'}"
             </h3>
             <p class="text-xs uppercase tracking-widest font-light">{featuredWeddingCard.bride_name} &amp; {featuredWeddingCard.groom_name}</p>
           </div>
@@ -176,17 +239,16 @@ const galleryItems = galleryImages.length
     </div>
   </section>
 
-  <!-- Mariage Blog -->
+  <!-- Blog -->
   <section class="py-16 bg-white text-center">
     <div class="container mx-auto px-4 max-w-6xl">
-      <p class="text-[12px] italic text-[#A66352] font-serif mb-2">Tips & inspiratie</p>
-      <h2 class="font-display text-charcoal mb-10" style="font-size: clamp(28px, 4vw, 42px); font-weight: 300;">Mariage blog</h2>
-      
+      <p class="text-[12px] italic text-[#A66352] font-serif mb-2">{hp.blog_eyebrow || 'Tips & inspiratie'}</p>
+      <h2 class="font-display text-charcoal mb-10" style="font-size: clamp(28px, 4vw, 42px); font-weight: 300;">{hp.blog_heading || 'Mariage blog'}</h2>
+
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
         {(latestPosts ?? []).map((post, i) => {
-          const postImg = post.cover_image;
-          const displayImg = (postImg && postImg.startsWith('/images/'))
-            ? postImg
+          const displayImg = (post.cover_image && post.cover_image.startsWith('/images/'))
+            ? post.cover_image
             : blogFallbacks[i % blogFallbacks.length];
           return (
             <article class="group">
@@ -207,7 +269,7 @@ const galleryItems = galleryImages.length
     </div>
   </section>
 
-  <!-- Contact Form Section -->
+  <!-- Contact Form -->
   <section class="py-16 bg-white border-t border-gray-100">
     <div class="container mx-auto px-4 max-w-5xl">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
@@ -219,14 +281,12 @@ const galleryItems = galleryImages.length
           <p class="text-xs text-gray-400 mb-8 max-w-sm leading-relaxed">
             Heb je een vraag, wil je een afspraak maken of ben je op zoek naar iets specifieks? Bel direct of vul het formulier in.
           </p>
-          
           <div class="text-sm text-gray-600 mb-6">
             <p>Langstraat 128, 5664 GK Geldrop</p>
             <p class="mt-1"><a href="tel:0402863673" class="hover:text-[#e8bfae] transition-colors">040 286 3673</a></p>
             <p class="mt-1"><a href="mailto:info@mariagebruidsmode.nl" class="hover:text-[#e8bfae] transition-colors">info@mariagebruidsmode.nl</a></p>
           </div>
         </div>
-
         <div>
           <form id="quick-contact-form" class="space-y-4">
             <div class="grid grid-cols-2 gap-4">
@@ -239,23 +299,17 @@ const galleryItems = galleryImages.length
                 <input id="quick-email" name="email" type="email" required placeholder="E-mail *" class="w-full border-b border-gray-300 px-3 py-3 text-sm bg-transparent focus:outline-none focus:border-[#e8bfae] transition-colors" />
               </div>
             </div>
-            
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="sr-only" for="quick-phone">Telefoonnummer</label>
-                <input id="quick-phone" name="phone" type="tel" placeholder="Telefoonnummer" class="w-full border-b border-gray-300 px-3 py-3 text-sm bg-transparent focus:outline-none focus:border-[#e8bfae] transition-colors" />
+                <input name="phone" type="tel" placeholder="Telefoonnummer" class="w-full border-b border-gray-300 px-3 py-3 text-sm bg-transparent focus:outline-none focus:border-[#e8bfae] transition-colors" />
               </div>
               <div>
-                <label class="sr-only" for="quick-date">Voorkeursdatum</label>
-                <input id="quick-date" name="preferred_date" type="date" class="w-full border-b border-gray-300 px-3 py-3 text-sm flex min-w-0 bg-transparent focus:outline-none focus:border-[#e8bfae] transition-colors text-gray-500" />
+                <input name="preferred_date" type="date" class="w-full border-b border-gray-300 px-3 py-3 text-sm bg-transparent focus:outline-none focus:border-[#e8bfae] transition-colors text-gray-500" />
               </div>
             </div>
-            
             <div class="pt-2">
-              <label class="sr-only" for="quick-message">Bericht</label>
-              <textarea id="quick-message" name="message" rows="4" placeholder="Opmerking of vraag" class="w-full border border-gray-200 bg-gray-50/50 p-4 text-sm focus:outline-none focus:border-[#e8bfae] transition-colors"></textarea>
+              <textarea name="message" rows={4} placeholder="Opmerking of vraag" class="w-full border border-gray-200 bg-gray-50/50 p-4 text-sm focus:outline-none focus:border-[#e8bfae] transition-colors"></textarea>
             </div>
-            
             <input type="hidden" name="appointment_type" value="standard" />
             <div class="pt-4 text-right">
               <button type="submit" class="inline-block bg-[#A66352] text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-opacity-90 transition-colors border-none cursor-pointer">
@@ -270,9 +324,63 @@ const galleryItems = galleryImages.length
   </section>
 </Layout>
 
-
-
 <script>
+  // ===== HERO SLIDER =====
+  const track = document.getElementById('hero-track') as HTMLElement | null;
+  const slider = document.getElementById('hero-slider');
+  const dots = document.querySelectorAll<HTMLButtonElement>('.hero-dot');
+  const total = dots.length;
+
+  if (track && total > 0) {
+    let current = 0;
+    let timer: ReturnType<typeof setInterval>;
+
+    // Use pixel offsets so % is not relative to track's own (= N×slide) width
+    function slideWidth() {
+      return slider?.clientWidth ?? window.innerWidth;
+    }
+
+    function goTo(index: number) {
+      current = ((index % total) + total) % total;
+      track!.style.transform = `translateX(${-current * slideWidth()}px)`;
+      dots.forEach((d, i) => {
+        d.classList.toggle('bg-white', i === current);
+        d.classList.toggle('bg-white/40', i !== current);
+      });
+    }
+
+    // Re-snap on resize (no transition flash)
+    window.addEventListener('resize', () => {
+      track!.style.transition = 'none';
+      track!.style.transform = `translateX(${-current * slideWidth()}px)`;
+      requestAnimationFrame(() => { track!.style.transition = ''; });
+    }, { passive: true });
+
+    function startTimer() {
+      clearInterval(timer);
+      if (total > 1) timer = setInterval(() => goTo(current + 1), 5000);
+    }
+
+    document.getElementById('hero-prev')?.addEventListener('click', () => { goTo(current - 1); startTimer(); });
+    document.getElementById('hero-next')?.addEventListener('click', () => { goTo(current + 1); startTimer(); });
+    dots.forEach((dot, i) => dot.addEventListener('click', () => { goTo(i); startTimer(); }));
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') { goTo(current - 1); startTimer(); }
+      if (e.key === 'ArrowRight') { goTo(current + 1); startTimer(); }
+    });
+
+    let touchStartX = 0;
+    track.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; }, { passive: true });
+    track.addEventListener('touchend', (e) => {
+      const diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 50) { goTo(current + (diff > 0 ? 1 : -1)); startTimer(); }
+    }, { passive: true });
+
+    startTimer();
+  }
+
+  // ===== CONTACT FORM =====
   const quickForm = document.getElementById('quick-contact-form') as HTMLFormElement | null;
   const quickStatus = document.getElementById('quick-contact-status');
 

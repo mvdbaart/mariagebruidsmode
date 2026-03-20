@@ -26,6 +26,20 @@ const activeIntegrations = Object.values(integrations).filter((v: any) => v?.api
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Bedrijf & Logo -->
+        <a href="/admin/instellingen/bedrijf" class="bg-white border border-champagne p-8 shadow-soft hover:border-blush-deep transition-colors group">
+          <div class="flex items-start justify-between mb-6">
+            <div class="w-10 h-10 bg-linen flex items-center justify-center">
+              <svg class="w-5 h-5 text-taupe" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+            </div>
+            <span class="text-[9px] tracking-widest uppercase font-body text-blush-deep group-hover:underline">Bewerken →</span>
+          </div>
+          <h2 class="font-display text-charcoal text-2xl italic mb-2">Bedrijf & Logo</h2>
+          <p class="text-xs font-body text-taupe leading-relaxed">Logo uploaden en adres- en contactgegevens beheren.</p>
+        </a>
+
         <!-- Uiterlijk -->
         <a href="/admin/instellingen/uiterlijk" class="bg-white border border-champagne p-8 shadow-soft hover:border-blush-deep transition-colors group">
           <div class="flex items-start justify-between mb-6">
@@ -55,6 +69,20 @@ const activeIntegrations = Object.values(integrations).filter((v: any) => v?.api
             Integraties met betalingsproviders en externe platformen.
             {activeIntegrations > 0 && <span class="block mt-1 text-green-600">{activeIntegrations} actief</span>}
           </p>
+        </a>
+
+        <!-- Redirects -->
+        <a href="/admin/instellingen/redirects" class="bg-white border border-champagne p-8 shadow-soft hover:border-blush-deep transition-colors group">
+          <div class="flex items-start justify-between mb-6">
+            <div class="w-10 h-10 bg-linen flex items-center justify-center">
+              <svg class="w-5 h-5 text-taupe" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+              </svg>
+            </div>
+            <span class="text-[9px] tracking-widest uppercase font-body text-blush-deep group-hover:underline">Bewerken →</span>
+          </div>
+          <h2 class="font-display text-charcoal text-2xl italic mb-2">Redirects</h2>
+          <p class="text-xs font-body text-taupe leading-relaxed">301/302-redirects beheren voor oude WordPress-URLs.</p>
         </a>
 
         <!-- Placeholder: SEO (toekomstig) -->

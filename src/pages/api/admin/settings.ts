@@ -26,15 +26,17 @@ export const PUT: APIRoute = async ({ request, cookies }) => {
     const body = await request.json();
     const supabase = getServiceRoleClient();
     
+    const updatePayload: Record<string, unknown> = { updated_at: new Date().toISOString() };
+    if (body.colors !== undefined) updatePayload.colors = body.colors;
+    if (body.typography !== undefined) updatePayload.typography = body.typography;
+    if (body.ui_styles !== undefined) updatePayload.ui_styles = body.ui_styles;
+    if (body.site_metadata !== undefined) updatePayload.site_metadata = body.site_metadata;
+    if (body.contact_info !== undefined) updatePayload.contact_info = body.contact_info;
+    if (body.homepage !== undefined) updatePayload.homepage = body.homepage;
+
     const { data, error } = await supabase
       .from('site_settings')
-      .update({
-        colors: body.colors,
-        typography: body.typography,
-        ui_styles: body.ui_styles,
-        site_metadata: body.site_metadata,
-        updated_at: new Date().toISOString()
-      })
+      .update(updatePayload)
       .eq('id', 'current')
       .select()
       .single();

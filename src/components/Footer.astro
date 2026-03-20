@@ -1,5 +1,18 @@
 ---
-const year = new Date().getFullYear();
+import { getServiceRoleClient } from '../lib/serverAuth';
+const supabase = getServiceRoleClient();
+const { data: settings } = await supabase.from('site_settings').select('logo_url, contact_info').eq('id', 'current').single();
+
+const logoUrl = settings?.logo_url ?? null;
+const c = (settings?.contact_info ?? {}) as Record<string, string>;
+
+const address   = c.address      || 'Langstraat 128';
+const postal    = c.postal_code  || '5664 GK';
+const city      = c.city         || 'Geldrop';
+const phone     = c.phone        || '040 286 3673';
+const phoneHref = 'tel:' + (c.phone || '+31402863673').replace(/\s/g, '');
+const email     = c.email        || 'info@mariagebruidsmode.nl';
+const year      = new Date().getFullYear();
 ---
 
 <footer class="bg-[#e8bfae] text-white pt-20 pb-12 px-6">
@@ -7,8 +20,14 @@ const year = new Date().getFullYear();
     <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
       <div class="col-span-1 md:col-span-1">
         <a href="/" class="flex flex-col mb-6">
-          <span class="text-4xl font-display font-normal text-white leading-none mb-2">Mariage</span>
-          <span class="text-[9px] font-body font-normal tracking-[0.35em] uppercase text-white/80">Bruidsmode</span>
+          {logoUrl ? (
+            <img src={logoUrl} alt="Mariage Bruidsmode" class="h-12 w-auto object-contain object-left" />
+          ) : (
+            <>
+              <span class="text-4xl font-display font-normal text-white leading-none mb-2">Mariage</span>
+              <span class="text-[9px] font-body font-normal tracking-[0.35em] uppercase text-white/80">Bruidsmode</span>
+            </>
+          )}
         </a>
         <p class="text-white/90 font-light text-sm leading-relaxed mb-6">
           De meest exclusieve bruidsmode ervaring in de regio Eindhoven. Persoonlijk, eerlijk en magisch.
@@ -37,17 +56,20 @@ const year = new Date().getFullYear();
       <div>
         <h4 class="text-[10px] tracking-widest uppercase text-white/70 mb-8 font-semibold">Contact</h4>
         <address class="not-italic text-white/90 text-sm font-light space-y-4">
-          <p>Langstraat 128<br/>5664 GK Geldrop</p>
+          <p>{address}<br/>{postal} {city}</p>
           <p>
-            <a href="tel:+31402863673" class="hover:text-white transition-colors">040 286 3673</a><br/>
-            <a href="mailto:info@mariagebruidsmode.nl" class="hover:text-white transition-colors">info@mariagebruidsmode.nl</a>
+            <a href={phoneHref} class="hover:text-white transition-colors">{phone}</a><br/>
+            <a href={`mailto:${email}`} class="hover:text-white transition-colors">{email}</a>
           </p>
+          {c.opening_hours && (
+            <p class="whitespace-pre-line text-white/80 text-xs">{c.opening_hours}</p>
+          )}
         </address>
       </div>
     </div>
 
     <div class="pt-8 border-t border-white/20 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] tracking-[0.15em] uppercase text-white/80 font-body">
-      <p>&copy; {year} Mariage Bruidsmode. <span class="text-white/50">Dutch Boutique Excellence.</span></p>
+      <p>&copy; {year} {c.name || 'Mariage Bruidsmode'}. <span class="text-white/50">Dutch Boutique Excellence.</span></p>
       <div class="flex gap-8">
         <a href="/privacy" class="hover:text-white">Privacy</a>
         <a href="/voorwaarden" class="hover:text-white">Voorwaarden</a>

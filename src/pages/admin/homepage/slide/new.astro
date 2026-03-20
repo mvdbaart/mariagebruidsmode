@@ -1,0 +1,252 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+---
+
+<Layout title="Nieuwe Hero Slide">
+  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+    <div class="container mx-auto px-6 max-w-3xl">
+      <nav class="mb-10 flex items-center gap-3 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">
+        <a href="/admin" class="hover:text-charcoal transition-colors">Dashboard</a>
+        <span class="text-champagne">›</span>
+        <a href="/admin/homepage" class="hover:text-charcoal transition-colors">Homepage</a>
+        <span class="text-champagne">›</span>
+        <span class="text-charcoal">Nieuwe slide</span>
+      </nav>
+
+      <div class="mb-10">
+        <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">Hero Slider</p>
+        <h1 class="font-display font-normal text-charcoal text-4xl leading-tight">
+          Nieuwe <em class="font-normal italic text-taupe">Slide</em>
+        </h1>
+      </div>
+
+      <form id="slide-form" class="space-y-8">
+        <!-- Afbeelding -->
+        <section class="bg-white border border-champagne p-8 shadow-soft space-y-6">
+          <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium border-b border-champagne pb-4">Afbeelding</h2>
+
+          <div id="img-preview-wrap" class="hidden">
+            <img id="img-preview" src="" alt="Preview" class="w-full max-h-64 object-cover border border-champagne" />
+          </div>
+
+          <div>
+            <p class="text-xs font-body text-taupe mb-3">Aanbevolen: 2560×1080px of breder (21:9). JPG, PNG, WebP of AVIF. Max 10 MB.</p>
+            <div class="flex items-center gap-4 flex-wrap">
+              <label class="cursor-pointer">
+                <span class="border border-champagne px-6 py-3 text-[10px] tracking-widest uppercase font-body text-taupe hover:border-charcoal hover:text-charcoal transition-colors inline-block">
+                  Afbeelding kiezen
+                </span>
+                <input id="img-input" type="file" accept="image/jpeg,image/png,image/webp,image/avif" class="sr-only" />
+              </label>
+              <span id="img-filename" class="text-xs font-body text-taupe">Geen bestand gekozen</span>
+            </div>
+            <div id="img-error" class="hidden mt-2 text-xs font-body text-red-600"></div>
+          </div>
+          <input type="hidden" id="image_url" name="image_url" required />
+        </section>
+
+        <!-- Tekst content -->
+        <section class="bg-white border border-champagne p-8 shadow-soft space-y-6">
+          <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium border-b border-champagne pb-4">Tekst &amp; Inhoud</h2>
+
+          <div>
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Eyebrow tekst <span class="text-taupe/50">(optioneel)</span></label>
+            <input type="text" name="eyebrow" placeholder="Bijv. Onze collecties"
+              class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+          </div>
+
+          <div>
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Titel</label>
+            <input type="text" name="title" placeholder="De mooiste bruidsmode van nu"
+              class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+          </div>
+
+          <div>
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Subtitel <span class="text-taupe/50">(optioneel)</span></label>
+            <textarea name="subtitle" rows={2} placeholder="Een korte beschrijving of slagzin"
+              class="w-full border border-champagne bg-transparent p-3 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors resize-none"></textarea>
+          </div>
+        </section>
+
+        <!-- Knoppen -->
+        <section class="bg-white border border-champagne p-8 shadow-soft space-y-6">
+          <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium border-b border-champagne pb-4">Call-to-action knoppen</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Knop 1 tekst</label>
+              <input type="text" name="button1_text" placeholder="Bekijk trouwjurken"
+                class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+            </div>
+            <div>
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Knop 1 URL</label>
+              <input type="text" name="button1_url" placeholder="/trouwjurken"
+                class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+            </div>
+            <div>
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Knop 2 tekst <span class="text-taupe/50">(optioneel)</span></label>
+              <input type="text" name="button2_text" placeholder="Afspraak maken"
+                class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+            </div>
+            <div>
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Knop 2 URL <span class="text-taupe/50">(optioneel)</span></label>
+              <input type="text" name="button2_url" placeholder="/afspraak-maken"
+                class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+            </div>
+          </div>
+        </section>
+
+        <!-- Weergave opties -->
+        <section class="bg-white border border-champagne p-8 shadow-soft space-y-6">
+          <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium border-b border-champagne pb-4">Weergave-opties</h2>
+
+          <!-- Text align -->
+          <div>
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-4">Tekstpositie</label>
+            <div class="flex gap-3">
+              {['left', 'center', 'right'].map(align => (
+                <label class="flex-1 cursor-pointer">
+                  <input type="radio" name="text_align" value={align} class="sr-only peer" checked={align === 'center'} />
+                  <span class={`block border border-champagne py-3 text-[9px] tracking-widest uppercase font-body text-center transition-colors peer-checked:border-charcoal peer-checked:text-charcoal text-taupe hover:border-taupe
+                    ${align === 'left' ? 'text-left px-4' : align === 'right' ? 'text-right px-4' : ''}`}>
+                    {align === 'left' ? '← Links' : align === 'center' ? '⊕ Midden' : 'Rechts →'}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <!-- Overlay opacity -->
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <label class="text-[10px] tracking-[0.2em] uppercase text-taupe font-body">Overlay dekking</label>
+              <span id="opacity-display" class="text-sm font-body text-charcoal font-medium">40%</span>
+            </div>
+            <input
+              type="range" name="overlay_opacity" id="opacity-slider"
+              min="0" max="80" value="40" step="5"
+              class="w-full accent-charcoal"
+            />
+            <div class="flex justify-between text-[9px] font-body text-taupe mt-1">
+              <span>0% (transparant)</span>
+              <span>80% (donker)</span>
+            </div>
+          </div>
+
+          <!-- Active -->
+          <div class="flex items-center gap-3">
+            <input type="checkbox" name="is_active" id="is-active" value="true" checked
+              class="w-4 h-4 border-champagne accent-charcoal" />
+            <label for="is-active" class="text-sm font-body text-charcoal cursor-pointer">Slide direct activeren</label>
+          </div>
+        </section>
+
+        <div id="form-error" class="hidden bg-red-50 border border-red-200 px-4 py-3 text-sm font-body text-red-700"></div>
+
+        <div class="flex gap-4">
+          <button type="submit" id="save-btn" class="btn-premium text-[10px]">Slide opslaan</button>
+          <a href="/admin/homepage" class="border border-champagne px-8 py-3 text-[10px] tracking-widest uppercase font-body text-taupe hover:border-charcoal hover:text-charcoal transition-colors">Annuleren</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  // Opacity slider display
+  const slider = document.getElementById('opacity-slider') as HTMLInputElement;
+  const display = document.getElementById('opacity-display')!;
+  slider.addEventListener('input', () => { display.textContent = slider.value + '%'; });
+
+  // Image upload
+  const imgInput = document.getElementById('img-input') as HTMLInputElement;
+  const imgPreview = document.getElementById('img-preview') as HTMLImageElement;
+  const imgPreviewWrap = document.getElementById('img-preview-wrap')!;
+  const imgFilename = document.getElementById('img-filename')!;
+  const imgError = document.getElementById('img-error')!;
+  const imageUrlInput = document.getElementById('image_url') as HTMLInputElement;
+
+  imgInput.addEventListener('change', async () => {
+    const file = imgInput.files?.[0];
+    if (!file) return;
+    imgFilename.textContent = 'Bezig met uploaden…';
+    imgError.classList.add('hidden');
+
+    const fd = new FormData();
+    fd.append('image', file);
+    try {
+      const res = await fetch('/api/admin/homepage/slides/image', { method: 'POST', body: fd });
+      const json = await res.json();
+      if (res.ok) {
+        imageUrlInput.value = json.url;
+        imgPreview.src = json.url;
+        imgPreviewWrap.classList.remove('hidden');
+        imgFilename.textContent = file.name;
+      } else {
+        imgError.textContent = json.error ?? 'Upload mislukt';
+        imgError.classList.remove('hidden');
+        imgFilename.textContent = 'Geen bestand gekozen';
+      }
+    } catch {
+      imgError.textContent = 'Netwerkfout. Probeer opnieuw.';
+      imgError.classList.remove('hidden');
+      imgFilename.textContent = 'Geen bestand gekozen';
+    }
+  });
+
+  // Form submit
+  const form = document.getElementById('slide-form') as HTMLFormElement;
+  const saveBtn = document.getElementById('save-btn') as HTMLButtonElement;
+  const formError = document.getElementById('form-error')!;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    formError.classList.add('hidden');
+
+    const imageUrl = imageUrlInput.value;
+    if (!imageUrl) {
+      formError.textContent = 'Upload eerst een afbeelding.';
+      formError.classList.remove('hidden');
+      return;
+    }
+
+    saveBtn.textContent = 'Bezig…';
+    saveBtn.disabled = true;
+
+    const fd = new FormData(form);
+    const body: Record<string, unknown> = {
+      image_url: imageUrl,
+      title: fd.get('title') as string,
+      subtitle: fd.get('subtitle') as string || null,
+      eyebrow: fd.get('eyebrow') as string || null,
+      button1_text: fd.get('button1_text') as string || null,
+      button1_url: fd.get('button1_url') as string || null,
+      button2_text: fd.get('button2_text') as string || null,
+      button2_url: fd.get('button2_url') as string || null,
+      text_align: fd.get('text_align') as string,
+      overlay_opacity: parseInt(fd.get('overlay_opacity') as string),
+      is_active: fd.get('is_active') === 'true',
+    };
+
+    try {
+      const res = await fetch('/api/admin/homepage/slides', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (res.ok) {
+        window.location.href = '/admin/homepage';
+      } else {
+        const err = await res.json();
+        formError.textContent = 'Fout: ' + (err.error ?? 'Onbekend');
+        formError.classList.remove('hidden');
+        saveBtn.textContent = 'Slide opslaan';
+        saveBtn.disabled = false;
+      }
+    } catch {
+      formError.textContent = 'Netwerkfout. Probeer opnieuw.';
+      formError.classList.remove('hidden');
+      saveBtn.textContent = 'Slide opslaan';
+      saveBtn.disabled = false;
+    }
+  });
+</script>
