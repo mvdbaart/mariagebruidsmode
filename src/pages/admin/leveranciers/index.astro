@@ -1,0 +1,171 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getServiceRoleClient } from '../../../lib/serverAuth';
+
+const supabase = getServiceRoleClient();
+const { data: suppliers } = await supabase.from('suppliers').select('*').order('name');
+---
+
+<Layout title="Leveranciers">
+  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+    <div class="container mx-auto px-6 max-w-5xl">
+      <nav class="mb-10 flex items-center gap-3 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">
+        <a href="/admin" class="hover:text-charcoal transition-colors">Dashboard</a>
+        <span class="text-champagne">›</span>
+        <span class="text-charcoal">Leveranciers</span>
+      </nav>
+
+      <div class="flex items-center justify-between mb-12">
+        <div>
+          <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">Beheer</p>
+          <h1 class="font-display font-normal text-charcoal text-4xl leading-tight">Leveranciers</h1>
+        </div>
+        <button id="new-btn" class="btn-premium text-[10px]">Nieuwe leverancier</button>
+      </div>
+
+      <!-- New supplier form (hidden by default) -->
+      <div id="new-form" class="hidden bg-white border border-champagne p-8 shadow-soft mb-8">
+        <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body border-b border-champagne pb-4 mb-6">Nieuwe leverancier</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="md:col-span-2">
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Naam *</label>
+            <input id="new-name" type="text" placeholder="Bijv. Pronovias" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+          </div>
+          <div>
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Contactpersoon</label>
+            <input id="new-contact" type="text" placeholder="Naam contactpersoon" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+          </div>
+          <div>
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">E-mail</label>
+            <input id="new-email" type="email" placeholder="info@leverancier.nl" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+          </div>
+          <div>
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Telefoon</label>
+            <input id="new-phone" type="tel" placeholder="+31 20 000 0000" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+          </div>
+          <div>
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Website</label>
+            <input id="new-website" type="url" placeholder="https://www.leverancier.nl" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Notities</label>
+            <textarea id="new-notes" rows={2} class="w-full border border-champagne bg-transparent p-3 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors resize-none"></textarea>
+          </div>
+        </div>
+        <div id="new-error" class="hidden mt-4 bg-red-50 border border-red-200 px-4 py-3 text-sm font-body text-red-700"></div>
+        <div class="flex gap-3 mt-6">
+          <button id="new-save" class="btn-premium text-[10px]">Opslaan</button>
+          <button id="new-cancel" class="btn-gold text-[10px]">Annuleren</button>
+        </div>
+      </div>
+
+      <!-- Suppliers list -->
+      <div class="bg-white border border-champagne shadow-soft">
+        {suppliers && suppliers.length > 0 ? (
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-champagne">
+                <th class="text-left text-[9px] tracking-[0.2em] uppercase text-taupe font-body p-4">Naam</th>
+                <th class="text-left text-[9px] tracking-[0.2em] uppercase text-taupe font-body p-4 hidden md:table-cell">Contactpersoon</th>
+                <th class="text-left text-[9px] tracking-[0.2em] uppercase text-taupe font-body p-4 hidden md:table-cell">Telefoon</th>
+                <th class="text-left text-[9px] tracking-[0.2em] uppercase text-taupe font-body p-4 hidden lg:table-cell">E-mail</th>
+                <th class="p-4"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {suppliers.map(s => (
+                <tr class="border-b border-champagne last:border-0 hover:bg-linen/30 transition-colors supplier-row" data-id={s.id}>
+                  <td class="p-4">
+                    <p class="text-sm font-body font-medium text-charcoal">{s.name}</p>
+                    {s.website && <a href={s.website} target="_blank" class="text-xs font-body text-blush-deep hover:underline">{s.website.replace(/^https?:\/\//, '')}</a>}
+                  </td>
+                  <td class="p-4 hidden md:table-cell">
+                    <p class="text-sm font-body text-charcoal">{s.contact_name ?? '—'}</p>
+                  </td>
+                  <td class="p-4 hidden md:table-cell">
+                    <p class="text-sm font-body text-charcoal">{s.phone ?? '—'}</p>
+                  </td>
+                  <td class="p-4 hidden lg:table-cell">
+                    {s.email ? (
+                      <a href={`mailto:${s.email}`} class="text-sm font-body text-blush-deep hover:underline">{s.email}</a>
+                    ) : <span class="text-sm font-body text-taupe">—</span>}
+                  </td>
+                  <td class="p-4 text-right">
+                    <button
+                      class="delete-supplier text-[9px] uppercase tracking-wider font-body text-red-400 hover:text-red-600 transition-colors"
+                      data-id={s.id}
+                      data-name={s.name}
+                    >
+                      Verwijder
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <div class="p-12 text-center">
+            <p class="text-sm font-body text-taupe italic">Nog geen leveranciers aangemaakt.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  const newBtn = document.getElementById('new-btn');
+  const newForm = document.getElementById('new-form');
+  const newCancel = document.getElementById('new-cancel');
+  const newSave = document.getElementById('new-save');
+  const newError = document.getElementById('new-error');
+
+  newBtn?.addEventListener('click', () => newForm?.classList.toggle('hidden'));
+  newCancel?.addEventListener('click', () => newForm?.classList.add('hidden'));
+
+  newSave?.addEventListener('click', async () => {
+    const name = (document.getElementById('new-name') as HTMLInputElement)?.value?.trim();
+    if (!name) {
+      if (newError) { newError.textContent = 'Naam is verplicht.'; newError.classList.remove('hidden'); }
+      return;
+    }
+    if (newError) newError.classList.add('hidden');
+
+    const body = {
+      name,
+      contact_name: (document.getElementById('new-contact') as HTMLInputElement)?.value?.trim() || null,
+      email: (document.getElementById('new-email') as HTMLInputElement)?.value?.trim() || null,
+      phone: (document.getElementById('new-phone') as HTMLInputElement)?.value?.trim() || null,
+      website: (document.getElementById('new-website') as HTMLInputElement)?.value?.trim() || null,
+      notes: (document.getElementById('new-notes') as HTMLTextAreaElement)?.value?.trim() || null,
+    };
+
+    const res = await fetch('/api/admin/suppliers', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+    if (res.ok) {
+      window.location.reload();
+    } else {
+      const json = await res.json();
+      if (newError) { newError.textContent = json.error ?? 'Opslaan mislukt.'; newError.classList.remove('hidden'); }
+    }
+  });
+
+  document.querySelectorAll('.delete-supplier').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const id = (e.currentTarget as HTMLElement).dataset.id;
+      const name = (e.currentTarget as HTMLElement).dataset.name;
+      if (!id || !confirm(`Leverancier "${name}" verwijderen?`)) return;
+
+      const res = await fetch(`/api/admin/suppliers/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        window.location.reload();
+      } else {
+        alert('Verwijderen mislukt.');
+      }
+    });
+  });
+</script>

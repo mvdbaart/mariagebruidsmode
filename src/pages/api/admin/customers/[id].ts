@@ -7,6 +7,18 @@ function trim(v: unknown, max = 500): string | null {
   return s || null;
 }
 
+const AUTO_TASKS: Record<string, { title: string; due_offset_days: number }[]> = {
+  ordered: [
+    { title: 'Bevestiging bestelling ontvangen bij leverancier', due_offset_days: 3 },
+  ],
+  alterations: [
+    { title: 'Eerste passe inplannen met klant', due_offset_days: 7 },
+  ],
+  ready: [
+    { title: 'Klant bellen voor afhaaldatum', due_offset_days: 2 },
+  ],
+};
+
 export const PUT: APIRoute = async ({ request, cookies, params }) => {
   const auth = await getAdminAuthFromCookies(cookies);
   if (!auth) return json({ error: 'Niet geautoriseerd.' }, 401);
@@ -20,6 +32,16 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
   if (!first_name || !last_name) return json({ error: 'Voornaam en achternaam zijn verplicht.' }, 400);
 
   const supabase = getServiceRoleClient();
+
+  // Get current status to detect changes
+  const { data: current } = await supabase
+    .from('customers')
+    .select('order_status')
+    .eq('id', id)
+    .single();
+
+  const newStatus = trim(body?.order_status, 30);
+
   const { error } = await supabase
     .from('customers')
     .update({
@@ -37,7 +59,7 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
       measure_height: trim(body?.measure_height, 20),
       style_wishes: trim(body?.style_wishes, 2000),
       chosen_product_id: trim(body?.chosen_product_id, 36) || null,
-      order_status: trim(body?.order_status, 30),
+      order_status: newStatus,
       delivery_date: trim(body?.delivery_date, 20) || null,
       price: trim(body?.price, 50),
       notes: trim(body?.notes, 5000),
@@ -46,6 +68,22 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
     .eq('id', id);
 
   if (error) return json({ error: 'Opslaan mislukt.' }, 500);
+
+  // Auto-generate tasks when order_status changes
+  if (newStatus && current?.order_status !== newStatus && AUTO_TASKS[newStatus]) {
+    const today = new Date();
+    const tasksToInsert = AUTO_TASKS[newStatus].map(t => {
+      const due = new Date(today);
+      due.setDate(due.getDate() + t.due_offset_days);
+      return {
+        customer_id: id,
+        title: t.title,
+        due_date: due.toISOString().slice(0, 10),
+      };
+    });
+    await supabase.from('customer_tasks').insert(tasksToInsert);
+  }
+
   return json({ ok: true }, 200);
 };
 

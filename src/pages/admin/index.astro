@@ -13,8 +13,12 @@ const [
   { count: weddingCount },
   { count: formCount },
   { count: customerCount },
+  { count: supplierCount },
+  { count: pendingTaskCount },
   { data: recentAppointments },
   { data: recentProducts },
+  { data: pendingTasks },
+  { data: upcomingOrders },
 ] = await Promise.all([
   supabase.from('products').select('*', { count: 'exact', head: true }),
   supabase.from('collections').select('*', { count: 'exact', head: true }),
@@ -23,8 +27,12 @@ const [
   supabase.from('real_weddings').select('*', { count: 'exact', head: true }),
   supabase.from('forms').select('*', { count: 'exact', head: true }),
   supabase.from('customers').select('*', { count: 'exact', head: true }),
+  supabase.from('suppliers').select('*', { count: 'exact', head: true }),
+  supabase.from('customer_tasks').select('*', { count: 'exact', head: true }).is('completed_at', null),
   supabase.from('appointments').select('*').order('created_at', { ascending: false }).limit(5),
   supabase.from('products').select('*, collections(title)').order('created_at', { ascending: false }).limit(5),
+  supabase.from('customer_tasks').select('*, customers(first_name, last_name, id)').is('completed_at', null).order('due_date', { ascending: true, nullsFirst: false }).limit(5),
+  supabase.from('orders').select('*, customers(first_name, last_name, id), suppliers(name)').in('status', ['besteld', 'verwacht']).order('expected_delivery_date', { ascending: true, nullsFirst: false }).limit(5),
 ]);
 
 const stats = [
@@ -35,7 +43,11 @@ const stats = [
   { label: 'Bruidsverhalen', value: weddingCount ?? 0, href: '/admin/inspiratie' },
   { label: 'Formulieren', value: formCount ?? 0, href: '/admin/formulieren' },
   { label: 'Klanten', value: customerCount ?? 0, href: '/admin/klanten' },
+  { label: 'Leveranciers', value: supplierCount ?? 0, href: '/admin/leveranciers' },
+  { label: 'Open Taken', value: pendingTaskCount ?? 0, href: '/admin/klanten' },
 ];
+
+const today = new Date().toISOString().slice(0, 10);
 ---
 
 <Layout title="Admin Dashboard">
@@ -52,7 +64,7 @@ const stats = [
       </div>
 
       <!-- Live stats row -->
-      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-14">
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9 gap-4 mb-14">
         {stats.map(stat => (
           <a href={stat.href} class="bg-white border border-champagne p-6 shadow-soft hover:shadow-card transition-all duration-300 hover:-translate-y-0.5 group">
             <p class="text-3xl font-display text-charcoal group-hover:text-blush-deep transition-colors">{stat.value}</p>
@@ -108,6 +120,81 @@ const stats = [
           <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Beheer Pagina</span>
           <span class="font-display text-charcoal text-3xl italic">Klanten</span>
         </a>
+        <a href="/admin/leveranciers" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
+          <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Beheer Pagina</span>
+          <span class="font-display text-charcoal text-3xl italic">Leveranciers</span>
+        </a>
+        <a href="/admin/bestellingen" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
+          <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Beheer Pagina</span>
+          <span class="font-display text-charcoal text-3xl italic">Bestellingen</span>
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-10">
+        <!-- Openstaande Taken -->
+        <div class="bg-white p-8 border border-champagne shadow-soft">
+          <div class="flex items-center justify-between mb-8 pb-4 border-b border-champagne">
+            <h2 class="font-display text-charcoal text-xl italic">Openstaande Taken</h2>
+            <span class="text-[10px] tracking-widest uppercase font-body text-taupe">{pendingTaskCount ?? 0} open</span>
+          </div>
+          <div class="space-y-4">
+            {pendingTasks?.map((task) => (
+              <div class="flex items-start gap-3">
+                <div class="w-1.5 h-1.5 rounded-full bg-blush-deep mt-2 shrink-0"></div>
+                <div class="min-w-0">
+                  <p class="text-sm font-body font-medium text-charcoal truncate">{task.title}</p>
+                  <div class="flex items-center gap-2">
+                    {task.customers && (
+                      <a href={`/admin/klanten/${task.customers.id}`} class="text-xs font-body text-blush-deep hover:underline">
+                        {task.customers.first_name} {task.customers.last_name}
+                      </a>
+                    )}
+                    {task.due_date && (
+                      <span class={`text-xs font-body ${task.due_date < today ? 'text-red-500' : 'text-taupe'}`}>
+                        {new Date(task.due_date).toLocaleDateString('nl-NL')}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+            {!pendingTasks?.length && <p class="text-sm font-body text-taupe-light italic">Geen openstaande taken.</p>}
+          </div>
+        </div>
+
+        <!-- Verwachte Leveringen -->
+        <div class="bg-white p-8 border border-champagne shadow-soft">
+          <div class="flex items-center justify-between mb-8 pb-4 border-b border-champagne">
+            <h2 class="font-display text-charcoal text-xl italic">Verwachte Leveringen</h2>
+            <a href="/admin/bestellingen" class="text-[10px] tracking-widest uppercase text-blush-deep hover:underline font-body">Alle bekijken</a>
+          </div>
+          <div class="space-y-4">
+            {upcomingOrders?.map((order) => {
+              const isOverdue = order.expected_delivery_date && order.expected_delivery_date < today;
+              return (
+                <div class="flex items-start justify-between">
+                  <div class="min-w-0">
+                    <p class="text-sm font-body font-medium text-charcoal truncate">{order.product_description}</p>
+                    <div class="flex items-center gap-2">
+                      {order.customers && (
+                        <a href={`/admin/klanten/${order.customers.id}`} class="text-xs font-body text-blush-deep hover:underline">
+                          {order.customers.first_name} {order.customers.last_name}
+                        </a>
+                      )}
+                      {order.suppliers && <span class="text-xs font-body text-taupe">· {order.suppliers.name}</span>}
+                    </div>
+                  </div>
+                  {order.expected_delivery_date && (
+                    <p class={`text-xs font-body shrink-0 ml-3 ${isOverdue ? 'text-red-500 font-medium' : 'text-taupe'}`}>
+                      {new Date(order.expected_delivery_date).toLocaleDateString('nl-NL')}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+            {!upcomingOrders?.length && <p class="text-sm font-body text-taupe-light italic">Geen verwachte leveringen.</p>}
+          </div>
+        </div>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">

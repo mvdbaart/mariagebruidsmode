@@ -1,0 +1,180 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getServiceRoleClient } from '../../../lib/serverAuth';
+
+const supabase = getServiceRoleClient();
+const { data: orders } = await supabase
+  .from('orders')
+  .select('*, customers(first_name, last_name), suppliers(name)')
+  .order('expected_delivery_date', { ascending: true, nullsFirst: false });
+
+const today = new Date().toISOString().slice(0, 10);
+
+const STATUS_LABELS: Record<string, string> = {
+  besteld: 'Besteld',
+  verwacht: 'Verwacht',
+  ontvangen: 'Ontvangen',
+  klaar: 'Klaar',
+};
+
+const STATUS_COLORS: Record<string, string> = {
+  besteld: 'bg-champagne text-charcoal',
+  verwacht: 'bg-taupe/20 text-charcoal',
+  ontvangen: 'bg-blush/20 text-charcoal',
+  klaar: 'bg-gold/20 text-charcoal',
+};
+---
+
+<Layout title="Bestellingen">
+  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+    <div class="container mx-auto px-6 max-w-6xl">
+      <nav class="mb-10 flex items-center gap-3 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">
+        <a href="/admin" class="hover:text-charcoal transition-colors">Dashboard</a>
+        <span class="text-champagne">›</span>
+        <span class="text-charcoal">Bestellingen</span>
+      </nav>
+
+      <div class="flex items-center justify-between mb-12">
+        <div>
+          <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">Beheer</p>
+          <h1 class="font-display font-normal text-charcoal text-4xl leading-tight">Bestellingen</h1>
+        </div>
+        <a href="/admin/bestellingen/new" class="btn-premium text-[10px]">Nieuwe bestelling</a>
+      </div>
+
+      <!-- Status filter -->
+      <div class="flex gap-2 mb-8" id="status-filters">
+        <button class="status-filter active text-[9px] tracking-widest uppercase font-body px-4 py-2 border border-charcoal bg-charcoal text-ivory transition-colors" data-status="all">Alle</button>
+        {Object.entries(STATUS_LABELS).map(([val, label]) => (
+          <button class="status-filter text-[9px] tracking-widest uppercase font-body px-4 py-2 border border-champagne text-taupe hover:border-charcoal hover:text-charcoal transition-colors" data-status={val}>{label}</button>
+        ))}
+      </div>
+
+      <div class="bg-white border border-champagne shadow-soft">
+        {orders && orders.length > 0 ? (
+          <table class="w-full" id="orders-table">
+            <thead>
+              <tr class="border-b border-champagne">
+                <th class="text-left text-[9px] tracking-[0.2em] uppercase text-taupe font-body p-4">Omschrijving</th>
+                <th class="text-left text-[9px] tracking-[0.2em] uppercase text-taupe font-body p-4 hidden md:table-cell">Klant</th>
+                <th class="text-left text-[9px] tracking-[0.2em] uppercase text-taupe font-body p-4 hidden md:table-cell">Leverancier</th>
+                <th class="text-left text-[9px] tracking-[0.2em] uppercase text-taupe font-body p-4 hidden lg:table-cell">Verwachte levering</th>
+                <th class="text-left text-[9px] tracking-[0.2em] uppercase text-taupe font-body p-4">Status</th>
+                <th class="p-4"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {orders.map(order => {
+                const isOverdue = order.expected_delivery_date && order.expected_delivery_date < today && !['ontvangen', 'klaar'].includes(order.status);
+                return (
+                  <tr class="border-b border-champagne last:border-0 hover:bg-linen/30 transition-colors order-row" data-status={order.status} data-id={order.id}>
+                    <td class="p-4">
+                      <p class={`text-sm font-body font-medium ${isOverdue ? 'text-red-600' : 'text-charcoal'}`}>{order.product_description}</p>
+                      {order.reference_number && <p class="text-xs font-body text-taupe">Ref: {order.reference_number}</p>}
+                    </td>
+                    <td class="p-4 hidden md:table-cell">
+                      {order.customers ? (
+                        <a href={`/admin/klanten/${order.customer_id}`} class="text-sm font-body text-blush-deep hover:underline">
+                          {order.customers.first_name} {order.customers.last_name}
+                        </a>
+                      ) : <span class="text-sm font-body text-taupe">—</span>}
+                    </td>
+                    <td class="p-4 hidden md:table-cell">
+                      <p class="text-sm font-body text-charcoal">{order.suppliers?.name ?? '—'}</p>
+                    </td>
+                    <td class="p-4 hidden lg:table-cell">
+                      {order.expected_delivery_date ? (
+                        <p class={`text-sm font-body ${isOverdue ? 'text-red-600 font-medium' : 'text-charcoal'}`}>
+                          {new Date(order.expected_delivery_date).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })}
+                          {isOverdue && <span class="ml-1 text-[9px] uppercase tracking-wider">Te laat</span>}
+                        </p>
+                      ) : <span class="text-sm font-body text-taupe">—</span>}
+                    </td>
+                    <td class="p-4">
+                      <select
+                        class="order-status-select text-[9px] uppercase tracking-wider font-body px-2 py-1 border border-champagne bg-white text-charcoal focus:outline-none focus:border-blush-deep"
+                        data-id={order.id}
+                        value={order.status}
+                      >
+                        {Object.entries(STATUS_LABELS).map(([val, label]) => (
+                          <option value={val} selected={order.status === val}>{label}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td class="p-4 text-right">
+                      <button class="delete-order text-[9px] uppercase tracking-wider font-body text-red-400 hover:text-red-600 transition-colors" data-id={order.id}>
+                        Verwijder
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        ) : (
+          <div class="p-12 text-center">
+            <p class="text-sm font-body text-taupe italic">Nog geen bestellingen aangemaakt.</p>
+            <a href="/admin/bestellingen/new" class="mt-4 inline-block btn-gold text-[10px]">Eerste bestelling toevoegen</a>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  // Status filter
+  const filterBtns = document.querySelectorAll('.status-filter');
+  const rows = document.querySelectorAll('.order-row');
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => {
+        b.classList.remove('active', 'bg-charcoal', 'text-ivory');
+        b.classList.add('border-champagne', 'text-taupe');
+      });
+      btn.classList.add('active', 'bg-charcoal', 'text-ivory');
+      btn.classList.remove('border-champagne', 'text-taupe');
+
+      const status = (btn as HTMLElement).dataset.status;
+      rows.forEach(row => {
+        const rowEl = row as HTMLElement;
+        if (status === 'all' || rowEl.dataset.status === status) {
+          rowEl.style.display = '';
+        } else {
+          rowEl.style.display = 'none';
+        }
+      });
+    });
+  });
+
+  // Status update
+  document.querySelectorAll('.order-status-select').forEach(sel => {
+    sel.addEventListener('change', async (e) => {
+      const id = (e.currentTarget as HTMLElement).dataset.id;
+      const status = (e.currentTarget as HTMLSelectElement).value;
+      await fetch(`/api/admin/orders/${id}`, {
+        method: 'PUT',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+      const row = document.querySelector(`.order-row[data-id="${id}"]`) as HTMLElement;
+      if (row) row.dataset.status = status;
+    });
+  });
+
+  // Delete
+  document.querySelectorAll('.delete-order').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const id = (e.currentTarget as HTMLElement).dataset.id;
+      if (!id || !confirm('Bestelling verwijderen?')) return;
+
+      const res = await fetch(`/api/admin/orders/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        window.location.reload();
+      } else {
+        alert('Verwijderen mislukt.');
+      }
+    });
+  });
+</script>
