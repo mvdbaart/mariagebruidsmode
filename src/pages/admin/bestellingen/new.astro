@@ -1,0 +1,130 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getServiceRoleClient } from '../../../lib/serverAuth';
+
+const supabase = getServiceRoleClient();
+
+const defaultCustomerId = Astro.url.searchParams.get('customer_id') ?? '';
+
+const [{ data: customers }, { data: suppliers }] = await Promise.all([
+  supabase.from('customers').select('id, first_name, last_name').order('last_name'),
+  supabase.from('suppliers').select('id, name').order('name'),
+]);
+---
+
+<Layout title="Nieuwe bestelling">
+  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+    <div class="container mx-auto px-6 max-w-3xl">
+      <nav class="mb-10 flex items-center gap-3 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">
+        <a href="/admin" class="hover:text-charcoal transition-colors">Dashboard</a>
+        <span class="text-champagne">›</span>
+        <a href="/admin/bestellingen" class="hover:text-charcoal transition-colors">Bestellingen</a>
+        <span class="text-champagne">›</span>
+        <span class="text-charcoal">Nieuw</span>
+      </nav>
+
+      <div class="mb-12">
+        <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">Toevoegen</p>
+        <h1 class="font-display font-normal text-charcoal text-4xl leading-tight">Nieuwe bestelling</h1>
+      </div>
+
+      <form id="order-form" class="bg-white border border-champagne p-8 shadow-soft space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="md:col-span-2">
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Omschrijving *</label>
+            <input type="text" name="product_description" required placeholder="Bijv. Pronovias Aurora maat 38, ivoor" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+          </div>
+          <div>
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Klant</label>
+            <select name="customer_id" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors">
+              <option value="">— Kies klant —</option>
+              {customers?.map(c => (
+                <option value={c.id} selected={c.id === defaultCustomerId}>
+                  {c.first_name} {c.last_name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Leverancier</label>
+            <select name="supplier_id" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors">
+              <option value="">— Kies leverancier —</option>
+              {suppliers?.map(s => (
+                <option value={s.id}>{s.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Referentienummer</label>
+            <input type="text" name="reference_number" placeholder="Bijv. PRO-2024-0042" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+          </div>
+          <div>
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Prijs (€)</label>
+            <input type="number" name="price" step="0.01" min="0" placeholder="2450.00" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+          </div>
+          <div>
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Besteldatum</label>
+            <input type="date" name="order_date" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+          </div>
+          <div>
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Verwachte levering</label>
+            <input type="date" name="expected_delivery_date" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+          </div>
+          <div>
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Status</label>
+            <select name="status" class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors">
+              <option value="besteld">Besteld</option>
+              <option value="verwacht">Verwacht</option>
+              <option value="ontvangen">Ontvangen</option>
+              <option value="klaar">Klaar</option>
+            </select>
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Notities</label>
+            <textarea name="notes" rows={3} class="w-full border border-champagne bg-transparent p-3 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors resize-none"></textarea>
+          </div>
+        </div>
+
+        <div id="form-error" class="hidden bg-red-50 border border-red-200 px-4 py-3 text-sm font-body text-red-700"></div>
+
+        <div class="flex gap-3">
+          <button type="submit" id="save-btn" class="btn-premium text-[10px]">Bestelling opslaan</button>
+          <a href="/admin/bestellingen" class="btn-gold text-[10px]">Annuleren</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</Layout>
+
+<script define:vars={{ defaultCustomerId }}>
+  const form = document.getElementById('order-form');
+  const saveBtn = document.getElementById('save-btn');
+  const errorEl = document.getElementById('form-error');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (errorEl) errorEl.classList.add('hidden');
+    if (saveBtn) { saveBtn.textContent = 'Opslaan...'; saveBtn.setAttribute('disabled', 'true'); }
+
+    const fd = new FormData(form);
+    const body = {};
+    fd.forEach((v, k) => { body[k] = v?.toString().trim() || null; });
+
+    const res = await fetch('/api/admin/orders', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+    if (saveBtn) { saveBtn.textContent = 'Bestelling opslaan'; saveBtn.removeAttribute('disabled'); }
+
+    if (res.ok) {
+      // Redirect back to customer or orders list
+      const customerId = body['customer_id'];
+      window.location.href = customerId ? `/admin/klanten/${customerId}` : '/admin/bestellingen';
+    } else {
+      const json = await res.json();
+      if (errorEl) { errorEl.textContent = json.error ?? 'Opslaan mislukt.'; errorEl.classList.remove('hidden'); }
+    }
+  });
+</script>

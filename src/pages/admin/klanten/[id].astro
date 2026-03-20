@@ -5,10 +5,14 @@ import { getServiceRoleClient } from '../../../lib/serverAuth';
 const { id } = Astro.params;
 const supabase = getServiceRoleClient();
 
-const [{ data: klant }, { data: appointments }, { data: products }] = await Promise.all([
+const [{ data: klant }, { data: appointments }, { data: products }, { data: payments }, { data: orders }, { data: tasks }, { data: suppliers }] = await Promise.all([
   supabase.from('customers').select('*').eq('id', id).single(),
   supabase.from('appointments').select('*').eq('customer_id', id).order('created_at', { ascending: false }),
   supabase.from('products').select('id, name, brand').order('name'),
+  supabase.from('payments').select('*').eq('customer_id', id).order('payment_date', { ascending: false }),
+  supabase.from('orders').select('*, suppliers(name)').eq('customer_id', id).order('created_at', { ascending: false }),
+  supabase.from('customer_tasks').select('*').eq('customer_id', id).order('due_date', { ascending: true, nullsFirst: false }),
+  supabase.from('suppliers').select('id, name').order('name'),
 ]);
 
 if (!klant) return Astro.redirect('/admin/klanten');
@@ -21,6 +25,17 @@ const ORDER_STATUS_LABELS: Record<string, string> = {
   ready: 'Klaar voor ophalen',
   collected: 'Opgehaald',
 };
+
+const ORDER_BESTELLING_STATUS: Record<string, string> = {
+  besteld: 'Besteld',
+  verwacht: 'Verwacht',
+  ontvangen: 'Ontvangen',
+  klaar: 'Klaar',
+};
+
+const totalPaid = (payments ?? []).reduce((sum, p) => sum + (p.amount ?? 0), 0);
+const priceNum = klant.price ? parseFloat(klant.price.replace(/[^0-9.,]/g, '').replace(',', '.')) : null;
+const outstanding = priceNum != null ? priceNum - totalPaid : null;
 ---
 
 <Layout title={`${klant.first_name} ${klant.last_name}`}>
@@ -156,6 +171,131 @@ const ORDER_STATUS_LABELS: Record<string, string> = {
 
             <button type="submit" id="save-btn" class="btn-premium text-[10px]">Opslaan</button>
           </form>
+
+          <!-- Betalingen -->
+          <section class="bg-white border border-champagne p-8 shadow-soft space-y-6">
+            <div class="flex items-center justify-between border-b border-champagne pb-4">
+              <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium">Betalingen</h2>
+              {priceNum != null && (
+                <div class="text-right">
+                  <p class="text-[9px] uppercase tracking-wider text-taupe font-body">Openstaand</p>
+                  <p class={`text-lg font-display ${outstanding !== null && outstanding > 0 ? 'text-red-600' : 'text-charcoal'}`}>
+                    € {outstanding !== null ? outstanding.toFixed(2) : '—'}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {payments && payments.length > 0 ? (
+              <table class="w-full" id="payments-table">
+                <thead>
+                  <tr class="border-b border-champagne">
+                    <th class="text-left text-[9px] tracking-wider uppercase text-taupe font-body pb-2">Datum</th>
+                    <th class="text-left text-[9px] tracking-wider uppercase text-taupe font-body pb-2">Type</th>
+                    <th class="text-left text-[9px] tracking-wider uppercase text-taupe font-body pb-2 hidden sm:table-cell">Methode</th>
+                    <th class="text-right text-[9px] tracking-wider uppercase text-taupe font-body pb-2">Bedrag</th>
+                    <th class="pb-2"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {payments.map(p => (
+                    <tr class="border-b border-champagne last:border-0 payment-row" data-id={p.id}>
+                      <td class="py-2 text-sm font-body text-charcoal">{new Date(p.payment_date).toLocaleDateString('nl-NL')}</td>
+                      <td class="py-2 text-sm font-body text-charcoal capitalize">{p.type}</td>
+                      <td class="py-2 text-sm font-body text-taupe hidden sm:table-cell">{p.method ?? '—'}</td>
+                      <td class="py-2 text-sm font-body text-charcoal text-right">€ {parseFloat(p.amount).toFixed(2)}</td>
+                      <td class="py-2 pl-4">
+                        <button class="delete-payment text-[9px] uppercase tracking-wider font-body text-red-400 hover:text-red-600" data-id={p.id}>×</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr class="border-t-2 border-champagne">
+                    <td colspan="3" class="pt-3 text-[9px] uppercase tracking-wider text-taupe font-body">Totaal betaald</td>
+                    <td class="pt-3 text-sm font-body font-medium text-charcoal text-right">€ {totalPaid.toFixed(2)}</td>
+                    <td></td>
+                  </tr>
+                </tfoot>
+              </table>
+            ) : (
+              <p class="text-sm font-body text-taupe italic">Nog geen betalingen geregistreerd.</p>
+            )}
+
+            <!-- Add payment form -->
+            <div class="border-t border-champagne pt-6">
+              <p class="text-[10px] uppercase tracking-[0.2em] text-taupe font-body mb-4">Betaling toevoegen</p>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-4 items-end">
+                <div>
+                  <label class="block text-[9px] tracking-wider uppercase text-taupe font-body mb-1">Type *</label>
+                  <select id="pay-type" class="w-full border-0 border-b border-champagne bg-transparent py-1.5 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep">
+                    <option value="aanbetaling">Aanbetaling</option>
+                    <option value="termijn">Termijn</option>
+                    <option value="restbedrag">Restbedrag</option>
+                    <option value="overig">Overig</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[9px] tracking-wider uppercase text-taupe font-body mb-1">Bedrag (€) *</label>
+                  <input id="pay-amount" type="number" step="0.01" min="0" placeholder="250.00" class="w-full border-0 border-b border-champagne bg-transparent py-1.5 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep" />
+                </div>
+                <div>
+                  <label class="block text-[9px] tracking-wider uppercase text-taupe font-body mb-1">Methode</label>
+                  <select id="pay-method" class="w-full border-0 border-b border-champagne bg-transparent py-1.5 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep">
+                    <option value="">— kies —</option>
+                    <option value="contant">Contant</option>
+                    <option value="pin">Pin</option>
+                    <option value="overboeking">Overboeking</option>
+                    <option value="overig">Overig</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[9px] tracking-wider uppercase text-taupe font-body mb-1">Datum</label>
+                  <input id="pay-date" type="date" class="w-full border-0 border-b border-champagne bg-transparent py-1.5 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep" />
+                </div>
+              </div>
+              <div id="pay-error" class="hidden mt-3 text-sm font-body text-red-600"></div>
+              <button id="pay-save" class="mt-4 btn-blush text-[10px]">Betaling registreren</button>
+            </div>
+          </section>
+
+          <!-- Bestellingen -->
+          <section class="bg-white border border-champagne p-8 shadow-soft space-y-6">
+            <div class="flex items-center justify-between border-b border-champagne pb-4">
+              <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium">Bestellingen</h2>
+              <a href={`/admin/bestellingen/new?customer_id=${klant.id}`} class="text-[9px] uppercase tracking-wider font-body text-blush-deep hover:underline">+ Nieuwe bestelling</a>
+            </div>
+
+            {orders && orders.length > 0 ? (
+              <div class="space-y-3">
+                {orders.map(o => (
+                  <div class="flex items-start justify-between border-b border-champagne last:border-0 pb-3 last:pb-0 order-item" data-id={o.id}>
+                    <div class="min-w-0 flex-1">
+                      <p class="text-sm font-body font-medium text-charcoal">{o.product_description}</p>
+                      <p class="text-xs font-body text-taupe">{o.suppliers?.name ?? 'Onbekende leverancier'}{o.reference_number ? ` · Ref: ${o.reference_number}` : ''}</p>
+                      {o.expected_delivery_date && (
+                        <p class="text-xs font-body text-taupe">Verwacht: {new Date(o.expected_delivery_date).toLocaleDateString('nl-NL')}</p>
+                      )}
+                    </div>
+                    <div class="ml-4 flex items-center gap-3 shrink-0">
+                      <select
+                        class="order-status-change text-[9px] uppercase tracking-wider font-body px-2 py-1 border border-champagne bg-white text-charcoal focus:outline-none focus:border-blush-deep"
+                        data-id={o.id}
+                      >
+                        {Object.entries(ORDER_BESTELLING_STATUS).map(([val, label]) => (
+                          <option value={val} selected={o.status === val}>{label}</option>
+                        ))}
+                      </select>
+                      <button class="delete-order text-[9px] uppercase tracking-wider font-body text-red-400 hover:text-red-600" data-id={o.id}>×</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p class="text-sm font-body text-taupe italic">Geen bestellingen voor deze klant.</p>
+            )}
+          </section>
+
         </div>
 
         <!-- Right: sidebar -->
@@ -207,6 +347,35 @@ const ORDER_STATUS_LABELS: Record<string, string> = {
               <p class="text-xs font-body text-taupe italic">Geen afspraken gevonden.</p>
             )}
           </div>
+
+          <!-- Taken -->
+          <div class="bg-white border border-champagne p-6 shadow-soft">
+            <h3 class="text-[10px] uppercase tracking-[0.2em] text-taupe font-body border-b border-champagne pb-3 mb-4">Taken</h3>
+            <div id="tasks-list" class="space-y-2 mb-4">
+              {tasks && tasks.map(t => (
+                <div class={`flex items-start gap-2 task-item ${t.completed_at ? 'opacity-50' : ''}`} data-id={t.id}>
+                  <input
+                    type="checkbox"
+                    checked={!!t.completed_at}
+                    class="task-checkbox mt-0.5 accent-blush shrink-0"
+                    data-id={t.id}
+                  />
+                  <div class="flex-1 min-w-0">
+                    <p class={`text-sm font-body text-charcoal ${t.completed_at ? 'line-through text-taupe' : ''}`}>{t.title}</p>
+                    {t.due_date && <p class="text-[10px] font-body text-taupe">{new Date(t.due_date).toLocaleDateString('nl-NL')}</p>}
+                  </div>
+                  <button class="delete-task text-[9px] text-red-300 hover:text-red-500 shrink-0" data-id={t.id}>×</button>
+                </div>
+              ))}
+              {(!tasks || tasks.length === 0) && (
+                <p class="text-xs font-body text-taupe italic">Geen taken.</p>
+              )}
+            </div>
+            <div class="flex gap-2">
+              <input id="task-title" type="text" placeholder="Nieuwe taak..." class="flex-1 border-0 border-b border-champagne bg-transparent py-1 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep" />
+              <button id="task-add" class="text-[9px] uppercase tracking-wider font-body text-blush-deep hover:underline shrink-0">Toevoegen</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -254,7 +423,7 @@ const ORDER_STATUS_LABELS: Record<string, string> = {
     }
   });
 
-  // Delete
+  // Delete customer
   const deleteBtn = document.getElementById('delete-btn');
   const deleteDialog = document.getElementById('delete-dialog');
   const confirmDelete = document.getElementById('confirm-delete');
@@ -267,6 +436,115 @@ const ORDER_STATUS_LABELS: Record<string, string> = {
     const res = await fetch(`/api/admin/customers/${customerId}`, { method: 'DELETE' });
     if (res.ok) window.location.href = '/admin/klanten';
     else alert('Verwijderen mislukt.');
+  });
+
+  // Payments
+  const paySave = document.getElementById('pay-save');
+  const payError = document.getElementById('pay-error');
+
+  paySave?.addEventListener('click', async () => {
+    const amount = (document.getElementById('pay-amount') as HTMLInputElement)?.value?.trim();
+    const type = (document.getElementById('pay-type') as HTMLSelectElement)?.value;
+    if (!amount || isNaN(parseFloat(amount))) {
+      if (payError) { payError.textContent = 'Vul een geldig bedrag in.'; payError.classList.remove('hidden'); }
+      return;
+    }
+    if (payError) payError.classList.add('hidden');
+
+    const res = await fetch('/api/admin/payments', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        customer_id: customerId,
+        amount: parseFloat(amount),
+        type,
+        method: (document.getElementById('pay-method') as HTMLSelectElement)?.value || null,
+        payment_date: (document.getElementById('pay-date') as HTMLInputElement)?.value || null,
+      }),
+    });
+
+    if (res.ok) {
+      window.location.reload();
+    } else {
+      const json = await res.json();
+      if (payError) { payError.textContent = json.error ?? 'Opslaan mislukt.'; payError.classList.remove('hidden'); }
+    }
+  });
+
+  document.querySelectorAll('.delete-payment').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const id = (e.currentTarget as HTMLElement).dataset.id;
+      if (!id) return;
+      const res = await fetch(`/api/admin/payments/${id}`, { method: 'DELETE' });
+      if (res.ok) window.location.reload();
+      else alert('Verwijderen mislukt.');
+    });
+  });
+
+  // Orders status change
+  document.querySelectorAll('.order-status-change').forEach(sel => {
+    sel.addEventListener('change', async (e) => {
+      const id = (e.currentTarget as HTMLElement).dataset.id;
+      const status = (e.currentTarget as HTMLSelectElement).value;
+      await fetch(`/api/admin/orders/${id}`, {
+        method: 'PUT',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+    });
+  });
+
+  document.querySelectorAll('.delete-order').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const id = (e.currentTarget as HTMLElement).dataset.id;
+      if (!id || !confirm('Bestelling verwijderen?')) return;
+      const res = await fetch(`/api/admin/orders/${id}`, { method: 'DELETE' });
+      if (res.ok) window.location.reload();
+      else alert('Verwijderen mislukt.');
+    });
+  });
+
+  // Tasks
+  document.querySelectorAll('.task-checkbox').forEach(cb => {
+    cb.addEventListener('change', async (e) => {
+      const id = (e.currentTarget as HTMLElement).dataset.id;
+      const completed = (e.currentTarget as HTMLInputElement).checked;
+      await fetch(`/api/admin/tasks/${id}`, {
+        method: 'PUT',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ completed }),
+      });
+      window.location.reload();
+    });
+  });
+
+  document.querySelectorAll('.delete-task').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const id = (e.currentTarget as HTMLElement).dataset.id;
+      if (!id) return;
+      const res = await fetch(`/api/admin/tasks/${id}`, { method: 'DELETE' });
+      if (res.ok) window.location.reload();
+      else alert('Verwijderen mislukt.');
+    });
+  });
+
+  const taskAdd = document.getElementById('task-add');
+  const taskTitle = document.getElementById('task-title') as HTMLInputElement;
+  taskAdd?.addEventListener('click', async () => {
+    const title = taskTitle?.value?.trim();
+    if (!title) return;
+
+    const res = await fetch('/api/admin/tasks', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ customer_id: customerId, title }),
+    });
+    if (res.ok) window.location.reload();
+    else alert('Taak toevoegen mislukt.');
+  });
+
+  taskTitle?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') taskAdd?.click();
   });
 </script>
 
