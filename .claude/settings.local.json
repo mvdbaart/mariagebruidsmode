@@ -3,7 +3,18 @@
     "allow": [
       "Bash(cd \"C:\\\\Users\\\\Maarten\\\\Documents\\\\vms\\\\mariagebruidsmode.nl\" && npm run build 2>&1)",
       "Bash(cd \"C:\\\\Users\\\\Maarten\\\\Documents\\\\vms\\\\mariagebruidsmode.nl\" && node --version && npm --version)",
-      "Bash(curl -s http://localhost:4321/trouwjurken/test-slug 2>&1 | head -5\ncurl -s http://localhost:4321/blog 2>&1 | head -5\ncurl -s http://localhost:4321/inspiratie 2>&1 | head -5)"
+      "Bash(curl -s http://localhost:4321/trouwjurken/test-slug 2>&1 | head -5\ncurl -s http://localhost:4321/blog 2>&1 | head -5\ncurl -s http://localhost:4321/inspiratie 2>&1 | head -5)",
+      "Bash(find src:*)",
+      "Bash(cd:*)",
+      "Bash(npm run:*)",
+      "Bash(npx supabase:*)",
+      "Bash(node scripts/setup_buckets.js)",
+      "Bash(ls:*)",
+      "WebFetch(domain:www.mariagebruidsmode.nl)",
+      "Bash(grep:*)",
+      "Bash(find /c/Users/Maarten/Documents/vms/mariagebruidsmode.nl -name *employee* -o -name *shift* -o -name *planner*)",
+      "Skill(update-config)",
+      "Skill(supabase)"
     ]
   }
 }

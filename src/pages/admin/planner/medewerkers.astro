@@ -1,6 +1,22 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
-import { getAdminAuthFromCookies, getServiceRoleClient } from '../../../lib/serverAuth';
+import { getAdminAuthFromCookies, getServiceRoleClient, getUserRole } from '../../../lib/serverAuth';
+
+const adminAuth = await getAdminAuthFromCookies(Astro.cookies);
+if (!adminAuth) {
+  return Astro.redirect('/admin/login');
+}
+
+const { user } = adminAuth;
+const userRole = await getUserRole(user.id);
+const adminEmails = (import.meta.env.ADMIN_EMAILS ?? '').split(',').map((e: string) => e.trim().toLowerCase());
+const canSeeRate = adminEmails.includes(user.email?.toLowerCase() ?? '') || userRole === 'admin';
+
+const supabase = getServiceRoleClient();
+const { data: employees } = await supabase
+  .from('employees')
+  .select('*')
+  .order('first_name', { ascending: true });
 
 interface Employee {
   id: string;
@@ -8,20 +24,12 @@ interface Employee {
   last_name: string;
   role?: string;
   email?: string;
+  bio?: string;
+  profile_photo_url?: string;
   contract_hours: number;
+  hourly_rate?: number;
   is_active: boolean;
 }
-
-const adminAuth = await getAdminAuthFromCookies(Astro.cookies);
-if (!adminAuth) {
-  return Astro.redirect('/admin/login');
-}
-
-const supabase = getServiceRoleClient();
-const { data: employees, error } = await supabase
-  .from('employees')
-  .select('*')
-  .order('first_name', { ascending: true });
 ---
 
 <Layout title="Medewerkers - Admin">
@@ -41,43 +49,69 @@ const { data: employees, error } = await supabase
       </div>
 
       <div class="flex gap-8 mb-12 border-b border-accent/10">
-          <a href="/admin/planner/medewerkers" class="pb-4 text-[10px] uppercase tracking-widest font-bold border-b-2 border-secondary text-secondary">Medewerkers</a>
-          <a href="/admin/planner/kalender" class="pb-4 text-[10px] uppercase tracking-widest text-accent/40 hover:text-accent transition-colors">Weekrooster</a>
-          <a href="/admin/planner/uren" class="pb-4 text-[10px] uppercase tracking-widest text-accent/40 hover:text-accent transition-colors">Urenregistratie</a>
-          <a href="/admin/planner/verlof" class="pb-4 text-[10px] uppercase tracking-widest text-accent/40 hover:text-accent transition-colors">Verlof & Ziekte</a>
+        <a href="/admin/planner/medewerkers" class="pb-4 text-[10px] uppercase tracking-widest font-bold border-b-2 border-secondary text-secondary">Medewerkers</a>
+        <a href="/admin/planner/kalender" class="pb-4 text-[10px] uppercase tracking-widest text-accent/40 hover:text-accent transition-colors">Weekrooster</a>
+        <a href="/admin/planner/uren" class="pb-4 text-[10px] uppercase tracking-widest text-accent/40 hover:text-accent transition-colors">Urenregistratie</a>
+        <a href="/admin/planner/verlof" class="pb-4 text-[10px] uppercase tracking-widest text-accent/40 hover:text-accent transition-colors">Verlof & Ziekte</a>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {employees?.map((emp: Employee) => (
+        {(employees as Employee[] | null)?.map((emp) => (
           <div class="bg-white/50 backdrop-blur-sm border border-accent/10 p-6 rounded-lg shadow-sm hover:shadow-md transition-all group">
             <div class="flex justify-between items-start mb-4">
-              <div>
-                <h3 class="text-lg font-serif text-accent">{emp.first_name} {emp.last_name}</h3>
-                <p class="text-[10px] uppercase tracking-widest text-secondary font-medium">{emp.role || 'Gén functie'}</p>
+              <div class="flex items-center gap-3">
+                <!-- Avatar -->
+                <div class="w-12 h-12 rounded-full overflow-hidden bg-accent/10 flex items-center justify-center flex-shrink-0">
+                  {emp.profile_photo_url
+                    ? <img src={emp.profile_photo_url} alt={`${emp.first_name} ${emp.last_name}`} class="w-full h-full object-cover" />
+                    : <span class="text-sm font-serif text-accent/60">{emp.first_name.charAt(0)}{emp.last_name.charAt(0)}</span>
+                  }
+                </div>
+                <div>
+                  <h3 class="text-lg font-serif text-accent leading-tight">{emp.first_name} {emp.last_name}</h3>
+                  <p class="text-[10px] uppercase tracking-widest text-secondary font-medium">{emp.role || 'Geen functie'}</p>
+                </div>
               </div>
-              <span class={`w-2 h-2 rounded-full ${emp.is_active ? 'bg-green-400' : 'bg-red-400'}`}></span>
+              <span class={`w-2 h-2 rounded-full flex-shrink-0 mt-1 ${emp.is_active ? 'bg-green-400' : 'bg-red-400'}`}></span>
             </div>
-            
+
+            {emp.bio && (
+              <p class="text-xs text-accent/60 mb-4 line-clamp-2 italic">{emp.bio}</p>
+            )}
+
             <div class="space-y-2 mb-6">
               <div class="flex items-center gap-2 text-xs text-accent/60">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                 {emp.email || 'Geen e-mail'}
               </div>
               <div class="flex items-center gap-2 text-xs text-accent/60">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 {emp.contract_hours} uur p/w
               </div>
+              {canSeeRate && emp.hourly_rate != null && (
+                <div class="flex items-center gap-2 text-xs text-accent/60">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  €{Number(emp.hourly_rate).toFixed(2)} p/u
+                </div>
+              )}
             </div>
 
             <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button class="flex-1 py-1.5 border border-accent/10 text-[10px] uppercase tracking-widest text-accent hover:bg-accent hover:text-white transition-all rounded">Beherr</button>
-              <button class="flex-1 py-1.5 border border-secondary/20 text-[10px] uppercase tracking-widest text-secondary hover:bg-secondary hover:text-white transition-all rounded">Planning</button>
+              <button
+                class="flex-1 py-1.5 border border-accent/10 text-[10px] uppercase tracking-widest text-accent hover:bg-accent hover:text-white transition-all rounded edit-btn"
+                data-employee={JSON.stringify(emp)}
+              >Bewerken</button>
+              <button
+                class="py-1.5 px-3 border border-red-200 text-[10px] uppercase tracking-widest text-red-400 hover:bg-red-400 hover:text-white transition-all rounded delete-btn"
+                data-id={emp.id}
+                data-name={`${emp.first_name} ${emp.last_name}`}
+              >✕</button>
             </div>
           </div>
         ))}
       </div>
 
-      {employees?.length === 0 && (
+      {(!employees || employees.length === 0) && (
         <div class="text-center py-20 bg-white/30 rounded-lg border border-dashed border-accent/20">
           <p class="text-accent/60 font-serif italic">Nog geen medewerkers toegevoegd.</p>
         </div>
@@ -86,16 +120,16 @@ const { data: employees, error } = await supabase
 
     <!-- Add Employee Modal -->
     <div id="add-modal" class="fixed inset-0 bg-accent/40 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-      <div class="bg-primary w-full max-w-md p-8 rounded-lg shadow-xl border border-accent/10">
+      <div class="bg-primary w-full max-w-lg p-8 rounded-lg shadow-xl border border-accent/10 max-h-[90vh] overflow-y-auto">
         <h2 class="text-2xl font-serif text-accent mb-6">Nieuwe Medewerker</h2>
         <form id="add-employee-form" class="space-y-4">
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Voornaam</label>
+              <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Voornaam *</label>
               <input type="text" name="first_name" required class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
             </div>
             <div>
-              <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Achternaam</label>
+              <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Achternaam *</label>
               <input type="text" name="last_name" required class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
             </div>
           </div>
@@ -108,12 +142,93 @@ const { data: employees, error } = await supabase
             <input type="text" name="role" placeholder="bijv. Verkoopadviseur" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
           </div>
           <div>
-            <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Contracturen per week</label>
-            <input type="number" name="contract_hours" value="40" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
+            <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Bio</label>
+            <textarea name="bio" rows="3" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none resize-none" placeholder="Korte beschrijving..."></textarea>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Contracturen p/w</label>
+              <input type="number" name="contract_hours" value="40" step="0.5" min="0" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
+            </div>
+            {canSeeRate && (
+              <div>
+                <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Uurtarief (€)</label>
+                <input type="number" name="hourly_rate" step="0.01" min="0" placeholder="0.00" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
+              </div>
+            )}
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="checkbox" name="is_active" id="add-is-active" checked class="accent-secondary" />
+            <label for="add-is-active" class="text-[10px] uppercase tracking-widest text-accent/60">Actief</label>
           </div>
           <div class="flex gap-4 mt-8">
-            <button type="button" id="close-modal" class="flex-1 py-3 text-[10px] uppercase tracking-widest text-accent/60 hover:text-accent transition-colors">Annuleren</button>
-            <button type="submit" class="flex-2 bg-accent text-white px-8 py-3 text-[10px] uppercase tracking-widest hover:bg-secondary transition-all rounded">Opslaan</button>
+            <button type="button" id="close-add-modal" class="flex-1 py-3 text-[10px] uppercase tracking-widest text-accent/60 hover:text-accent transition-colors">Annuleren</button>
+            <button type="submit" class="flex-1 bg-accent text-white px-8 py-3 text-[10px] uppercase tracking-widest hover:bg-secondary transition-all rounded">Opslaan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Edit Employee Modal -->
+    <div id="edit-modal" class="fixed inset-0 bg-accent/40 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+      <div class="bg-primary w-full max-w-lg p-8 rounded-lg shadow-xl border border-accent/10 max-h-[90vh] overflow-y-auto">
+        <h2 class="text-2xl font-serif text-accent mb-6">Medewerker Bewerken</h2>
+
+        <!-- Photo section -->
+        <div class="mb-6 flex items-center gap-4">
+          <div id="edit-avatar" class="w-16 h-16 rounded-full overflow-hidden bg-accent/10 flex items-center justify-center flex-shrink-0">
+            <span id="edit-avatar-initials" class="text-base font-serif text-accent/60"></span>
+          </div>
+          <div class="flex-1">
+            <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Profielfoto</label>
+            <input type="file" id="edit-photo-input" accept="image/jpeg,image/png,image/webp,image/avif" class="w-full text-xs text-accent/60 file:mr-3 file:py-1 file:px-3 file:border file:border-accent/10 file:text-[9px] file:uppercase file:tracking-widest file:bg-white file:text-accent hover:file:bg-accent/5 transition-all" />
+            <button type="button" id="edit-photo-delete" class="mt-1 text-[9px] uppercase tracking-widest text-red-400 hover:text-red-600 transition-colors hidden">Foto verwijderen</button>
+          </div>
+        </div>
+
+        <form id="edit-employee-form" class="space-y-4">
+          <input type="hidden" id="edit-id" name="id" />
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Voornaam *</label>
+              <input type="text" id="edit-first-name" name="first_name" required class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
+            </div>
+            <div>
+              <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Achternaam *</label>
+              <input type="text" id="edit-last-name" name="last_name" required class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">E-mail</label>
+            <input type="email" id="edit-email" name="email" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Rol / Functie</label>
+            <input type="text" id="edit-role" name="role" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Bio</label>
+            <textarea id="edit-bio" name="bio" rows="3" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none resize-none"></textarea>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Contracturen p/w</label>
+              <input type="number" id="edit-contract-hours" name="contract_hours" step="0.5" min="0" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
+            </div>
+            {canSeeRate && (
+              <div id="hourly-rate-field">
+                <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Uurtarief (€)</label>
+                <input type="number" id="edit-hourly-rate" name="hourly_rate" step="0.01" min="0" placeholder="0.00" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
+              </div>
+            )}
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="checkbox" id="edit-is-active" name="is_active" class="accent-secondary" />
+            <label for="edit-is-active" class="text-[10px] uppercase tracking-widest text-accent/60">Actief</label>
+          </div>
+          <div class="flex gap-4 mt-8">
+            <button type="button" id="close-edit-modal" class="flex-1 py-3 text-[10px] uppercase tracking-widest text-accent/60 hover:text-accent transition-colors">Annuleren</button>
+            <button type="submit" class="flex-1 bg-accent text-white px-8 py-3 text-[10px] uppercase tracking-widest hover:bg-secondary transition-all rounded">Opslaan</button>
           </div>
         </form>
       </div>
@@ -121,35 +236,170 @@ const { data: employees, error } = await supabase
   </main>
 </Layout>
 
-<script>
-  const modal = document.getElementById('add-modal');
-  const addBtn = document.getElementById('add-employee-btn');
-  const closeBtn = document.getElementById('close-modal');
-  const form = document.getElementById('add-employee-form') as HTMLFormElement;
+<script define:vars={{ canSeeRate }}>
+  // ─── Add modal ───────────────────────────────────────────────
+  const addModal = document.getElementById('add-modal');
+  document.getElementById('add-employee-btn')?.addEventListener('click', () => addModal?.classList.remove('hidden'));
+  document.getElementById('close-add-modal')?.addEventListener('click', () => addModal?.classList.add('hidden'));
 
-  addBtn?.addEventListener('click', () => modal?.classList.remove('hidden'));
-  closeBtn?.addEventListener('click', () => modal?.classList.add('hidden'));
-
-  form?.addEventListener('submit', async (e) => {
+  document.getElementById('add-employee-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
+    const form = e.target;
     const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
+    const data = {
+      first_name: formData.get('first_name'),
+      last_name: formData.get('last_name'),
+      email: formData.get('email') || null,
+      role: formData.get('role') || null,
+      bio: formData.get('bio') || null,
+      contract_hours: Number(formData.get('contract_hours')) || 0,
+      hourly_rate: formData.get('hourly_rate') ? Number(formData.get('hourly_rate')) : null,
+      is_active: formData.get('is_active') === 'on',
+    };
 
     try {
       const resp = await fetch('/api/admin/employees', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       });
-
       if (resp.ok) {
         window.location.reload();
       } else {
         const err = await resp.json();
         alert('Fout: ' + err.error);
       }
-    } catch (err) {
+    } catch {
       alert('Er is een fout opgetreden.');
     }
+  });
+
+  // ─── Edit modal ───────────────────────────────────────────────
+  const editModal = document.getElementById('edit-modal');
+  let currentEditId = null;
+
+  function openEditModal(emp) {
+    currentEditId = emp.id;
+    document.getElementById('edit-id').value = emp.id;
+    document.getElementById('edit-first-name').value = emp.first_name || '';
+    document.getElementById('edit-last-name').value = emp.last_name || '';
+    document.getElementById('edit-email').value = emp.email || '';
+    document.getElementById('edit-role').value = emp.role || '';
+    document.getElementById('edit-bio').value = emp.bio || '';
+    document.getElementById('edit-contract-hours').value = emp.contract_hours ?? 0;
+    document.getElementById('edit-is-active').checked = emp.is_active !== false;
+
+    if (canSeeRate) {
+      const rateInput = document.getElementById('edit-hourly-rate');
+      if (rateInput) rateInput.value = emp.hourly_rate ?? '';
+    }
+
+    // Avatar
+    const avatarEl = document.getElementById('edit-avatar');
+    const initialsEl = document.getElementById('edit-avatar-initials');
+    const deletePhotoBtn = document.getElementById('edit-photo-delete');
+
+    if (emp.profile_photo_url) {
+      avatarEl.innerHTML = `<img src="${emp.profile_photo_url}" alt="" class="w-full h-full object-cover" />`;
+      deletePhotoBtn?.classList.remove('hidden');
+    } else {
+      avatarEl.innerHTML = `<span id="edit-avatar-initials" class="text-base font-serif text-accent/60">${(emp.first_name || '').charAt(0)}${(emp.last_name || '').charAt(0)}</span>`;
+      deletePhotoBtn?.classList.add('hidden');
+    }
+
+    editModal?.classList.remove('hidden');
+  }
+
+  document.getElementById('close-edit-modal')?.addEventListener('click', () => editModal?.classList.add('hidden'));
+
+  document.querySelectorAll('.edit-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const emp = JSON.parse(btn.getAttribute('data-employee') || '{}');
+      openEditModal(emp);
+    });
+  });
+
+  document.getElementById('edit-employee-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!currentEditId) return;
+    const form = e.target;
+    const formData = new FormData(form);
+
+    const data = {
+      first_name: formData.get('first_name'),
+      last_name: formData.get('last_name'),
+      email: formData.get('email') || null,
+      role: formData.get('role') || null,
+      bio: formData.get('bio') || null,
+      contract_hours: Number(formData.get('contract_hours')) || 0,
+      hourly_rate: formData.get('hourly_rate') ? Number(formData.get('hourly_rate')) : null,
+      is_active: formData.get('is_active') === 'on',
+    };
+
+    try {
+      const resp = await fetch(`/api/admin/employees/${currentEditId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (resp.ok) {
+        // Upload photo if selected
+        const photoInput = document.getElementById('edit-photo-input');
+        if (photoInput?.files?.length > 0) {
+          const photoForm = new FormData();
+          photoForm.append('photo', photoInput.files[0]);
+          await fetch(`/api/admin/employees/${currentEditId}/photo`, {
+            method: 'POST',
+            body: photoForm,
+          });
+        }
+        window.location.reload();
+      } else {
+        const err = await resp.json();
+        alert('Fout: ' + err.error);
+      }
+    } catch {
+      alert('Er is een fout opgetreden.');
+    }
+  });
+
+  // Photo delete
+  document.getElementById('edit-photo-delete')?.addEventListener('click', async () => {
+    if (!currentEditId) return;
+    if (!confirm('Profielfoto verwijderen?')) return;
+    try {
+      const resp = await fetch(`/api/admin/employees/${currentEditId}/photo`, { method: 'DELETE' });
+      if (resp.ok) window.location.reload();
+      else alert('Kon foto niet verwijderen.');
+    } catch {
+      alert('Er is een fout opgetreden.');
+    }
+  });
+
+  // ─── Delete ───────────────────────────────────────────────────
+  document.querySelectorAll('.delete-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const id = btn.getAttribute('data-id');
+      const name = btn.getAttribute('data-name');
+      if (!confirm(`Medewerker "${name}" verwijderen? Dit kan niet ongedaan worden gemaakt.`)) return;
+      try {
+        const resp = await fetch(`/api/admin/employees/${id}`, { method: 'DELETE' });
+        if (resp.ok) {
+          window.location.reload();
+        } else {
+          const err = await resp.json();
+          alert('Fout: ' + err.error);
+        }
+      } catch {
+        alert('Er is een fout opgetreden.');
+      }
+    });
+  });
+
+  // Close modals on backdrop click
+  [addModal, editModal].forEach((modal) => {
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) modal.classList.add('hidden');
+    });
   });
 </script>
