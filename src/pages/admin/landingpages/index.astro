@@ -1,0 +1,131 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getAdminAuthFromCookies, getServiceRoleClient } from '../../../lib/serverAuth';
+
+const auth = await getAdminAuthFromCookies(Astro.cookies);
+if (!auth) return Astro.redirect('/login');
+
+const supabase = getServiceRoleClient();
+
+const { data: pages } = await supabase
+  .from('landing_pages')
+  .select('*, landing_page_variants(id)')
+  .order('created_at', { ascending: false });
+
+const statusLabel: Record<string, string> = {
+  draft: 'Concept',
+  active: 'Actief',
+  paused: 'Gepauzeerd',
+  completed: 'Voltooid',
+};
+const statusColor: Record<string, string> = {
+  draft: 'bg-champagne text-taupe',
+  active: 'bg-green-100 text-green-800',
+  paused: 'bg-yellow-100 text-yellow-800',
+  completed: 'bg-blue-100 text-blue-800',
+};
+---
+
+<Layout title="Landingspagina's">
+  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+    <div class="container mx-auto px-6">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-10">
+        <div>
+          <a href="/admin" class="text-[10px] tracking-[0.2em] uppercase text-taupe hover:text-blush-deep transition-colors mb-2 inline-block">
+            ← Terug naar dashboard
+          </a>
+          <h1 class="font-display font-normal text-charcoal text-4xl italic">Landingspagina's <span class="text-blush-deep opacity-60">A/B Tests</span></h1>
+        </div>
+        <a href="/admin/landingpages/new" class="btn-premium">
+          + Nieuwe test
+        </a>
+      </div>
+
+      <!-- Table -->
+      {(!pages || pages.length === 0) ? (
+        <div class="bg-white border border-champagne p-16 text-center shadow-soft">
+          <p class="font-display text-2xl text-charcoal mb-4 italic">Nog geen landingspagina's</p>
+          <p class="font-body text-taupe text-sm mb-8">Maak je eerste A/B test aan om te beginnen met testen.</p>
+          <a href="/admin/landingpages/new" class="btn-premium">Eerste test aanmaken</a>
+        </div>
+      ) : (
+        <div class="bg-white border border-champagne shadow-soft overflow-hidden">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-champagne bg-cream">
+                <th class="text-left px-6 py-4 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">Naam</th>
+                <th class="text-left px-6 py-4 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">Slug</th>
+                <th class="text-left px-6 py-4 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">Status</th>
+                <th class="text-left px-6 py-4 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">Varianten</th>
+                <th class="text-right px-6 py-4 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">Acties</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pages.map((page: any) => (
+                <tr class="border-b border-champagne/50 hover:bg-cream/50 transition-colors">
+                  <td class="px-6 py-4">
+                    <p class="font-body text-charcoal font-medium">{page.name}</p>
+                  </td>
+                  <td class="px-6 py-4">
+                    <code class="text-xs text-taupe bg-cream px-2 py-1">/lp/{page.slug}</code>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class={`text-[10px] tracking-[0.15em] uppercase px-3 py-1 font-body ${statusColor[page.status] || statusColor.draft}`}>
+                      {statusLabel[page.status] || page.status}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="font-body text-taupe text-sm">{page.landing_page_variants?.length || 0} varianten</span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center justify-end gap-3">
+                      <a
+                        href={`/lp/${page.slug}?preview=1`}
+                        target="_blank"
+                        class="text-[10px] tracking-[0.15em] uppercase text-taupe hover:text-gold transition-colors"
+                      >
+                        Bekijk
+                      </a>
+                      <a
+                        href={`/admin/landingpages/${page.id}/edit`}
+                        class="text-[10px] tracking-[0.15em] uppercase text-blush-deep hover:text-charcoal transition-colors"
+                      >
+                        Bewerken
+                      </a>
+                      <button
+                        class="text-[10px] tracking-[0.15em] uppercase text-taupe hover:text-red-600 transition-colors delete-btn"
+                        data-id={page.id}
+                        data-name={page.name}
+                      >
+                        Verwijder
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  </div>
+</Layout>
+
+<script>
+  document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const el = e.currentTarget as HTMLButtonElement;
+      const name = el.dataset.name;
+      if (!confirm(`Weet je zeker dat je "${name}" wilt verwijderen? Dit verwijdert ook alle varianten en statistieken.`)) return;
+
+      const res = await fetch(`/api/admin/landing-pages/${el.dataset.id}`, { method: 'DELETE' });
+      if (res.ok) {
+        window.location.reload();
+      } else {
+        alert('Verwijderen mislukt.');
+      }
+    });
+  });
+</script>

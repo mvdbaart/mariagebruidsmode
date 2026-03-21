@@ -1,0 +1,291 @@
+---
+import LandingPageLayout from '../../layouts/LandingPageLayout.astro';
+import { getServiceRoleClient } from '../../lib/serverAuth';
+
+const { slug } = Astro.params;
+const supabase = getServiceRoleClient();
+
+// Load landing page + all variants
+const { data: page } = await supabase
+  .from('landing_pages')
+  .select('*, landing_page_variants(*)')
+  .eq('slug', slug)
+  .single();
+
+// Only serve active pages (or preview with ?preview=1)
+const isPreview = Astro.url.searchParams.get('preview') === '1';
+const previewVariantId = Astro.url.searchParams.get('variant');
+
+if (!page || (page.status !== 'active' && !isPreview)) {
+  return Astro.redirect('/404');
+}
+
+const variants: any[] = page.landing_page_variants || [];
+if (variants.length === 0) {
+  return Astro.redirect('/404');
+}
+
+// Determine which variant to show
+let chosenVariant: any = null;
+
+// If in preview mode with a specific variant ID
+if (previewVariantId) {
+  chosenVariant = variants.find((v: any) => v.id === previewVariantId) || null;
+}
+
+// If winner is set, always use winner
+if (!chosenVariant && page.winner_variant_id) {
+  chosenVariant = variants.find((v: any) => v.id === page.winner_variant_id) || null;
+}
+
+// Check for existing variant cookie
+const cookieName = `lp_v_${slug}`;
+const sessionCookieName = 'lp_session';
+
+if (!chosenVariant) {
+  const existingVariantId = Astro.cookies.get(cookieName)?.value;
+  if (existingVariantId) {
+    chosenVariant = variants.find((v: any) => v.id === existingVariantId) || null;
+  }
+}
+
+// Weighted random assignment
+if (!chosenVariant) {
+  const rand = Math.random() * 100;
+  let cumulative = 0;
+  for (const variant of variants) {
+    cumulative += variant.traffic_percentage;
+    if (rand < cumulative) {
+      chosenVariant = variant;
+      break;
+    }
+  }
+  // Fallback to first variant
+  if (!chosenVariant) chosenVariant = variants[0];
+}
+
+// Generate or retrieve session ID
+let sessionId = Astro.cookies.get(sessionCookieName)?.value;
+if (!sessionId) {
+  sessionId = crypto.randomUUID();
+}
+
+// Set cookies (not httpOnly so client-side tracking can also read them)
+if (!isPreview) {
+  Astro.cookies.set(cookieName, chosenVariant.id, {
+    path: '/',
+    maxAge: 60 * 60 * 24 * 30, // 30 days
+    sameSite: 'lax',
+  });
+  Astro.cookies.set(sessionCookieName, sessionId, {
+    path: '/',
+    maxAge: 60 * 60 * 24 * 30,
+    sameSite: 'lax',
+  });
+}
+
+const blocks: any[] = chosenVariant.blocks || [];
+---
+
+<LandingPageLayout
+  title={chosenVariant.meta_title || page.name}
+  description={chosenVariant.meta_description || undefined}
+  showHeader={chosenVariant.show_header}
+  showFooter={chosenVariant.show_footer}
+>
+  {/* Render blocks */}
+  {blocks.map((block: any) => {
+    if (block.type === 'hero') {
+      const s = block.settings || {};
+      const align = s.text_align || 'center';
+      const alignClass = align === 'left' ? 'items-start text-left' : align === 'right' ? 'items-end text-right' : 'items-center text-center';
+      return (
+        <section class="relative w-full overflow-hidden" style="min-height: 85vh">
+          {s.image_url && (
+            <img
+              src={s.image_url}
+              alt=""
+              class="absolute inset-0 w-full h-full object-cover"
+              style={`opacity: ${1 - (s.overlay_opacity || 0.4)}`}
+            />
+          )}
+          <div
+            class="absolute inset-0 bg-charcoal"
+            style={`opacity: ${s.overlay_opacity || 0.4}`}
+          />
+          <div class={`relative z-10 flex flex-col justify-center h-full min-h-[85vh] px-6 py-24 ${alignClass}`}>
+            <div class="max-w-3xl mx-auto w-full">
+              {s.eyebrow && <p class="ds-eyebrow text-warm-white/70 mb-6">{s.eyebrow}</p>}
+              {s.title && <h1 class="font-display text-5xl md:text-7xl text-warm-white mb-6 leading-tight">{s.title}</h1>}
+              {s.subtitle && <p class="font-body text-warm-white/80 text-lg md:text-xl mb-10 max-w-xl">{s.subtitle}</p>}
+              {s.buttons && s.buttons.length > 0 && (
+                <div class="flex flex-wrap gap-4 justify-center">
+                  {s.buttons.map((btn: any) => (
+                    <a
+                      href={btn.url}
+                      class={btn.style || 'btn-premium'}
+                      data-track="cta_click"
+                      data-variant={chosenVariant.id}
+                      data-session={sessionId}
+                      data-slug={slug}
+                    >
+                      {btn.label}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    if (block.type === 'text') {
+      const s = block.settings || {};
+      const bgMap: Record<string, string> = {
+        ivory: 'bg-ivory',
+        cream: 'bg-cream',
+        white: 'bg-white',
+        charcoal: 'bg-charcoal text-warm-white',
+        champagne: 'bg-champagne',
+      };
+      const bgClass = bgMap[s.background] || 'bg-ivory';
+      const alignClass = s.alignment === 'left' ? 'text-left' : s.alignment === 'right' ? 'text-right' : 'text-center';
+      return (
+        <section class={`py-20 px-6 ${bgClass}`}>
+          <div class={`max-w-3xl mx-auto prose prose-lg ${alignClass}`} set:html={s.content || ''} />
+        </section>
+      );
+    }
+
+    if (block.type === 'products') {
+      const s = block.settings || {};
+      return (
+        <section class="py-20 px-6 bg-ivory">
+          <div class="max-w-6xl mx-auto">
+            {s.eyebrow && <p class="ds-eyebrow text-center mb-4">{s.eyebrow}</p>}
+            {s.title && <h2 class="font-display text-4xl text-charcoal text-center mb-12">{s.title}</h2>}
+            <div id={`products-grid-${block.id}`} class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              <p class="text-taupe text-center col-span-full font-body text-sm">Producten laden...</p>
+            </div>
+          </div>
+          <script define:vars={{ blockId: block.id, count: s.count || 6 }}>
+            fetch(`/api/products/latest?count=${count}`)
+              .then(r => r.json())
+              .then(products => {
+                const grid = document.getElementById(`products-grid-${blockId}`);
+                if (!grid || !products?.data) return;
+                grid.innerHTML = products.data.map(p => `
+                  <a href="/product/${p.slug}" class="group block">
+                    <div class="aspect-[3/4] overflow-hidden bg-cream mb-3">
+                      <img src="${p.images?.[0] || '/images/placeholder.jpg'}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    </div>
+                    <p class="font-body text-charcoal text-sm">${p.title}</p>
+                    ${p.collections?.title ? `<p class="font-body text-taupe text-xs">${p.collections.title}</p>` : ''}
+                  </a>
+                `).join('');
+              });
+          </script>
+        </section>
+      );
+    }
+
+    if (block.type === 'cta') {
+      const s = block.settings || {};
+      const bgMap: Record<string, string> = {
+        charcoal: 'bg-charcoal text-warm-white',
+        blush: 'bg-blush',
+        champagne: 'bg-champagne',
+        ivory: 'bg-ivory',
+        gold: 'bg-gold text-charcoal',
+      };
+      const bgClass = bgMap[s.background] || 'bg-charcoal text-warm-white';
+      return (
+        <section class={`py-24 px-6 ${bgClass}`}>
+          <div class="max-w-2xl mx-auto text-center">
+            {s.eyebrow && <p class="ds-eyebrow mb-6">{s.eyebrow}</p>}
+            {s.title && <h2 class="font-display text-4xl md:text-5xl mb-6">{s.title}</h2>}
+            {s.subtitle && <p class="font-body text-lg mb-10 opacity-80">{s.subtitle}</p>}
+            {s.button_label && s.button_url && (
+              <a
+                href={s.button_url}
+                class={s.button_style || 'btn-gold'}
+                data-track="cta_click"
+                data-variant={chosenVariant.id}
+                data-session={sessionId}
+                data-slug={slug}
+              >
+                {s.button_label}
+              </a>
+            )}
+          </div>
+        </section>
+      );
+    }
+
+    if (block.type === 'image_text') {
+      const s = block.settings || {};
+      const imageLeft = s.image_side !== 'right';
+      return (
+        <section class="py-20 px-6 bg-ivory">
+          <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+            {imageLeft && s.image_url && (
+              <div class="aspect-[4/5] overflow-hidden">
+                <img src={s.image_url} alt="" class="w-full h-full object-cover" />
+              </div>
+            )}
+            <div>
+              {s.eyebrow && <p class="ds-eyebrow mb-4">{s.eyebrow}</p>}
+              {s.title && <h2 class="font-display text-4xl text-charcoal mb-6">{s.title}</h2>}
+              {s.content && <div class="font-body text-taupe leading-relaxed" set:html={s.content} />}
+              {s.button_label && s.button_url && (
+                <a href={s.button_url} class={s.button_style || 'btn-premium'} style="margin-top: 2rem; display: inline-block;">
+                  {s.button_label}
+                </a>
+              )}
+            </div>
+            {!imageLeft && s.image_url && (
+              <div class="aspect-[4/5] overflow-hidden">
+                <img src={s.image_url} alt="" class="w-full h-full object-cover" />
+              </div>
+            )}
+          </div>
+        </section>
+      );
+    }
+
+    return null;
+  })}
+</LandingPageLayout>
+
+{/* Client-side tracking */}
+<script define:vars={{ variantId: chosenVariant.id, sessionId, pageSlug: slug, isPreview }}>
+  if (!isPreview) {
+    // Track page view (deduplicated by session+variant)
+    fetch(`/api/landing-pages/${pageSlug}/track`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        variant_id: variantId,
+        session_id: sessionId,
+        event_type: 'view',
+      }),
+    });
+
+    // Track CTA clicks
+    document.addEventListener('click', (e) => {
+      const el = e.target.closest('[data-track]');
+      if (!el) return;
+      fetch(`/api/landing-pages/${pageSlug}/track`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          variant_id: el.dataset.variant || variantId,
+          session_id: el.dataset.session || sessionId,
+          event_type: el.dataset.track,
+          metadata: { href: el.href, label: el.textContent?.trim() },
+        }),
+      });
+    });
+  }
+</script>
