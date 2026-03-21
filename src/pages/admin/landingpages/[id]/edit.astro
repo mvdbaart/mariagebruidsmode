@@ -1,0 +1,422 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import { getAdminAuthFromCookies, getServiceRoleClient } from '../../../../lib/serverAuth';
+import LandingPageVariantEditor from '../../../../components/admin/LandingPageVariantEditor';
+
+const auth = await getAdminAuthFromCookies(Astro.cookies);
+if (!auth) return Astro.redirect('/login');
+
+const { id } = Astro.params;
+const supabase = getServiceRoleClient();
+
+const { data: page } = await supabase
+  .from('landing_pages')
+  .select('*, landing_page_variants(*)')
+  .eq('id', id)
+  .single();
+
+if (!page) return Astro.redirect('/admin/landingpages');
+
+// Load analytics
+const variantIds = (page.landing_page_variants || []).map((v: any) => v.id);
+const { data: events } = await supabase
+  .from('landing_page_events')
+  .select('event_type, variant_id')
+  .in('variant_id', variantIds.length > 0 ? variantIds : ['none']);
+
+const statsMap: Record<string, { views: number; conversions: number; rate: number }> = {};
+for (const v of page.landing_page_variants || []) {
+  statsMap[v.id] = { views: 0, conversions: 0, rate: 0 };
+}
+for (const e of events || []) {
+  if (!statsMap[e.variant_id]) continue;
+  if (e.event_type === 'view') statsMap[e.variant_id].views++;
+  else if (e.event_type === 'conversion' || e.event_type === 'cta_click') statsMap[e.variant_id].conversions++;
+}
+for (const vid of Object.keys(statsMap)) {
+  const s = statsMap[vid];
+  s.rate = s.views > 0 ? Math.round((s.conversions / s.views) * 1000) / 10 : 0;
+}
+
+const totalViews = Object.values(statsMap).reduce((s, v) => s + v.views, 0);
+const variants = (page.landing_page_variants || []).sort((a: any, b: any) =>
+  new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+);
+
+const siteUrl = Astro.url.origin;
+
+const statusOptions = [
+  { value: 'draft', label: 'Concept' },
+  { value: 'active', label: 'Actief' },
+  { value: 'paused', label: 'Gepauzeerd' },
+  { value: 'completed', label: 'Voltooid' },
+];
+---
+
+<Layout title={`Bewerk: ${page.name}`}>
+  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+    <div class="container mx-auto px-6">
+
+      <!-- Header -->
+      <div class="flex items-start justify-between mb-10">
+        <div>
+          <a href="/admin/landingpages" class="text-[10px] tracking-[0.2em] uppercase text-taupe hover:text-blush-deep transition-colors mb-2 inline-block">
+            ← Overzicht
+          </a>
+          <h1 class="font-display font-normal text-charcoal text-4xl italic">{page.name}</h1>
+          <code class="text-xs text-taupe mt-1 inline-block">{siteUrl}/lp/{page.slug}</code>
+        </div>
+        <div class="flex gap-3">
+          <a href={`/lp/${page.slug}?preview=1`} target="_blank" class="btn-gold text-[10px]">Bekijk preview</a>
+          <button id="save-settings-btn" class="btn-premium text-[10px]">Instellingen opslaan</button>
+        </div>
+      </div>
+
+      <!-- Test Settings -->
+      <div class="bg-white border border-champagne shadow-soft p-8 mb-8">
+        <h2 class="text-[10px] tracking-[0.3em] uppercase text-taupe font-body mb-6">Test instellingen</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div>
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Naam</label>
+            <input id="setting-name" type="text" value={page.name} class="w-full border border-champagne px-3 py-2 font-body text-charcoal text-sm focus:outline-none focus:border-blush-deep bg-ivory" />
+          </div>
+          <div>
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Slug</label>
+            <div class="flex items-center border border-champagne bg-cream">
+              <span class="px-2 py-2 text-taupe font-body text-xs">/lp/</span>
+              <input id="setting-slug" type="text" value={page.slug} class="flex-1 px-2 py-2 font-body text-charcoal text-sm focus:outline-none bg-transparent" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Status</label>
+            <select id="setting-status" class="w-full border border-champagne px-3 py-2 font-body text-charcoal text-sm focus:outline-none focus:border-blush-deep bg-ivory">
+              {statusOptions.map(opt => (
+                <option value={opt.value} selected={page.status === opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Min. weergaven (auto-select)</label>
+            <input id="setting-min-views" type="number" value={page.min_views || 100} min="10" class="w-full border border-champagne px-3 py-2 font-body text-charcoal text-sm focus:outline-none focus:border-blush-deep bg-ivory" />
+          </div>
+        </div>
+        <div class="mt-4 flex items-center gap-3">
+          <input type="checkbox" id="setting-auto-winner" class="w-4 h-4 accent-blush-deep" checked={page.auto_select_winner} />
+          <label for="setting-auto-winner" class="font-body text-charcoal text-sm">Automatisch winnaar selecteren als minimum bereikt is</label>
+        </div>
+      </div>
+
+      <!-- Analytics Overview -->
+      <div class="bg-white border border-champagne shadow-soft p-8 mb-8">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-[10px] tracking-[0.3em] uppercase text-taupe font-body">Statistieken</h2>
+          <span class="text-[10px] tracking-[0.15em] uppercase text-taupe font-body">{totalViews} totale weergaven</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {variants.map((variant: any) => {
+            const stats = statsMap[variant.id] || { views: 0, conversions: 0, rate: 0 };
+            const isWinner = page.winner_variant_id === variant.id;
+            const maxRate = Math.max(...Object.values(statsMap).map((s: any) => s.rate));
+            const isLeading = stats.rate === maxRate && stats.views > 0 && !isWinner;
+            return (
+              <div class={`border p-6 relative ${isWinner ? 'border-gold bg-gold/5' : isLeading ? 'border-blush-deep bg-blush/5' : 'border-champagne'}`}>
+                {isWinner && (
+                  <span class="absolute top-3 right-3 text-[9px] tracking-[0.2em] uppercase bg-gold text-charcoal px-2 py-1">Winnaar</span>
+                )}
+                {isLeading && !isWinner && (
+                  <span class="absolute top-3 right-3 text-[9px] tracking-[0.2em] uppercase bg-blush-deep text-white px-2 py-1">Leidt</span>
+                )}
+                {variant.is_control && (
+                  <span class="text-[9px] tracking-[0.15em] uppercase text-taupe font-body block mb-2">Controle</span>
+                )}
+                <h3 class="font-body font-medium text-charcoal mb-4">{variant.name}</h3>
+                <div class="grid grid-cols-3 gap-3 mb-4">
+                  <div>
+                    <p class="text-2xl font-display text-charcoal">{stats.views}</p>
+                    <p class="text-[10px] uppercase tracking-[0.15em] text-taupe font-body">Weergaven</p>
+                  </div>
+                  <div>
+                    <p class="text-2xl font-display text-charcoal">{stats.conversions}</p>
+                    <p class="text-[10px] uppercase tracking-[0.15em] text-taupe font-body">Conversies</p>
+                  </div>
+                  <div>
+                    <p class={`text-2xl font-display ${stats.rate > 0 ? 'text-blush-deep' : 'text-charcoal'}`}>{stats.rate}%</p>
+                    <p class="text-[10px] uppercase tracking-[0.15em] text-taupe font-body">Ratio</p>
+                  </div>
+                </div>
+                <!-- Conversion rate bar -->
+                <div class="bg-cream h-1.5 rounded-full mb-4">
+                  <div
+                    class={`h-1.5 rounded-full transition-all ${isWinner ? 'bg-gold' : 'bg-blush-deep'}`}
+                    style={`width: ${Math.min(stats.rate * 5, 100)}%`}
+                  />
+                </div>
+                {!isWinner && page.status !== 'completed' && (
+                  <button
+                    class="text-[10px] tracking-[0.15em] uppercase text-taupe hover:text-blush-deep transition-colors declare-winner-btn"
+                    data-variant-id={variant.id}
+                    data-variant-name={variant.name}
+                    data-page-id={id}
+                  >
+                    Als winnaar declareren
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {page.auto_select_winner && (
+          <div class="mt-6 pt-6 border-t border-champagne flex items-center justify-between">
+            <p class="font-body text-taupe text-sm">Auto-selectie staat aan. Minimaal {page.min_views} weergaven per variant vereist.</p>
+            <button id="check-auto-winner-btn" class="btn-gold text-[10px]">Controleer auto-winnaar</button>
+          </div>
+        )}
+      </div>
+
+      <!-- Variant Editors -->
+      <div class="mb-8">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-[10px] tracking-[0.3em] uppercase text-taupe font-body">Varianten & Blokken</h2>
+          <button id="add-variant-btn" class="btn-gold text-[10px]">+ Variant toevoegen</button>
+        </div>
+
+        <div id="variants-container" class="space-y-6">
+          {variants.map((variant: any) => (
+            <div class="bg-white border border-champagne shadow-soft" data-variant-id={variant.id}>
+              <!-- Variant header -->
+              <div class="flex items-center justify-between p-6 border-b border-champagne">
+                <div class="flex items-center gap-4">
+                  <h3 class="font-body font-medium text-charcoal">{variant.name}</h3>
+                  {variant.is_control && (
+                    <span class="text-[9px] tracking-[0.15em] uppercase bg-cream text-taupe px-2 py-1 font-body">Controle</span>
+                  )}
+                  {page.winner_variant_id === variant.id && (
+                    <span class="text-[9px] tracking-[0.15em] uppercase bg-gold text-charcoal px-2 py-1 font-body">Winnaar</span>
+                  )}
+                </div>
+                <button
+                  class="text-[10px] tracking-[0.15em] uppercase text-taupe hover:text-charcoal transition-colors toggle-variant-btn"
+                >
+                  Inklappen ▲
+                </button>
+              </div>
+
+              <!-- Variant settings -->
+              <div class="variant-body p-6 space-y-6">
+                <!-- Quick settings row -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pb-6 border-b border-champagne">
+                  <div>
+                    <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Traffic %</label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={variant.traffic_percentage}
+                      class="w-full border border-champagne px-3 py-2 font-body text-charcoal text-sm focus:outline-none focus:border-blush-deep bg-ivory traffic-input"
+                      data-variant-id={variant.id}
+                    />
+                  </div>
+                  <div class="flex flex-col gap-2 justify-end">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        class="w-4 h-4 accent-blush-deep header-toggle"
+                        data-variant-id={variant.id}
+                        checked={variant.show_header}
+                      />
+                      <span class="font-body text-sm text-charcoal">Toon menu</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        class="w-4 h-4 accent-blush-deep footer-toggle"
+                        data-variant-id={variant.id}
+                        checked={variant.show_footer}
+                      />
+                      <span class="font-body text-sm text-charcoal">Toon footer</span>
+                    </label>
+                  </div>
+                  <div>
+                    <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Meta titel</label>
+                    <input
+                      type="text"
+                      value={variant.meta_title || ''}
+                      placeholder="SEO paginatitel"
+                      class="w-full border border-champagne px-3 py-2 font-body text-charcoal text-sm focus:outline-none focus:border-blush-deep bg-ivory meta-title-input"
+                      data-variant-id={variant.id}
+                    />
+                  </div>
+                  <div class="flex items-end gap-2">
+                    <a
+                      href={`/lp/${page.slug}?preview=1&variant=${variant.id}`}
+                      target="_blank"
+                      class="btn-gold text-[10px] whitespace-nowrap"
+                    >
+                      Preview →
+                    </a>
+                    <button
+                      class="text-[10px] tracking-[0.15em] uppercase text-taupe hover:text-red-600 transition-colors delete-variant-btn"
+                      data-variant-id={variant.id}
+                      data-variant-name={variant.name}
+                      data-page-id={id}
+                    >
+                      Verwijder
+                    </button>
+                  </div>
+                </div>
+
+                <!-- React block editor -->
+                <div>
+                  <p class="text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-4">Inhoudsblokken</p>
+                  <LandingPageVariantEditor
+                    client:only="react"
+                    variantId={variant.id}
+                    pageId={id}
+                    initialBlocks={variant.blocks || []}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  const pageId = document.querySelector('[data-page-id]')?.getAttribute('data-page-id') ||
+    window.location.pathname.split('/')[3];
+
+  // Save test settings
+  document.getElementById('save-settings-btn')?.addEventListener('click', async () => {
+    const btn = document.getElementById('save-settings-btn') as HTMLButtonElement;
+    btn.textContent = 'Opslaan...';
+
+    const res = await fetch(`/api/admin/landing-pages/${pageId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: (document.getElementById('setting-name') as HTMLInputElement).value,
+        slug: (document.getElementById('setting-slug') as HTMLInputElement).value,
+        status: (document.getElementById('setting-status') as HTMLSelectElement).value,
+        auto_select_winner: (document.getElementById('setting-auto-winner') as HTMLInputElement).checked,
+        min_views: parseInt((document.getElementById('setting-min-views') as HTMLInputElement).value) || 100,
+      }),
+    });
+
+    btn.textContent = res.ok ? 'Opgeslagen ✓' : 'Fout!';
+    setTimeout(() => { btn.textContent = 'Instellingen opslaan'; }, 2000);
+  });
+
+  // Declare winner manually
+  document.querySelectorAll('.declare-winner-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const el = e.currentTarget as HTMLButtonElement;
+      if (!confirm(`Weet je zeker dat je ${el.dataset.variantName} als winnaar wilt declareren? Dit sluit de test af.`)) return;
+
+      const res = await fetch(`/api/admin/landing-pages/${el.dataset.pageId}/winner`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ variant_id: el.dataset.variantId }),
+      });
+
+      if (res.ok) window.location.reload();
+      else alert('Er is een fout opgetreden.');
+    });
+  });
+
+  // Check auto-winner
+  document.getElementById('check-auto-winner-btn')?.addEventListener('click', async () => {
+    const res = await fetch(`/api/admin/landing-pages/${pageId}/winner`);
+    const data = await res.json();
+
+    if (!data.data.all_qualified) {
+      alert(`Nog niet genoeg data. Minimaal ${data.data.min_views} weergaven per variant vereist.`);
+      return;
+    }
+
+    const winner = data.data.suggested_winner;
+    if (!winner) {
+      alert('Er is nog geen duidelijke winnaar.');
+      return;
+    }
+
+    const stats = data.data.stats[winner.id];
+    if (confirm(`Suggested winner: ${winner.name} (conversieratio: ${Math.round(stats.rate * 1000) / 10}%). Declareer als winnaar?`)) {
+      const res2 = await fetch(`/api/admin/landing-pages/${pageId}/winner`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ variant_id: winner.id }),
+      });
+      if (res2.ok) window.location.reload();
+    }
+  });
+
+  // Toggle variant body
+  document.querySelectorAll('.toggle-variant-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const el = e.currentTarget as HTMLButtonElement;
+      const body = el.closest('[data-variant-id]')?.querySelector('.variant-body') as HTMLElement;
+      if (!body) return;
+      const collapsed = body.style.display === 'none';
+      body.style.display = collapsed ? '' : 'none';
+      el.textContent = collapsed ? 'Inklappen ▲' : 'Uitklappen ▼';
+    });
+  });
+
+  // Auto-save traffic/header/footer toggles on change
+  async function saveVariantSettings(variantId: string) {
+    const trafficInput = document.querySelector(`.traffic-input[data-variant-id="${variantId}"]`) as HTMLInputElement;
+    const headerToggle = document.querySelector(`.header-toggle[data-variant-id="${variantId}"]`) as HTMLInputElement;
+    const footerToggle = document.querySelector(`.footer-toggle[data-variant-id="${variantId}"]`) as HTMLInputElement;
+    const metaTitleInput = document.querySelector(`.meta-title-input[data-variant-id="${variantId}"]`) as HTMLInputElement;
+
+    await fetch(`/api/admin/landing-pages/${pageId}/variants/${variantId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        traffic_percentage: parseInt(trafficInput?.value) || 0,
+        show_header: headerToggle?.checked ?? true,
+        show_footer: footerToggle?.checked ?? true,
+        meta_title: metaTitleInput?.value || null,
+      }),
+    });
+  }
+
+  document.querySelectorAll('.traffic-input, .header-toggle, .footer-toggle, .meta-title-input').forEach(input => {
+    input.addEventListener('change', () => {
+      const variantId = (input as HTMLElement).dataset.variantId;
+      if (variantId) saveVariantSettings(variantId);
+    });
+  });
+
+  // Delete variant
+  document.querySelectorAll('.delete-variant-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const el = e.currentTarget as HTMLButtonElement;
+      if (!confirm(`Variant "${el.dataset.variantName}" verwijderen?`)) return;
+
+      const res = await fetch(`/api/admin/landing-pages/${el.dataset.pageId}/variants/${el.dataset.variantId}`, { method: 'DELETE' });
+      if (res.ok) window.location.reload();
+      else alert('Verwijderen mislukt.');
+    });
+  });
+
+  // Add variant
+  document.getElementById('add-variant-btn')?.addEventListener('click', async () => {
+    const name = prompt('Naam van de nieuwe variant:');
+    if (!name) return;
+
+    const res = await fetch(`/api/admin/landing-pages/${pageId}/variants`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, traffic_percentage: 0 }),
+    });
+
+    if (res.ok) window.location.reload();
+    else alert('Toevoegen mislukt.');
+  });
+</script>

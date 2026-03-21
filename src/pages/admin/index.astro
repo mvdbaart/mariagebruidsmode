@@ -15,6 +15,7 @@ const [
   { count: customerCount },
   { count: supplierCount },
   { count: pendingTaskCount },
+  { count: landingPageCount },
   { data: recentAppointments },
   { data: recentProducts },
   { data: pendingTasks },
@@ -29,6 +30,7 @@ const [
   supabase.from('customers').select('*', { count: 'exact', head: true }),
   supabase.from('suppliers').select('*', { count: 'exact', head: true }),
   supabase.from('customer_tasks').select('*', { count: 'exact', head: true }).is('completed_at', null),
+  supabase.from('landing_pages').select('*', { count: 'exact', head: true }),
   supabase.from('appointments').select('*').order('created_at', { ascending: false }).limit(5),
   supabase.from('products').select('*, collections(title)').order('created_at', { ascending: false }).limit(5),
   supabase.from('customer_tasks').select('*, customers(first_name, last_name, id)').is('completed_at', null).order('due_date', { ascending: true, nullsFirst: false }).limit(5),
@@ -45,6 +47,7 @@ const stats = [
   { label: 'Klanten', value: customerCount ?? 0, href: '/admin/klanten' },
   { label: 'Leveranciers', value: supplierCount ?? 0, href: '/admin/leveranciers' },
   { label: 'Open Taken', value: pendingTaskCount ?? 0, href: '/admin/klanten' },
+  { label: 'A/B Tests', value: landingPageCount ?? 0, href: '/admin/landingpages' },
 ];
 
 const today = new Date().toISOString().slice(0, 10);
@@ -115,6 +118,10 @@ const today = new Date().toISOString().slice(0, 10);
         <a href="/admin/formulieren" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
           <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Beheer Pagina</span>
           <span class="font-display text-charcoal text-3xl italic">Formulieren</span>
+        </a>
+        <a href="/admin/landingpages" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
+          <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">A/B Testing</span>
+          <span class="font-display text-charcoal text-3xl italic">Landingspagina's</span>
         </a>
         <a href="/admin/klanten" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
           <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Beheer Pagina</span>

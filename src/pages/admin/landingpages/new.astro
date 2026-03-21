@@ -1,0 +1,111 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getAdminAuthFromCookies } from '../../../lib/serverAuth';
+
+const auth = await getAdminAuthFromCookies(Astro.cookies);
+if (!auth) return Astro.redirect('/login');
+---
+
+<Layout title="Nieuwe A/B Test">
+  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+    <div class="container mx-auto px-6 max-w-2xl">
+
+      <div class="mb-10">
+        <a href="/admin/landingpages" class="text-[10px] tracking-[0.2em] uppercase text-taupe hover:text-blush-deep transition-colors mb-2 inline-block">
+          ← Terug naar overzicht
+        </a>
+        <h1 class="font-display font-normal text-charcoal text-4xl italic">Nieuwe <span class="text-blush-deep opacity-60">A/B Test</span></h1>
+        <p class="font-body text-taupe text-sm mt-3">Er worden automatisch twee varianten (A en B) aangemaakt. Je kunt daarna blokken toevoegen en de traffic-verdeling instellen.</p>
+      </div>
+
+      <form id="new-form" class="bg-white border border-champagne shadow-soft p-8 space-y-6">
+        <div>
+          <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Naam van de test *</label>
+          <input
+            type="text"
+            id="name"
+            placeholder="bijv. Homepage hero zomer 2026"
+            class="w-full border border-champagne px-4 py-3 font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors bg-ivory"
+            required
+          />
+        </div>
+
+        <div>
+          <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Slug (URL) *</label>
+          <div class="flex items-center border border-champagne bg-cream">
+            <span class="px-3 py-3 text-taupe font-body text-sm">/lp/</span>
+            <input
+              type="text"
+              id="slug"
+              placeholder="bijv. zomer-2026"
+              class="flex-1 px-3 py-3 font-body text-charcoal focus:outline-none bg-transparent"
+              required
+              pattern="[a-z0-9\-]+"
+              title="Alleen kleine letters, cijfers en koppeltekens"
+            />
+          </div>
+          <p class="text-[10px] text-taupe mt-1 font-body">Alleen kleine letters, cijfers en koppeltekens</p>
+        </div>
+
+        <div id="error-msg" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm font-body"></div>
+
+        <div class="flex gap-4 pt-2">
+          <button type="submit" class="btn-premium" id="submit-btn">
+            Test aanmaken →
+          </button>
+          <a href="/admin/landingpages" class="btn-gold">Annuleren</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  const nameInput = document.getElementById('name') as HTMLInputElement;
+  const slugInput = document.getElementById('slug') as HTMLInputElement;
+  const form = document.getElementById('new-form') as HTMLFormElement;
+  const errorMsg = document.getElementById('error-msg') as HTMLDivElement;
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+
+  // Auto-generate slug from name
+  nameInput.addEventListener('input', () => {
+    if (!slugInput.dataset.manual) {
+      slugInput.value = nameInput.value
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, '')
+        .trim()
+        .replace(/\s+/g, '-')
+        .substring(0, 60);
+    }
+  });
+
+  slugInput.addEventListener('input', () => {
+    slugInput.dataset.manual = 'true';
+    slugInput.value = slugInput.value.toLowerCase().replace(/[^a-z0-9\-]/g, '');
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Aanmaken...';
+    errorMsg.classList.add('hidden');
+
+    const res = await fetch('/api/admin/landing-pages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: nameInput.value, slug: slugInput.value }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      errorMsg.textContent = data.error || 'Er is een fout opgetreden.';
+      errorMsg.classList.remove('hidden');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Test aanmaken →';
+      return;
+    }
+
+    window.location.href = `/admin/landingpages/${data.data.id}/edit`;
+  });
+</script>
