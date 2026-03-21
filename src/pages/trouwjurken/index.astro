@@ -79,7 +79,7 @@ const dressFallbackImage = '/images/jurkvormen/a-lijn.png';
               <!-- Hover overlay -->
               <div class="absolute inset-0 bg-charcoal/20 md:bg-charcoal/0 md:group-hover:bg-charcoal/20 transition-all duration-500 flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100">
                 <span class="bg-warm-white text-charcoal px-5 py-2.5 text-[11px] tracking-[0.15em] uppercase font-body font-medium">
-                  Bezichtig in winkel
+                  Bekijk product
                 </span>
               </div>
 
@@ -91,17 +91,6 @@ const dressFallbackImage = '/images/jurkvormen/a-lijn.png';
 
             <div class="p-5 border-t border-champagne">
               <h3 class="font-display font-normal text-charcoal text-lg leading-tight">{prod.name}</h3>
-              <div class="flex items-center justify-between mt-2">
-                <p class="text-taupe font-body font-light text-xs">{collectionById.get(prod.collection_id)?.title}</p>
-                {prod.price_range && <p class="font-display text-charcoal text-sm">{prod.price_range}</p>}
-              </div>
-              {prod.features && prod.features.length > 0 && (
-                <div class="flex flex-wrap gap-1 mt-3">
-                  {prod.features.slice(0, 3).map((f: string) => (
-                    <span class="text-[9px] tracking-[0.1em] uppercase font-body text-blush-deep border border-blush/40 px-2 py-1">{f}</span>
-                  ))}
-                </div>
-              )}
             </div>
           </a>
         ))}
