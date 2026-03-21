@@ -203,3 +203,79 @@ const orgJsonLd = {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 </script>
+
+<script>
+  // Visitor tracking — skip admin and landing pages
+  (function () {
+    const path = window.location.pathname;
+    if (path.startsWith('/admin') || path.startsWith('/lp/')) return;
+
+    // Session ID (tab-scoped via sessionStorage)
+    let sessionId = sessionStorage.getItem('mb_session_id');
+    if (!sessionId) {
+      try {
+        sessionId = crypto.randomUUID();
+      } catch {
+        sessionId = Date.now().toString(36) + Math.random().toString(36).slice(2);
+      }
+      sessionStorage.setItem('mb_session_id', sessionId);
+    }
+
+    function sendEvent(eventType: string, metadata?: Record<string, string>) {
+      fetch('/api/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: sessionId,
+          page_path: window.location.pathname,
+          page_title: document.title,
+          referrer: document.referrer || null,
+          event_type: eventType,
+          metadata: metadata || {},
+        }),
+        keepalive: true,
+      }).catch(() => {});
+    }
+
+    // Pageview
+    document.addEventListener('DOMContentLoaded', () => {
+      sendEvent('pageview');
+    });
+
+    // CTA click tracking
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      const el = target.closest('a, button') as HTMLElement | null;
+      if (!el) return;
+
+      const href = (el as HTMLAnchorElement).href || '';
+      const isCta =
+        el.hasAttribute('data-track') ||
+        href.includes('/afspraak-maken') ||
+        href.includes('savviihq.com') ||
+        el.classList.contains('btn-premium') ||
+        el.classList.contains('btn-gold') ||
+        el.classList.contains('btn-blush');
+
+      if (isCta) {
+        const label = el.textContent?.trim().slice(0, 100) || '';
+        const hrefVal = href ? new URL(href).pathname + new URL(href).search : '';
+        sendEvent('cta_click', { href: hrefVal, label, element: el.tagName.toLowerCase() });
+      }
+    }, { passive: true });
+
+    // Form tracking
+    const trackedFormStarts = new Set<HTMLFormElement>();
+    document.addEventListener('focusin', (e) => {
+      const form = (e.target as HTMLElement).closest('form') as HTMLFormElement | null;
+      if (!form || trackedFormStarts.has(form)) return;
+      trackedFormStarts.add(form);
+      sendEvent('form_start', { form_action: form.action || '' });
+    }, { passive: true });
+
+    document.addEventListener('submit', (e) => {
+      const form = e.target as HTMLFormElement;
+      sendEvent('form_submit', { form_action: form.action || '' });
+    }, { passive: true });
+  })();
+</script>

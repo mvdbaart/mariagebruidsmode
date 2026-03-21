@@ -1,0 +1,465 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getServiceRoleClient } from '../../lib/serverAuth';
+
+const supabase = getServiceRoleClient();
+
+// Period selector (7 | 30 | 90 days, default 30)
+const periodParam = Astro.url.searchParams.get('period');
+const period = ['7', '30', '90'].includes(periodParam ?? '') ? Number(periodParam) : 30;
+const dateFrom = new Date(Date.now() - period * 24 * 60 * 60 * 1000).toISOString();
+
+// ── Fetch all pageview events in period ──────────────────────────────────────
+const { data: allEvents } = await supabase
+  .from('page_events')
+  .select('session_id, page_path, event_type, metadata, created_at')
+  .gte('created_at', dateFrom)
+  .order('created_at', { ascending: true });
+
+const events = allEvents ?? [];
+const hasData = events.length > 0;
+
+// ── Summary metrics ──────────────────────────────────────────────────────────
+const pageviews = events.filter((e) => e.event_type === 'pageview');
+const uniqueSessions = new Set(pageviews.map((e) => e.session_id)).size;
+const totalPageviews = pageviews.length;
+const avgPagesPerSession = uniqueSessions > 0 ? (totalPageviews / uniqueSessions).toFixed(1) : '0';
+
+// Conversion = sessions that submitted a form
+const submittedSessions = new Set(
+  events.filter((e) => e.event_type === 'form_submit').map((e) => e.session_id)
+).size;
+const conversionRate = uniqueSessions > 0 ? ((submittedSessions / uniqueSessions) * 100).toFixed(1) : '0';
+
+// ── Funnel analysis ───────────────────────────────────────────────────────────
+function sessionsOnPath(matchFn: (path: string) => boolean): number {
+  const s = new Set(
+    pageviews.filter((e) => matchFn(e.page_path)).map((e) => e.session_id)
+  );
+  return s.size;
+}
+
+const funnelSteps = [
+  {
+    label: 'Homepage',
+    sublabel: '/',
+    count: sessionsOnPath((p) => p === '/'),
+  },
+  {
+    label: "Productoverzicht",
+    sublabel: '/trouwjurken, /trouwpakken, ...',
+    count: sessionsOnPath((p) =>
+      p.startsWith('/trouwjurken') ||
+      p.startsWith('/trouwpakken') ||
+      p.startsWith('/bruid/') ||
+      p.startsWith('/bruidegom/') ||
+      p.startsWith('/bruidsschoenen') ||
+      p.startsWith('/trouwschoenen') ||
+      p.startsWith('/kinderjurkjes') ||
+      p.startsWith('/vip-arrangement')
+    ),
+  },
+  {
+    label: 'Productdetail',
+    sublabel: '/product/[slug]',
+    count: sessionsOnPath((p) => p.startsWith('/product/')),
+  },
+  {
+    label: 'Afspraakpagina',
+    sublabel: '/afspraak-maken',
+    count: sessionsOnPath((p) => p === '/afspraak-maken'),
+  },
+  {
+    label: 'Formulier verzonden',
+    sublabel: 'form_submit event',
+    count: submittedSessions,
+  },
+];
+
+// ── Top pages ────────────────────────────────────────────────────────────────
+const pageviewCounts: Record<string, number> = {};
+for (const e of pageviews) {
+  pageviewCounts[e.page_path] = (pageviewCounts[e.page_path] ?? 0) + 1;
+}
+const topPages = Object.entries(pageviewCounts)
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 10)
+  .map(([path, count]) => ({ path, count, pct: totalPageviews > 0 ? ((count / totalPageviews) * 100).toFixed(1) : '0' }));
+
+// ── Exit pages (last pageview per session) ────────────────────────────────────
+const lastPagePerSession: Record<string, string> = {};
+for (const e of pageviews) {
+  lastPagePerSession[e.session_id] = e.page_path;
+}
+const exitCounts: Record<string, number> = {};
+for (const path of Object.values(lastPagePerSession)) {
+  exitCounts[path] = (exitCounts[path] ?? 0) + 1;
+}
+const exitPages = Object.entries(exitCounts)
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 10)
+  .map(([path, count]) => ({
+    path,
+    count,
+    pct: uniqueSessions > 0 ? ((count / uniqueSessions) * 100).toFixed(1) : '0',
+  }));
+
+// ── CTA performance ───────────────────────────────────────────────────────────
+const ctaEvents = events.filter((e) => e.event_type === 'cta_click');
+const ctaCounts: Record<string, { clicks: number; label: string }> = {};
+for (const e of ctaEvents) {
+  const key = (e.metadata?.href || e.metadata?.label || 'onbekend') as string;
+  const label = (e.metadata?.label || key) as string;
+  if (!ctaCounts[key]) ctaCounts[key] = { clicks: 0, label };
+  ctaCounts[key].clicks += 1;
+}
+const ctaStats = Object.entries(ctaCounts)
+  .sort((a, b) => b[1].clicks - a[1].clicks)
+  .slice(0, 10)
+  .map(([key, { clicks, label }]) => ({
+    key,
+    label,
+    clicks,
+    pct: uniqueSessions > 0 ? ((clicks / uniqueSessions) * 100).toFixed(1) : '0',
+  }));
+
+// ── Static insights ───────────────────────────────────────────────────────────
+const insights = [
+  {
+    step: 'Homepage → Productoverzicht',
+    icon: '🏠',
+    color: 'border-l-amber-400',
+    title: 'Bezoekers verlaten de homepage',
+    reasons: [
+      'De hero-slider sluit niet aan bij de verwachting van de bezoeker',
+      'Het aanbod is niet direct zichtbaar of begrijpelijk',
+      'De laadtijd van de pagina is te lang (met name op mobiel)',
+      'Bezoekers komen via een verkeerde zoekopdracht terecht',
+    ],
+    tips: [
+      'Vernieuw de hero-tekst regelmatig met actuele collecties',
+      'Toon een duidelijke prijsrange om verwachtingen te managen',
+      'Optimaliseer afbeeldingen voor snellere mobiele laadtijden',
+      'Voeg klantbeoordelingen of een "trusted by" sectie toe aan de homepage',
+    ],
+  },
+  {
+    step: 'Productoverzicht → Productdetail',
+    icon: '👗',
+    color: 'border-l-rose-400',
+    title: 'Weinig doorklikken op producten',
+    reasons: [
+      'Productfoto\'s zijn niet aansprekend of kwalitatief onvoldoende',
+      'Er zijn te weinig producten zichtbaar in een collectie',
+      'Filteren/zoeken werkt niet optimaal',
+      'Bezoekers weten niet wat ze zoeken en haken vroegtijdig af',
+    ],
+    tips: [
+      'Gebruik professionele productfoto\'s op neutrale achtergrond',
+      'Voeg een "Meest bekeken" of "Nieuw binnen" label toe aan populaire producten',
+      'Maak de collectie-indeling intuïtiever (bijv. per stijl of silhouet)',
+      'Voeg een zoekfunctie toe aan de productpagina\'s',
+    ],
+  },
+  {
+    step: 'Productdetail → Afspraakpagina',
+    icon: '💍',
+    color: 'border-l-purple-400',
+    title: 'Uitval op de productdetailpagina',
+    reasons: [
+      'Geen of onduidelijke prijsindicatie zichtbaar',
+      'De "Afspraak maken"-knop is niet prominent genoeg',
+      'Bezoekers vergelijken nog alternatieven bij andere winkels',
+      'Onvoldoende social proof (reviews, ervaringen van andere bruiden)',
+    ],
+    tips: [
+      'Voeg een prijsrange toe ("Vanaf €XXX") om bezoekers te kwalificeren',
+      'Maak de CTA-knop prominenter: groter, contrasterende kleur, hoog in de pagina',
+      'Voeg klantervaringen of "Al 500+ bruiden gingen je voor" toe',
+      'Bied een laagdrempelig alternatief: directe telefoonknop of WhatsApp',
+    ],
+  },
+  {
+    step: 'Afspraakpagina → Formulier verzonden',
+    icon: '📅',
+    color: 'border-l-blue-400',
+    title: 'Bezoekers verlaten de afspraakpagina',
+    reasons: [
+      'De externe Savvii-boeking wekt weerstand of werkt niet op mobiel',
+      'Het formulier vraagt te veel verplichte informatie',
+      'Er ontbreken vertrouwenssignalen (reviews, garanties)',
+      'Bezoekers weten niet wat ze van de afspraak kunnen verwachten',
+    ],
+    tips: [
+      'Vereenvoudig het formulier: alleen naam, e-mail en gewenste datum zijn essentieel',
+      'Voeg vertrouwensbadges toe (bijv. "Gratis annuleren", "Geen verplichtingen")',
+      'Beschrijf duidelijk wat er tijdens een pasafspraak gebeurt',
+      'Maak het telefoonnummer prominent zichtbaar als laagdrempelig alternatief',
+    ],
+  },
+];
+---
+
+<Layout title="Bezoekersflow & Uitvalanalyse — Admin">
+  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+    <div class="container mx-auto px-6">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-10">
+        <div>
+          <a href="/admin" class="text-[10px] tracking-[0.2em] uppercase text-taupe-light hover:text-blush-deep transition-colors font-body">← Dashboard</a>
+          <h1 class="font-display font-normal text-charcoal text-4xl italic mt-2">Bezoekersflow <span class="text-blush-deep opacity-60">&amp; Uitval</span></h1>
+          <p class="text-sm font-body text-taupe mt-1">Analyseer waar bezoekers afhaken en waarom</p>
+        </div>
+        <!-- Period selector -->
+        <div class="flex gap-2">
+          {[7, 30, 90].map((p) => (
+            <a
+              href={`?period=${p}`}
+              class={`px-4 py-2 text-[10px] tracking-[0.2em] uppercase font-body border transition-colors ${
+                period === p
+                  ? 'bg-charcoal text-warm-white border-charcoal'
+                  : 'bg-white text-taupe border-champagne hover:border-charcoal'
+              }`}
+            >
+              {p} dagen
+            </a>
+          ))}
+        </div>
+      </div>
+
+      {!hasData ? (
+        <!-- Empty state -->
+        <div class="bg-white border border-champagne shadow-soft p-16 text-center mb-10">
+          <div class="text-5xl mb-6">📊</div>
+          <h2 class="font-display text-charcoal text-2xl italic mb-3">Nog geen bezoekersgegevens</h2>
+          <p class="font-body text-taupe max-w-md mx-auto mb-4">
+            Er zijn nog geen bezoekersgegevens beschikbaar voor de geselecteerde periode. Zodra bezoekers de website bekijken, verschijnen hier automatisch de statistieken.
+          </p>
+          <p class="font-body text-taupe-light text-sm">
+            ✓ Tracking is actief — nieuwe bezoeken worden bijgehouden
+          </p>
+        </div>
+      ) : (
+        <!-- Summary cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+          <div class="bg-white border border-champagne p-6 shadow-soft">
+            <p class="text-3xl font-display text-charcoal">{uniqueSessions.toLocaleString('nl-NL')}</p>
+            <p class="text-[10px] tracking-[0.2em] uppercase text-taupe-light font-body mt-1">Unieke bezoekers</p>
+          </div>
+          <div class="bg-white border border-champagne p-6 shadow-soft">
+            <p class="text-3xl font-display text-charcoal">{totalPageviews.toLocaleString('nl-NL')}</p>
+            <p class="text-[10px] tracking-[0.2em] uppercase text-taupe-light font-body mt-1">Paginaweergaven</p>
+          </div>
+          <div class="bg-white border border-champagne p-6 shadow-soft">
+            <p class="text-3xl font-display text-charcoal">{avgPagesPerSession}</p>
+            <p class="text-[10px] tracking-[0.2em] uppercase text-taupe-light font-body mt-1">Gem. pagina's/bezoek</p>
+          </div>
+          <div class="bg-white border border-champagne p-6 shadow-soft">
+            <p class="text-3xl font-display text-charcoal">{conversionRate}%</p>
+            <p class="text-[10px] tracking-[0.2em] uppercase text-taupe-light font-body mt-1">Conversiepercentage</p>
+          </div>
+        </div>
+      )}
+
+      <!-- Funnel -->
+      <div class="bg-white border border-champagne shadow-soft p-8 mb-8">
+        <h2 class="font-display text-charcoal text-2xl italic mb-2">Conversiefunnel</h2>
+        <p class="text-[10px] tracking-[0.2em] uppercase text-taupe-light font-body mb-8">Van bezoek tot afspraak — uitval per stap</p>
+
+        <div class="space-y-4">
+          {funnelSteps.map((step, i) => {
+            const pct = uniqueSessions > 0 ? Math.round((step.count / uniqueSessions) * 100) : 0;
+            const prevCount = i > 0 ? funnelSteps[i - 1].count : step.count;
+            const dropoff = i > 0 && prevCount > 0 ? Math.round(((prevCount - step.count) / prevCount) * 100) : null;
+            const isHighDropoff = dropoff !== null && dropoff > 50;
+
+            return (
+              <div class="flex items-center gap-4">
+                <!-- Step number -->
+                <div class="w-7 h-7 rounded-full bg-charcoal text-warm-white flex items-center justify-center text-xs font-body shrink-0">
+                  {i + 1}
+                </div>
+
+                <!-- Bar & label -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-baseline justify-between mb-1">
+                    <span class="text-sm font-body font-medium text-charcoal">{step.label}</span>
+                    <span class="text-xs font-body text-taupe ml-2 shrink-0">{step.sublabel}</span>
+                  </div>
+                  <div class="h-8 bg-ivory relative overflow-hidden">
+                    <div
+                      class={`h-full transition-all ${hasData ? 'bg-blush' : 'bg-champagne'}`}
+                      style={`width: ${hasData ? pct : 0}%`}
+                    />
+                    <span class="absolute inset-y-0 left-3 flex items-center text-xs font-body font-medium text-charcoal">
+                      {hasData ? `${step.count.toLocaleString('nl-NL')} bezoekers (${pct}%)` : '—'}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Drop-off badge -->
+                <div class="w-28 shrink-0 text-right">
+                  {dropoff !== null ? (
+                    <span class={`inline-block px-2 py-1 text-[10px] tracking-widest uppercase font-body ${isHighDropoff ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                      {hasData ? `−${dropoff}% uitval` : '—'}
+                    </span>
+                  ) : (
+                    <span class="text-[10px] tracking-widest uppercase font-body text-taupe-light">Start</span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <!-- Tables row -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+
+        <!-- Top pages -->
+        <div class="bg-white border border-champagne shadow-soft p-8">
+          <h2 class="font-display text-charcoal text-xl italic mb-6">Populairste pagina's</h2>
+          {hasData && topPages.length > 0 ? (
+            <table class="w-full text-sm font-body">
+              <thead>
+                <tr class="border-b border-champagne">
+                  <th class="text-left text-[10px] tracking-widest uppercase text-taupe-light pb-3">Pagina</th>
+                  <th class="text-right text-[10px] tracking-widest uppercase text-taupe-light pb-3">Weergaven</th>
+                  <th class="text-right text-[10px] tracking-widest uppercase text-taupe-light pb-3">%</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-champagne">
+                {topPages.map((row) => (
+                  <tr>
+                    <td class="py-2.5 text-charcoal truncate max-w-[200px]">
+                      <a href={row.path} target="_blank" class="hover:text-blush-deep transition-colors">{row.path}</a>
+                    </td>
+                    <td class="py-2.5 text-right text-taupe">{row.count.toLocaleString('nl-NL')}</td>
+                    <td class="py-2.5 text-right text-taupe-light">{row.pct}%</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p class="text-sm font-body text-taupe-light italic">Geen data beschikbaar voor deze periode.</p>
+          )}
+        </div>
+
+        <!-- Exit pages -->
+        <div class="bg-white border border-champagne shadow-soft p-8">
+          <h2 class="font-display text-charcoal text-xl italic mb-6">Uitstappagina's</h2>
+          <p class="text-xs font-body text-taupe-light mb-4">De laatste pagina die bezoekers zagen voor ze weggingen</p>
+          {hasData && exitPages.length > 0 ? (
+            <table class="w-full text-sm font-body">
+              <thead>
+                <tr class="border-b border-champagne">
+                  <th class="text-left text-[10px] tracking-widest uppercase text-taupe-light pb-3">Pagina</th>
+                  <th class="text-right text-[10px] tracking-widest uppercase text-taupe-light pb-3">Uitstappen</th>
+                  <th class="text-right text-[10px] tracking-widest uppercase text-taupe-light pb-3">%</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-champagne">
+                {exitPages.map((row) => (
+                  <tr>
+                    <td class="py-2.5 text-charcoal truncate max-w-[200px]">
+                      <a href={row.path} target="_blank" class="hover:text-blush-deep transition-colors">{row.path}</a>
+                    </td>
+                    <td class="py-2.5 text-right text-taupe">{row.count.toLocaleString('nl-NL')}</td>
+                    <td class="py-2.5 text-right text-taupe-light">{row.pct}%</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p class="text-sm font-body text-taupe-light italic">Geen data beschikbaar voor deze periode.</p>
+          )}
+        </div>
+
+      </div>
+
+      <!-- CTA performance -->
+      {hasData && ctaStats.length > 0 && (
+        <div class="bg-white border border-champagne shadow-soft p-8 mb-8">
+          <h2 class="font-display text-charcoal text-xl italic mb-2">CTA prestaties</h2>
+          <p class="text-xs font-body text-taupe-light mb-6">Welke knoppen en links worden het meest geklikt</p>
+          <table class="w-full text-sm font-body">
+            <thead>
+              <tr class="border-b border-champagne">
+                <th class="text-left text-[10px] tracking-widest uppercase text-taupe-light pb-3">Knop / Link</th>
+                <th class="text-right text-[10px] tracking-widest uppercase text-taupe-light pb-3">Klikken</th>
+                <th class="text-right text-[10px] tracking-widest uppercase text-taupe-light pb-3">% van bezoekers</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-champagne">
+              {ctaStats.map((row) => (
+                <tr>
+                  <td class="py-2.5 text-charcoal">
+                    <span class="block font-medium">{row.label || '—'}</span>
+                    <span class="text-taupe-light text-xs">{row.key}</span>
+                  </td>
+                  <td class="py-2.5 text-right text-taupe">{row.clicks.toLocaleString('nl-NL')}</td>
+                  <td class="py-2.5 text-right text-taupe-light">{row.pct}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <!-- Insights & recommendations -->
+      <div class="mb-8">
+        <h2 class="font-display text-charcoal text-2xl italic mb-2">Inzichten &amp; aanbevelingen</h2>
+        <p class="text-[10px] tracking-[0.2em] uppercase text-taupe-light font-body mb-8">Mogelijke oorzaken en verbeteringstips per uitvalpunt</p>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {insights.map((insight) => (
+            <div class={`bg-white border border-champagne shadow-soft p-8 border-l-4 ${insight.color}`}>
+              <div class="flex items-start gap-4">
+                <span class="text-2xl shrink-0 mt-0.5">{insight.icon}</span>
+                <div class="min-w-0">
+                  <p class="text-[10px] tracking-[0.2em] uppercase text-taupe-light font-body mb-1">{insight.step}</p>
+                  <h3 class="font-display text-charcoal text-lg italic mb-4">{insight.title}</h3>
+
+                  <p class="text-[10px] tracking-[0.15em] uppercase text-taupe font-body mb-2">Mogelijke oorzaken</p>
+                  <ul class="space-y-1.5 mb-5">
+                    {insight.reasons.map((r) => (
+                      <li class="flex items-start gap-2 text-sm font-body text-taupe">
+                        <span class="text-red-400 shrink-0 mt-0.5">•</span>
+                        {r}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <p class="text-[10px] tracking-[0.15em] uppercase text-taupe font-body mb-2">Tips</p>
+                  <ul class="space-y-1.5">
+                    {insight.tips.map((t) => (
+                      <li class="flex items-start gap-2 text-sm font-body text-taupe">
+                        <span class="text-green-500 shrink-0 mt-0.5">✓</span>
+                        {t}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Tracking status note -->
+      <div class="bg-white border border-champagne shadow-soft p-6">
+        <div class="flex items-center gap-3">
+          <div class="w-2 h-2 rounded-full bg-green-500 shrink-0"></div>
+          <div>
+            <p class="text-sm font-body font-medium text-charcoal">Tracking actief</p>
+            <p class="text-xs font-body text-taupe-light">
+              Bezoekersgegevens worden anoniem bijgehouden. Geen persoonlijke informatie of IP-adressen worden opgeslagen. Alleen paginapaden en klikgedrag.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</Layout>
