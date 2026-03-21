@@ -2,6 +2,15 @@ import type { APIRoute } from 'astro';
 import { getServiceRoleClient } from '../../lib/serverAuth';
 
 const VALID_TYPES = new Set(['standard', 'vip']);
+const VALID_TIMES = new Set(['10:00', '11:30', '13:00', '14:30', '16:00']);
+
+function addMinutes(time: string, minutes: number): string {
+  const [h, m] = time.split(':').map(Number);
+  const total = h * 60 + m + minutes;
+  const hh = String(Math.floor(total / 60) % 24).padStart(2, '0');
+  const mm = String(total % 60).padStart(2, '0');
+  return `${hh}:${mm}`;
+}
 
 // Simple in-memory rate limiter: max 5 submissions per IP per hour
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -43,6 +52,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   const preferredDate = trimString(body?.preferred_date, 20);
   const message = trimString(body?.message, 2000);
   const appointmentType = trimString(body?.appointment_type, 20);
+  const preferredTime = trimString(body?.preferred_time, 10);
 
   if (!fullName || !email || !preferredDate) {
     return new Response(JSON.stringify({ error: 'Naam, e-mail en voorkeursdatum zijn verplicht.' }), {
@@ -66,6 +76,11 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     });
   }
 
+  // Validate optional time slot
+  const startTime = preferredTime && VALID_TIMES.has(preferredTime) ? preferredTime : null;
+  const durationMinutes = appointmentType === 'vip' ? 120 : 90;
+  const endTime = startTime ? addMinutes(startTime, durationMinutes) : null;
+
   try {
     const supabase = getServiceRoleClient();
     const { error } = await supabase
@@ -78,6 +93,8 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
           preferred_date: preferredDate,
           appointment_type: appointmentType,
           message,
+          start_time: startTime,
+          end_time: endTime,
         },
       ]);
 

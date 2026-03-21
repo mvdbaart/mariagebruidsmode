@@ -1,0 +1,234 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getServiceRoleClient } from '../../../lib/serverAuth';
+
+const { id } = Astro.params;
+
+const supabase = getServiceRoleClient();
+
+const [{ data: appointment }, { data: employees }] = await Promise.all([
+  supabase.from('appointments').select('*').eq('id', id).single(),
+  supabase.from('employees').select('id, first_name, last_name, role').eq('is_active', true).order('first_name'),
+]);
+
+if (!appointment) {
+  return Astro.redirect('/admin/afspraken');
+}
+
+const timeSlots = ['', '10:00', '11:30', '13:00', '14:30', '16:00'];
+
+const statusOptions = [
+  { value: 'pending', label: 'In afwachting' },
+  { value: 'confirmed', label: 'Bevestigd' },
+  { value: 'cancelled', label: 'Geannuleerd' },
+];
+
+const statusColor: Record<string, string> = {
+  pending: 'bg-amber-100 text-amber-800',
+  confirmed: 'bg-green-100 text-green-800',
+  cancelled: 'bg-gray-100 text-gray-500',
+};
+---
+
+<Layout title="Afspraak Bewerken">
+  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+    <div class="container mx-auto px-6">
+      <div class="flex justify-between items-center mb-10">
+        <h1 class="font-display font-normal text-charcoal text-3xl italic">Afspraak <span class="text-blush-deep opacity-60">Bewerken</span></h1>
+        <a href="/admin/afspraken" class="text-[10px] uppercase tracking-widest text-taupe hover:text-blush-deep transition-colors">← Alle afspraken</a>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Contact info (readonly) -->
+        <div class="lg:col-span-1">
+          <div class="bg-white border border-champagne shadow-soft p-8 space-y-6">
+            <h2 class="text-[10px] uppercase tracking-widest text-charcoal font-medium border-b border-champagne pb-3">Klantgegevens</h2>
+            <div>
+              <p class="text-[9px] uppercase tracking-widest text-taupe-light mb-1">Naam</p>
+              <p class="font-body text-charcoal font-medium">{appointment.full_name}</p>
+            </div>
+            <div>
+              <p class="text-[9px] uppercase tracking-widest text-taupe-light mb-1">E-mail</p>
+              <a href={`mailto:${appointment.email}`} class="font-body text-taupe hover:text-blush-deep text-sm">{appointment.email}</a>
+            </div>
+            {appointment.phone && (
+              <div>
+                <p class="text-[9px] uppercase tracking-widest text-taupe-light mb-1">Telefoon</p>
+                <a href={`tel:${appointment.phone}`} class="font-body text-taupe text-sm">{appointment.phone}</a>
+              </div>
+            )}
+            {appointment.message && (
+              <div>
+                <p class="text-[9px] uppercase tracking-widest text-taupe-light mb-1">Bericht klant</p>
+                <p class="font-body text-taupe-light text-xs leading-relaxed">{appointment.message}</p>
+              </div>
+            )}
+            <div>
+              <p class="text-[9px] uppercase tracking-widest text-taupe-light mb-1">Aangevraagd op</p>
+              <p class="font-body text-taupe-light text-xs">
+                {appointment.created_at ? new Date(appointment.created_at).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' }) : '—'}
+              </p>
+            </div>
+            <div>
+              <p class="text-[9px] uppercase tracking-widest text-taupe-light mb-2">Huidige status</p>
+              <span class={`text-[9px] uppercase tracking-wider font-body px-2 py-1 rounded-sm ${statusColor[appointment.status] || statusColor.pending}`}>
+                {appointment.status === 'pending' ? 'In afwachting' : appointment.status === 'confirmed' ? 'Bevestigd' : 'Geannuleerd'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Edit form -->
+        <div class="lg:col-span-2">
+          <form id="edit-form" class="bg-white border border-champagne shadow-soft p-8 space-y-8">
+            <h2 class="text-[10px] uppercase tracking-widest text-charcoal font-medium border-b border-champagne pb-3">Afspraakdetails</h2>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-7">
+              <div class="space-y-2">
+                <label for="preferred_date" class="text-[10px] tracking-widest uppercase text-charcoal font-medium">Datum</label>
+                <input
+                  type="date"
+                  id="preferred_date"
+                  name="preferred_date"
+                  value={appointment.preferred_date || ''}
+                  class="w-full border-b border-champagne py-3 focus:border-blush-deep outline-none transition-colors font-light bg-transparent"
+                />
+              </div>
+
+              <div class="space-y-2">
+                <label for="start_time" class="text-[10px] tracking-widest uppercase text-charcoal font-medium">Starttijd</label>
+                <select
+                  id="start_time"
+                  name="start_time"
+                  class="w-full border-b border-champagne py-3 focus:border-blush-deep outline-none transition-colors font-light bg-transparent text-taupe appearance-none cursor-pointer"
+                >
+                  {timeSlots.map(slot => (
+                    <option value={slot} selected={
+                      slot === (appointment.start_time ? appointment.start_time.slice(0, 5) : '')
+                    }>
+                      {slot || 'Geen voorkeur'}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div class="space-y-2">
+                <label class="text-[10px] tracking-widest uppercase text-charcoal font-medium block">Type Afspraak</label>
+                <div class="flex gap-6 pt-2">
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="appointment_type" value="standard" class="accent-blush-deep"
+                      checked={appointment.appointment_type !== 'vip'} />
+                    <span class="text-[11px] tracking-wider text-taupe uppercase">Standaard (90 min)</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="appointment_type" value="vip" class="accent-blush-deep"
+                      checked={appointment.appointment_type === 'vip'} />
+                    <span class="text-[11px] tracking-wider text-taupe uppercase">VIP (120 min)</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="space-y-2">
+                <label for="status" class="text-[10px] tracking-widest uppercase text-charcoal font-medium">Status</label>
+                <select
+                  id="status"
+                  name="status"
+                  class="w-full border-b border-champagne py-3 focus:border-blush-deep outline-none transition-colors font-light bg-transparent text-taupe appearance-none cursor-pointer"
+                >
+                  {statusOptions.map(opt => (
+                    <option value={opt.value} selected={opt.value === appointment.status}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div class="space-y-2 sm:col-span-2">
+                <label for="employee_id" class="text-[10px] tracking-widest uppercase text-charcoal font-medium">Medewerker (associate)</label>
+                <select
+                  id="employee_id"
+                  name="employee_id"
+                  class="w-full border-b border-champagne py-3 focus:border-blush-deep outline-none transition-colors font-light bg-transparent text-taupe appearance-none cursor-pointer"
+                >
+                  <option value="">Niet toegewezen</option>
+                  {employees?.map(emp => (
+                    <option value={emp.id} selected={emp.id === appointment.employee_id}>
+                      {emp.first_name} {emp.last_name}{emp.role ? ` — ${emp.role}` : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <label for="notes" class="text-[10px] tracking-widest uppercase text-charcoal font-medium">Interne notities</label>
+              <textarea
+                id="notes"
+                name="notes"
+                rows="4"
+                class="w-full border border-champagne p-5 focus:border-blush-deep outline-none transition-colors font-light bg-[#fcfbf9] resize-none text-sm font-body text-taupe"
+                placeholder="Notities voor intern gebruik (niet zichtbaar voor klant)..."
+              >{appointment.notes || ''}</textarea>
+            </div>
+
+            <div class="flex items-center justify-between pt-2">
+              <p id="form-status" class="text-xs font-body italic hidden" role="status" aria-live="polite"></p>
+              <button
+                type="submit"
+                class="bg-charcoal text-warm-white px-10 py-3 text-[11px] tracking-[0.3em] uppercase hover:bg-taupe transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed ml-auto"
+              >
+                Opslaan
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script define:vars={{ appointmentId: appointment.id }}>
+  const form = document.getElementById('edit-form');
+  const statusEl = document.getElementById('form-status');
+
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = new FormData(form);
+      const payload = {
+        preferred_date: data.get('preferred_date') || null,
+        start_time: data.get('start_time') || '',
+        appointment_type: data.get('appointment_type'),
+        status: data.get('status'),
+        employee_id: data.get('employee_id') || null,
+        notes: data.get('notes') || null,
+      };
+
+      const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Opslaan...'; }
+
+      try {
+        const res = await fetch(`/api/admin/appointments/${appointmentId}`, {
+          method: 'PUT',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (res.ok) {
+          if (statusEl) {
+            statusEl.textContent = 'Afspraak opgeslagen.';
+            statusEl.className = 'text-xs font-body italic text-green-700 block';
+          }
+        } else {
+          const result = await res.json();
+          throw new Error(result.error || 'Opslaan mislukt.');
+        }
+      } catch (err) {
+        if (statusEl) {
+          statusEl.textContent = (err as Error).message;
+          statusEl.className = 'text-xs font-body italic text-red-600 block';
+        }
+      } finally {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Opslaan'; }
+      }
+    });
+  }
+</script>

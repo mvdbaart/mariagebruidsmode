@@ -1,0 +1,212 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getServiceRoleClient } from '../../../lib/serverAuth';
+
+// Parse ?week=YYYY-WNN or default to current week
+const url = new URL(Astro.request.url);
+const weekParam = url.searchParams.get('week');
+
+// Compute the Monday of the displayed week
+function getMondayOfWeek(date: Date): Date {
+  const d = new Date(date);
+  const day = d.getDay(); // 0=Sun, 1=Mon…
+  const diff = (day === 0 ? -6 : 1 - day);
+  d.setDate(d.getDate() + diff);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+let monday: Date;
+if (weekParam) {
+  // weekParam format: YYYY-MM-DD (first day of week we navigate to)
+  const parsed = new Date(weekParam + 'T00:00:00');
+  monday = isNaN(parsed.getTime()) ? getMondayOfWeek(new Date()) : getMondayOfWeek(parsed);
+} else {
+  monday = getMondayOfWeek(new Date());
+}
+
+// Build the 6-day week (Mon–Sat)
+const weekDays: Date[] = Array.from({ length: 6 }, (_, i) => {
+  const d = new Date(monday);
+  d.setDate(monday.getDate() + i);
+  return d;
+});
+
+const weekStart = monday.toISOString().split('T')[0];
+const saturday = weekDays[5];
+const weekEnd = saturday.toISOString().split('T')[0];
+
+// Navigation dates
+const prevMonday = new Date(monday);
+prevMonday.setDate(monday.getDate() - 7);
+const nextMonday = new Date(monday);
+nextMonday.setDate(monday.getDate() + 7);
+
+const prevParam = prevMonday.toISOString().split('T')[0];
+const nextParam = nextMonday.toISOString().split('T')[0];
+
+const supabase = getServiceRoleClient();
+const { data: appointments } = await supabase
+  .from('appointments')
+  .select('id, full_name, preferred_date, start_time, end_time, appointment_type, status, employee_id, employees(first_name, last_name)')
+  .gte('preferred_date', weekStart)
+  .lte('preferred_date', weekEnd)
+  .in('status', ['pending', 'confirmed'])
+  .order('start_time', { ascending: true });
+
+// Time grid: 09:00 – 18:00
+const GRID_START = 9 * 60; // minutes from midnight
+const GRID_END = 18 * 60;
+const GRID_HEIGHT_PX = 720; // total grid height in pixels (1px per minute)
+
+function timeToMinutes(t: string | null | undefined): number {
+  if (!t) return -1;
+  const [h, m] = t.split(':').map(Number);
+  return h * 60 + (m || 0);
+}
+
+function topPercent(time: string | null): string {
+  const mins = timeToMinutes(time);
+  if (mins < 0) return '0%';
+  const offset = Math.max(0, mins - GRID_START);
+  return `${(offset / (GRID_END - GRID_START)) * 100}%`;
+}
+
+function heightPercent(start: string | null, end: string | null, type: string): string {
+  const startMins = timeToMinutes(start);
+  if (startMins < 0) return '10%'; // default block height if no time
+  const duration = type === 'vip' ? 120 : 90;
+  const endMins = end ? timeToMinutes(end) : startMins + duration;
+  const h = Math.max(30, endMins - startMins);
+  return `${(h / (GRID_END - GRID_START)) * 100}%`;
+}
+
+const today = new Date().toISOString().split('T')[0];
+
+const dayNames = ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za'];
+const hours = Array.from({ length: 10 }, (_, i) => i + 9); // 9–18
+
+const statusColor: Record<string, string> = {
+  pending: 'bg-amber-100 border-amber-400 text-amber-900',
+  confirmed: 'bg-green-100 border-green-400 text-green-900',
+};
+---
+
+<Layout title="Afspraken Kalender">
+  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+    <div class="container mx-auto px-6">
+      <div class="flex flex-wrap justify-between items-center mb-8 gap-4">
+        <h1 class="font-display font-normal text-charcoal text-3xl italic">Afspraken <span class="text-blush-deep opacity-60">Kalender</span></h1>
+        <div class="flex gap-3 items-center">
+          <a href="/admin/afspraken" class="text-[10px] uppercase tracking-widest text-taupe hover:text-blush-deep transition-colors border border-champagne px-4 py-2">Lijstweergave</a>
+          <a href="/admin" class="text-[10px] uppercase tracking-widest text-taupe hover:text-blush-deep transition-colors">← Dashboard</a>
+        </div>
+      </div>
+
+      <!-- Week navigation -->
+      <div class="flex items-center justify-between mb-6">
+        <a href={`/admin/afspraken/kalender?week=${prevParam}`} class="text-[10px] uppercase tracking-widest text-taupe hover:text-charcoal transition-colors px-4 py-2 border border-champagne">← Vorige week</a>
+        <p class="font-body text-sm text-charcoal">
+          {monday.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long' })} – {saturday.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })}
+        </p>
+        <a href={`/admin/afspraken/kalender?week=${nextParam}`} class="text-[10px] uppercase tracking-widest text-taupe hover:text-charcoal transition-colors px-4 py-2 border border-champagne">Volgende week →</a>
+      </div>
+
+      <!-- Calendar grid -->
+      <div class="bg-white border border-champagne shadow-soft overflow-auto">
+        <div class="min-w-[700px]">
+          <!-- Day header row -->
+          <div class="grid border-b border-champagne" style="grid-template-columns: 56px repeat(6, 1fr);">
+            <div class="border-r border-champagne"></div>
+            {weekDays.map((day, i) => {
+              const dateStr = day.toISOString().split('T')[0];
+              const isToday = dateStr === today;
+              return (
+                <div class={`px-3 py-3 text-center border-r border-champagne last:border-r-0 ${isToday ? 'bg-blush/10' : ''}`}>
+                  <p class={`text-[10px] uppercase tracking-widest font-body ${isToday ? 'text-blush-deep' : 'text-taupe'}`}>{dayNames[i]}</p>
+                  <p class={`text-sm font-body font-medium mt-0.5 ${isToday ? 'text-charcoal' : 'text-taupe'}`}>{day.getDate()}</p>
+                </div>
+              );
+            })}
+          </div>
+
+          <!-- Time grid body -->
+          <div class="grid relative" style="grid-template-columns: 56px repeat(6, 1fr); height: 720px;">
+            <!-- Hour labels & horizontal lines -->
+            {hours.map(h => (
+              <div
+                class="contents"
+                style={`position: absolute; top: ${((h - 9) / 9) * 100}%; width: 100%; pointer-events: none;`}
+              ></div>
+            ))}
+
+            <!-- Left time column -->
+            <div class="relative border-r border-champagne">
+              {hours.map(h => (
+                <div
+                  class="absolute w-full text-right pr-2"
+                  style={`top: calc(${((h - 9) / 9) * 100}% - 8px)`}
+                >
+                  <span class="text-[9px] text-taupe-light font-body">{String(h).padStart(2, '0')}:00</span>
+                </div>
+              ))}
+            </div>
+
+            <!-- Day columns -->
+            {weekDays.map((day, colIdx) => {
+              const dateStr = day.toISOString().split('T')[0];
+              const isToday = dateStr === today;
+              const dayApps = (appointments || []).filter(a => a.preferred_date === dateStr);
+              return (
+                <div class={`relative border-r border-champagne last:border-r-0 ${isToday ? 'bg-blush/5' : ''}`}>
+                  {/* Hour grid lines */}
+                  {hours.map(h => (
+                    <div
+                      class="absolute w-full border-t border-champagne/50"
+                      style={`top: ${((h - 9) / 9) * 100}%`}
+                    ></div>
+                  ))}
+                  {/* Appointment blocks */}
+                  {dayApps.map(app => {
+                    const hasTimed = !!app.start_time;
+                    const top = hasTimed ? topPercent(app.start_time) : null;
+                    const height = hasTimed ? heightPercent(app.start_time, app.end_time, app.appointment_type || 'standard') : null;
+                    const color = statusColor[app.status] || statusColor.pending;
+                    return (
+                      <a
+                        href={`/admin/afspraken/${app.id}`}
+                        class={`absolute left-1 right-1 rounded-sm border-l-2 px-2 py-1 overflow-hidden hover:opacity-90 transition-opacity ${color} ${hasTimed ? '' : 'top-2'}`}
+                        style={hasTimed ? `top: ${top}; height: ${height};` : 'height: 56px;'}
+                        title={app.full_name}
+                      >
+                        <p class="text-[10px] font-body font-medium leading-tight truncate">{app.full_name}</p>
+                        {app.start_time && (
+                          <p class="text-[9px] font-body opacity-70">{app.start_time.slice(0, 5)}</p>
+                        )}
+                        <p class={`text-[9px] font-body px-1 inline-block mt-0.5 ${app.appointment_type === 'vip' ? 'bg-gold/30' : 'bg-champagne/60'}`}>
+                          {app.appointment_type === 'vip' ? 'VIP' : 'Std'}
+                        </p>
+                      </a>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="flex gap-6 mt-4">
+        <div class="flex items-center gap-2">
+          <span class="inline-block w-3 h-3 rounded-sm bg-amber-200 border-l-2 border-amber-400"></span>
+          <span class="text-[10px] uppercase tracking-widest text-taupe font-body">In afwachting</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="inline-block w-3 h-3 rounded-sm bg-green-200 border-l-2 border-green-400"></span>
+          <span class="text-[10px] uppercase tracking-widest text-taupe font-body">Bevestigd</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
