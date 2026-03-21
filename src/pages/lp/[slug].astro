@@ -142,7 +142,7 @@ const blocks: any[] = chosenVariant.blocks || [];
 
     if (block.type === 'text') {
       const s = block.settings || {};
-      const bgMap: Record<string, string> = {
+      const bgMap = {
         ivory: 'bg-ivory',
         cream: 'bg-cream',
         white: 'bg-white',
@@ -192,7 +192,7 @@ const blocks: any[] = chosenVariant.blocks || [];
 
     if (block.type === 'cta') {
       const s = block.settings || {};
-      const bgMap: Record<string, string> = {
+      const bgMap = {
         charcoal: 'bg-charcoal text-warm-white',
         blush: 'bg-blush',
         champagne: 'bg-champagne',
