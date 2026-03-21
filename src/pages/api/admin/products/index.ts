@@ -29,7 +29,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     .single();
 
   if (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { 'content-type': 'application/json' } });
+    console.error('Product create error:', error);
+    return new Response(JSON.stringify({ error: 'Product aanmaken mislukt.' }), { status: 500, headers: { 'content-type': 'application/json' } });
   }
 
   return new Response(JSON.stringify({ ok: true, id: data.id }), { status: 201, headers: { 'content-type': 'application/json' } });

@@ -3,6 +3,23 @@ import { getServiceRoleClient } from '../../lib/serverAuth';
 
 const VALID_TYPES = new Set(['standard', 'vip']);
 
+// Simple in-memory rate limiter: max 5 submissions per IP per hour
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_MAX = 5;
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT_MAX) return false;
+  entry.count++;
+  return true;
+}
+
 function trimString(value: unknown, max = 500): string | null {
   if (typeof value !== 'string') return null;
   const trimmed = value.trim();
@@ -10,7 +27,15 @@ function trimString(value: unknown, max = 500): string | null {
   return trimmed.slice(0, max);
 }
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, clientAddress }) => {
+  const ip = clientAddress || 'unknown';
+  if (!checkRateLimit(ip)) {
+    return new Response(JSON.stringify({ error: 'Te veel aanvragen. Probeer het later opnieuw.' }), {
+      status: 429,
+      headers: { 'content-type': 'application/json', 'Retry-After': '3600' },
+    });
+  }
+
   const body = await request.json().catch(() => null);
   const fullName = trimString(body?.full_name, 120);
   const email = trimString(body?.email, 200);

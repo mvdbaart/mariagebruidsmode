@@ -1,7 +1,12 @@
 import type { APIRoute } from 'astro';
 import { getAdminAuthFromCookies, getServiceRoleClient } from '../../../lib/serverAuth';
 
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ cookies }) => {
+  const adminAuth = await getAdminAuthFromCookies(cookies);
+  if (!adminAuth) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+  }
+
   const supabase = getServiceRoleClient();
   const { data, error } = await supabase
     .from('site_settings')
@@ -10,7 +15,8 @@ export const GET: APIRoute = async () => {
     .single();
 
   if (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    console.error('Settings fetch error:', error);
+    return new Response(JSON.stringify({ error: 'Instellingen ophalen mislukt.' }), { status: 500 });
   }
 
   return new Response(JSON.stringify(data), { status: 200 });
@@ -42,11 +48,13 @@ export const PUT: APIRoute = async ({ request, cookies }) => {
       .single();
 
     if (error) {
-      return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+      console.error('Settings update error:', error);
+      return new Response(JSON.stringify({ error: 'Instellingen opslaan mislukt.' }), { status: 500 });
     }
 
     return new Response(JSON.stringify(data), { status: 200 });
-  } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+  } catch (err) {
+    console.error('Settings update exception:', err);
+    return new Response(JSON.stringify({ error: 'Er is een fout opgetreden.' }), { status: 500 });
   }
 };

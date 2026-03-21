@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /login
+Disallow: /login/callback
+
+Sitemap: https://www.mariagebruidsmode.nl/sitemap-index.xml

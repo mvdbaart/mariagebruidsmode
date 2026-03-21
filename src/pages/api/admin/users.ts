@@ -28,8 +28,9 @@ export const PATCH: APIRoute = async ({ request, cookies }) => {
     const { error } = await supabase.auth.admin.updateUserById(userId, { email: trimmedEmail });
     if (error) throw error;
     return new Response(JSON.stringify({ ok: true }), { status: 200 });
-  } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+  } catch (err) {
+    console.error('User email update error:', err);
+    return new Response(JSON.stringify({ error: 'E-mail bijwerken mislukt.' }), { status: 500 });
   }
 };
 
@@ -69,8 +70,9 @@ export const GET: APIRoute = async ({ cookies }) => {
     }));
 
     return new Response(JSON.stringify(combined), { status: 200 });
-  } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+  } catch (err) {
+    console.error('Users fetch error:', err);
+    return new Response(JSON.stringify({ error: 'Gebruikers ophalen mislukt.' }), { status: 500 });
   }
 };
 
@@ -100,7 +102,8 @@ export const PUT: APIRoute = async ({ request, cookies }) => {
     if (error) throw error;
 
     return new Response(JSON.stringify({ success: true }), { status: 200 });
-  } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+  } catch (err) {
+    console.error('User role update error:', err);
+    return new Response(JSON.stringify({ error: 'Rol bijwerken mislukt.' }), { status: 500 });
   }
 };

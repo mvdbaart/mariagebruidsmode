@@ -312,7 +312,7 @@ const hasSlider = activeSlides.length > 0;
             </div>
             <input type="hidden" name="appointment_type" value="standard" />
             <div class="pt-4 text-right">
-              <button type="submit" class="inline-block bg-[#A66352] text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-opacity-90 transition-colors border-none cursor-pointer">
+              <button id="quick-submit-btn" type="submit" class="inline-block bg-[#A66352] text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-opacity-90 transition-colors border-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
                 VERSTUREN
               </button>
             </div>
@@ -383,10 +383,18 @@ const hasSlider = activeSlides.length > 0;
   // ===== CONTACT FORM =====
   const quickForm = document.getElementById('quick-contact-form') as HTMLFormElement | null;
   const quickStatus = document.getElementById('quick-contact-status');
+  const quickSubmitBtn = document.getElementById('quick-submit-btn') as HTMLButtonElement | null;
 
   quickForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!quickStatus || !quickForm) return;
+
+    if (quickSubmitBtn) {
+      quickSubmitBtn.disabled = true;
+      quickSubmitBtn.textContent = 'BEZIG...';
+    }
+    quickStatus.textContent = '';
+    quickStatus.className = 'text-xs text-taupe mt-3 hidden';
 
     const formData = new FormData(quickForm);
     const payload = {
@@ -398,9 +406,6 @@ const hasSlider = activeSlides.length > 0;
       message: 'Snelle aanvraag vanaf homepage',
     };
 
-    quickStatus.textContent = 'Bezig met verzenden...';
-    quickStatus.className = 'text-xs text-taupe mt-3 block';
-
     try {
       const response = await fetch('/api/appointments', {
         method: 'POST',
@@ -411,9 +416,17 @@ const hasSlider = activeSlides.length > 0;
       quickStatus.textContent = 'Bedankt, we nemen snel contact op.';
       quickStatus.className = 'text-xs text-green-700 mt-3 block';
       quickForm.reset();
+      if (quickSubmitBtn) {
+        quickSubmitBtn.disabled = false;
+        quickSubmitBtn.textContent = 'VERSTUREN';
+      }
     } catch {
       quickStatus.textContent = 'Versturen mislukt. Probeer opnieuw.';
       quickStatus.className = 'text-xs text-red-600 mt-3 block';
+      if (quickSubmitBtn) {
+        quickSubmitBtn.disabled = false;
+        quickSubmitBtn.textContent = 'VERSTUREN';
+      }
     }
   });
 </script>
