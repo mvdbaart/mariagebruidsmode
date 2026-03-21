@@ -17,8 +17,12 @@ if (!isAdmin) {
 
 // Fetch users for initial server-side render
 const supabase = getServiceRoleClient();
-const { data: { users: authUsers } } = await supabase.auth.admin.listUsers();
-const { data: roles } = await supabase.from('user_roles').select('*');
+const { data: listData, error: listError } = await supabase.auth.admin.listUsers();
+const authUsers = listData?.users ?? [];
+
+const { data: roles, error: rolesError } = await supabase.from('user_roles').select('*');
+
+const fetchError = listError || rolesError;
 
 const users = authUsers.map(u => ({
   id: u.id,
@@ -41,6 +45,12 @@ const users = authUsers.map(u => ({
         </div>
       </div>
 
+      {fetchError && (
+        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+          <strong>Fout bij ophalen gebruikers:</strong> {fetchError.message}
+        </div>
+      )}
+
       <div class="bg-white/50 backdrop-blur-sm border border-accent/10 rounded-lg overflow-hidden shadow-sm">
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
@@ -53,6 +63,13 @@ const users = authUsers.map(u => ({
               </tr>
             </thead>
             <tbody id="user-table-body">
+              {users.length === 0 && !fetchError && (
+                <tr>
+                  <td colspan="4" class="px-6 py-8 text-center text-sm text-accent/50">
+                    Geen gebruikers gevonden.
+                  </td>
+                </tr>
+              )}
               {users.map(u => (
                 <tr class="border-t border-accent/10 hover:bg-accent/[0.02] transition-colors group">
                   <td class="px-6 py-4">
