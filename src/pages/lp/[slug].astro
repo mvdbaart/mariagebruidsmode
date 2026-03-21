@@ -1,6 +1,7 @@
 ---
 import LandingPageLayout from '../../layouts/LandingPageLayout.astro';
 import { getServiceRoleClient } from '../../lib/serverAuth';
+import { sanitizeRichHtml } from '../../lib/sanitizeHtml';
 
 const { slug } = Astro.params;
 const supabase = getServiceRoleClient();
@@ -84,7 +85,21 @@ if (!isPreview) {
   });
 }
 
-const blocks: any[] = chosenVariant.blocks || [];
+const rawBlocks: any[] = chosenVariant.blocks || [];
+const blocks: any[] = rawBlocks.map((block: any) => {
+  if (!block || typeof block !== 'object') return block;
+  const settings = (block.settings && typeof block.settings === 'object') ? block.settings : {};
+  if (block.type === 'text' || block.type === 'image_text') {
+    return {
+      ...block,
+      settings: {
+        ...settings,
+        content: sanitizeRichHtml(settings.content || ''),
+      },
+    };
+  }
+  return block;
+});
 ---
 
 <LandingPageLayout
@@ -175,15 +190,38 @@ const blocks: any[] = chosenVariant.blocks || [];
               .then(products => {
                 const grid = document.getElementById(`products-grid-${blockId}`);
                 if (!grid || !products?.data) return;
-                grid.innerHTML = products.data.map(p => `
-                  <a href="/product/${p.slug}" class="group block">
-                    <div class="aspect-[3/4] overflow-hidden bg-cream mb-3">
-                      <img src="${p.images?.[0] || '/images/placeholder.jpg'}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    </div>
-                    <p class="font-body text-charcoal text-sm">${p.title}</p>
-                    ${p.collections?.title ? `<p class="font-body text-taupe text-xs">${p.collections.title}</p>` : ''}
-                  </a>
-                `).join('');
+                grid.textContent = '';
+
+                for (const p of products.data) {
+                  const card = document.createElement('a');
+                  card.href = `/product/${p.slug}`;
+                  card.className = 'group block';
+
+                  const imageWrap = document.createElement('div');
+                  imageWrap.className = 'aspect-[3/4] overflow-hidden bg-cream mb-3';
+
+                  const image = document.createElement('img');
+                  image.src = p.images?.[0] || '/images/placeholder.jpg';
+                  image.alt = p.title || '';
+                  image.className = 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-500';
+                  imageWrap.appendChild(image);
+
+                  const title = document.createElement('p');
+                  title.className = 'font-body text-charcoal text-sm';
+                  title.textContent = p.title || '';
+
+                  card.appendChild(imageWrap);
+                  card.appendChild(title);
+
+                  if (p.collections?.title) {
+                    const collection = document.createElement('p');
+                    collection.className = 'font-body text-taupe text-xs';
+                    collection.textContent = p.collections.title;
+                    card.appendChild(collection);
+                  }
+
+                  grid.appendChild(card);
+                }
               });
           </script>
         </section>

@@ -42,7 +42,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     });
   }
 
-  if (!isAdminUser(data.user)) {
+  if (!(await isAdminUser(data.user))) {
     clearAuthCookies(cookies);
     return new Response(JSON.stringify({ error: 'Geen toegang tot admin.' }), {
       status: 403,

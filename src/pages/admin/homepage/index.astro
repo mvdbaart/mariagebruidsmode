@@ -1,6 +1,7 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 import { getServiceRoleClient } from '../../../lib/serverAuth';
+import { createClient } from '@supabase/supabase-js';
 
 const supabase = getServiceRoleClient();
 const [
@@ -12,6 +13,31 @@ const [
 ]);
 
 const hp = (settings?.homepage ?? {}) as Record<string, string>;
+
+let sliderPublicReadBlocked = false;
+let sliderHealthMessage = '';
+
+const publicSupabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+const publicSupabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+
+if (!publicSupabaseUrl || !publicSupabaseAnonKey) {
+  sliderPublicReadBlocked = true;
+  sliderHealthMessage = 'PUBLIC_SUPABASE_URL of PUBLIC_SUPABASE_ANON_KEY ontbreekt.';
+} else {
+  const publicSupabase = createClient(publicSupabaseUrl, publicSupabaseAnonKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const { error: publicReadError } = await publicSupabase
+    .from('hero_slides')
+    .select('id')
+    .eq('is_active', true)
+    .limit(1);
+
+  if (publicReadError) {
+    sliderPublicReadBlocked = true;
+    sliderHealthMessage = publicReadError.message;
+  }
+}
 ---
 
 <Layout title="Homepage Beheer">
@@ -30,6 +56,18 @@ const hp = (settings?.homepage ?? {}) as Record<string, string>;
           Homepage <em class="font-normal italic text-taupe">Beheer</em>
         </h1>
       </div>
+      
+      {sliderPublicReadBlocked && (
+        <div class="mb-8 border border-amber-300 bg-amber-50 px-4 py-3">
+          <p class="text-[10px] tracking-[0.2em] uppercase text-amber-800 font-body mb-1">Health Check</p>
+          <p class="text-sm font-body text-amber-900">
+            Homepage slider is publiek niet leesbaar. Controleer de RLS policy op <code>hero_slides</code>.
+          </p>
+          <p class="text-xs font-body text-amber-800 mt-1">
+            Details: {sliderHealthMessage}
+          </p>
+        </div>
+      )}
 
       <!-- ===== HERO SLIDER ===== -->
       <section class="mb-14">

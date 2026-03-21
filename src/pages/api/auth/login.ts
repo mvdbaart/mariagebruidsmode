@@ -39,7 +39,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     });
   }
 
-  if (!isAdminUser(data.user)) {
+  if (!(await isAdminUser(data.user))) {
     clearAuthCookies(cookies);
     await supabase.auth.signOut();
     return new Response(JSON.stringify({ error: 'Geen toegang tot admin.' }), {
@@ -54,4 +54,3 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     headers: { 'content-type': 'application/json' },
   });
 };
-

@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 
 const [
   { data: latestProducts },
-  { data: heroSlides },
+  { data: heroSlides, error: heroSlidesError },
   { data: featuredWedding },
   { data: latestWeddings },
   { data: latestPosts },
@@ -17,6 +17,10 @@ const [
   supabase.from('blog_posts').select('id, slug, title, excerpt, cover_image, published_at').order('published_at', { ascending: false }).limit(3),
   supabase.from('site_settings').select('homepage').eq('id', 'current').single(),
 ]);
+
+if (heroSlidesError) {
+  console.warn(`[homepage] hero_slides query failed: ${heroSlidesError.message}`);
+}
 
 const hp = (settings?.homepage ?? {}) as Record<string, string>;
 
@@ -63,7 +67,9 @@ const galleryItems = galleryImages.length
   ? galleryImages
   : galleryFallbacks.slice(0, 6).map((src, i) => ({ src, alt: `Galerij foto ${i + 1}`, href: '/trouwjurken' }));
 
-const activeSlides = heroSlides ?? [];
+const activeSlides = (heroSlides ?? []).filter((slide) =>
+  typeof slide.image_url === 'string' && slide.image_url.trim().length > 0
+);
 const hasSlider = activeSlides.length > 0;
 ---
 
