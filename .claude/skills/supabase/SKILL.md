@@ -1,15 +1,29 @@
 ---
 name: supabase
-description: Voer Supabase CLI-bewerkingen uit voor dit project — migraties pushen, status controleren, migraties bekijken, db resetten, etc.
-argument-hint: [db push | db reset | status | migrations list | <andere supabase opdracht>]
+description: Voer Supabase CLI-bewerkingen uit voor dit project — migraties pushen, status controleren, migraties bekijken, db resetten, directe SQL uitvoeren, etc.
+argument-hint: [db push | db reset | status | migrations list | sql "<query>" | <andere supabase opdracht>]
 allowed-tools: Bash, Read, Glob
 ---
 
 # Supabase CLI Skill
 
-Je voert Supabase CLI-bewerkingen uit voor het project **Mariage Bruidsmode** op `C:/Users/Maarten/Documents/vms/mariagebruidsmode.nl`.
+Je voert Supabase CLI-bewerkingen uit voor het project **Mariage Bruidsmode**.
 
-Alle commando's worden uitgevoerd via `npx supabase` vanuit de projectmap.
+## Credentials & connectie
+
+Lees altijd eerst `.env.local` om de credentials op te halen:
+
+```bash
+# Lees de benodigde variabelen
+source .env.local 2>/dev/null || true
+```
+
+Benodigde variabelen (staan in `.env.local`):
+- `DATABASE_URL` — PostgreSQL connection string voor directe DB-toegang en `supabase db push --db-url`
+- `PUBLIC_SUPABASE_URL` — REST API base URL (bijv. `https://[ref].supabase.co`)
+- `SUPABASE_SERVICE_ROLE_KEY` — Service role JWT voor REST API-aanroepen (bypast RLS)
+
+**Belangrijk:** Gebruik altijd `--db-url "$DATABASE_URL"` zodat er geen `supabase link` nodig is.
 
 ## Standaardgedrag bij $ARGUMENTS
 
@@ -17,58 +31,122 @@ Verwerk het argument en voer de juiste actie uit:
 
 | Argument | Actie |
 |---|---|
-| `db push` of leeg | Bekijk welke migraties nog niet zijn toegepast, bevestig met de gebruiker indien nodig, en push met `echo "Y" \| npx supabase db push` |
-| `db reset` | Waarschuw de gebruiker dat dit **alle data wist**, vraag expliciete bevestiging, voer dan uit |
-| `status` | Toon de verbindingsstatus en projectinfo |
-| `migrations list` | Toon alle migraties en hun status (applied/pending) |
-| `db diff` | Genereer een diff tussen lokaal schema en remote |
+| `db push` of leeg | Bekijk pending migraties, push met `--db-url` |
+| `db reset` | Waarschuw: **wist alle data**, vraag expliciete bevestiging |
+| `status` | Toon verbindingsstatus |
+| `migrations list` | Toon alle migraties en hun status |
+| `db diff` | Diff tussen lokaal schema en remote |
 | `db pull` | Pull remote schema naar lokale migratie |
+| `sql "<query>"` | Voer directe SQL uit via psql |
+| `insert <tabel> <json>` | Insert een rij via REST API |
 | `functions list` | Toon Edge Functions |
 | `functions deploy <naam>` | Deploy een specifieke Edge Function |
 
 ## Werkwijze
 
-1. **Analyseer het argument** — bepaal welk commando gepast is
-2. **Toon het commando** dat uitgevoerd gaat worden vóórdat het gerund wordt
-3. **Voer uit** vanuit de projectmap:
-   ```bash
-   cd "C:/Users/Maarten/Documents/vms/mariagebruidsmode.nl" && <commando>
-   ```
-4. **Interpreteer de uitvoer** — leg NOTICEs en ERRORs uit in begrijpelijke taal
-5. **Stel vervolgstappen voor** indien relevant (bijv. `node scripts/setup_buckets.js` na een migratie die een nieuwe tabel aanmaakt)
+1. **Lees credentials** uit `.env.local`
+2. **Analyseer het argument** — bepaal welk commando gepast is
+3. **Toon het commando** dat uitgevoerd gaat worden vóórdat het gerund wordt
+4. **Voer uit** vanuit de projectmap
+5. **Interpreteer de uitvoer** — leg NOTICEs en ERRORs uit in begrijpelijke taal
+6. **Stel vervolgstappen voor** indien relevant
 
-## Veelgebruikte commando's
+## Commando's
+
+### Migraties pushen (zonder supabase link)
 
 ```bash
-# Migraties pushen (met auto-bevestiging)
-echo "Y" | npx supabase db push
+# Lees DATABASE_URL uit .env.local
+export $(grep -v '^#' .env.local | xargs)
 
-# Status controleren
-npx supabase status
+# Bekijk pending migraties
+npx supabase migration list --db-url "$DATABASE_URL"
 
-# Migratielijst bekijken
-npx supabase migration list
+# Push migraties
+echo "Y" | npx supabase db push --db-url "$DATABASE_URL"
+```
 
-# Schema diff (lokaal vs remote)
-npx supabase db diff
+### Directe SQL uitvoeren via psql
 
-# Nieuwe migratie aanmaken
-npx supabase migration new <naam>
+```bash
+export $(grep -v '^#' .env.local | xargs)
+psql "$DATABASE_URL" -c "<SQL-query>"
+
+# Meerdere statements uit bestand:
+psql "$DATABASE_URL" -f supabase/migrations/<bestand>.sql
+```
+
+### REST API — SELECT (lezen)
+
+```bash
+export $(grep -v '^#' .env.local | xargs)
+curl -s "$PUBLIC_SUPABASE_URL/rest/v1/<tabel>?select=*" \
+  -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
+  -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" | jq .
+```
+
+### REST API — INSERT
+
+```bash
+export $(grep -v '^#' .env.local | xargs)
+curl -s -X POST "$PUBLIC_SUPABASE_URL/rest/v1/<tabel>" \
+  -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
+  -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Prefer: return=representation" \
+  -d '<json-data>'
+```
+
+### REST API — UPDATE
+
+```bash
+export $(grep -v '^#' .env.local | xargs)
+curl -s -X PATCH "$PUBLIC_SUPABASE_URL/rest/v1/<tabel>?id=eq.<id>" \
+  -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
+  -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Prefer: return=representation" \
+  -d '<json-data>'
+```
+
+### REST API — DELETE
+
+```bash
+export $(grep -v '^#' .env.local | xargs)
+curl -s -X DELETE "$PUBLIC_SUPABASE_URL/rest/v1/<tabel>?id=eq.<id>" \
+  -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
+  -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY"
+```
+
+### Schema diff
+
+```bash
+export $(grep -v '^#' .env.local | xargs)
+npx supabase db diff --db-url "$DATABASE_URL"
+```
+
+### Status controleren
+
+```bash
+export $(grep -v '^#' .env.local | xargs)
+# Controleer connectie via psql
+psql "$DATABASE_URL" -c "SELECT current_database(), current_user, version();"
 ```
 
 ## Aandachtspunten
 
-- **`db reset` is destructief** — wist alle data en past migraties opnieuw toe. Vraag altijd om bevestiging.
-- **NOTICE-meldingen** (bijv. "relation already exists, skipping") zijn normaal bij idempotente migraties — geen actie vereist.
-- **ERROR-meldingen** zijn wel een probleem — analyseer en los op.
-- Na een `db push` die nieuwe tabellen/buckets introduceert: check of `node scripts/setup_buckets.js` ook nodig is.
-- Migraties staan in `supabase/migrations/` — bekijk ze als je context nodig hebt.
+- **`DATABASE_URL` ontbreekt in `.env.local`?** Haal de URI op via Supabase Dashboard → Project Settings → Database → Connection String (gebruik "Session mode", poort 5432). Voeg toe aan `.env.local`.
+- **`db reset` is destructief** — wist alle data en past migraties opnieuw toe. Vraag altijd om expliciete bevestiging.
+- **NOTICE-meldingen** (bijv. "relation already exists, skipping") zijn normaal bij idempotente migraties.
+- **ERROR-meldingen** zijn een probleem — analyseer en los op.
+- **RLS**: alle tabellen hebben RLS aan met policy `FOR ALL USING (false)`. De service role key en DATABASE_URL bypassen RLS allebei.
+- Na een `db push` die nieuwe tabellen introduceert: check of `node scripts/setup_buckets.js` ook nodig is.
 
 ## Standaard: db push
 
-Als `$ARGUMENTS` leeg is, voer dan altijd `db push` uit:
+Als `$ARGUMENTS` leeg is of `db push`:
 
-1. Toon eerst de pending migraties: `npx supabase migration list`
-2. Vraag bevestiging indien er pending migraties zijn
-3. Push: `echo "Y" | npx supabase db push`
+1. Lees credentials: `export $(grep -v '^#' .env.local | xargs)`
+2. Toon pending migraties: `npx supabase migration list --db-url "$DATABASE_URL"`
+3. Push: `echo "Y" | npx supabase db push --db-url "$DATABASE_URL"`
 4. Rapporteer het resultaat
