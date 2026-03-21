@@ -53,8 +53,14 @@ const users = authUsers.map(u => ({
       </div>
 
       {fetchError && (
-        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
-          <strong>Fout bij ophalen gebruikers:</strong> {fetchError.message}
+        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 space-y-2">
+          <p><strong>Fout bij ophalen gebruikers:</strong> {fetchError.message}</p>
+          {fetchError.message?.includes('Bearer token') && (
+            <p class="text-red-600">
+              De <code class="font-mono bg-red-100 px-1 rounded">SUPABASE_SERVICE_ROLE_KEY</code> in Vercel is onjuist of bevat de Anon Key in plaats van de Service Role Key.
+              Controleer via <strong>Supabase → Project Settings → API → "service_role" key</strong> en zet de juiste waarde in <strong>Vercel → Settings → Environment Variables</strong>. Herstart daarna de deployment.
+            </p>
+          )}
         </div>
       )}
 
