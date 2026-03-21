@@ -4,6 +4,8 @@ import { getServiceRoleClient } from '../../lib/serverAuth';
 
 const supabase = getServiceRoleClient();
 
+const today = new Date().toISOString().slice(0, 10);
+
 // Load all stats in parallel
 const [
   { count: productCount },
@@ -20,6 +22,9 @@ const [
   { data: recentProducts },
   { data: pendingTasks },
   { data: upcomingOrders },
+  { count: todayAppointmentCount },
+  { count: overdueTaskCount },
+  { count: overdueOrderCount },
 ] = await Promise.all([
   supabase.from('products').select('*', { count: 'exact', head: true }),
   supabase.from('collections').select('*', { count: 'exact', head: true }),
@@ -35,6 +40,9 @@ const [
   supabase.from('products').select('*, collections(title)').order('created_at', { ascending: false }).limit(5),
   supabase.from('customer_tasks').select('*, customers(first_name, last_name, id)').is('completed_at', null).order('due_date', { ascending: true, nullsFirst: false }).limit(5),
   supabase.from('orders').select('*, customers(first_name, last_name, id), suppliers(name)').in('status', ['besteld', 'verwacht']).order('expected_delivery_date', { ascending: true, nullsFirst: false }).limit(5),
+  supabase.from('appointments').select('*', { count: 'exact', head: true }).eq('preferred_date', today),
+  supabase.from('customer_tasks').select('*', { count: 'exact', head: true }).is('completed_at', null).lt('due_date', today),
+  supabase.from('orders').select('*', { count: 'exact', head: true }).in('status', ['besteld', 'verwacht']).lt('expected_delivery_date', today),
 ]);
 
 const stats = [
@@ -50,7 +58,7 @@ const stats = [
   { label: 'A/B Tests', value: landingPageCount ?? 0, href: '/admin/landingpages' },
 ];
 
-const today = new Date().toISOString().slice(0, 10);
+const todayFormatted = new Date().toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' });
 ---
 
 <Layout title="Admin Dashboard">
@@ -64,6 +72,31 @@ const today = new Date().toISOString().slice(0, 10);
             <button type="submit" class="btn-premium text-[10px]">Uitloggen</button>
           </form>
         </div>
+      </div>
+
+      <!-- Daily summary -->
+      <div class="bg-white border border-champagne shadow-soft px-8 py-5 mb-8 flex flex-wrap items-center gap-x-8 gap-y-3">
+        <p class="text-xs tracking-[0.2em] uppercase font-body text-taupe capitalize">{todayFormatted}</p>
+        <div class="h-4 w-px bg-champagne hidden sm:block"></div>
+        <a href="/admin/afspraken" class="flex items-center gap-2 group">
+          <span class="text-xl font-display text-charcoal group-hover:text-blush-deep transition-colors">{todayAppointmentCount ?? 0}</span>
+          <span class="text-[10px] tracking-[0.15em] uppercase font-body text-taupe-light">afspraken vandaag</span>
+        </a>
+        <div class="h-4 w-px bg-champagne hidden sm:block"></div>
+        <a href="/admin/klanten" class="flex items-center gap-2 group">
+          <span class={`text-xl font-display transition-colors ${(overdueTaskCount ?? 0) > 0 ? 'text-red-500' : 'text-charcoal group-hover:text-blush-deep'}`}>{overdueTaskCount ?? 0}</span>
+          <span class="text-[10px] tracking-[0.15em] uppercase font-body text-taupe-light">verlate taken</span>
+        </a>
+        <div class="h-4 w-px bg-champagne hidden sm:block"></div>
+        <a href="/admin/bestellingen" class="flex items-center gap-2 group">
+          <span class={`text-xl font-display transition-colors ${(overdueOrderCount ?? 0) > 0 ? 'text-red-500' : 'text-charcoal group-hover:text-blush-deep'}`}>{overdueOrderCount ?? 0}</span>
+          <span class="text-[10px] tracking-[0.15em] uppercase font-body text-taupe-light">verlate leveringen</span>
+        </a>
+        <div class="h-4 w-px bg-champagne hidden sm:block"></div>
+        <a href="/admin/klanten" class="flex items-center gap-2 group">
+          <span class={`text-xl font-display transition-colors ${(pendingTaskCount ?? 0) > 0 ? 'text-gold' : 'text-charcoal group-hover:text-blush-deep'}`}>{pendingTaskCount ?? 0}</span>
+          <span class="text-[10px] tracking-[0.15em] uppercase font-body text-taupe-light">open taken totaal</span>
+        </a>
       </div>
 
       <!-- Live stats row -->
