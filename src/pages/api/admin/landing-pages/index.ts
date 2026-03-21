@@ -12,7 +12,10 @@ export const GET: APIRoute = async ({ request, cookies }) => {
     .select('*, landing_page_variants(id, name, traffic_percentage, is_control)')
     .order('created_at', { ascending: false });
 
-  if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+  if (error) {
+    console.error('Landing pages fetch error:', error);
+    return new Response(JSON.stringify({ error: 'Landingspagina\'s ophalen mislukt.' }), { status: 500 });
+  }
 
   // Enrich with analytics stats
   const enriched = await Promise.all((pages || []).map(async (page: any) => {
@@ -54,7 +57,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     .select()
     .single();
 
-  if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+  if (error) {
+    console.error('Landing page create error:', error);
+    return new Response(JSON.stringify({ error: 'Landingspagina aanmaken mislukt.' }), { status: 500 });
+  }
 
   // Auto-create two default variants (A + B, each 50%)
   const { error: variantError } = await supabase
@@ -64,7 +70,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       { landing_page_id: page.id, name: 'Variant B', is_control: false, traffic_percentage: 50, blocks: [] },
     ]);
 
-  if (variantError) return new Response(JSON.stringify({ error: variantError.message }), { status: 500 });
+  if (variantError) {
+    console.error('Landing page variants create error:', variantError);
+    return new Response(JSON.stringify({ error: 'Varianten aanmaken mislukt.' }), { status: 500 });
+  }
 
   return new Response(JSON.stringify({ data: page }), { status: 201 });
 };

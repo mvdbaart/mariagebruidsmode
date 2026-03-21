@@ -81,7 +81,7 @@ const bridalLiveForm = settingsMap.bridallive_embed_appointment;
                 </div>
 
                 <div class="text-center pt-8">
-                  <button type="submit" class="bg-charcoal text-warm-white px-12 py-4 text-[11px] tracking-[0.3em] uppercase hover:bg-taupe transition-all font-medium shadow-xl w-full md:w-auto">
+                  <button id="submit-btn" type="submit" class="bg-charcoal text-warm-white px-12 py-4 text-[11px] tracking-[0.3em] uppercase hover:bg-taupe transition-all font-medium shadow-xl w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed">
                     Afspraak aanvragen
                   </button>
                 </div>
@@ -114,14 +114,19 @@ const bridalLiveForm = settingsMap.bridallive_embed_appointment;
 <script>
   const form = document.getElementById('appointment-form') as HTMLFormElement | null;
   const status = document.getElementById('form-status');
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement | null;
 
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!status) return;
 
-      status.textContent = 'Bezig met verzenden...';
-      status.className = 'text-center text-xs font-body text-taupe italic mt-6 block';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Bezig met verzenden...';
+      }
+      status.textContent = '';
+      status.className = 'text-center text-xs font-body text-taupe italic mt-6 hidden';
 
       const formData = new FormData(form);
       const payload = {
@@ -148,9 +153,17 @@ const bridalLiveForm = settingsMap.bridallive_embed_appointment;
         status.textContent = 'Bedankt! We hebben je aanvraag ontvangen en nemen snel contact op.';
         status.className = 'text-center text-xs font-body text-green-700 italic mt-6 block';
         form.reset();
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Afspraak aanvragen';
+        }
       } catch (err: any) {
         status.textContent = err.message || 'Er is iets misgegaan. Probeer het later opnieuw.';
         status.className = 'text-center text-xs font-body text-red-600 italic mt-6 block';
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Afspraak aanvragen';
+        }
       }
     });
   }

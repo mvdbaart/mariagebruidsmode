@@ -1,0 +1,25 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Pagina niet gevonden">
+  <div class="min-h-screen bg-ivory flex items-center justify-center px-6 py-32">
+    <div class="text-center max-w-lg mx-auto">
+      <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-6">404</p>
+      <h1 class="font-display text-charcoal mb-6 leading-tight" style="font-size: clamp(36px, 6vw, 56px); font-weight: 300;">
+        Pagina niet <em class="italic font-light text-taupe">gevonden</em>
+      </h1>
+      <p class="text-taupe font-light leading-relaxed mb-12 text-sm">
+        De pagina die je zoekt bestaat niet of is verplaatst. Gebruik de navigatie of ga terug naar de homepage.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/" class="btn-premium">Naar homepage</a>
+        <a href="/trouwjurken" class="btn-gold">Bekijk trouwjurken</a>
+      </div>
+      <p class="mt-12 text-[10px] tracking-[0.2em] uppercase text-taupe/60 font-body">
+        Hulp nodig?
+        <a href="/afspraak-maken" class="underline hover:text-charcoal transition-colors ml-1">Maak een afspraak</a>
+      </p>
+    </div>
+  </div>
+</Layout>

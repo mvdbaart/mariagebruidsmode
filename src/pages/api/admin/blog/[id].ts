@@ -32,7 +32,8 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
     .eq('id', id);
 
   if (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { 'content-type': 'application/json' } });
+    console.error('Blog update error:', error);
+    return new Response(JSON.stringify({ error: 'Blogpost opslaan mislukt.' }), { status: 500, headers: { 'content-type': 'application/json' } });
   }
 
   return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'content-type': 'application/json' } });
@@ -53,7 +54,8 @@ export const DELETE: APIRoute = async ({ params, cookies }) => {
   const { error } = await supabase.from('blog_posts').delete().eq('id', id);
 
   if (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { 'content-type': 'application/json' } });
+    console.error('Blog delete error:', error);
+    return new Response(JSON.stringify({ error: 'Blogpost verwijderen mislukt.' }), { status: 500, headers: { 'content-type': 'application/json' } });
   }
 
   return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'content-type': 'application/json' } });

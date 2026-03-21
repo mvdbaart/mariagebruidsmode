@@ -1,6 +1,9 @@
 import type { APIRoute } from 'astro';
 import { getAdminAuthFromCookies, getServiceRoleClient } from '../../../lib/serverAuth';
+import { STORAGE_BUCKETS, type StorageBucket } from '../../../lib/storage';
 import { v4 as uuidv4 } from 'uuid';
+
+const VALID_BUCKETS = new Set<string>(Object.values(STORAGE_BUCKETS));
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   const adminAuth = await getAdminAuthFromCookies(cookies);
@@ -11,7 +14,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
-    const bucket = (formData.get('bucket') as string) || 'products';
+    const requestedBucket = (formData.get('bucket') as string) || 'products';
+    const bucket: StorageBucket = VALID_BUCKETS.has(requestedBucket)
+      ? (requestedBucket as StorageBucket)
+      : STORAGE_BUCKETS.products;
 
     if (!file) {
       return new Response(JSON.stringify({ error: 'Geen bestand gevonden.' }), { status: 400 });
@@ -32,7 +38,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       });
 
     if (error) {
-      return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+      console.error('Upload error:', error);
+      return new Response(JSON.stringify({ error: 'Uploaden mislukt.' }), { status: 500 });
     }
 
     const { data: { publicUrl } } = supabase.storage
@@ -40,7 +47,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       .getPublicUrl(filePath);
 
     return new Response(JSON.stringify({ url: publicUrl }), { status: 200 });
-  } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+  } catch (err) {
+    console.error('Upload exception:', err);
+    return new Response(JSON.stringify({ error: 'Er is een fout opgetreden.' }), { status: 500 });
   }
 };

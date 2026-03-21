@@ -3,25 +3,48 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import AnnouncementBar from '../components/AnnouncementBar.astro';
-import { getServiceRoleClient } from '../lib/serverAuth';
+import { getSiteSettings } from '../lib/settings';
 
 interface Props {
-	title: string;
+  title: string;
+  description?: string;
+  ogImage?: string;
+  canonical?: string;
+  ogType?: string;
 }
 
-const { title } = Astro.props;
+const { title, description: propDescription, ogImage, canonical, ogType = 'website' } = Astro.props;
+const siteUrl = import.meta.env.SITE || 'https://www.mariagebruidsmode.nl';
+const canonicalUrl = canonical || new URL(Astro.url.pathname, siteUrl).href;
 
-const supabase = getServiceRoleClient();
-const { data: settings } = await supabase
-  .from('site_settings')
-  .select('*')
-  .eq('id', 'current')
-  .single();
+const settings = await getSiteSettings(Astro);
 
 const colors = settings?.colors || {};
 const typography = settings?.typography || {};
 const ui = settings?.ui_styles || {};
 const meta = settings?.site_metadata || {};
+const contact = settings?.contact_info || {};
+
+const pageDescription = propDescription || meta.description || 'Exclusieve bruidsmode in de regio Eindhoven. Trouwjurken, trouwpakken en accessoires. Persoonlijk advies in onze boutique in Geldrop.';
+const pageOgImage = ogImage || meta.og_image || `${siteUrl}/images/og-default.jpg`;
+
+const orgJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'LocalBusiness',
+  name: contact.name || 'Mariage Bruidsmode',
+  url: siteUrl,
+  telephone: contact.phone || '+31402863673',
+  email: contact.email || 'info@mariagebruidsmode.nl',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: contact.address || 'Langstraat 128',
+    postalCode: contact.postal_code || '5664 GK',
+    addressLocality: contact.city || 'Geldrop',
+    addressCountry: 'NL',
+  },
+  openingHours: contact.opening_hours || undefined,
+  image: pageOgImage,
+};
 ---
 
 <!doctype html>
@@ -35,7 +58,26 @@ const meta = settings?.site_metadata || {};
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href={`https://fonts.googleapis.com/css2?family=${typography.heading_font?.replace(/ /g, '+')}:wght@${typography.heading_weight}&family=${typography.body_font?.replace(/ /g, '+')}:wght@${typography.body_weight}&display=swap`} rel="stylesheet">
 		<title>{title} | {meta.title || 'Mariage Bruidsmode'}</title>
-    <meta name="description" content={meta.description} />
+    <meta name="description" content={pageDescription} />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={meta.title || 'Mariage Bruidsmode'} />
+    <meta property="og:title" content={`${title} | ${meta.title || 'Mariage Bruidsmode'}`} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={pageOgImage} />
+    <meta property="og:locale" content="nl_NL" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={`${title} | ${meta.title || 'Mariage Bruidsmode'}`} />
+    <meta name="twitter:description" content={pageDescription} />
+    <meta name="twitter:image" content={pageOgImage} />
+
+    <!-- JSON-LD: LocalBusiness -->
+    <script type="application/ld+json" set:html={JSON.stringify(orgJsonLd)} />
 
     <style define:vars={{
       colorPrimary: colors.primary,

@@ -13,7 +13,7 @@ const { data: product } = await supabase
   .single();
 
 if (!product) {
-  return Astro.redirect('/trouwjurken');
+  return Astro.redirect('/404');
 }
 
 // Related products from same collection

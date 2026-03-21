@@ -1,7 +1,6 @@
 ---
-import { getServiceRoleClient } from '../lib/serverAuth';
-const supabase = getServiceRoleClient();
-const { data: settings } = await supabase.from('site_settings').select('logo_url, contact_info').eq('id', 'current').single();
+import { getSiteSettings } from '../lib/settings';
+const settings = await getSiteSettings(Astro);
 
 const logoUrl = settings?.logo_url ?? null;
 const c = (settings?.contact_info ?? {}) as Record<string, string>;

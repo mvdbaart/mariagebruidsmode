@@ -1,7 +1,6 @@
 ---
-import { getServiceRoleClient } from '../lib/serverAuth';
-const supabase = getServiceRoleClient();
-const { data: settings } = await supabase.from('site_settings').select('logo_url').eq('id', 'current').single();
+import { getSiteSettings } from '../lib/settings';
+const settings = await getSiteSettings(Astro);
 const logoUrl = settings?.logo_url ?? null;
 ---
 <header id="site-header" class="fixed left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-champagne shadow-soft transition-transform duration-300" style="top: var(--announcement-height, 0px)">
