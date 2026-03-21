@@ -3,6 +3,7 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import AnnouncementBar from '../components/AnnouncementBar.astro';
+import MobileTabBar from '../components/MobileTabBar.astro';
 import { getSiteSettings } from '../lib/settings';
 
 interface Props {
@@ -134,7 +135,7 @@ const orgJsonLd = {
     <a href="#main-content" class="skip-link">Direct naar inhoud</a>
     <AnnouncementBar />
     <Header />
-    <main id="main-content" tabindex="-1" style="padding-top: calc(72px + var(--announcement-height, 36px))">
+    <main id="main-content" tabindex="-1" class="pb-[60px] md:pb-0" style="padding-top: calc(72px + var(--announcement-height, 36px))">
 		  <slot />
     </main>
     <Footer />
@@ -143,17 +144,19 @@ const orgJsonLd = {
     <button
       id="back-to-top"
       aria-label="Terug naar boven"
-      class="fixed bottom-6 right-4 z-40 w-10 h-10 bg-charcoal text-warm-white flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300 shadow-card"
+      class="fixed bottom-[76px] right-4 md:bottom-6 z-40 w-10 h-10 bg-charcoal text-warm-white flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300 shadow-card"
     >
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <polyline points="18 15 12 9 6 15"></polyline>
       </svg>
     </button>
 
+    <MobileTabBar />
+
     <!-- Floating mobile CTA -->
     <div
       id="mobile-cta"
-      class="fixed bottom-0 left-0 right-0 z-40 md:hidden px-4 pb-4 pt-2 bg-gradient-to-t from-ivory to-transparent opacity-0 pointer-events-none transition-opacity duration-300"
+      class="fixed bottom-[60px] left-0 right-0 z-40 md:hidden px-4 pb-4 pt-2 bg-gradient-to-t from-ivory to-transparent opacity-0 pointer-events-none transition-opacity duration-300"
     >
       <a href="/afspraak-maken" class="btn-blush w-full flex items-center justify-center gap-2">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
