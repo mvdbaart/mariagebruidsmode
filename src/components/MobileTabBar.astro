@@ -1,0 +1,387 @@
+---
+const pathname = Astro.url.pathname;
+const isShop = pathname.startsWith('/trouwjurken') || pathname.startsWith('/trouwpakken') || pathname === '/';
+const isAccount = pathname.startsWith('/login') || pathname.startsWith('/admin');
+---
+
+<!-- Mobile bottom tab bar — only visible on < md -->
+<nav
+  id="mobile-tab-bar"
+  aria-label="Navigatie"
+  class="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t border-champagne shadow-[0_-2px_12px_rgba(44,42,40,0.08)]"
+  style="padding-bottom: env(safe-area-inset-bottom, 0px);"
+>
+  <div class="flex items-stretch h-[60px]">
+
+    <!-- Shop -->
+    <a
+      href="/trouwjurken"
+      aria-label="Shop"
+      class={`tab-item flex-1 flex flex-col items-center justify-center gap-1 transition-colors ${isShop ? 'tab-active' : 'text-taupe'}`}
+    >
+      <div class={`tab-icon-wrap flex items-center justify-center w-10 h-6 rounded-full transition-colors ${isShop ? 'bg-blush/40' : ''}`}>
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <path d="M16 10a4 4 0 0 1-8 0"></path>
+        </svg>
+      </div>
+      <span class="text-[9px] font-body tracking-[0.15em] uppercase leading-none">Shop</span>
+    </a>
+
+    <!-- My Account -->
+    <a
+      href="/login"
+      aria-label="Mijn account"
+      class={`tab-item flex-1 flex flex-col items-center justify-center gap-1 transition-colors ${isAccount ? 'tab-active' : 'text-taupe'}`}
+    >
+      <div class={`tab-icon-wrap flex items-center justify-center w-10 h-6 rounded-full transition-colors ${isAccount ? 'bg-blush/40' : ''}`}>
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+      </div>
+      <span class="text-[9px] font-body tracking-[0.15em] uppercase leading-none">My Account</span>
+    </a>
+
+    <!-- Zoek (search overlay trigger) -->
+    <button
+      id="tab-search-btn"
+      aria-label="Zoeken"
+      aria-haspopup="dialog"
+      class="tab-item flex-1 flex flex-col items-center justify-center gap-1 text-taupe transition-colors"
+    >
+      <div class="tab-icon-wrap flex items-center justify-center w-10 h-6 rounded-full">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </div>
+      <span class="text-[9px] font-body tracking-[0.15em] uppercase leading-none">Zoek</span>
+    </button>
+
+    <!-- Wishlist (wishlist overlay trigger) -->
+    <button
+      id="tab-wishlist-btn"
+      aria-label="Verlanglijst"
+      aria-haspopup="dialog"
+      class="tab-item flex-1 flex flex-col items-center justify-center gap-1 text-taupe transition-colors relative"
+    >
+      <div class="tab-icon-wrap flex items-center justify-center w-10 h-6 rounded-full relative">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+        <span
+          id="wishlist-badge"
+          class="absolute -top-1 -right-1 hidden w-4 h-4 bg-blush-deep text-white text-[9px] font-body rounded-full flex items-center justify-center leading-none"
+          aria-live="polite"
+        >0</span>
+      </div>
+      <span class="text-[9px] font-body tracking-[0.15em] uppercase leading-none">Wishlist</span>
+    </button>
+
+  </div>
+</nav>
+
+<!-- Search Overlay -->
+<div
+  id="search-overlay"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Zoeken"
+  class="fixed inset-0 z-[60] flex flex-col justify-end md:hidden pointer-events-none opacity-0 transition-opacity duration-300"
+>
+  <!-- Backdrop -->
+  <div id="search-backdrop" class="absolute inset-0 bg-charcoal/40"></div>
+
+  <!-- Panel -->
+  <div
+    id="search-panel"
+    class="relative bg-white rounded-t-2xl shadow-[0_-8px_32px_rgba(44,42,40,0.15)] p-6 translate-y-full transition-transform duration-300"
+    style="padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 1.5rem);"
+  >
+    <!-- Handle -->
+    <div class="w-10 h-1 bg-champagne rounded-full mx-auto mb-5"></div>
+
+    <h2 class="font-display text-xl text-charcoal mb-4">Zoeken</h2>
+
+    <form id="search-form" action="/trouwjurken" method="get" class="flex gap-2">
+      <input
+        id="search-input"
+        type="search"
+        name="q"
+        placeholder="Zoek op naam, ontwerper…"
+        autocomplete="off"
+        class="flex-1 border border-champagne bg-ivory px-4 py-3 text-sm font-body text-charcoal placeholder-taupe focus:outline-none focus:border-blush-deep transition-colors"
+      />
+      <button type="submit" aria-label="Zoeken" class="btn-blush px-4 py-3 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </button>
+    </form>
+
+    <div class="mt-4 flex flex-wrap gap-2">
+      <span class="text-[10px] font-body tracking-[0.12em] uppercase text-taupe mr-1">Populair:</span>
+      {['Trouwjurken', 'Trouwpakken', 'Accessoires'].map(term => (
+        <a
+          href={`/trouwjurken?q=${encodeURIComponent(term.toLowerCase())}`}
+          class="text-[10px] font-body tracking-[0.1em] uppercase px-3 py-1.5 border border-champagne text-taupe hover:border-blush-deep hover:text-charcoal transition-colors"
+        >
+          {term}
+        </a>
+      ))}
+    </div>
+
+    <button
+      id="search-close"
+      aria-label="Zoeken sluiten"
+      class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-taupe hover:text-charcoal transition-colors"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<!-- Wishlist Overlay -->
+<div
+  id="wishlist-overlay"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Verlanglijst"
+  class="fixed inset-0 z-[60] flex flex-col justify-end md:hidden pointer-events-none opacity-0 transition-opacity duration-300"
+>
+  <!-- Backdrop -->
+  <div id="wishlist-backdrop" class="absolute inset-0 bg-charcoal/40"></div>
+
+  <!-- Panel -->
+  <div
+    id="wishlist-panel"
+    class="relative bg-white rounded-t-2xl shadow-[0_-8px_32px_rgba(44,42,40,0.15)] max-h-[75vh] flex flex-col translate-y-full transition-transform duration-300"
+    style="padding-bottom: env(safe-area-inset-bottom, 0px);"
+  >
+    <!-- Handle -->
+    <div class="w-10 h-1 bg-champagne rounded-full mx-auto mt-4 mb-2 flex-shrink-0"></div>
+
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 pb-4 flex-shrink-0 border-b border-champagne">
+      <h2 class="font-display text-xl text-charcoal">Verlanglijst <span id="wishlist-count" class="text-sm font-body text-taupe font-normal"></span></h2>
+      <button
+        id="wishlist-close"
+        aria-label="Verlanglijst sluiten"
+        class="w-8 h-8 flex items-center justify-center text-taupe hover:text-charcoal transition-colors"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div id="wishlist-content" class="overflow-y-auto flex-1 px-6 py-4">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+</div>
+
+<style>
+  .tab-active {
+    color: var(--color-charcoal);
+  }
+  .tab-item {
+    -webkit-tap-highlight-color: transparent;
+  }
+</style>
+
+<script>
+  // ── Wishlist helpers ─────────────────────────────────────────────────────────
+  const WISHLIST_KEY = 'mariage-wishlist';
+
+  type WishlistItem = { slug: string; name: string; image?: string; url?: string };
+
+  function getWishlist(): WishlistItem[] {
+    try {
+      return JSON.parse(localStorage.getItem(WISHLIST_KEY) || '[]');
+    } catch {
+      return [];
+    }
+  }
+
+  function saveWishlist(items: WishlistItem[]) {
+    localStorage.setItem(WISHLIST_KEY, JSON.stringify(items));
+  }
+
+  function updateBadge() {
+    const items = getWishlist();
+    const badge = document.getElementById('wishlist-badge');
+    const countEl = document.getElementById('wishlist-count');
+    if (!badge) return;
+    if (items.length > 0) {
+      badge.textContent = String(items.length);
+      badge.classList.remove('hidden');
+      badge.classList.add('flex');
+    } else {
+      badge.classList.add('hidden');
+      badge.classList.remove('flex');
+    }
+    if (countEl) {
+      countEl.textContent = items.length > 0 ? `(${items.length})` : '';
+    }
+  }
+
+  function renderWishlist() {
+    const content = document.getElementById('wishlist-content');
+    if (!content) return;
+    const items = getWishlist();
+
+    if (items.length === 0) {
+      content.innerHTML = `
+        <div class="flex flex-col items-center justify-center py-10 text-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="text-champagne mb-4" aria-hidden="true">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+          <p class="font-body text-taupe text-sm mb-1">Nog geen favorieten</p>
+          <p class="font-body text-taupe/70 text-xs mb-5">Tik op het hartje bij een product om het op te slaan.</p>
+          <a href="/trouwjurken" class="btn-blush text-xs px-5 py-2.5">Bekijk collectie</a>
+        </div>
+      `;
+      return;
+    }
+
+    content.innerHTML = items.map(item => `
+      <div class="flex items-center gap-3 py-3 border-b border-champagne last:border-0">
+        ${item.image
+          ? `<img src="${item.image}" alt="${item.name}" class="w-14 h-14 object-cover flex-shrink-0 bg-ivory" loading="lazy" />`
+          : `<div class="w-14 h-14 bg-linen flex-shrink-0 flex items-center justify-center">
+               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="text-champagne" aria-hidden="true">
+                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+               </svg>
+             </div>`
+        }
+        <div class="flex-1 min-w-0">
+          <a href="${item.url || `/product/${item.slug}`}" class="font-body text-sm text-charcoal hover:text-blush-deep transition-colors truncate block">${item.name}</a>
+        </div>
+        <button
+          data-remove-slug="${item.slug}"
+          aria-label="${item.name} verwijderen uit verlanglijst"
+          class="flex-shrink-0 w-8 h-8 flex items-center justify-center text-taupe hover:text-blush-deep transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    `).join('');
+
+    // Remove buttons
+    content.querySelectorAll<HTMLButtonElement>('[data-remove-slug]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const slug = btn.getAttribute('data-remove-slug')!;
+        const updated = getWishlist().filter(i => i.slug !== slug);
+        saveWishlist(updated);
+        renderWishlist();
+        updateBadge();
+      });
+    });
+  }
+
+  // ── Overlay helpers ──────────────────────────────────────────────────────────
+  function openOverlay(overlayId: string, panelId: string) {
+    const overlay = document.getElementById(overlayId);
+    const panel = document.getElementById(panelId);
+    if (!overlay || !panel) return;
+    overlay.classList.remove('pointer-events-none', 'opacity-0');
+    overlay.classList.add('pointer-events-auto', 'opacity-100');
+    // Small delay so transition runs
+    requestAnimationFrame(() => {
+      panel.classList.remove('translate-y-full');
+    });
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeOverlay(overlayId: string, panelId: string, afterClose?: () => void) {
+    const overlay = document.getElementById(overlayId);
+    const panel = document.getElementById(panelId);
+    if (!overlay || !panel) return;
+    panel.classList.add('translate-y-full');
+    overlay.classList.remove('pointer-events-auto', 'opacity-100');
+    overlay.classList.add('opacity-0');
+    setTimeout(() => {
+      overlay.classList.add('pointer-events-none');
+      document.body.style.overflow = '';
+      afterClose?.();
+    }, 300);
+  }
+
+  // ── Search ───────────────────────────────────────────────────────────────────
+  const searchBtn = document.getElementById('tab-search-btn');
+  const searchClose = document.getElementById('search-close');
+  const searchBackdrop = document.getElementById('search-backdrop');
+  const searchInput = document.getElementById('search-input') as HTMLInputElement | null;
+
+  searchBtn?.addEventListener('click', () => {
+    openOverlay('search-overlay', 'search-panel');
+    setTimeout(() => searchInput?.focus(), 350);
+  });
+
+  searchClose?.addEventListener('click', () => closeOverlay('search-overlay', 'search-panel'));
+  searchBackdrop?.addEventListener('click', () => closeOverlay('search-overlay', 'search-panel'));
+
+  document.getElementById('search-overlay')?.addEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.key === 'Escape') closeOverlay('search-overlay', 'search-panel');
+  });
+
+  // ── Wishlist ─────────────────────────────────────────────────────────────────
+  const wishlistBtn = document.getElementById('tab-wishlist-btn');
+  const wishlistClose = document.getElementById('wishlist-close');
+  const wishlistBackdrop = document.getElementById('wishlist-backdrop');
+
+  wishlistBtn?.addEventListener('click', () => {
+    renderWishlist();
+    openOverlay('wishlist-overlay', 'wishlist-panel');
+  });
+
+  wishlistClose?.addEventListener('click', () => closeOverlay('wishlist-overlay', 'wishlist-panel'));
+  wishlistBackdrop?.addEventListener('click', () => closeOverlay('wishlist-overlay', 'wishlist-panel'));
+
+  document.getElementById('wishlist-overlay')?.addEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.key === 'Escape') closeOverlay('wishlist-overlay', 'wishlist-panel');
+  });
+
+  // ── Init ─────────────────────────────────────────────────────────────────────
+  updateBadge();
+
+  // Expose addToWishlist globally so product pages can call it
+  (window as any).mariageWishlist = {
+    add(item: WishlistItem) {
+      const list = getWishlist();
+      if (!list.find(i => i.slug === item.slug)) {
+        list.push(item);
+        saveWishlist(list);
+      }
+      updateBadge();
+    },
+    remove(slug: string) {
+      saveWishlist(getWishlist().filter(i => i.slug !== slug));
+      updateBadge();
+    },
+    has(slug: string) {
+      return getWishlist().some(i => i.slug === slug);
+    },
+    toggle(item: WishlistItem) {
+      if ((window as any).mariageWishlist.has(item.slug)) {
+        (window as any).mariageWishlist.remove(item.slug);
+        return false;
+      } else {
+        (window as any).mariageWishlist.add(item);
+        return true;
+      }
+    },
+  };
+</script>
