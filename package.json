@@ -15,7 +15,11 @@
     "setup:buckets": "node scripts/setup_buckets.js",
     "extract:site": "node scripts/extract_site_content.js",
     "mirror:extract": "node scripts/mirror_and_extract.js",
-    "grant:admin": "node scripts/grant_admin_role.js"
+    "grant:admin": "node scripts/grant_admin_role.js",
+    "images:dresses:map:dry": "node scripts/map_dress_images_to_products.js",
+    "images:dresses:map:apply": "node scripts/map_dress_images_to_products.js --apply",
+    "catalog:dresses:dry": "node scripts/import_dress_catalog_from_folders.js",
+    "catalog:dresses:apply": "node scripts/import_dress_catalog_from_folders.js --apply"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.8",

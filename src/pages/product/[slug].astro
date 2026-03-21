@@ -1,10 +1,13 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { supabase } from '../../lib/supabase';
+import { getAdminAuthFromCookies } from '../../lib/serverAuth';
 
 export const prerender = false;
 
 const { slug } = Astro.params;
+const adminAuth = await getAdminAuthFromCookies(Astro.cookies);
+const isAdmin = Boolean(adminAuth);
 
 const { data: product } = await supabase
   .from('products')
@@ -31,6 +34,13 @@ const dressFallbackImage = '/images/jurkvormen/a-lijn.png';
 const suitFallbackImage = '/images/team/TKF_9016-scaled.jpg';
 const primaryFallbackImage = isGroom ? suitFallbackImage : dressFallbackImage;
 const productImages = product.images && product.images.length > 0 ? product.images : [primaryFallbackImage];
+const rawFeatures = Array.isArray(product.features) ? product.features : [];
+const productTags = rawFeatures
+  .map((item: string) => String(item || '').trim())
+  .filter((item: string) => item.startsWith('#'));
+const productSpecs = rawFeatures
+  .map((item: string) => String(item || '').trim())
+  .filter((item: string) => item.length > 0 && !item.startsWith('#'));
 ---
 
 <Layout title={`${product.name} — ${product.brand} | Mariage Bruidsmode`}>
@@ -146,13 +156,26 @@ const productImages = product.images && product.images.length > 0 ? product.imag
           )}
 
           <!-- Features -->
-          {product.features && product.features.length > 0 && (
+          {productSpecs.length > 0 && (
             <div class="mb-10">
-              <p class="text-[10px] tracking-[0.25em] uppercase text-taupe font-body mb-4">Kenmerken</p>
+              <p class="text-[10px] tracking-[0.25em] uppercase text-taupe font-body mb-4">Specificaties</p>
               <div class="flex flex-wrap gap-2">
-                {product.features.map((f: string) => (
+                {productSpecs.map((f: string) => (
                   <span class="text-[10px] tracking-[0.1em] uppercase font-body text-blush-deep border border-blush/50 px-3 py-1.5 bg-white hover:bg-blush/10 transition-colors">
                     {f}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {productTags.length > 0 && (
+            <div class="mb-10">
+              <p class="text-[10px] tracking-[0.25em] uppercase text-taupe font-body mb-4">Tags</p>
+              <div class="flex flex-wrap gap-2">
+                {productTags.map((tag: string) => (
+                  <span class="text-[10px] tracking-[0.1em] uppercase font-body text-charcoal border border-champagne px-3 py-1.5 bg-white">
+                    {tag}
                   </span>
                 ))}
               </div>
@@ -172,6 +195,44 @@ const productImages = product.images && product.images.length > 0 ? product.imag
           <p class="text-[11px] font-body text-taupe-light leading-relaxed">
             ✓ Gratis persoonlijk advies &nbsp;·&nbsp; ✓ Probeer in onze winkel &nbsp;·&nbsp; ✓ Geldrop
           </p>
+          {isAdmin && (
+            <div class="mt-10 border border-champagne bg-white p-5">
+              <p class="text-[10px] tracking-[0.25em] uppercase text-blush-deep font-body mb-4">Beheer productinformatie</p>
+              <form id="admin-product-inline-form" class="space-y-4">
+                <input type="hidden" name="id" value={product.id} />
+                <input type="hidden" name="name" value={product.name} />
+                <input type="hidden" name="slug" value={product.slug} />
+                <input type="hidden" name="brand" value={product.brand ?? ''} />
+                <input type="hidden" name="collection_id" value={product.collection_id ?? ''} />
+
+                <div>
+                  <label class="text-[10px] tracking-[0.2em] uppercase text-taupe font-body block mb-2">Omschrijving</label>
+                  <textarea name="description" rows="4" class="w-full border border-champagne bg-ivory p-3 text-sm font-body outline-none focus:border-charcoal">{product.description ?? ''}</textarea>
+                </div>
+
+                <div>
+                  <label class="text-[10px] tracking-[0.2em] uppercase text-taupe font-body block mb-2">Prijsrange</label>
+                  <input type="text" name="price_range" value={product.price_range ?? ''} class="w-full border border-champagne bg-ivory p-3 text-sm font-body outline-none focus:border-charcoal" placeholder="EUR 1.500 - EUR 2.500" />
+                </div>
+
+                <div>
+                  <label class="text-[10px] tracking-[0.2em] uppercase text-taupe font-body block mb-2">Specificaties (1 per regel)</label>
+                  <textarea name="specs" rows="4" class="w-full border border-champagne bg-ivory p-3 text-sm font-body outline-none focus:border-charcoal">{productSpecs.join('\n')}</textarea>
+                </div>
+
+                <div>
+                  <label class="text-[10px] tracking-[0.2em] uppercase text-taupe font-body block mb-2">Tags (komma gescheiden, zonder #)</label>
+                  <input type="text" name="tags" value={productTags.map((t: string) => t.replace(/^#/, '')).join(', ')} class="w-full border border-champagne bg-ivory p-3 text-sm font-body outline-none focus:border-charcoal" placeholder="bohemian, kant, 2026" />
+                </div>
+
+                <div class="flex items-center gap-3">
+                  <button type="submit" class="btn-premium py-3 px-6">Opslaan</button>
+                  <a href={`/admin/product/${product.id}/edit`} class="btn-gold py-3 px-6">Volledige bewerken</a>
+                </div>
+                <p id="admin-inline-status" class="text-xs text-taupe hidden"></p>
+              </form>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -322,6 +383,61 @@ const productImages = product.images && product.images.length > 0 ? product.imag
     if (e.target === lightbox) lightbox.close();
   });
 
+  // Inline admin editor for description/specifications/tags
+  const adminForm = document.getElementById('admin-product-inline-form') as HTMLFormElement | null;
+  const adminStatus = document.getElementById('admin-inline-status') as HTMLParagraphElement | null;
+  adminForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!adminStatus) return;
+
+    const formData = new FormData(adminForm);
+    const id = String(formData.get('id') ?? '').trim();
+    const name = String(formData.get('name') ?? '').trim();
+    const slug = String(formData.get('slug') ?? '').trim();
+    const brand = String(formData.get('brand') ?? '').trim();
+    const collection_id = String(formData.get('collection_id') ?? '').trim();
+    const description = String(formData.get('description') ?? '').trim();
+    const price_range = String(formData.get('price_range') ?? '').trim();
+    const specs = String(formData.get('specs') ?? '')
+      .split('\n')
+      .map((item) => item.trim())
+      .filter(Boolean);
+    const tags = String(formData.get('tags') ?? '')
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean)
+      .map((item) => (item.startsWith('#') ? item : `#${item}`));
+    const features = [...specs, ...tags];
+
+    adminStatus.className = 'text-xs text-taupe block';
+    adminStatus.textContent = 'Opslaan...';
+
+    const response = await fetch(`/api/admin/products/${id}`, {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        name,
+        slug,
+        brand: brand || null,
+        collection_id: collection_id || null,
+        description: description || null,
+        price_range: price_range || null,
+        features,
+        images: [...allImages],
+      }),
+    });
+
+    const result = await response.json().catch(() => ({ error: 'Onbekende fout.' }));
+    if (!response.ok) {
+      adminStatus.className = 'text-xs text-red-600 block';
+      adminStatus.textContent = `Opslaan mislukt: ${result.error ?? 'Onbekende fout.'}`;
+      return;
+    }
+
+    adminStatus.className = 'text-xs text-green-700 block';
+    adminStatus.textContent = 'Opgeslagen. Herlaad de pagina om de nieuwe weergave direct te zien.';
+  });
+
   // Keyboard navigation
   lightbox?.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft') lightboxPrev?.click();
@@ -344,3 +460,4 @@ const productImages = product.images && product.images.length > 0 ? product.imag
     background: transparent;
   }
 </style>
+

@@ -1,10 +1,13 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { supabase } from '../../lib/supabase';
+import { getAdminAuthFromCookies } from '../../lib/serverAuth';
 
 export const prerender = false;
 
 const { slug } = Astro.params;
+const adminAuth = await getAdminAuthFromCookies(Astro.cookies);
+const isAdmin = Boolean(adminAuth);
 
 const { data: collection } = await supabase
   .from('collections')
@@ -53,7 +56,12 @@ const dressFallbackImage = '/images/jurkvormen/a-lijn.png';
             <span class="text-[10px] tracking-[0.3em] uppercase text-secondary block mb-2">{product.brand}</span>
             <h3 class="text-xl font-serif text-accent mb-2">{product.name}</h3>
             <p class="text-sm text-accent/60 font-light italic truncate mb-4">{product.description}</p>
-            <a href={`/product/${product.slug}`} class="text-[10px] tracking-widest uppercase border-b border-accent/20 pb-1 hover:border-secondary transition-colors">Details bekijken</a>
+            <div class="flex items-center gap-4">
+              <a href={`/product/${product.slug}`} class="text-[10px] tracking-widest uppercase border-b border-accent/20 pb-1 hover:border-secondary transition-colors">Details bekijken</a>
+              {isAdmin && (
+                <a href={`/admin/product/${product.id}/edit`} class="text-[10px] tracking-widest uppercase border-b border-secondary/40 pb-1 text-secondary hover:border-secondary transition-colors">Specificaties invullen</a>
+              )}
+            </div>
           </div>
         ))}
       </div>

@@ -18,6 +18,8 @@ const { data: collections } = await supabase
   .from('collections')
   .select('id, title')
   .order('title', { ascending: true });
+
+const previewFallbackImage = '/images/jurkvormen/a-lijn.png';
 ---
 
 <Layout title={`Bewerk ${product.name}`}>
@@ -31,7 +33,8 @@ const { data: collections } = await supabase
         <span class="text-secondary">Bewerk Product</span>
       </nav>
 
-      <div class="max-w-4xl bg-white border border-secondary/10 shadow-sm p-12">
+      <div class="max-w-7xl grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_360px] gap-8 items-start">
+        <div class="bg-white border border-secondary/10 shadow-sm p-12">
         <h1 class="text-3xl font-serif text-accent italic mb-12">Bewerk <span class="text-secondary opacity-50">{product.name}</span></h1>
 
         <form id="edit-product-form" class="space-y-8">
@@ -61,6 +64,11 @@ const { data: collections } = await supabase
               <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Slug</label>
               <input type="text" name="slug" value={product.slug} required class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent" />
             </div>
+
+            <div class="space-y-2">
+              <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Prijsrange</label>
+              <input type="text" name="price_range" value={product.price_range ?? ''} class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent" placeholder="€ 1.500 - € 2.500" />
+            </div>
           </div>
 
           <div class="space-y-2">
@@ -69,8 +77,8 @@ const { data: collections } = await supabase
           </div>
 
           <div class="space-y-2">
-            <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Kenmerken (komma gescheiden)</label>
-            <input type="text" name="features" value={product.features?.join(', ')} class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent" />
+            <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Specificaties/Tags (komma gescheiden)</label>
+            <input type="text" name="features" value={product.features?.join(', ')} class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent" placeholder="bijv. A-lijn, kant, #bohemian, #2026" />
           </div>
 
           <div class="space-y-6" id="file-uploader">
@@ -190,6 +198,8 @@ const { data: collections } = await supabase
                   renderGallery();
                 });
               });
+
+              document.dispatchEvent(new CustomEvent('product-images-changed'));
             }
 
             async function uploadFiles(newFiles) {
@@ -269,6 +279,36 @@ const { data: collections } = await supabase
 
           <p id="form-status" class="text-sm font-light hidden"></p>
         </form>
+        </div>
+
+        <aside class="xl:sticky xl:top-28">
+          <div class="bg-white border border-secondary/10 shadow-sm overflow-hidden">
+            <div class="aspect-[3/4] bg-primary/5 border-b border-secondary/10">
+              <img
+                id="preview-image"
+                src={product.images?.[0] || previewFallbackImage}
+                alt={product.name}
+                class="w-full h-full object-cover"
+                onerror={`this.onerror=null;this.src='${previewFallbackImage}'`}
+              />
+            </div>
+            <div class="p-6 space-y-4">
+              <p class="text-[9px] tracking-[0.25em] uppercase text-secondary font-body">Live Preview</p>
+              <p id="preview-brand" class="text-[10px] tracking-[0.2em] uppercase text-accent/70 font-body">{product.brand ?? ''}</p>
+              <h2 id="preview-name" class="text-2xl font-serif text-accent leading-tight">{product.name}</h2>
+              <p id="preview-price" class="text-sm text-accent/70 font-light">{product.price_range ?? ''}</p>
+              <p id="preview-description" class="text-sm text-accent/70 font-light leading-relaxed whitespace-pre-line">{product.description ?? 'Nog geen omschrijving ingevuld.'}</p>
+              <div>
+                <p class="text-[9px] tracking-[0.2em] uppercase text-accent/50 mb-2">Specificaties</p>
+                <div id="preview-specs" class="flex flex-wrap gap-2"></div>
+              </div>
+              <div>
+                <p class="text-[9px] tracking-[0.2em] uppercase text-accent/50 mb-2">Tags</p>
+                <div id="preview-tags" class="flex flex-wrap gap-2"></div>
+              </div>
+            </div>
+          </div>
+        </aside>
       </div>
     </div>
   </div>
@@ -277,6 +317,56 @@ const { data: collections } = await supabase
 <script>
   const form = document.getElementById('edit-product-form') as HTMLFormElement;
   const status = document.getElementById('form-status');
+  const previewImage = document.getElementById('preview-image') as HTMLImageElement | null;
+  const previewName = document.getElementById('preview-name');
+  const previewBrand = document.getElementById('preview-brand');
+  const previewPrice = document.getElementById('preview-price');
+  const previewDescription = document.getElementById('preview-description');
+  const previewSpecs = document.getElementById('preview-specs');
+  const previewTags = document.getElementById('preview-tags');
+  const previewFallback = '/images/jurkvormen/a-lijn.png';
+
+  function parseFeatures(raw: string) {
+    return raw.split(',').map((s) => s.trim()).filter(Boolean);
+  }
+
+  function renderFeatureChips() {
+    if (!form || !previewSpecs || !previewTags) return;
+    const raw = String(new FormData(form).get('features') ?? '');
+    const all = parseFeatures(raw);
+    const specs = all.filter((item) => !item.startsWith('#'));
+    const tags = all.filter((item) => item.startsWith('#'));
+
+    previewSpecs.innerHTML = specs.length
+      ? specs.map((s) => `<span class="text-[10px] uppercase tracking-[0.08em] border border-secondary/30 px-2 py-1">${s}</span>`).join('')
+      : '<span class="text-xs text-accent/50 font-light">Geen specificaties.</span>';
+    previewTags.innerHTML = tags.length
+      ? tags.map((t) => `<span class="text-[10px] uppercase tracking-[0.08em] border border-accent/20 bg-primary/10 px-2 py-1">${t}</span>`).join('')
+      : '<span class="text-xs text-accent/50 font-light">Geen tags.</span>';
+  }
+
+  function refreshPreview() {
+    if (!form) return;
+    const data = new FormData(form);
+    const name = String(data.get('name') ?? '').trim();
+    const brand = String(data.get('brand') ?? '').trim();
+    const price = String(data.get('price_range') ?? '').trim();
+    const description = String(data.get('description') ?? '').trim();
+    const images = (window as any).getCurrentImages ? (window as any).getCurrentImages() : [];
+    const firstImage = Array.isArray(images) && images.length ? images[0] : previewFallback;
+
+    if (previewImage) previewImage.src = firstImage;
+    if (previewName) previewName.textContent = name || 'Naam ontbreekt';
+    if (previewBrand) previewBrand.textContent = brand || 'Merk';
+    if (previewPrice) previewPrice.textContent = price || 'Prijs op aanvraag';
+    if (previewDescription) previewDescription.textContent = description || 'Nog geen omschrijving ingevuld.';
+
+    renderFeatureChips();
+  }
+
+  form?.addEventListener('input', refreshPreview);
+  document.addEventListener('product-images-changed', refreshPreview);
+  refreshPreview();
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -291,10 +381,9 @@ const { data: collections } = await supabase
     const brand = formData.get('brand');
     const collection_id = formData.get('collection_id');
     const slug = formData.get('slug');
+    const price_range = formData.get('price_range');
     const description = formData.get('description');
     const featuresLine = formData.get('features') as string;
-    const image_url = formData.get('image_url');
-
     const features = featuresLine ? featuresLine.split(',').map(f => f.trim()) : [];
     const images = (window as any).getCurrentImages ? (window as any).getCurrentImages() : [];
 
@@ -308,6 +397,7 @@ const { data: collections } = await supabase
         brand,
         collection_id,
         slug,
+        price_range,
         description,
         features,
         images,
