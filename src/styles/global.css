@@ -104,51 +104,71 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Design System Components */
 
-.btn-premium {
-  @apply inline-flex items-center gap-2 font-body font-normal text-[11px] tracking-[0.2em] uppercase cursor-pointer border-none transition-all duration-300 no-underline whitespace-nowrap;
-  background-color: var(--color-charcoal);
-  color: var(--color-warm-white);
-  padding: 14px 36px;
-}
+@layer components {
+  .btn-premium {
+    @apply inline-flex items-center gap-2 font-body font-normal text-[11px] tracking-[0.2em] uppercase cursor-pointer border-none transition-all duration-300 no-underline whitespace-nowrap;
+    background-color: var(--color-charcoal);
+    color: var(--color-warm-white);
+    padding: 14px 36px;
+  }
 
-.btn-premium:hover {
-  background-color: var(--color-taupe);
-}
+  .btn-premium:hover {
+    background-color: var(--color-taupe);
+  }
 
-.btn-blush {
-  @apply inline-flex items-center gap-2 font-body font-normal text-[11px] tracking-[0.2em] uppercase cursor-pointer border-none transition-all duration-300 no-underline whitespace-nowrap;
-  background-color: var(--color-blush-deep);
-  color: var(--color-warm-white);
-  padding: 14px 36px;
-}
+  .btn-blush {
+    @apply inline-flex items-center gap-2 font-body font-normal text-[11px] tracking-[0.2em] uppercase cursor-pointer border-none transition-all duration-300 no-underline whitespace-nowrap;
+    background-color: var(--color-blush-deep);
+    color: var(--color-warm-white);
+    padding: 14px 36px;
+  }
 
-.btn-blush:hover {
-  background-color: var(--color-dusty-rose);
-}
+  .btn-blush:hover {
+    background-color: var(--color-dusty-rose);
+  }
 
-.btn-gold {
-  @apply inline-flex items-center gap-2 font-body font-normal text-[11px] tracking-[0.2em] uppercase cursor-pointer transition-all duration-300 no-underline whitespace-nowrap;
-  background-color: transparent;
-  color: var(--color-gold);
-  padding: 13px 35px;
-  border: 1px solid var(--color-gold);
-}
+  .btn-gold {
+    @apply inline-flex items-center gap-2 font-body font-normal text-[11px] tracking-[0.2em] uppercase cursor-pointer transition-all duration-300 no-underline whitespace-nowrap;
+    background-color: transparent;
+    color: var(--color-gold);
+    padding: 13px 35px;
+    border: 1px solid var(--color-gold);
+  }
 
-.btn-gold:hover {
-  background-color: var(--color-gold);
-  color: var(--color-warm-white);
-}
+  .btn-gold:hover {
+    background-color: var(--color-gold);
+    color: var(--color-warm-white);
+  }
 
-/* Backwards-compatible button token used by older templates */
-.btn-primary {
-  @apply inline-flex items-center gap-2 font-body font-normal text-[11px] tracking-[0.2em] uppercase cursor-pointer border-none transition-all duration-300 no-underline whitespace-nowrap;
-  background-color: var(--color-charcoal);
-  color: var(--color-warm-white);
-  padding: 14px 36px;
-}
+  /* Backwards-compatible button token used by older templates */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 font-body font-normal text-[11px] tracking-[0.2em] uppercase cursor-pointer border-none transition-all duration-300 no-underline whitespace-nowrap;
+    background-color: var(--color-charcoal);
+    color: var(--color-warm-white);
+    padding: 14px 36px;
+  }
 
-.btn-primary:hover {
-  background-color: var(--color-taupe);
+  .btn-primary:hover {
+    background-color: var(--color-taupe);
+  }
+
+  .glass-card {
+    @apply bg-white shadow-card overflow-hidden transition-all duration-300;
+  }
+
+  .glass-card:hover {
+    @apply shadow-hover -translate-y-1;
+  }
+
+  /* Helper Classes from Design System */
+  .ds-eyebrow {
+    @apply font-body text-[10px] font-normal tracking-[0.3em] uppercase text-blush-deep;
+  }
+
+  .ds-quote {
+    font-family: var(--font-italic, serif);
+    @apply italic text-[clamp(18px,2.5vw,26px)] font-light leading-[1.6] text-charcoal;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -162,24 +182,6 @@ h1, h2, h3, h4, h5, h6 {
     animation: none !important;
     transition: none !important;
   }
-}
-
-.glass-card {
-  @apply bg-white shadow-card overflow-hidden transition-all duration-300;
-}
-
-.glass-card:hover {
-  @apply shadow-hover -translate-y-1;
-}
-
-/* Helper Classes from Design System */
-.ds-eyebrow {
-  @apply font-body text-[10px] font-normal tracking-[0.3em] uppercase text-blush-deep;
-}
-
-.ds-quote {
-  font-family: var(--font-italic, serif);
-  @apply italic text-[clamp(18px,2.5vw,26px)] font-light leading-[1.6] text-charcoal;
 }
 
 .hero-image {
