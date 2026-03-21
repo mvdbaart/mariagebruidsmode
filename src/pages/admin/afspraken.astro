@@ -3,61 +3,129 @@ import Layout from '../../layouts/Layout.astro';
 import { getServiceRoleClient } from '../../lib/serverAuth';
 
 const supabase = getServiceRoleClient();
-const { data: appointments } = await supabase
+
+const url = new URL(Astro.request.url);
+const filterStatus = url.searchParams.get('status') || 'all';
+
+let query = supabase
   .from('appointments')
-  .select('*')
-  .order('created_at', { ascending: false });
+  .select('*, employees(first_name, last_name)')
+  .order('preferred_date', { ascending: true })
+  .order('start_time', { ascending: true, nullsFirst: false });
+
+if (filterStatus !== 'all') {
+  query = query.eq('status', filterStatus);
+}
+
+const { data: appointments } = await query;
 
 const today = new Date().toISOString().split('T')[0];
+
+const statusLabel: Record<string, string> = {
+  pending: 'In afwachting',
+  confirmed: 'Bevestigd',
+  cancelled: 'Geannuleerd',
+};
+const statusColor: Record<string, string> = {
+  pending: 'bg-amber-100 text-amber-800',
+  confirmed: 'bg-green-100 text-green-800',
+  cancelled: 'bg-gray-100 text-gray-500',
+};
+
+const tabs = [
+  { value: 'all', label: 'Alle' },
+  { value: 'pending', label: 'In afwachting' },
+  { value: 'confirmed', label: 'Bevestigd' },
+  { value: 'cancelled', label: 'Geannuleerd' },
+];
 ---
 
 <Layout title="Admin Afspraken">
   <div class="pt-32 pb-24 bg-ivory min-h-screen">
     <div class="container mx-auto px-6">
-      <div class="flex justify-between items-center mb-12">
+      <div class="flex flex-wrap justify-between items-center mb-8 gap-4">
         <h1 class="font-display font-normal text-charcoal text-3xl italic">Afspraken <span class="text-blush-deep opacity-60">Inbox</span></h1>
-        <a href="/admin" class="text-[10px] uppercase tracking-widest text-taupe hover:text-blush-deep transition-colors">← Dashboard</a>
+        <div class="flex gap-3">
+          <a href="/admin/afspraken/kalender" class="text-[10px] uppercase tracking-widest text-taupe hover:text-blush-deep transition-colors border border-champagne px-4 py-2">Kalenderweergave</a>
+          <a href="/admin" class="text-[10px] uppercase tracking-widest text-taupe hover:text-blush-deep transition-colors">← Dashboard</a>
+        </div>
+      </div>
+
+      <!-- Filter tabs -->
+      <div class="flex gap-0 mb-6 border-b border-champagne">
+        {tabs.map(tab => (
+          <a
+            href={`/admin/afspraken${tab.value !== 'all' ? `?status=${tab.value}` : ''}`}
+            class={`px-5 py-3 text-[10px] uppercase tracking-widest font-body transition-colors border-b-2 -mb-px ${
+              filterStatus === tab.value
+                ? 'border-charcoal text-charcoal'
+                : 'border-transparent text-taupe hover:text-charcoal'
+            }`}
+          >
+            {tab.label}
+          </a>
+        ))}
       </div>
 
       <div class="bg-white shadow-soft border border-champagne overflow-hidden">
         <div class="overflow-x-auto">
-          <table class="w-full min-w-[700px] text-left border-collapse">
+          <table class="w-full min-w-[900px] text-left border-collapse">
             <thead class="bg-cream">
               <tr>
-                <th class="px-6 py-4 text-[10px] tracking-widest uppercase text-charcoal font-medium border-b border-champagne">Naam</th>
-                <th class="px-6 py-4 text-[10px] tracking-widest uppercase text-charcoal font-medium border-b border-champagne">E-mail / Telefoon</th>
-                <th class="px-6 py-4 text-[10px] tracking-widest uppercase text-charcoal font-medium border-b border-champagne">Datum</th>
-                <th class="px-6 py-4 text-[10px] tracking-widest uppercase text-charcoal font-medium border-b border-champagne">Type</th>
-                <th class="px-6 py-4 text-[10px] tracking-widest uppercase text-charcoal font-medium border-b border-champagne">Bericht</th>
-                <th class="px-6 py-4 text-[10px] tracking-widest uppercase text-charcoal font-medium border-b border-champagne">Ontvangen</th>
+                <th class="px-5 py-4 text-[10px] tracking-widest uppercase text-charcoal font-medium border-b border-champagne">Naam</th>
+                <th class="px-5 py-4 text-[10px] tracking-widest uppercase text-charcoal font-medium border-b border-champagne">Contact</th>
+                <th class="px-5 py-4 text-[10px] tracking-widest uppercase text-charcoal font-medium border-b border-champagne">Datum &amp; Tijd</th>
+                <th class="px-5 py-4 text-[10px] tracking-widest uppercase text-charcoal font-medium border-b border-champagne">Type</th>
+                <th class="px-5 py-4 text-[10px] tracking-widest uppercase text-charcoal font-medium border-b border-champagne">Status</th>
+                <th class="px-5 py-4 text-[10px] tracking-widest uppercase text-charcoal font-medium border-b border-champagne">Medewerker</th>
+                <th class="px-5 py-4 text-[10px] tracking-widest uppercase text-charcoal font-medium border-b border-champagne">Acties</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-champagne">
               {appointments?.map((app) => {
                 const isToday = app.preferred_date?.startsWith(today);
+                const employee = app.employees as { first_name: string; last_name: string } | null;
                 return (
                   <tr class={`hover:bg-cream/60 transition-colors ${isToday ? 'bg-blush/10' : ''}`}>
-                    <td class="px-6 py-4">
+                    <td class="px-5 py-4">
                       <p class="font-body font-medium text-sm text-charcoal">{app.full_name}</p>
                       {isToday && <span class="text-[9px] uppercase tracking-wider text-blush-deep font-body">Vandaag</span>}
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="px-5 py-4">
                       <a href={`mailto:${app.email}`} class="text-sm font-body text-taupe hover:text-blush-deep block">{app.email}</a>
                       {app.phone && <a href={`tel:${app.phone}`} class="text-xs font-body text-taupe-light">{app.phone}</a>}
                     </td>
-                    <td class="px-6 py-4 text-sm font-body text-taupe whitespace-nowrap">
-                      {app.preferred_date ? new Date(app.preferred_date).toLocaleDateString('nl-NL') : '—'}
+                    <td class="px-5 py-4 text-sm font-body text-taupe whitespace-nowrap">
+                      <span class="block">{app.preferred_date ? new Date(app.preferred_date + 'T00:00:00').toLocaleDateString('nl-NL') : '—'}</span>
+                      {app.start_time && (
+                        <span class="text-xs text-taupe-light">{app.start_time.slice(0, 5)}{app.end_time ? ` – ${app.end_time.slice(0, 5)}` : ''}</span>
+                      )}
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="px-5 py-4">
                       <span class={`text-[9px] uppercase tracking-wider font-body px-2 py-1 ${app.appointment_type === 'vip' ? 'bg-gold/20 text-charcoal' : 'bg-champagne text-taupe'}`}>
-                        {app.appointment_type === 'vip' ? 'VIP (120 min)' : 'Standaard (90 min)'}
+                        {app.appointment_type === 'vip' ? 'VIP' : 'Standaard'}
                       </span>
                     </td>
-                    <td class="px-6 py-4 max-w-[220px]">
-                      <p class="text-xs font-body text-taupe-light line-clamp-2">{app.message || '—'}</p>
+                    <td class="px-5 py-4">
+                      <span class={`text-[9px] uppercase tracking-wider font-body px-2 py-1 rounded-sm ${statusColor[app.status] || statusColor.pending}`}>
+                        {statusLabel[app.status] || app.status}
+                      </span>
                     </td>
-                    <td class="px-6 py-4 text-xs font-body text-taupe-light whitespace-nowrap">
-                      {app.created_at ? new Date(app.created_at).toLocaleDateString('nl-NL') : '—'}
+                    <td class="px-5 py-4 text-sm font-body text-taupe">
+                      {employee ? `${employee.first_name} ${employee.last_name}` : <span class="text-taupe-light italic text-xs">Niet toegewezen</span>}
+                    </td>
+                    <td class="px-5 py-4">
+                      <div class="flex items-center gap-3">
+                        <a href={`/admin/afspraken/${app.id}`} class="text-[10px] uppercase tracking-widest text-taupe hover:text-charcoal transition-colors whitespace-nowrap">Bewerken</a>
+                        {app.status === 'pending' && (
+                          <button
+                            class="confirm-btn text-[10px] uppercase tracking-widest text-green-700 hover:text-green-900 transition-colors whitespace-nowrap"
+                            data-id={app.id}
+                          >
+                            Bevestigen
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );
@@ -66,13 +134,38 @@ const today = new Date().toISOString().split('T')[0];
           </table>
           {!appointments?.length && (
             <div class="py-16 text-center">
-              <p class="font-italic italic text-taupe-light">Nog geen afspraken ontvangen.</p>
+              <p class="font-italic italic text-taupe-light">Geen afspraken gevonden.</p>
             </div>
           )}
         </div>
       </div>
 
-      <p class="text-[10px] font-body text-taupe-light mt-4">{appointments?.length ?? 0} afspraken totaal</p>
+      <p class="text-[10px] font-body text-taupe-light mt-4">{appointments?.length ?? 0} afspraken</p>
     </div>
   </div>
 </Layout>
+
+<script>
+  document.querySelectorAll('.confirm-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = (btn as HTMLElement).dataset.id;
+      if (!id) return;
+      const ok = confirm('Afspraak bevestigen?');
+      if (!ok) return;
+      try {
+        const res = await fetch(`/api/admin/appointments/${id}`, {
+          method: 'PUT',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ status: 'confirmed' }),
+        });
+        if (res.ok) {
+          window.location.reload();
+        } else {
+          alert('Bijwerken mislukt.');
+        }
+      } catch {
+        alert('Netwerkfout.');
+      }
+    });
+  });
+</script>
