@@ -1,5 +1,5 @@
 ---
-import Layout from '../../../../layouts/Layout.astro';
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
 import FormBuilderEditor from '../../../../components/admin/FormBuilderEditor';
 import { getServiceRoleClient } from '../../../../lib/serverAuth';
 
@@ -10,8 +10,8 @@ const { data: form, error } = await supabase.from('forms').select('*').eq('id', 
 if (error || !form) return Astro.redirect('/admin/formulieren');
 ---
 
-<Layout title={`Bewerk: ${form.name}`}>
-  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+<AdminLayout title={`Bewerk: ${form.name}`}>
+  <div class="pt-8 pb-24 bg-ivory min-h-screen">
     <div class="container mx-auto px-6 max-w-4xl">
       <nav class="mb-10 flex items-center gap-3 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">
         <a href="/admin" class="hover:text-charcoal transition-colors">Dashboard</a>
@@ -47,4 +47,4 @@ if (error || !form) return Astro.redirect('/admin/formulieren');
       />
     </div>
   </div>
-</Layout>
+</AdminLayout>

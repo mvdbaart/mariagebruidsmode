@@ -1,5 +1,5 @@
 ---
-import Layout from '../../../layouts/Layout.astro';
+import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { getAdminAuthFromCookies, getServiceRoleClient, getUserRole } from '../../../lib/serverAuth';
 
 const adminAuth = await getAdminAuthFromCookies(Astro.cookies);
@@ -32,8 +32,8 @@ interface Employee {
 }
 ---
 
-<Layout title="Medewerkers - Admin">
-  <main class="min-h-screen bg-primary py-20 px-4">
+<AdminLayout title="Medewerkers - Admin">
+  <div class="min-h-screen bg-ivory py-8 px-4">
     <div class="max-w-6xl mx-auto">
       <div class="flex items-center justify-between mb-8">
         <div class="flex items-center gap-4">
@@ -233,8 +233,8 @@ interface Employee {
         </form>
       </div>
     </div>
-  </main>
-</Layout>
+  </div>
+</AdminLayout>
 
 <script define:vars={{ canSeeRate }}>
   // ─── Add modal ───────────────────────────────────────────────

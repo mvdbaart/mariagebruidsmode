@@ -1,5 +1,5 @@
 ---
-import Layout from '../../layouts/Layout.astro';
+import AdminLayout from '../../layouts/AdminLayout.astro';
 import { getServiceRoleClient } from '../../lib/serverAuth';
 
 const supabase = getServiceRoleClient();
@@ -9,8 +9,8 @@ const { data: posts } = await supabase
   .order('published_at', { ascending: false });
 ---
 
-<Layout title="Admin Blog Beheer">
-  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+<AdminLayout title="Admin Blog Beheer">
+  <div class="pt-8 pb-24 bg-ivory min-h-screen">
     <div class="container mx-auto px-6">
       <div class="flex justify-between items-center mb-12">
         <h1 class="font-display font-normal text-charcoal text-3xl italic">Blog <span class="text-blush-deep opacity-60">Beheer</span></h1>
@@ -62,7 +62,7 @@ const { data: posts } = await supabase
       </div>
     </div>
   </div>
-</Layout>
+</AdminLayout>
 
 <!-- Delete confirmation dialog -->
 <dialog id="delete-dialog" class="bg-white border border-champagne shadow-card p-8 max-w-sm w-full rounded-none">

@@ -1,13 +1,13 @@
 ---
-import Layout from '../../../layouts/Layout.astro';
+import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { getAdminAuthFromCookies } from '../../../lib/serverAuth';
 
 const auth = await getAdminAuthFromCookies(Astro.cookies);
 if (!auth) return Astro.redirect('/login');
 ---
 
-<Layout title="Nieuwe A/B Test">
-  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+<AdminLayout title="Nieuwe A/B Test">
+  <div class="pt-8 pb-24 bg-ivory min-h-screen">
     <div class="container mx-auto px-6 max-w-2xl">
 
       <div class="mb-10">
@@ -58,7 +58,7 @@ if (!auth) return Astro.redirect('/login');
       </form>
     </div>
   </div>
-</Layout>
+</AdminLayout>
 
 <script>
   const nameInput = document.getElementById('name') as HTMLInputElement;
