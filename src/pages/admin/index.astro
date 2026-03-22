@@ -274,7 +274,7 @@ const todayFormatted = new Date().toLocaleDateString('nl-NL', { weekday: 'long',
             {recentProducts?.map((prod) => (
               <div class="flex items-center gap-4">
                 <div class="w-12 h-12 bg-linen overflow-hidden shrink-0">
-                  {prod.images?.[0] && <img src={prod.images[0]} alt={prod.name} class="w-full h-full object-cover" />}
+                  {prod.images?.[0] && <img src={prod.images[0]} alt={prod.name} onerror="this.onerror=null;this.src='/images/jurkvormen/a-lijn.png'" class="w-full h-full object-cover" />}
                 </div>
                 <div class="min-w-0">
                   <p class="text-sm font-body font-medium text-charcoal truncate">{prod.name}</p>

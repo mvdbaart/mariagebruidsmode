@@ -58,7 +58,7 @@ const dressFallbackImage = '/images/jurkvormen/a-lijn.png';
             <div class="w-full h-full bg-linen relative overflow-hidden">
               {(() => {
                 const img = prod.images?.[0];
-                const displayImg = (img && img.startsWith('/images/')) ? img : dressFallbackImage;
+                const displayImg = (img && img.length > 0) ? img : dressFallbackImage;
                 return (
                   <img
                     src={displayImg}
