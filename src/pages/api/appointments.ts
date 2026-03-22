@@ -4,16 +4,12 @@ import { getServiceRoleClient } from '../../lib/serverAuth';
 const VALID_TYPES = new Set(['standard_bride', 'standard_groom', 'vip']);
 
 // Valid block start times — must match availability.ts
-const WEEKDAY_TIMES = new Set(['10:00', '13:00', '15:30']);
-const WEEKEND_TIMES = new Set(['09:30', '12:00', '14:30']);
+const VALID_TIMES = new Set(['10:00', '13:00', '15:00']);
 
 const BLOCK_ENDS: Record<string, string> = {
   '10:00': '12:00',
   '13:00': '15:00',
-  '15:30': '17:30',
-  '09:30': '11:30',
-  '12:00': '14:00',
-  '14:30': '16:30',
+  '15:00': '17:00',
 };
 
 // Simple in-memory rate limiter: max 5 submissions per IP per hour
@@ -84,10 +80,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     return err('We zijn op maandag gesloten. Kies een andere dag.');
   }
 
-  const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-  const validTimes = isWeekend ? WEEKEND_TIMES : WEEKDAY_TIMES;
-
-  if (!validTimes.has(preferredTime)) {
+  if (!VALID_TIMES.has(preferredTime)) {
     return err('Ongeldig tijdblok voor de gekozen dag.');
   }
 

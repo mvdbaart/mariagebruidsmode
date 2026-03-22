@@ -3,16 +3,13 @@ import { getAdminAuthFromCookies, getServiceRoleClient } from '../../../../lib/s
 
 const VALID_STATUSES = new Set(['pending', 'confirmed', 'cancelled']);
 const VALID_TYPES = new Set(['standard_bride', 'standard_groom', 'vip', 'standard']);
-// All valid block start times (weekday + weekend), plus empty string to clear
-const VALID_TIMES = new Set(['', '10:00', '13:00', '15:30', '09:30', '12:00', '14:30']);
+// All valid block start times, plus empty string to clear
+const VALID_TIMES = new Set(['', '10:00', '13:00', '15:00']);
 
 const BLOCK_ENDS: Record<string, string> = {
   '10:00': '12:00',
   '13:00': '15:00',
-  '15:30': '17:30',
-  '09:30': '11:30',
-  '12:00': '14:00',
-  '14:30': '16:30',
+  '15:00': '17:00',
 };
 
 export const PUT: APIRoute = async ({ params, request, cookies }) => {

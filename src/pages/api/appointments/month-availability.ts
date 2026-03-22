@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getServiceRoleClient } from '../../../lib/serverAuth';
-import { WEEKDAY_BLOCKS, WEEKEND_BLOCKS } from './availability';
+import { ALL_BLOCKS } from './availability';
 
 export const GET: APIRoute = async ({ url }) => {
   const yearParam = url.searchParams.get('year');
@@ -82,18 +82,16 @@ export const GET: APIRoute = async ({ url }) => {
         days.push({ date: dateStr, status: 'closed' });
       } else {
         // Sunday with exception: check if fully booked
-        const blocks = WEEKEND_BLOCKS;
         const booked = bookedByDate.get(dateStr) || new Set();
-        const allFull = blocks.every((b) => booked.has(b.start));
+        const allFull = ALL_BLOCKS.every((b) => booked.has(b.start));
         days.push({ date: dateStr, status: allFull ? 'full' : 'available' });
       }
       continue;
     }
 
     // Tuesday–Saturday
-    const blocks = dayOfWeek === 6 ? WEEKEND_BLOCKS : WEEKDAY_BLOCKS;
     const booked = bookedByDate.get(dateStr) || new Set();
-    const allFull = blocks.every((b) => booked.has(b.start));
+    const allFull = ALL_BLOCKS.every((b) => booked.has(b.start));
     days.push({ date: dateStr, status: allFull ? 'full' : 'available' });
   }
 

@@ -1,17 +1,11 @@
 import type { APIRoute } from 'astro';
 import { getServiceRoleClient } from '../../../lib/serverAuth';
 
-// Non-overlapping 2-hour blocks per day type
-export const WEEKDAY_BLOCKS = [
+// 2-hour blocks — same for all open days
+export const ALL_BLOCKS = [
   { start: '10:00', end: '12:00', label: '10:00 – 12:00' },
   { start: '13:00', end: '15:00', label: '13:00 – 15:00' },
-  { start: '15:30', end: '17:30', label: '15:30 – 17:30' },
-];
-
-export const WEEKEND_BLOCKS = [
-  { start: '09:30', end: '11:30', label: '09:30 – 11:30' },
-  { start: '12:00', end: '14:00', label: '12:00 – 14:00' },
-  { start: '14:30', end: '16:30', label: '14:30 – 16:30' },
+  { start: '15:00', end: '17:00', label: '15:00 – 17:00' },
 ];
 
 export const GET: APIRoute = async ({ url }) => {
@@ -50,7 +44,7 @@ export const GET: APIRoute = async ({ url }) => {
     }
   }
 
-  const blocks = dayOfWeek === 6 || dayOfWeek === 0 ? WEEKEND_BLOCKS : WEEKDAY_BLOCKS;
+  const blocks = ALL_BLOCKS;
 
   // Fetch non-cancelled appointments for this date
   const { data: booked } = await supabase
