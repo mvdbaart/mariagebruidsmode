@@ -1,5 +1,5 @@
 ---
-import Layout from '../../layouts/Layout.astro';
+import AdminLayout from '../../layouts/AdminLayout.astro';
 import { supabase } from '../../lib/supabase';
 
 const { data: settings } = await supabase
@@ -11,8 +11,8 @@ const settingsMap = Object.fromEntries(
 );
 ---
 
-<Layout title="Instellingen | Mariage Control">
-  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+<AdminLayout title="Instellingen | Mariage Control">
+  <div class="pt-8 pb-24 bg-ivory min-h-screen">
     <div class="container mx-auto px-6 max-w-4xl">
       <nav class="mb-10 flex items-center gap-3 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">
         <a href="/admin" class="hover:text-charcoal transition-colors">Dashboard</a>
@@ -91,7 +91,7 @@ const settingsMap = Object.fromEntries(
       </div>
     </div>
   </div>
-</Layout>
+</AdminLayout>
 
 <script>
   const form = document.getElementById('settings-form') as HTMLFormElement;

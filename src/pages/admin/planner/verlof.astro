@@ -1,5 +1,5 @@
 ---
-import Layout from '../../../layouts/Layout.astro';
+import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { getAdminAuthFromCookies, getServiceRoleClient } from '../../../lib/serverAuth';
 
 const adminAuth = await getAdminAuthFromCookies(Astro.cookies);
@@ -15,8 +15,8 @@ const { data: absences } = await supabase
   .order('start_date', { ascending: false });
 ---
 
-<Layout title="Verlof & Ziekte - Admin">
-  <main class="min-h-screen bg-primary py-20 px-4">
+<AdminLayout title="Verlof & Ziekte - Admin">
+  <div class="min-h-screen bg-ivory py-8 px-4">
     <div class="max-w-6xl mx-auto">
       <div class="flex items-center justify-between mb-8">
         <div class="flex items-center gap-4">
@@ -118,8 +118,8 @@ const { data: absences } = await supabase
         </form>
       </div>
     </div>
-  </main>
-</Layout>
+  </div>
+</AdminLayout>
 
 <script>
   const modal = document.getElementById('absence-modal');

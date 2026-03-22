@@ -1,5 +1,5 @@
 ---
-import Layout from '../../../layouts/Layout.astro';
+import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { getServiceRoleClient } from '../../../lib/serverAuth';
 
 const supabase = getServiceRoleClient();
@@ -9,8 +9,8 @@ const integrations = settings?.integrations ?? {};
 const activeIntegrations = Object.values(integrations).filter((v: any) => v?.api_key || v?.enabled).length;
 ---
 
-<Layout title="Site Instellingen">
-  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+<AdminLayout title="Site Instellingen">
+  <div class="pt-8 pb-24 bg-ivory min-h-screen">
     <div class="container mx-auto px-6">
       <nav class="mb-10 flex items-center gap-3 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">
         <a href="/admin" class="hover:text-charcoal transition-colors">Dashboard</a>
@@ -101,4 +101,4 @@ const activeIntegrations = Object.values(integrations).filter((v: any) => v?.api
       </div>
     </div>
   </div>
-</Layout>
+</AdminLayout>

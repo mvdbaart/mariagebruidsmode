@@ -1,5 +1,5 @@
 ---
-import Layout from '../../../layouts/Layout.astro';
+import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { getServiceRoleClient } from '../../../lib/serverAuth';
 
 const { id } = Astro.params;
@@ -38,8 +38,8 @@ const priceNum = klant.price ? parseFloat(klant.price.replace(/[^0-9.,]/g, '').r
 const outstanding = priceNum != null ? priceNum - totalPaid : null;
 ---
 
-<Layout title={`${klant.first_name} ${klant.last_name}`}>
-  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+<AdminLayout title={`${klant.first_name} ${klant.last_name}`}>
+  <div class="pt-8 pb-24 bg-ivory min-h-screen">
     <div class="container mx-auto px-6 max-w-5xl">
       <nav class="mb-10 flex items-center gap-3 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">
         <a href="/admin" class="hover:text-charcoal transition-colors">Dashboard</a>
@@ -380,7 +380,7 @@ const outstanding = priceNum != null ? priceNum - totalPaid : null;
       </div>
     </div>
   </div>
-</Layout>
+</AdminLayout>
 
 <dialog id="delete-dialog" class="bg-white border border-champagne shadow-card p-8 max-w-sm w-full">
   <h2 class="font-display text-charcoal text-xl mb-3">Klant verwijderen?</h2>

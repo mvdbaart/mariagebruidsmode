@@ -1,5 +1,5 @@
 ---
-import Layout from '../../layouts/Layout.astro';
+import AdminLayout from '../../layouts/AdminLayout.astro';
 import { getServiceRoleClient } from '../../lib/serverAuth';
 
 const supabase = getServiceRoleClient();
@@ -61,17 +61,11 @@ const stats = [
 const todayFormatted = new Date().toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' });
 ---
 
-<Layout title="Admin Dashboard">
-  <div class="pt-32 pb-24 bg-ivory min-h-screen">
-    <div class="container mx-auto px-6">
+<AdminLayout title="Dashboard">
+  <div class="pb-24 bg-ivory min-h-screen">
+    <div class="container mx-auto px-6 pt-8">
       <div class="flex items-center justify-between mb-12">
         <h1 class="font-display font-normal text-charcoal text-4xl italic">Mariage <span class="text-blush-deep opacity-60">Control</span></h1>
-        <div class="flex gap-4">
-          <a href="/" class="btn-gold text-[10px]">Bekijk Website</a>
-          <form action="/api/auth/logout" method="POST">
-            <button type="submit" class="btn-premium text-[10px]">Uitloggen</button>
-          </form>
-        </div>
       </div>
 
       <!-- Daily summary -->
@@ -107,71 +101,6 @@ const todayFormatted = new Date().toLocaleDateString('nl-NL', { weekday: 'long',
             <p class="text-[10px] tracking-[0.2em] uppercase text-taupe-light font-body mt-1">{stat.label}</p>
           </a>
         ))}
-      </div>
-
-      <!-- Quick Links -->
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-14">
-        <a href="/admin/homepage" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
-          <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Beheer Pagina</span>
-          <span class="font-display text-charcoal text-3xl italic">Homepage</span>
-        </a>
-        <a href="/admin/collecties" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
-          <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Beheer Pagina</span>
-          <span class="font-display text-charcoal text-3xl italic">Collecties</span>
-        </a>
-        <a href="/admin/producten" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
-          <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Beheer Pagina</span>
-          <span class="font-display text-charcoal text-3xl italic">Producten</span>
-        </a>
-        <a href="/admin/blog" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
-          <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Beheer Pagina</span>
-          <span class="font-display text-charcoal text-3xl italic">Blog</span>
-        </a>
-        <a href="/admin/inspiratie" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
-          <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Beheer Pagina</span>
-          <span class="font-display text-charcoal text-3xl italic">Inspiratie</span>
-        </a>
-        <a href="/admin/afspraken" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
-          <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Beheer Pagina</span>
-          <span class="font-display text-charcoal text-3xl italic">Afspraken</span>
-        </a>
-        <a href="/admin/gebruikers" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
-          <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Beheer Pagina</span>
-          <span class="font-display text-charcoal text-3xl italic">Gebruikers</span>
-        </a>
-        <a href="/admin/instellingen" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
-          <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Beheer Pagina</span>
-          <span class="font-display text-charcoal text-3xl italic">Instellingen</span>
-        </a>
-        <a href="/admin/planner/medewerkers" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
-          <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Planning & Personeel</span>
-          <span class="font-display text-charcoal text-3xl italic">Planning</span>
-        </a>
-        <a href="/admin/formulieren" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
-          <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Beheer Pagina</span>
-          <span class="font-display text-charcoal text-3xl italic">Formulieren</span>
-        </a>
-        <a href="/admin/landingpages" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
-          <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">A/B Testing</span>
-          <span class="font-display text-charcoal text-3xl italic">Landingspagina's</span>
-        </a>
-        <a href="/admin/klanten" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
-          <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Beheer Pagina</span>
-          <span class="font-display text-charcoal text-3xl italic">Klanten</span>
-        </a>
-        <a href="/admin/leveranciers" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
-          <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Beheer Pagina</span>
-          <span class="font-display text-charcoal text-3xl italic">Leveranciers</span>
-        </a>
-        <a href="/admin/bestellingen" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
-          <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Beheer Pagina</span>
-          <span class="font-display text-charcoal text-3xl italic">Bestellingen</span>
-        </a>
-        <a href="/admin/bezoekersflow" class="bg-white p-8 border border-champagne hover:border-blush-deep transition-colors group shadow-soft">
-          <span class="text-[10px] tracking-[0.3em] uppercase text-taupe-light block mb-3 group-hover:text-blush-deep transition-colors">Analytics</span>
-          <span class="font-display text-charcoal text-3xl italic">Bezoekersflow</span>
-        </a>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-10">
@@ -289,4 +218,4 @@ const todayFormatted = new Date().toLocaleDateString('nl-NL', { weekday: 'long',
       </div>
     </div>
   </div>
-</Layout>
+</AdminLayout>

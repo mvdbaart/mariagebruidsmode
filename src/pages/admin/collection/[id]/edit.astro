@@ -1,5 +1,5 @@
 ---
-import Layout from '../../../../layouts/Layout.astro';
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
 import { supabase } from '../../../../lib/supabase';
 
 const { id } = Astro.params;
@@ -15,8 +15,8 @@ if (error || !collection) {
 }
 ---
 
-<Layout title={`Bewerk ${collection.title}`}>
-  <div class="pt-32 pb-24 bg-accent/5 min-h-screen">
+<AdminLayout title={`Bewerk ${collection.title}`}>
+  <div class="pt-8 pb-24 bg-accent/5 min-h-screen">
     <div class="container mx-auto px-6">
       <nav class="mb-12 flex items-center gap-4 text-[10px] tracking-[0.2em] uppercase text-accent/40">
         <a href="/admin" class="hover:text-secondary">Dashboard</a>
@@ -73,7 +73,7 @@ if (error || !collection) {
       </div>
     </div>
   </div>
-</Layout>
+</AdminLayout>
 
 <script>
   const form = document.getElementById('edit-collection-form') as HTMLFormElement;
