@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { getServiceRoleClient } from '../../lib/serverAuth';
 
 const VALID_TYPES = new Set(['standard', 'vip']);
+const VALID_SLOTS = new Set(['10:00', '13:00', '15:00']);
 
 // Simple in-memory rate limiter: max 5 submissions per IP per hour
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -41,11 +42,19 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   const email = trimString(body?.email, 200);
   const phone = trimString(body?.phone, 40);
   const preferredDate = trimString(body?.preferred_date, 20);
+  const timeSlot = trimString(body?.time_slot, 10);
   const message = trimString(body?.message, 2000);
   const appointmentType = trimString(body?.appointment_type, 20);
 
   if (!fullName || !email || !preferredDate) {
     return new Response(JSON.stringify({ error: 'Naam, e-mail en voorkeursdatum zijn verplicht.' }), {
+      status: 400,
+      headers: { 'content-type': 'application/json' },
+    });
+  }
+
+  if (!timeSlot || !VALID_SLOTS.has(timeSlot)) {
+    return new Response(JSON.stringify({ error: 'Kies een tijdblok: 10:00, 13:00 of 15:00.' }), {
       status: 400,
       headers: { 'content-type': 'application/json' },
     });
@@ -68,6 +77,22 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 
   try {
     const supabase = getServiceRoleClient();
+
+    // Check if slot is still available
+    const { data: existing } = await supabase
+      .from('appointments')
+      .select('id')
+      .eq('preferred_date', preferredDate)
+      .eq('time_slot', timeSlot)
+      .limit(1);
+
+    if (existing && existing.length > 0) {
+      return new Response(JSON.stringify({ error: 'Dit tijdslot is helaas al bezet. Kies een ander tijdstip.' }), {
+        status: 409,
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+
     const { error } = await supabase
       .from('appointments')
       .insert([
@@ -76,6 +101,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
           email,
           phone,
           preferred_date: preferredDate,
+          time_slot: timeSlot,
           appointment_type: appointmentType,
           message,
         },

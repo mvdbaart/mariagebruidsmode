@@ -1,171 +1,508 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { supabase } from '../lib/supabase';
+import { getServiceRoleClient } from '../lib/serverAuth';
 
-const today = new Date().toISOString().split('T')[0];
+// Load booked slots for the next 3 months so the client can grey them out
+const supabase = getServiceRoleClient();
+const today = new Date();
+const todayStr = today.toISOString().split('T')[0];
+const maxDate = new Date(today);
+maxDate.setMonth(maxDate.getMonth() + 3);
+const maxDateStr = maxDate.toISOString().split('T')[0];
 
-const { data: settings } = await supabase
-  .from('site_settings')
-  .select('key, value');
+const { data: bookedRows } = await supabase
+  .from('appointments')
+  .select('preferred_date, time_slot')
+  .gte('preferred_date', todayStr)
+  .lte('preferred_date', maxDateStr)
+  .not('time_slot', 'is', null);
 
-const settingsMap = Object.fromEntries(
-  (settings || []).map(s => [s.key, s.value])
-);
-
-const bridalLiveSmartBook = settingsMap.bridallive_embed_smartbook;
-const bridalLiveForm = settingsMap.bridallive_embed_appointment;
+// Compact booked map: { 'YYYY-MM-DD': ['10:00', '13:00'] }
+const bookedMap: Record<string, string[]> = {};
+for (const row of bookedRows ?? []) {
+  const d = typeof row.preferred_date === 'string'
+    ? row.preferred_date.slice(0, 10)
+    : '';
+  if (!d || !row.time_slot) continue;
+  if (!bookedMap[d]) bookedMap[d] = [];
+  bookedMap[d].push(row.time_slot);
+}
 ---
 
 <Layout title="Maak een Afspraak | Mariage Bruidsmode">
   <div class="pt-32 pb-24 bg-ivory min-h-screen">
     <div class="container mx-auto px-6">
-      <div class="max-w-4xl mx-auto">
-        <div class="text-center mb-16">
+      <div class="max-w-3xl mx-auto">
+
+        <!-- Header -->
+        <div class="text-center mb-12">
           <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-4">Vind jouw droomjurk</p>
-          <h1 class="font-display text-charcoal leading-tight mb-8" style="font-size: clamp(32px, 5vw, 48px); font-weight: 300;">
+          <h1 class="font-display text-charcoal leading-tight mb-6" style="font-size: clamp(32px, 5vw, 48px); font-weight: 300;">
             Plan jouw <em class="italic font-light text-taupe">ervaring</em>
           </h1>
-          <p class="text-taupe leading-relaxed max-w-xl mx-auto font-light">
-            Kies voor een persoonlijke pasafspraak of een luxe VIP ervaring voor jou en je gasten.
+          <p class="text-taupe leading-relaxed max-w-xl mx-auto font-light text-sm">
+            Kies een datum en tijdblok voor jouw persoonlijke pasafspraak of luxe VIP ervaring.
           </p>
         </div>
 
+        <!-- Booking widget -->
         <div class="bg-white border border-champagne shadow-soft overflow-hidden">
-          {bridalLiveSmartBook ? (
-            <div class="p-4 md:p-8 min-h-[600px]">
-              <div id="bridallive-smartbook-container" set:html={bridalLiveSmartBook} />
-            </div>
-          ) : bridalLiveForm ? (
-            <div class="p-8 md:p-16">
-              <div id="bridallive-form-container" set:html={bridalLiveForm} />
-            </div>
-          ) : (
-            <div class="p-8 md:p-16">
-              <form id="appointment-form" class="space-y-10">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
-                  <div class="space-y-2">
-                    <label for="full_name" class="text-[10px] tracking-widest uppercase text-charcoal font-medium">Volledige Naam</label>
-                    <input type="text" id="full_name" name="full_name" required class="w-full border-b border-champagne py-3 focus:border-blush-deep outline-none transition-colors font-light bg-transparent" placeholder="Bijv. Anna van Veen" />
-                  </div>
-                  <div class="space-y-2">
-                    <label for="email" class="text-[10px] tracking-widest uppercase text-charcoal font-medium">Email Adres</label>
-                    <input type="email" id="email" name="email" required class="w-full border-b border-champagne py-3 focus:border-blush-deep outline-none transition-colors font-light bg-transparent" placeholder="anna@voorbeeld.nl" />
-                  </div>
-                  <div class="space-y-2">
-                    <label for="phone" class="text-[10px] tracking-widest uppercase text-charcoal font-medium">Telefoonnummer</label>
-                    <input type="tel" id="phone" name="phone" class="w-full border-b border-champagne py-3 focus:border-blush-deep outline-none transition-colors font-light bg-transparent" placeholder="06 12345678" />
-                  </div>
-                  <div class="space-y-2">
-                    <label for="preferred_date" class="text-[10px] tracking-widest uppercase text-charcoal font-medium">Voorkeursdatum</label>
-                    <input type="date" id="preferred_date" name="preferred_date" required class="w-full border-b border-champagne py-3 focus:border-blush-deep outline-none transition-colors font-light bg-transparent" />
-                  </div>
-                </div>
 
-                <fieldset class="space-y-5">
-                  <legend class="text-[10px] tracking-widest uppercase text-charcoal font-medium mb-3 block">Type Afspraak</legend>
-                  <div class="flex flex-col sm:flex-row gap-8 mt-0">
+          <!-- Step indicator -->
+          <div class="flex border-b border-champagne">
+            <div id="step-indicator-1" class="flex-1 py-3 text-center text-[9px] tracking-[0.2em] uppercase font-body font-medium text-blush-deep border-b-2 border-blush-deep">
+              1 — Datum &amp; Tijd
+            </div>
+            <div id="step-indicator-2" class="flex-1 py-3 text-center text-[9px] tracking-[0.2em] uppercase font-body font-medium text-taupe-light border-b-2 border-transparent">
+              2 — Jouw Gegevens
+            </div>
+          </div>
+
+          <!-- Step 1: Calendar + time slots -->
+          <div id="step-1" class="p-6 md:p-10">
+
+            <!-- Month navigation -->
+            <div class="flex items-center justify-between mb-6">
+              <button id="prev-month" aria-label="Vorige maand" class="w-9 h-9 flex items-center justify-center border border-champagne text-taupe hover:border-blush-deep hover:text-blush-deep transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              </button>
+              <h2 id="month-label" class="font-display text-charcoal text-xl font-normal tracking-wide"></h2>
+              <button id="next-month" aria-label="Volgende maand" class="w-9 h-9 flex items-center justify-center border border-champagne text-taupe hover:border-blush-deep hover:text-blush-deep transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </button>
+            </div>
+
+            <!-- Weekday headers -->
+            <div class="grid grid-cols-7 mb-2">
+              {['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo'].map(d => (
+                <div class="text-center text-[9px] tracking-widest uppercase text-taupe-light font-body py-1">{d}</div>
+              ))}
+            </div>
+
+            <!-- Date grid -->
+            <div id="date-grid" class="grid grid-cols-7 gap-1 mb-6"></div>
+
+            <!-- Time slots (revealed after date pick) -->
+            <div id="time-section" class="hidden">
+              <div class="border-t border-champagne pt-6">
+                <p class="text-[9px] tracking-[0.25em] uppercase text-charcoal font-body font-medium mb-4">
+                  Tijdblok — <span id="selected-date-label" class="text-blush-deep normal-case tracking-normal font-normal text-sm font-display italic"></span>
+                </p>
+                <div class="grid grid-cols-3 gap-3" id="slot-grid">
+                  {['10:00', '13:00', '15:00'].map(t => (
+                    <button
+                      class="slot-btn border border-champagne py-4 text-center transition-all hover:border-blush-deep group disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:border-champagne"
+                      data-time={t}
+                    >
+                      <span class="block font-display text-charcoal text-lg font-normal group-hover:text-blush-deep transition-colors">{t}</span>
+                      <span class="slot-label block text-[8px] tracking-widest uppercase text-taupe font-body mt-1">Beschikbaar</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <!-- Proceed button -->
+              <div class="flex justify-between items-center mt-8">
+                <button id="clear-date" class="text-[9px] tracking-widest uppercase text-taupe hover:text-charcoal transition-colors font-body">
+                  ← Andere datum
+                </button>
+                <button id="go-to-form" disabled class="btn-blush disabled:opacity-40 disabled:cursor-not-allowed px-8">
+                  Volgende
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Step 2: Personal details form -->
+          <div id="step-2" class="hidden p-6 md:p-10">
+
+            <!-- Summary bar -->
+            <div class="bg-cream border border-champagne px-5 py-3 mb-8 flex items-center gap-3">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="text-blush-deep flex-shrink-0" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span id="summary-datetime" class="text-sm font-body text-taupe"></span>
+              <button id="back-to-calendar" class="ml-auto text-[9px] tracking-widest uppercase text-taupe hover:text-blush-deep transition-colors font-body">Wijzigen</button>
+            </div>
+
+            <form id="appointment-form" class="space-y-8" novalidate>
+              <!-- Hidden fields -->
+              <input type="hidden" id="h-date" name="preferred_date" />
+              <input type="hidden" id="h-time" name="time_slot" />
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
+                <div class="space-y-2">
+                  <label for="full_name" class="text-[10px] tracking-widest uppercase text-charcoal font-medium">Volledige Naam *</label>
+                  <input type="text" id="full_name" name="full_name" required autocomplete="name"
+                    class="w-full border-b border-champagne py-3 focus:border-blush-deep outline-none transition-colors font-light bg-transparent"
+                    placeholder="Bijv. Anna van Veen" />
+                </div>
+                <div class="space-y-2">
+                  <label for="email" class="text-[10px] tracking-widest uppercase text-charcoal font-medium">E-mailadres *</label>
+                  <input type="email" id="email" name="email" required autocomplete="email"
+                    class="w-full border-b border-champagne py-3 focus:border-blush-deep outline-none transition-colors font-light bg-transparent"
+                    placeholder="anna@voorbeeld.nl" />
+                </div>
+                <div class="space-y-2">
+                  <label for="phone" class="text-[10px] tracking-widest uppercase text-charcoal font-medium">Telefoonnummer</label>
+                  <input type="tel" id="phone" name="phone" autocomplete="tel"
+                    class="w-full border-b border-champagne py-3 focus:border-blush-deep outline-none transition-colors font-light bg-transparent"
+                    placeholder="06 12345678" />
+                </div>
+                <div class="space-y-2">
+                  <label class="text-[10px] tracking-widest uppercase text-charcoal font-medium block">Type Afspraak</label>
+                  <div class="flex flex-col gap-3 pt-1">
                     <label class="flex items-center gap-3 cursor-pointer group">
                       <input type="radio" name="appointment_type" value="standard" checked class="accent-blush-deep scale-110" />
-                      <span class="text-[11px] tracking-wider text-taupe group-hover:text-charcoal transition-colors uppercase">Standaard pasafspraak (90 min)</span>
+                      <span class="text-[10px] tracking-wider text-taupe group-hover:text-charcoal transition-colors uppercase">Pasafspraak (90 min)</span>
                     </label>
                     <label class="flex items-center gap-3 cursor-pointer group">
                       <input type="radio" name="appointment_type" value="vip" class="accent-blush-deep scale-110" />
-                      <span class="text-[11px] tracking-wider text-taupe group-hover:text-charcoal transition-colors uppercase">Luxe VIP ervaring (120 min)</span>
+                      <span class="text-[10px] tracking-wider text-taupe group-hover:text-charcoal transition-colors uppercase">VIP Ervaring (120 min)</span>
                     </label>
                   </div>
-                </fieldset>
-
-                <div class="space-y-3">
-                  <label for="message" class="text-[10px] tracking-widest uppercase text-charcoal font-medium">Bericht (Optioneel)</label>
-                  <textarea id="message" name="message" rows="4" class="w-full border border-champagne p-5 focus:border-blush-deep outline-none transition-colors font-light bg-[#fcfbf9] resize-none" placeholder="Heb je al een specifiek merk of model in gedachten?"></textarea>
                 </div>
+              </div>
 
-                <div class="text-center pt-8">
-                  <button id="submit-btn" type="submit" class="bg-charcoal text-warm-white px-12 py-4 text-[11px] tracking-[0.3em] uppercase hover:bg-taupe transition-all font-medium shadow-xl w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed">
-                    Afspraak aanvragen
-                  </button>
-                </div>
-                
-                <p id="form-status" class="text-center text-xs font-body italic mt-6 hidden" role="status" aria-live="polite"></p>
-              </form>
+              <div class="space-y-2">
+                <label for="message" class="text-[10px] tracking-widest uppercase text-charcoal font-medium">Bericht (Optioneel)</label>
+                <textarea id="message" name="message" rows="3"
+                  class="w-full border border-champagne p-4 focus:border-blush-deep outline-none transition-colors font-light bg-[#fcfbf9] resize-none text-sm"
+                  placeholder="Heb je al een specifiek merk of model in gedachten? Kom je alleen of met gezelschap?"></textarea>
+              </div>
+
+              <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center pt-2">
+                <button type="submit" id="submit-btn"
+                  class="btn-blush flex items-center gap-2 w-full sm:w-auto justify-center disabled:opacity-50 disabled:cursor-not-allowed">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  Afspraak bevestigen
+                </button>
+                <p class="text-[10px] text-taupe-light font-body">* Verplicht veld</p>
+              </div>
+
+              <p id="form-status" class="text-sm font-body italic hidden" role="status" aria-live="polite"></p>
+            </form>
+          </div>
+
+          <!-- Success state -->
+          <div id="step-success" class="hidden p-10 text-center">
+            <div class="w-14 h-14 rounded-full bg-champagne flex items-center justify-center mx-auto mb-6">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-charcoal" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
             </div>
-          )}
+            <h2 class="font-display text-charcoal text-2xl font-normal mb-3">Afspraak aangevraagd</h2>
+            <p id="success-msg" class="text-taupe text-sm font-light leading-relaxed max-w-sm mx-auto mb-6"></p>
+            <a href="/" class="text-[9px] tracking-widest uppercase text-taupe hover:text-blush-deep transition-colors font-body">← Terug naar home</a>
+          </div>
+
         </div>
-        
-        <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 text-center border-t border-champagne pt-16">
+
+        <!-- Trust row -->
+        <div class="mt-14 grid grid-cols-1 md:grid-cols-3 gap-6 text-center border-t border-champagne pt-14">
           <div>
-            <h4 class="font-display text-charcoal text-xl mb-3">Persoonlijke aandacht</h4>
+            <h4 class="font-display text-charcoal text-xl mb-2">Persoonlijke aandacht</h4>
             <p class="text-xs text-taupe leading-relaxed">Wij reserveren de volledige pasruimte en deskundig advies voor jouw bezoek.</p>
           </div>
           <div>
-            <h4 class="font-display text-charcoal text-xl mb-3">Geselecteerde collectie</h4>
-            <p class="text-xs text-taupe leading-relaxed">Toegang tot de meest exclusieve merken en de nieuwste modellen van het seizoen.</p>
+            <h4 class="font-display text-charcoal text-xl mb-2">Geselecteerde collectie</h4>
+            <p class="text-xs text-taupe leading-relaxed">Toegang tot exclusieve merken en de nieuwste modellen van het seizoen.</p>
           </div>
           <div>
-            <h4 class="font-display text-charcoal text-xl mb-3">Magische sfeer</h4>
-            <p class="text-xs text-taupe leading-relaxed">Een herinnering die je altijd bijblijft, samen met je dierbaren in onze boutique.</p>
+            <h4 class="font-display text-charcoal text-xl mb-2">Magische sfeer</h4>
+            <p class="text-xs text-taupe leading-relaxed">Een onvergetelijk moment samen met je dierbaren in onze boutique.</p>
           </div>
         </div>
+
       </div>
     </div>
   </div>
 </Layout>
 
-<script>
-  const form = document.getElementById('appointment-form') as HTMLFormElement | null;
-  const status = document.getElementById('form-status');
-  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement | null;
+<script define:vars={{ bookedMap, todayStr, maxDateStr }}>
+  // ─── Constants ───────────────────────────────────────────────────────────────
+  const SLOTS = ['10:00', '13:00', '15:00'];
+  const MONTH_NL = ['Januari','Februari','Maart','April','Mei','Juni','Juli','Augustus','September','Oktober','November','December'];
+  const DAY_NL   = ['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'];
 
-  if (form) {
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!status) return;
+  // ─── State ───────────────────────────────────────────────────────────────────
+  let viewYear  = new Date().getFullYear();
+  let viewMonth = new Date().getMonth(); // 0-indexed
+  let selectedDate = null;  // 'YYYY-MM-DD'
+  let selectedTime = null;  // '10:00' | '13:00' | '15:00'
 
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Bezig met verzenden...';
-      }
-      status.textContent = '';
-      status.className = 'text-center text-xs font-body text-taupe italic mt-6 hidden';
+  // ─── DOM refs ────────────────────────────────────────────────────────────────
+  const monthLabel       = document.getElementById('month-label');
+  const dateGrid         = document.getElementById('date-grid');
+  const prevBtn          = document.getElementById('prev-month');
+  const nextBtn          = document.getElementById('next-month');
+  const timeSection      = document.getElementById('time-section');
+  const selectedDateLbl  = document.getElementById('selected-date-label');
+  const slotGrid         = document.getElementById('slot-grid');
+  const clearDateBtn     = document.getElementById('clear-date');
+  const goToFormBtn      = document.getElementById('go-to-form');
 
-      const formData = new FormData(form);
-      const payload = {
-        full_name: formData.get('full_name'),
-        email: formData.get('email'),
-        phone: formData.get('phone'),
-        preferred_date: formData.get('preferred_date'),
-        appointment_type: formData.get('appointment_type'),
-        message: formData.get('message'),
-      };
+  const step1            = document.getElementById('step-1');
+  const step2            = document.getElementById('step-2');
+  const stepSuccess      = document.getElementById('step-success');
+  const ind1             = document.getElementById('step-indicator-1');
+  const ind2             = document.getElementById('step-indicator-2');
 
-      try {
-        const response = await fetch('/api/appointments', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
+  const summaryDatetime  = document.getElementById('summary-datetime');
+  const backBtn          = document.getElementById('back-to-calendar');
+  const hDate            = document.getElementById('h-date');
+  const hTime            = document.getElementById('h-time');
+  const form             = document.getElementById('appointment-form');
+  const submitBtn        = document.getElementById('submit-btn');
+  const formStatus       = document.getElementById('form-status');
+  const successMsg       = document.getElementById('success-msg');
 
-        if (!response.ok) {
-          const result = await response.json();
-          throw new Error(result.error || 'Er is iets misgegaan.');
-        }
+  // ─── Helpers ─────────────────────────────────────────────────────────────────
+  function pad(n) { return String(n).padStart(2, '0'); }
 
-        status.textContent = 'Bedankt! We hebben je aanvraag ontvangen en nemen snel contact op.';
-        status.className = 'text-center text-xs font-body text-green-700 italic mt-6 block';
-        form.reset();
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Afspraak aanvragen';
-        }
-      } catch (err: any) {
-        status.textContent = err.message || 'Er is iets misgegaan. Probeer het later opnieuw.';
-        status.className = 'text-center text-xs font-body text-red-600 italic mt-6 block';
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Afspraak aanvragen';
-        }
-      }
-    });
+  function toDateStr(y, m, d) {
+    return `${y}-${pad(m + 1)}-${pad(d)}`;
   }
-</script>
 
+  function isClosedDay(date) {
+    // Closed on Mondays (day 1)
+    return date.getDay() === 1;
+  }
+
+  function isPast(dateStr) {
+    return dateStr <= todayStr;
+  }
+
+  function isBeyondMax(dateStr) {
+    return dateStr > maxDateStr;
+  }
+
+  function bookedSlotsForDate(dateStr) {
+    return bookedMap[dateStr] || [];
+  }
+
+  function isFullyBooked(dateStr) {
+    return bookedSlotsForDate(dateStr).length >= SLOTS.length;
+  }
+
+  function formatDateNL(dateStr) {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const dt = new Date(y, m - 1, d);
+    return `${DAY_NL[dt.getDay()]} ${d} ${MONTH_NL[m - 1]} ${y}`;
+  }
+
+  // ─── Calendar render ─────────────────────────────────────────────────────────
+  function renderCalendar() {
+    monthLabel.textContent = `${MONTH_NL[viewMonth]} ${viewYear}`;
+
+    // Prev/next button state
+    const thisMonthStart = new Date(viewYear, viewMonth, 1);
+    const todayStart     = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    prevBtn.disabled = thisMonthStart <= todayStart;
+    nextBtn.disabled = thisMonthStart >= new Date(maxDate.getFullYear(), maxDate.getMonth(), 1);
+
+    dateGrid.innerHTML = '';
+
+    // Day-of-week offset (Mon=0 grid, JS: Mon=1)
+    const firstDay  = new Date(viewYear, viewMonth, 1).getDay(); // 0=Sun..6=Sat
+    const gridStart = firstDay === 0 ? 6 : firstDay - 1;        // Mon-based offset
+    const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+
+    // Leading empty cells
+    for (let i = 0; i < gridStart; i++) {
+      const empty = document.createElement('div');
+      dateGrid.appendChild(empty);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = toDateStr(viewYear, viewMonth, d);
+      const dateObj  = new Date(viewYear, viewMonth, d);
+      const past     = isPast(dateStr);
+      const beyond   = isBeyondMax(dateStr);
+      const closed   = isClosedDay(dateObj);
+      const fullyBkd = isFullyBooked(dateStr);
+      const isSelected = dateStr === selectedDate;
+      const disabled   = past || beyond || closed || fullyBkd;
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = String(d);
+      btn.dataset.date = dateStr;
+      btn.disabled = disabled;
+      btn.setAttribute('aria-label', formatDateNL(dateStr));
+      btn.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+
+      // Base classes
+      btn.className = [
+        'relative w-full aspect-square flex items-center justify-center',
+        'text-sm font-body rounded-full transition-all',
+        disabled
+          ? 'text-champagne cursor-not-allowed'
+          : isSelected
+            ? 'bg-blush-deep text-white font-medium'
+            : 'text-charcoal hover:bg-champagne cursor-pointer',
+      ].join(' ');
+
+      if (!disabled && !isSelected) {
+        btn.addEventListener('click', () => selectDate(dateStr));
+      }
+
+      dateGrid.appendChild(btn);
+    }
+  }
+
+  // ─── Date selection ───────────────────────────────────────────────────────────
+  function selectDate(dateStr) {
+    selectedDate = dateStr;
+    selectedTime = null;
+
+    // Update grid highlight
+    renderCalendar();
+
+    // Show time section
+    selectedDateLbl.textContent = formatDateNL(dateStr);
+    timeSection.classList.remove('hidden');
+
+    // Render slot availability
+    const booked = bookedSlotsForDate(dateStr);
+    slotGrid.querySelectorAll('.slot-btn').forEach(btn => {
+      const t = btn.dataset.time;
+      const taken = booked.includes(t);
+      btn.disabled = taken;
+      btn.classList.remove('border-blush-deep', 'bg-cream');
+      btn.setAttribute('aria-pressed', 'false');
+      const lbl = btn.querySelector('.slot-label');
+      if (lbl) lbl.textContent = taken ? 'Bezet' : 'Beschikbaar';
+    });
+
+    goToFormBtn.disabled = true;
+
+    // Scroll to time section on mobile
+    timeSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function clearDate() {
+    selectedDate = null;
+    selectedTime = null;
+    timeSection.classList.add('hidden');
+    goToFormBtn.disabled = true;
+    renderCalendar();
+  }
+
+  // ─── Slot selection ───────────────────────────────────────────────────────────
+  slotGrid.querySelectorAll('.slot-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.disabled) return;
+      selectedTime = btn.dataset.time;
+
+      // Reset all, highlight selected
+      slotGrid.querySelectorAll('.slot-btn').forEach(b => {
+        b.classList.remove('border-blush-deep', 'bg-cream');
+        b.setAttribute('aria-pressed', 'false');
+      });
+      btn.classList.add('border-blush-deep', 'bg-cream');
+      btn.setAttribute('aria-pressed', 'true');
+
+      goToFormBtn.disabled = false;
+    });
+  });
+
+  // ─── Step transitions ─────────────────────────────────────────────────────────
+  goToFormBtn.addEventListener('click', () => {
+    if (!selectedDate || !selectedTime) return;
+    hDate.value = selectedDate;
+    hTime.value = selectedTime;
+    summaryDatetime.textContent = `${formatDateNL(selectedDate)} om ${selectedTime}`;
+
+    step1.classList.add('hidden');
+    step2.classList.remove('hidden');
+    ind1.classList.remove('text-blush-deep', 'border-blush-deep');
+    ind1.classList.add('text-taupe-light', 'border-transparent');
+    ind2.classList.remove('text-taupe-light', 'border-transparent');
+    ind2.classList.add('text-blush-deep', 'border-blush-deep');
+    step2.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  backBtn.addEventListener('click', () => {
+    step2.classList.add('hidden');
+    step1.classList.remove('hidden');
+    ind2.classList.remove('text-blush-deep', 'border-blush-deep');
+    ind2.classList.add('text-taupe-light', 'border-transparent');
+    ind1.classList.remove('text-taupe-light', 'border-transparent');
+    ind1.classList.add('text-blush-deep', 'border-blush-deep');
+  });
+
+  clearDateBtn.addEventListener('click', clearDate);
+
+  prevBtn.addEventListener('click', () => {
+    if (viewMonth === 0) { viewMonth = 11; viewYear--; }
+    else { viewMonth--; }
+    renderCalendar();
+  });
+
+  nextBtn.addEventListener('click', () => {
+    if (viewMonth === 11) { viewMonth = 0; viewYear++; }
+    else { viewMonth++; }
+    renderCalendar();
+  });
+
+  // ─── Form submit ──────────────────────────────────────────────────────────────
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!selectedDate || !selectedTime) return;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Bezig…';
+    formStatus.className = 'text-sm font-body italic hidden';
+    formStatus.textContent = '';
+
+    const data = new FormData(form);
+    const payload = {
+      full_name:        data.get('full_name'),
+      email:            data.get('email'),
+      phone:            data.get('phone'),
+      preferred_date:   selectedDate,
+      time_slot:        selectedTime,
+      appointment_type: data.get('appointment_type'),
+      message:          data.get('message'),
+    };
+
+    try {
+      const res = await fetch('/api/appointments', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const result = await res.json();
+
+      if (!res.ok) {
+        throw new Error(result.error || 'Er is iets misgegaan.');
+      }
+
+      // Show success
+      step2.classList.add('hidden');
+      stepSuccess.classList.remove('hidden');
+      successMsg.textContent = `Je afspraak op ${formatDateNL(selectedDate)} om ${selectedTime} is ontvangen. We nemen spoedig contact met je op ter bevestiging.`;
+      stepSuccess.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    } catch (err) {
+      formStatus.textContent = err.message || 'Er is iets misgegaan. Probeer het later opnieuw.';
+      formStatus.className = 'text-sm font-body italic text-red-600 block mt-2';
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> Afspraak bevestigen`;
+    }
+  });
+
+  // ─── Init ─────────────────────────────────────────────────────────────────────
+  const maxDate = new Date(maxDateStr);
+  renderCalendar();
+</script>
