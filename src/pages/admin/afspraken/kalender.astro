@@ -255,7 +255,7 @@ const statusColor: Record<string, string> = {
                           <p class="text-[8px] font-body opacity-60 truncate">{employee.first_name}</p>
                         )}
                         <span class={`text-[8px] font-body px-1 inline-block mt-0.5 ${app.appointment_type === 'vip' ? 'bg-gold/30' : 'bg-champagne/60'}`}>
-                          {app.appointment_type === 'vip' ? 'VIP' : 'Std'}
+                          {app.appointment_type === 'vip' ? 'VIP' : app.appointment_type === 'standard_bride' ? 'Bruid' : app.appointment_type === 'standard_groom' ? 'Bruidegom' : 'Std'}
                         </span>
                       </a>
                     );

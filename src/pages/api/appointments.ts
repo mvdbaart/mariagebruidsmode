@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { getServiceRoleClient } from '../../lib/serverAuth';
 
-const VALID_TYPES = new Set(['standard', 'vip']);
+const VALID_TYPES = new Set(['standard_bride', 'standard_groom', 'vip']);
 
 // Valid block start times — must match availability.ts
 const WEEKDAY_TIMES = new Set(['10:00', '13:00', '15:30']);
