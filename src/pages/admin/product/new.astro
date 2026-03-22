@@ -1,6 +1,7 @@
 ---
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { getServiceRoleClient } from '../../../lib/serverAuth';
+import { PRODUCT_QUALITIES } from '../../../lib/productQualities';
 
 const supabase = getServiceRoleClient();
 const { data: collections } = await supabase
@@ -60,6 +61,23 @@ const { data: collections } = await supabase
           <div class="space-y-2">
             <label class="text-[10px] tracking-widest uppercase text-charcoal font-body font-medium">Kenmerken (komma gescheiden)</label>
             <input type="text" name="features" class="w-full border-b border-champagne py-3 focus:border-charcoal outline-none transition-colors font-body font-light bg-transparent" placeholder="A-lijn, Kanten details, Sleeptrain" />
+          </div>
+
+          <!-- Product Qualities -->
+          <div class="space-y-4">
+            <label class="text-[10px] tracking-widest uppercase text-charcoal font-body font-medium block">Product Kwaliteiten</label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {PRODUCT_QUALITIES.map((q) => (
+                <label class="quality-checkbox-label flex items-center gap-4 p-4 border border-champagne hover:border-charcoal/30 bg-white cursor-pointer select-none transition-all" data-id={q.id}>
+                  <input type="checkbox" name="qualities" value={q.id} class="sr-only quality-checkbox" />
+                  <svg viewBox="0 0 80 80" class="w-10 h-10 shrink-0 text-charcoal/60" fill="none" stroke="currentColor" stroke-width="1.5" set:html={q.svgContent} />
+                  <div>
+                    <p class="text-[11px] uppercase tracking-[0.12em] font-medium text-charcoal">{q.label}</p>
+                    <p class="text-[10px] text-taupe font-light leading-snug mt-0.5">{q.description}</p>
+                  </div>
+                </label>
+              ))}
+            </div>
           </div>
 
           <div class="space-y-6" id="file-uploader">
@@ -263,6 +281,23 @@ const { data: collections } = await supabase
 </AdminLayout>
 
 <script>
+  // Quality checkbox toggle styling
+  document.querySelectorAll<HTMLLabelElement>('.quality-checkbox-label').forEach((label) => {
+    const cb = label.querySelector<HTMLInputElement>('.quality-checkbox');
+    if (!cb) return;
+    label.addEventListener('click', () => {
+      requestAnimationFrame(() => {
+        if (cb.checked) {
+          label.classList.add('border-charcoal', 'bg-cream/30');
+          label.classList.remove('border-champagne', 'bg-white');
+        } else {
+          label.classList.remove('border-charcoal', 'bg-cream/30');
+          label.classList.add('border-champagne', 'bg-white');
+        }
+      });
+    });
+  });
+
   // Auto-generate slug from name
   const nameInput = document.getElementById('product-name') as HTMLInputElement;
   const slugInput = document.getElementById('product-slug') as HTMLInputElement;
@@ -302,6 +337,7 @@ const { data: collections } = await supabase
         description: data.get('description') || null,
         price_range: data.get('price_range') || null,
         features: featuresLine ? featuresLine.split(',').map(f => f.trim()).filter(Boolean) : [],
+        qualities: data.getAll('qualities'),
         images: (window as any).getCurrentImages ? (window as any).getCurrentImages() : [],
       }),
     });

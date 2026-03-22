@@ -37,6 +37,7 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
       description: body.description ?? null,
       features: Array.isArray(body.features) ? body.features : [],
       images: Array.isArray(body.images) ? body.images : [],
+      qualities: Array.isArray(body.qualities) ? body.qualities : [],
       price_range: body.price_range ? String(body.price_range).trim() : null,
     })
     .eq('id', id);
