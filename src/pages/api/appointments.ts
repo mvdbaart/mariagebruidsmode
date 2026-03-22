@@ -53,6 +53,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   const message = trimString(body?.message, 2000);
   const appointmentType = trimString(body?.appointment_type, 20);
   const preferredTime = trimString(body?.preferred_time, 10);
+  const dressSize = trimString(body?.dress_size, 20);
 
   if (!fullName || !email || !preferredDate) {
     return new Response(JSON.stringify({ error: 'Naam, e-mail en voorkeursdatum zijn verplicht.' }), {
@@ -92,6 +93,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
           phone,
           preferred_date: preferredDate,
           appointment_type: appointmentType,
+          dress_size: dressSize,
           message,
           start_time: startTime,
           end_time: endTime,

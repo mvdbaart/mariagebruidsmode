@@ -186,6 +186,17 @@ const isAccount = pathname.startsWith('/login') || pathname.startsWith('/admin')
     <div id="wishlist-content" class="overflow-y-auto flex-1 px-6 py-4">
       <!-- Populated by JS -->
     </div>
+
+    <!-- Appointment CTA — shown when wishlist has items -->
+    <div id="wishlist-appointment-footer" class="hidden flex-shrink-0 border-t border-champagne px-6 py-4">
+      <a
+        id="wishlist-appointment-btn"
+        href="/afspraak-maken"
+        class="btn-blush w-full text-center block text-[10px] tracking-[0.25em] uppercase py-3"
+      >
+        Maak een pasafspraak
+      </a>
+    </div>
   </div>
 </div>
 
@@ -289,6 +300,21 @@ const isAccount = pathname.startsWith('/login') || pathname.startsWith('/admin')
         updateBadge();
       });
     });
+
+    // Appointment CTA footer
+    const footer = document.getElementById('wishlist-appointment-footer');
+    const appointmentBtn = document.getElementById('wishlist-appointment-btn') as HTMLAnchorElement | null;
+    if (footer && appointmentBtn) {
+      if (items.length > 0) {
+        footer.classList.remove('hidden');
+        footer.classList.add('flex');
+        const jurken = items.map(i => i.name).join(', ');
+        appointmentBtn.href = `/afspraak-maken?jurken=${encodeURIComponent(jurken)}`;
+      } else {
+        footer.classList.add('hidden');
+        footer.classList.remove('flex');
+      }
+    }
   }
 
   // ── Overlay helpers ──────────────────────────────────────────────────────────

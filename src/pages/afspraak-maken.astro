@@ -70,6 +70,22 @@ const bridalLiveForm = settingsMap.bridallive_embed_appointment;
                       <option value="16:00">16:00</option>
                     </select>
                   </div>
+                  <div class="space-y-2">
+                    <label for="dress_size" class="text-[10px] tracking-widest uppercase text-charcoal font-medium">Kledingmaat <span class="normal-case tracking-normal text-taupe-light">(optioneel)</span></label>
+                    <select id="dress_size" name="dress_size" class="w-full border-b border-champagne py-3 focus:border-blush-deep outline-none transition-colors font-light bg-transparent text-taupe appearance-none cursor-pointer">
+                      <option value="">Onbekend / nog te bepalen</option>
+                      <option value="34">34</option>
+                      <option value="36">36</option>
+                      <option value="38">38</option>
+                      <option value="40">40</option>
+                      <option value="42">42</option>
+                      <option value="44">44</option>
+                      <option value="46">46</option>
+                      <option value="48">48</option>
+                      <option value="50">50</option>
+                      <option value="52">52</option>
+                    </select>
+                  </div>
                 </div>
 
                 <fieldset class="space-y-5">
@@ -127,6 +143,16 @@ const bridalLiveForm = settingsMap.bridallive_embed_appointment;
   const status = document.getElementById('form-status');
   const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement | null;
 
+  // Pre-fill message with wishlist items passed via URL param
+  const params = new URLSearchParams(location.search);
+  const jurken = params.get('jurken');
+  if (jurken && form) {
+    const messageField = form.querySelector<HTMLTextAreaElement>('#message');
+    if (messageField && !messageField.value) {
+      messageField.value = `Geselecteerde jurken uit mijn verlanglijst:\n${jurken}\n\n`;
+    }
+  }
+
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -147,6 +173,7 @@ const bridalLiveForm = settingsMap.bridallive_embed_appointment;
         preferred_date: formData.get('preferred_date'),
         preferred_time: formData.get('preferred_time'),
         appointment_type: formData.get('appointment_type'),
+        dress_size: formData.get('dress_size'),
         message: formData.get('message'),
       };
 
