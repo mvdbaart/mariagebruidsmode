@@ -183,7 +183,7 @@ const productSpecs = rawFeatures
           )}
 
           <!-- CTA buttons -->
-          <div class="flex flex-col sm:flex-row gap-4 mb-6">
+          <div class="flex flex-col sm:flex-row gap-4 mb-4">
             <a href="/afspraak-maken" class="btn-premium flex-1 justify-center py-4">
               Pasafspraak maken
             </a>
@@ -191,6 +191,18 @@ const productSpecs = rawFeatures
               Bel ons
             </a>
           </div>
+
+          <!-- Wishlist button -->
+          <button
+            id="wishlist-detail-btn"
+            class="w-full flex items-center justify-center gap-2.5 py-3.5 mb-6 border border-champagne text-taupe text-[11px] tracking-[0.15em] uppercase font-body hover:border-blush-deep hover:text-blush-deep transition-colors"
+            aria-label="Toevoegen aan verlanglijst"
+          >
+            <svg id="wishlist-detail-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" fill="none" class="transition-colors">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+            <span id="wishlist-detail-label">Voeg toe aan verlanglijst</span>
+          </button>
 
           <p class="text-[11px] font-body text-taupe-light leading-relaxed">
             ✓ Gratis persoonlijk advies &nbsp;·&nbsp; ✓ Probeer in onze winkel &nbsp;·&nbsp; ✓ Geldrop
@@ -443,6 +455,59 @@ const productSpecs = rawFeatures
     if (e.key === 'ArrowLeft') lightboxPrev?.click();
     if (e.key === 'ArrowRight') lightboxNext?.click();
   });
+
+  // Wishlist
+  const wishlistBtn = document.getElementById('wishlist-detail-btn');
+  const wishlistIcon = document.getElementById('wishlist-detail-icon');
+  const wishlistLabel = document.getElementById('wishlist-detail-label');
+
+  const wishlistItem = {
+    slug: document.title.split('—')[0]?.trim() || '',
+    name: '',
+    image: (document.getElementById('main-product-image') as HTMLImageElement | null)?.src || '',
+    url: window.location.pathname,
+  };
+
+  function initDetailWishlist() {
+    const wl = (window as any).mariageWishlist;
+    if (!wl || !wishlistBtn) return;
+
+    // Extract slug from URL
+    const slug = window.location.pathname.replace('/product/', '').replace(/\/$/, '');
+    const name = document.querySelector<HTMLElement>('h1')?.textContent?.trim() || '';
+    wishlistItem.slug = slug;
+    wishlistItem.name = name;
+
+    function updateBtn(inWishlist: boolean) {
+      if (!wishlistIcon || !wishlistLabel || !wishlistBtn) return;
+      if (inWishlist) {
+        wishlistIcon.setAttribute('fill', 'currentColor');
+        wishlistIcon.style.color = 'var(--color-blush-deep, #A66352)';
+        wishlistLabel.textContent = 'Opgeslagen in verlanglijst ✓';
+        wishlistBtn.classList.add('border-blush-deep', 'text-blush-deep');
+        wishlistBtn.classList.remove('border-champagne', 'text-taupe');
+      } else {
+        wishlistIcon.setAttribute('fill', 'none');
+        wishlistIcon.style.color = '';
+        wishlistLabel.textContent = 'Voeg toe aan verlanglijst';
+        wishlistBtn.classList.remove('border-blush-deep', 'text-blush-deep');
+        wishlistBtn.classList.add('border-champagne', 'text-taupe');
+      }
+    }
+
+    updateBtn(wl.has(slug));
+
+    wishlistBtn.addEventListener('click', () => {
+      const added = wl.toggle(wishlistItem);
+      updateBtn(added);
+    });
+  }
+
+  if ((window as any).mariageWishlist) {
+    initDetailWishlist();
+  } else {
+    window.addEventListener('load', initDetailWishlist);
+  }
 </script>
 
 <style>
