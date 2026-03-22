@@ -111,7 +111,7 @@ if (!publicSupabaseUrl || !publicSupabaseAnonKey) {
               data-id={slide.id}
             >
               <div class="w-24 h-16 bg-linen shrink-0 overflow-hidden">
-                <img src={slide.image_url} alt={slide.title || 'Slide'} class="w-full h-full object-cover" />
+                <img src={slide.image_url || '/wp-content/uploads/2023/07/Home-Hero-img.jpg'} alt={slide.title || 'Slide'} onerror="this.onerror=null;this.src='/wp-content/uploads/2023/07/Home-Hero-img.jpg'" class="w-full h-full object-cover" />
               </div>
               <div class="flex-1 min-w-0">
                 <p class="text-sm font-body font-medium text-charcoal truncate">{slide.title || <em class="text-taupe font-normal">Geen titel</em>}</p>
@@ -291,7 +291,7 @@ function appendSlideCard(slide: Record<string, unknown>) {
   card.dataset.id = String(slide.id);
   card.innerHTML = `
     <div class="w-24 h-16 bg-linen shrink-0 overflow-hidden">
-      <img src="${slide.image_url}" alt="${slide.title || 'Slide'}" class="w-full h-full object-cover" />
+      <img src="${slide.image_url}" alt="${slide.title || 'Slide'}" onerror="this.onerror=null;this.src='/wp-content/uploads/2023/07/Home-Hero-img.jpg'" class="w-full h-full object-cover" />
     </div>
     <div class="flex-1 min-w-0">
       <p class="text-sm font-body font-medium text-charcoal truncate italic text-taupe">Geen titel — klik Bewerken</p>
