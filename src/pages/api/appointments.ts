@@ -2,20 +2,24 @@ import type { APIRoute } from 'astro';
 import { getServiceRoleClient } from '../../lib/serverAuth';
 
 const VALID_TYPES = new Set(['standard', 'vip']);
-const VALID_TIMES = new Set(['10:00', '11:30', '13:00', '14:30', '16:00']);
 
-function addMinutes(time: string, minutes: number): string {
-  const [h, m] = time.split(':').map(Number);
-  const total = h * 60 + m + minutes;
-  const hh = String(Math.floor(total / 60) % 24).padStart(2, '0');
-  const mm = String(total % 60).padStart(2, '0');
-  return `${hh}:${mm}`;
-}
+// Valid block start times — must match availability.ts
+const WEEKDAY_TIMES = new Set(['10:00', '13:00', '15:30']);
+const WEEKEND_TIMES = new Set(['09:30', '12:00', '14:30']);
+
+const BLOCK_ENDS: Record<string, string> = {
+  '10:00': '12:00',
+  '13:00': '15:00',
+  '15:30': '17:30',
+  '09:30': '11:30',
+  '12:00': '14:00',
+  '14:30': '16:30',
+};
 
 // Simple in-memory rate limiter: max 5 submissions per IP per hour
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT_MAX = 5;
-const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
 
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
@@ -36,13 +40,15 @@ function trimString(value: unknown, max = 500): string | null {
   return trimmed.slice(0, max);
 }
 
+function getDayOfWeek(dateStr: string): number {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(year, month - 1, day).getDay(); // 0=Sun … 6=Sat
+}
+
 export const POST: APIRoute = async ({ request, clientAddress }) => {
   const ip = clientAddress || 'unknown';
   if (!checkRateLimit(ip)) {
-    return new Response(JSON.stringify({ error: 'Te veel aanvragen. Probeer het later opnieuw.' }), {
-      status: 429,
-      headers: { 'content-type': 'application/json', 'Retry-After': '3600' },
-    });
+    return err('Te veel aanvragen. Probeer het later opnieuw.', 429);
   }
 
   const body = await request.json().catch(() => null);
@@ -56,49 +62,80 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   const dressSize = trimString(body?.dress_size, 20);
 
   if (!fullName || !email || !preferredDate) {
-    return new Response(JSON.stringify({ error: 'Naam, e-mail en voorkeursdatum zijn verplicht.' }), {
-      status: 400,
-      headers: { 'content-type': 'application/json' },
-    });
+    return err('Naam, e-mail en voorkeursdatum zijn verplicht.');
   }
 
   if (!appointmentType || !VALID_TYPES.has(appointmentType)) {
-    return new Response(JSON.stringify({ error: 'Ongeldig afspraaktype.' }), {
-      status: 400,
-      headers: { 'content-type': 'application/json' },
-    });
+    return err('Ongeldig afspraaktype.');
   }
 
-  // Basic date format guard (YYYY-MM-DD).
   if (!/^\d{4}-\d{2}-\d{2}$/.test(preferredDate)) {
-    return new Response(JSON.stringify({ error: 'Ongeldige datum.' }), {
-      status: 400,
-      headers: { 'content-type': 'application/json' },
-    });
+    return err('Ongeldige datum.');
   }
 
-  // Validate optional time slot
-  const startTime = preferredTime && VALID_TIMES.has(preferredTime) ? preferredTime : null;
-  const durationMinutes = appointmentType === 'vip' ? 120 : 90;
-  const endTime = startTime ? addMinutes(startTime, durationMinutes) : null;
+  if (!preferredTime) {
+    return err('Kies een tijdblok voor de afspraak.');
+  }
+
+  const dayOfWeek = getDayOfWeek(preferredDate);
+
+  // Monday: closed
+  if (dayOfWeek === 1) {
+    return err('We zijn op maandag gesloten. Kies een andere dag.');
+  }
+
+  const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+  const validTimes = isWeekend ? WEEKEND_TIMES : WEEKDAY_TIMES;
+
+  if (!validTimes.has(preferredTime)) {
+    return err('Ongeldig tijdblok voor de gekozen dag.');
+  }
+
+  const supabase = getServiceRoleClient();
+
+  // Sunday: must be in opening_exceptions
+  if (dayOfWeek === 0) {
+    const { data: exception } = await supabase
+      .from('opening_exceptions')
+      .select('date')
+      .eq('date', preferredDate)
+      .maybeSingle();
+
+    if (!exception) {
+      return err('Op zondag zijn we alleen open op persoonlijk verzoek. Neem contact met ons op.');
+    }
+  }
+
+  // Check availability: slot must not be taken
+  const { data: existing } = await supabase
+    .from('appointments')
+    .select('id')
+    .eq('preferred_date', preferredDate)
+    .eq('start_time', preferredTime)
+    .neq('status', 'cancelled')
+    .limit(1);
+
+  if (existing && existing.length > 0) {
+    return err('Dit tijdblok is helaas al bezet. Kies een ander tijdstip.');
+  }
+
+  const startTime = preferredTime;
+  const endTime = BLOCK_ENDS[startTime] || null;
 
   try {
-    const supabase = getServiceRoleClient();
-    const { error } = await supabase
-      .from('appointments')
-      .insert([
-        {
-          full_name: fullName,
-          email,
-          phone,
-          preferred_date: preferredDate,
-          appointment_type: appointmentType,
-          dress_size: dressSize,
-          message,
-          start_time: startTime,
-          end_time: endTime,
-        },
-      ]);
+    const { error } = await supabase.from('appointments').insert([
+      {
+        full_name: fullName,
+        email,
+        phone,
+        preferred_date: preferredDate,
+        appointment_type: appointmentType,
+        dress_size: dressSize,
+        message,
+        start_time: startTime,
+        end_time: endTime,
+      },
+    ]);
 
     if (error) {
       return new Response(JSON.stringify({ error: 'Opslaan van afspraak mislukt.' }), {
@@ -118,3 +155,10 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     });
   }
 };
+
+function err(message: string, status = 400) {
+  return new Response(JSON.stringify({ error: message }), {
+    status,
+    headers: { 'content-type': 'application/json' },
+  });
+}
