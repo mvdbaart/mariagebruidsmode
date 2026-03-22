@@ -103,7 +103,7 @@ const tabs = [
                     </td>
                     <td class="px-5 py-4">
                       <span class={`text-[9px] uppercase tracking-wider font-body px-2 py-1 ${app.appointment_type === 'vip' ? 'bg-gold/20 text-charcoal' : 'bg-champagne text-taupe'}`}>
-                        {app.appointment_type === 'vip' ? 'VIP' : 'Standaard'}
+                        {app.appointment_type === 'vip' ? 'VIP' : app.appointment_type === 'standard_bride' ? 'Bruid' : app.appointment_type === 'standard_groom' ? 'Bruidegom' : 'Standaard'}
                       </span>
                     </td>
                     <td class="px-5 py-4">

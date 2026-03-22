@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 import { getAdminAuthFromCookies, getServiceRoleClient } from '../../../../lib/serverAuth';
 
 const VALID_STATUSES = new Set(['pending', 'confirmed', 'cancelled']);
-const VALID_TYPES = new Set(['standard', 'vip']);
+const VALID_TYPES = new Set(['standard_bride', 'standard_groom', 'vip', 'standard']);
 // All valid block start times (weekday + weekend), plus empty string to clear
 const VALID_TIMES = new Set(['', '10:00', '13:00', '15:30', '09:30', '12:00', '14:30']);
 
