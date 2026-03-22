@@ -57,18 +57,7 @@ const bridalLiveForm = settingsMap.bridallive_embed_appointment;
                   </div>
                   <div class="space-y-2">
                     <label for="preferred_date" class="text-[10px] tracking-widest uppercase text-charcoal font-medium">Voorkeursdatum</label>
-                    <input type="date" id="preferred_date" name="preferred_date" required class="w-full border-b border-champagne py-3 focus:border-blush-deep outline-none transition-colors font-light bg-transparent" />
-                  </div>
-                  <div class="space-y-2">
-                    <label for="preferred_time" class="text-[10px] tracking-widest uppercase text-charcoal font-medium">Voorkeurstijd <span class="normal-case tracking-normal text-taupe-light">(optioneel)</span></label>
-                    <select id="preferred_time" name="preferred_time" class="w-full border-b border-champagne py-3 focus:border-blush-deep outline-none transition-colors font-light bg-transparent text-taupe appearance-none cursor-pointer">
-                      <option value="">Geen voorkeur</option>
-                      <option value="10:00">10:00</option>
-                      <option value="11:30">11:30</option>
-                      <option value="13:00">13:00</option>
-                      <option value="14:30">14:30</option>
-                      <option value="16:00">16:00</option>
-                    </select>
+                    <input type="date" id="preferred_date" name="preferred_date" required min={today} class="w-full border-b border-champagne py-3 focus:border-blush-deep outline-none transition-colors font-light bg-transparent" />
                   </div>
                   <div class="space-y-2">
                     <label for="dress_size" class="text-[10px] tracking-widest uppercase text-charcoal font-medium">Kledingmaat <span class="normal-case tracking-normal text-taupe-light">(optioneel)</span></label>
@@ -86,6 +75,33 @@ const bridalLiveForm = settingsMap.bridallive_embed_appointment;
                       <option value="52">52</option>
                     </select>
                   </div>
+                </div>
+
+                <!-- Time slot picker -->
+                <div class="space-y-4">
+                  <p class="text-[10px] tracking-widest uppercase text-charcoal font-medium">Tijdblok <span class="normal-case tracking-normal text-taupe-light">(verplicht na datumselectie)</span></p>
+
+                  <!-- Placeholder before date is selected -->
+                  <div id="time-placeholder" class="text-xs text-taupe-light italic font-body py-2">
+                    Selecteer eerst een datum om de beschikbare tijdblokken te zien.
+                  </div>
+
+                  <!-- Loading indicator -->
+                  <div id="time-loading" class="hidden text-xs text-taupe italic font-body py-2 flex items-center gap-2">
+                    <span class="inline-block w-3 h-3 border border-taupe-light border-t-taupe rounded-full animate-spin"></span>
+                    Beschikbaarheid laden…
+                  </div>
+
+                  <!-- Closed day message -->
+                  <div id="time-closed" class="hidden py-4 px-5 bg-cream border border-champagne text-xs text-taupe font-body"></div>
+
+                  <!-- Block grid -->
+                  <div id="time-blocks" class="hidden grid grid-cols-2 sm:grid-cols-4 gap-3" role="group" aria-labelledby="time-blocks-label">
+                    <!-- Blocks rendered by JS -->
+                  </div>
+
+                  <!-- Hidden input that stores the selected time -->
+                  <input type="hidden" id="preferred_time" name="preferred_time" />
                 </div>
 
                 <fieldset class="space-y-5">
@@ -112,13 +128,13 @@ const bridalLiveForm = settingsMap.bridallive_embed_appointment;
                     Afspraak aanvragen
                   </button>
                 </div>
-                
+
                 <p id="form-status" class="text-center text-xs font-body italic mt-6 hidden" role="status" aria-live="polite"></p>
               </form>
             </div>
           )}
         </div>
-        
+
         <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 text-center border-t border-champagne pt-16">
           <div>
             <h4 class="font-display text-charcoal text-xl mb-3">Persoonlijke aandacht</h4>
@@ -142,6 +158,12 @@ const bridalLiveForm = settingsMap.bridallive_embed_appointment;
   const form = document.getElementById('appointment-form') as HTMLFormElement | null;
   const status = document.getElementById('form-status');
   const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement | null;
+  const dateInput = document.getElementById('preferred_date') as HTMLInputElement | null;
+  const timeHidden = document.getElementById('preferred_time') as HTMLInputElement | null;
+  const timePlaceholder = document.getElementById('time-placeholder');
+  const timeLoading = document.getElementById('time-loading');
+  const timeClosed = document.getElementById('time-closed');
+  const timeBlocks = document.getElementById('time-blocks');
 
   // Pre-fill message with wishlist items passed via URL param
   const params = new URLSearchParams(location.search);
@@ -153,10 +175,108 @@ const bridalLiveForm = settingsMap.bridallive_embed_appointment;
     }
   }
 
+  function setSection(visible: 'placeholder' | 'loading' | 'closed' | 'blocks') {
+    timePlaceholder?.classList.toggle('hidden', visible !== 'placeholder');
+    timeLoading?.classList.toggle('hidden', visible !== 'loading');
+    timeClosed?.classList.toggle('hidden', visible !== 'closed');
+    timeBlocks?.classList.toggle('hidden', visible !== 'blocks');
+  }
+
+  function renderBlocks(blocks: Array<{ start: string; end: string; label: string; available: boolean }>) {
+    if (!timeBlocks || !timeHidden) return;
+    timeBlocks.innerHTML = '';
+
+    if (blocks.length === 0) {
+      timeBlocks.innerHTML = '<p class="col-span-4 text-xs text-taupe-light italic font-body">Geen tijdblokken beschikbaar op deze dag.</p>';
+      setSection('blocks');
+      return;
+    }
+
+    blocks.forEach((block) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.dataset.time = block.start;
+      btn.disabled = !block.available;
+
+      if (block.available) {
+        btn.className = [
+          'time-block-btn border py-4 px-2 text-center transition-all cursor-pointer',
+          'border-champagne hover:border-blush-deep hover:bg-blush/5',
+          'text-[11px] tracking-wide text-taupe font-body',
+        ].join(' ');
+      } else {
+        btn.className = [
+          'time-block-btn border py-4 px-2 text-center cursor-not-allowed',
+          'border-champagne/40 bg-gray-50',
+          'text-[11px] tracking-wide text-taupe-light line-through font-body',
+        ].join(' ');
+        btn.setAttribute('aria-disabled', 'true');
+        btn.title = 'Dit tijdblok is al bezet';
+      }
+
+      btn.innerHTML = `<span class="block font-medium">${block.label}</span><span class="block text-[9px] mt-1 tracking-widest uppercase">${block.available ? 'Beschikbaar' : 'Bezet'}</span>`;
+      timeBlocks.appendChild(btn);
+    });
+
+    // Click handler
+    timeBlocks.querySelectorAll<HTMLButtonElement>('.time-block-btn:not(:disabled)').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        // Deselect all
+        timeBlocks.querySelectorAll('.time-block-btn').forEach((b) => {
+          b.classList.remove('border-blush-deep', 'bg-blush/10', 'text-charcoal');
+        });
+        // Select clicked
+        btn.classList.add('border-blush-deep', 'bg-blush/10', 'text-charcoal');
+        if (timeHidden) timeHidden.value = btn.dataset.time || '';
+      });
+    });
+
+    setSection('blocks');
+  }
+
+  async function loadAvailability(date: string) {
+    if (!date) {
+      setSection('placeholder');
+      if (timeHidden) timeHidden.value = '';
+      return;
+    }
+
+    setSection('loading');
+    if (timeHidden) timeHidden.value = '';
+
+    try {
+      const res = await fetch(`/api/appointments/availability?date=${encodeURIComponent(date)}`);
+      const data = await res.json();
+
+      if (data.status === 'closed' || data.status === 'sunday_closed') {
+        if (timeClosed) timeClosed.textContent = data.message || 'We zijn op deze dag gesloten.';
+        setSection('closed');
+      } else {
+        renderBlocks(data.blocks || []);
+      }
+    } catch {
+      if (timeClosed) timeClosed.textContent = 'Beschikbaarheid kon niet worden opgehaald. Probeer het later opnieuw.';
+      setSection('closed');
+    }
+  }
+
+  dateInput?.addEventListener('change', () => {
+    loadAvailability(dateInput.value);
+  });
+
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!status) return;
+
+      // Validate time selection
+      if (!timeHidden?.value) {
+        if (status) {
+          status.textContent = 'Kies eerst een tijdblok voor de afspraak.';
+          status.className = 'text-center text-xs font-body text-red-600 italic mt-6 block';
+        }
+        return;
+      }
 
       if (submitBtn) {
         submitBtn.disabled = true;
@@ -192,6 +312,8 @@ const bridalLiveForm = settingsMap.bridallive_embed_appointment;
         status.textContent = 'Bedankt! We hebben je aanvraag ontvangen en nemen snel contact op.';
         status.className = 'text-center text-xs font-body text-green-700 italic mt-6 block';
         form.reset();
+        setSection('placeholder');
+        if (timeHidden) timeHidden.value = '';
         if (submitBtn) {
           submitBtn.disabled = false;
           submitBtn.textContent = 'Afspraak aanvragen';
@@ -207,4 +329,3 @@ const bridalLiveForm = settingsMap.bridallive_embed_appointment;
     });
   }
 </script>
-
