@@ -2,7 +2,7 @@
 import AdminLayout from '../../../../layouts/AdminLayout.astro';
 import { supabase } from '../../../../lib/supabase';
 import { PRODUCT_QUALITIES } from '../../../../lib/productQualities';
-import { DRESS_STYLES } from '../../../../lib/productStyles';
+import { PASVORM, HALS, MOUW, MATERIALEN, KLEUREN, MATEN, CATEGORIEEN } from '../../../../lib/productAttributes';
 
 const { id } = Astro.params;
 
@@ -29,10 +29,11 @@ function encodeImagePath(url: string | null | undefined): string {
   return url.split('/').map((s) => encodeURIComponent(s)).join('/');
 }
 
-const styleKeys = new Set(DRESS_STYLES.map((s) => s.key));
-const productFeatures: string[] = Array.isArray(product.features) ? product.features : [];
-const productStyleKeys = productFeatures.filter((f) => styleKeys.has(f as any));
-const productCustomTags = productFeatures.filter((f) => !styleKeys.has(f as any)).join(', ');
+const productMaterielen: string[] = Array.isArray(product.materialen)  ? product.materialen  : [];
+const productKleuren:    string[] = Array.isArray(product.kleur)        ? product.kleur        : [];
+const productMaten:      string[] = Array.isArray(product.maten)        ? product.maten        : [];
+const productCateg:      string[] = Array.isArray(product.categorieen)  ? product.categorieen  : [];
+const productFeatures:   string[] = Array.isArray(product.features)     ? product.features     : [];
 ---
 
 <AdminLayout title={`Bewerk ${product.name}`}>
@@ -79,8 +80,22 @@ const productCustomTags = productFeatures.filter((f) => !styleKeys.has(f as any)
             </div>
 
             <div class="space-y-2">
-              <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Prijsrange</label>
-              <input type="text" name="price_range" value={product.price_range ?? ''} class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent" placeholder="€ 1.500 - € 2.500" />
+              <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Prijs</label>
+              <input type="text" name="price_range" value={product.price_range ?? ''} class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent" placeholder="€ 1.995" />
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Aanbiedingsprijs</label>
+              <input type="text" name="sale_price" value={product.sale_price ?? ''} class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent" placeholder="€ 995 (leeg = geen aanbieding)" />
+            </div>
+
+            <div class="space-y-2 flex items-center gap-4 pt-2">
+              <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Op voorraad</label>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" name="in_stock" class="sr-only peer" checked={product.in_stock !== false} />
+                <div class="w-10 h-5 bg-accent/20 peer-checked:bg-secondary rounded-full transition-colors"></div>
+                <div class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform peer-checked:translate-x-5"></div>
+              </label>
             </div>
           </div>
 
@@ -89,34 +104,109 @@ const productCustomTags = productFeatures.filter((f) => !styleKeys.has(f as any)
             <textarea name="description" rows="4" class="w-full border border-accent/10 p-4 focus:border-secondary outline-none transition-colors font-light bg-primary/10 resize-none">{product.description}</textarea>
           </div>
 
-          <!-- Stijlkenmerken (predefined styles) -->
-          <div class="space-y-4">
-            <label class="text-[10px] tracking-widest uppercase text-accent font-medium block">Stijlkenmerken</label>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {DRESS_STYLES.map((style) => {
-                const checked = productStyleKeys.includes(style.key);
-                return (
-                  <label class={`style-checkbox-label flex items-center gap-3 px-4 py-3 border cursor-pointer select-none transition-all text-[11px] uppercase tracking-[0.1em] font-body ${checked ? 'border-secondary bg-secondary/5 text-accent' : 'border-accent/10 hover:border-accent/30 bg-white text-accent/60'}`} data-key={style.key}>
-                    <input type="checkbox" name="style_keys" value={style.key} checked={checked} class="sr-only style-checkbox" />
-                    <span class={`w-4 h-4 border flex-shrink-0 flex items-center justify-center transition-colors ${checked ? 'border-secondary bg-secondary' : 'border-accent/20 bg-white'}`}>
-                      {checked && (
-                        <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                          <path d="M1 4l3 3 5-6" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                      )}
-                    </span>
-                    {style.label}
-                  </label>
-                );
-              })}
-            </div>
-          </div>
+          <!-- ── Productkenmerken ─────────────────────────────────── -->
+          <div class="space-y-6 border-t border-accent/10 pt-6">
+            <p class="text-[10px] tracking-widest uppercase text-accent font-medium">Productkenmerken</p>
 
-          <!-- Custom tags -->
-          <div class="space-y-2">
-            <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Overige tags (komma gescheiden)</label>
-            <input type="text" id="custom-tags-input" value={productCustomTags} class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent" placeholder="bijv. kant, #bohemian, #2026" />
-            <p class="text-[9px] text-accent/40 font-light">Vrij tekstveld voor extra kenmerken. Gebruik # voor hashtags.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div class="space-y-2">
+                <label class="text-[9px] tracking-widest uppercase text-accent/60">Pasvorm / Silhouet</label>
+                <select name="pasvorm" class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent text-sm">
+                  <option value="">— kies —</option>
+                  {PASVORM.map((p) => (
+                    <option value={p.key} selected={product.pasvorm === p.key}>{p.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div class="space-y-2">
+                <label class="text-[9px] tracking-widest uppercase text-accent/60">Halslijn</label>
+                <select name="hals" class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent text-sm">
+                  <option value="">— kies —</option>
+                  {HALS.map((h) => (
+                    <option value={h.key} selected={product.hals === h.key}>{h.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div class="space-y-2">
+                <label class="text-[9px] tracking-widest uppercase text-accent/60">Mouw</label>
+                <select name="mouw" class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent text-sm">
+                  <option value="">— kies —</option>
+                  {MOUW.map((m) => (
+                    <option value={m.key} selected={product.mouw === m.key}>{m.label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <!-- Materialen -->
+            <div class="space-y-3">
+              <label class="text-[9px] tracking-widest uppercase text-accent/60 block">Materialen</label>
+              <div class="flex flex-wrap gap-2">
+                {MATERIALEN.map((m) => {
+                  const checked = productMaterielen.includes(m.key);
+                  return (
+                    <label class={`attr-chip cursor-pointer select-none border text-[10px] uppercase tracking-[0.12em] font-body px-3 py-2 transition-colors ${checked ? 'border-secondary bg-secondary/10 text-accent' : 'border-accent/15 text-accent/50 hover:border-accent/40'}`}>
+                      <input type="checkbox" name="materialen" value={m.key} checked={checked} class="sr-only attr-cb" />
+                      {m.label}
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
+            <!-- Kleuren -->
+            <div class="space-y-3">
+              <label class="text-[9px] tracking-widest uppercase text-accent/60 block">Kleuren</label>
+              <div class="flex flex-wrap gap-2">
+                {KLEUREN.map((k) => {
+                  const checked = productKleuren.includes(k.key);
+                  return (
+                    <label class={`attr-chip cursor-pointer select-none border text-[10px] uppercase tracking-[0.12em] font-body px-3 py-2 transition-colors ${checked ? 'border-secondary bg-secondary/10 text-accent' : 'border-accent/15 text-accent/50 hover:border-accent/40'}`}>
+                      <input type="checkbox" name="kleur" value={k.key} checked={checked} class="sr-only attr-cb" />
+                      {k.label}
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
+            <!-- Maten -->
+            <div class="space-y-3">
+              <label class="text-[9px] tracking-widest uppercase text-accent/60 block">Beschikbare maten</label>
+              <div class="flex flex-wrap gap-2">
+                {MATEN.map((m) => {
+                  const checked = productMaten.includes(m);
+                  return (
+                    <label class={`attr-chip cursor-pointer select-none border text-[10px] font-body px-3 py-2 transition-colors ${checked ? 'border-secondary bg-secondary/10 text-accent' : 'border-accent/15 text-accent/50 hover:border-accent/40'}`}>
+                      <input type="checkbox" name="maten" value={m} checked={checked} class="sr-only attr-cb" />
+                      {m}
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
+            <!-- Categorieën -->
+            <div class="space-y-3">
+              <label class="text-[9px] tracking-widest uppercase text-accent/60 block">Categorieën / Stijl</label>
+              <div class="flex flex-wrap gap-2">
+                {CATEGORIEEN.map((c) => {
+                  const checked = productCateg.includes(c.key);
+                  return (
+                    <label class={`attr-chip cursor-pointer select-none border text-[10px] uppercase tracking-[0.12em] font-body px-3 py-2 transition-colors ${checked ? 'border-secondary bg-secondary/10 text-accent' : 'border-accent/15 text-accent/50 hover:border-accent/40'}`}>
+                      <input type="checkbox" name="categorieen" value={c.key} checked={checked} class="sr-only attr-cb" />
+                      {c.label}
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
+            <!-- Extra tags -->
+            <div class="space-y-2">
+              <label class="text-[9px] tracking-widest uppercase text-accent/60">Extra tags (komma gescheiden)</label>
+              <input type="text" id="custom-tags-input" value={productFeatures.join(', ')} class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent text-sm" placeholder="bijv. #bruidscollectie2026" />
+            </div>
           </div>
 
           <!-- Product Qualities -->
@@ -467,21 +557,18 @@ const productCustomTags = productFeatures.filter((f) => !styleKeys.has(f as any)
     renderFeatureChips();
   }
 
-  // Style checkbox toggle styling
-  document.querySelectorAll<HTMLLabelElement>('.style-checkbox-label').forEach((label) => {
-    const cb = label.querySelector<HTMLInputElement>('.style-checkbox');
+  // Attribute chip toggle styling
+  document.querySelectorAll<HTMLLabelElement>('.attr-chip').forEach((label) => {
+    const cb = label.querySelector<HTMLInputElement>('.attr-cb');
     if (!cb) return;
     label.addEventListener('click', () => {
       requestAnimationFrame(() => {
-        const box = label.querySelector<HTMLSpanElement>('span');
         if (cb.checked) {
-          label.classList.add('border-secondary', 'bg-secondary/5', 'text-accent');
-          label.classList.remove('border-accent/10', 'hover:border-accent/30', 'bg-white', 'text-accent/60');
-          if (box) { box.classList.add('border-secondary', 'bg-secondary'); box.classList.remove('border-accent/20', 'bg-white'); box.innerHTML = '<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
+          label.classList.add('border-secondary', 'bg-secondary/10', 'text-accent');
+          label.classList.remove('border-accent/15', 'text-accent/50');
         } else {
-          label.classList.remove('border-secondary', 'bg-secondary/5', 'text-accent');
-          label.classList.add('border-accent/10', 'hover:border-accent/30', 'bg-white', 'text-accent/60');
-          if (box) { box.classList.remove('border-secondary', 'bg-secondary'); box.classList.add('border-accent/20', 'bg-white'); box.innerHTML = ''; }
+          label.classList.remove('border-secondary', 'bg-secondary/10', 'text-accent');
+          label.classList.add('border-accent/15', 'text-accent/50');
         }
       });
     });
@@ -530,28 +617,32 @@ const productCustomTags = productFeatures.filter((f) => !styleKeys.has(f as any)
     const slug = formData.get('slug');
     const price_range = formData.get('price_range');
     const description = formData.get('description');
-    const styleKeys = formData.getAll('style_keys') as string[];
-    const customTagsRaw = (document.getElementById('custom-tags-input') as HTMLInputElement)?.value ?? '';
-    const customTags = customTagsRaw.split(',').map((t) => t.trim()).filter(Boolean);
-    const features = [...styleKeys, ...customTags];
-    const qualities = formData.getAll('qualities') as string[];
+    const features = ((document.getElementById('custom-tags-input') as HTMLInputElement)?.value ?? '')
+      .split(',').map((t) => t.trim()).filter(Boolean);
+    const qualities    = formData.getAll('qualities')    as string[];
+    const materialen   = formData.getAll('materialen')   as string[];
+    const kleur        = formData.getAll('kleur')        as string[];
+    const maten        = formData.getAll('maten')        as string[];
+    const categorieen  = formData.getAll('categorieen')  as string[];
+    const pasvorm      = formData.get('pasvorm')         as string | null;
+    const hals         = formData.get('hals')            as string | null;
+    const mouw         = formData.get('mouw')            as string | null;
+    const sale_price   = formData.get('sale_price')      as string | null;
+    const in_stock     = (form.querySelector<HTMLInputElement>('input[name="in_stock"]') as HTMLInputElement)?.checked ?? true;
     const images = (window as any).getCurrentImages ? (window as any).getCurrentImages() : [];
 
     const response = await fetch(`/api/admin/products/${id}`, {
       method: 'PUT',
-      headers: {
-        'content-type': 'application/json',
-      },
+      headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        name,
-        brand,
-        collection_id,
-        slug,
-        price_range,
-        description,
-        features,
-        qualities,
-        images,
+        name, brand, collection_id, slug, price_range, description,
+        features, qualities, images,
+        pasvorm: pasvorm || null,
+        hals: hals || null,
+        mouw: mouw || null,
+        sale_price: sale_price || null,
+        in_stock,
+        materialen, kleur, maten, categorieen,
       }),
     });
     const result = await response.json().catch(() => ({ error: 'Onbekende fout.' }));

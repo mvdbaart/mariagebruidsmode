@@ -39,6 +39,16 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
       images: Array.isArray(body.images) ? body.images : [],
       qualities: Array.isArray(body.qualities) ? body.qualities : [],
       price_range: body.price_range ? String(body.price_range).trim() : null,
+      // Structured attributes
+      pasvorm:     body.pasvorm     ? String(body.pasvorm).trim()     : null,
+      hals:        body.hals        ? String(body.hals).trim()        : null,
+      mouw:        body.mouw        ? String(body.mouw).trim()        : null,
+      sale_price:  body.sale_price  ? String(body.sale_price).trim()  : null,
+      in_stock:    typeof body.in_stock === 'boolean' ? body.in_stock : true,
+      materialen:  Array.isArray(body.materialen)  ? body.materialen  : [],
+      kleur:       Array.isArray(body.kleur)        ? body.kleur       : [],
+      maten:       Array.isArray(body.maten)        ? body.maten       : [],
+      categorieen: Array.isArray(body.categorieen)  ? body.categorieen : [],
     })
     .eq('id', id);
 

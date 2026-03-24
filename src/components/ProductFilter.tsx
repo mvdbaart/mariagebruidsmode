@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { DRESS_STYLES } from '../lib/productStyles';
+import { PASVORM, HALS, MOUW, MATERIALEN, CATEGORIEEN } from '../lib/productAttributes';
 
 interface Product {
   id: string;
@@ -7,9 +7,17 @@ interface Product {
   slug: string;
   brand: string | null;
   price_range: string | null;
+  sale_price: string | null;
   features: string[] | null;
   images: string[] | null;
   collection_id: string | null;
+  pasvorm: string | null;
+  hals: string | null;
+  mouw: string | null;
+  materialen: string[] | null;
+  kleur: string[] | null;
+  categorieen: string[] | null;
+  in_stock: boolean | null;
 }
 
 interface Collection {
@@ -24,7 +32,6 @@ interface Props {
   fallbackImage: string;
 }
 
-const STYLES = DRESS_STYLES;
 
 function CheckItem({
   label,
@@ -93,16 +100,18 @@ function SidebarSection({ title, children }: { title: string; children: React.Re
 
 export default function ProductFilter({ products, collections, fallbackImage }: Props) {
   const [search, setSearch] = useState('');
-  const [activeStyles, setActiveStyles] = useState<Set<string>>(new Set());
-  const [activeBrands, setActiveBrands] = useState<Set<string>>(new Set());
+  const [activePasvorm, setActivePasvorm]     = useState<Set<string>>(new Set());
+  const [activeHals, setActiveHals]           = useState<Set<string>>(new Set());
+  const [activeMouw, setActiveMouw]           = useState<Set<string>>(new Set());
+  const [activeMat, setActiveMat]             = useState<Set<string>>(new Set());
+  const [activeCateg, setActiveCateg]         = useState<Set<string>>(new Set());
+  const [activeBrands, setActiveBrands]       = useState<Set<string>>(new Set());
   const [activeCollection, setActiveCollection] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const brands = useMemo(() => {
     const seen = new Set<string>();
-    for (const p of products) {
-      if (p.brand) seen.add(p.brand);
-    }
+    for (const p of products) { if (p.brand) seen.add(p.brand); }
     return Array.from(seen).sort();
   }, [products]);
 
@@ -111,108 +120,87 @@ export default function ProductFilter({ products, collections, fallbackImage }: 
     return products.filter((p) => {
       if (activeCollection && p.collection_id !== activeCollection) return false;
       if (activeBrands.size > 0 && (!p.brand || !activeBrands.has(p.brand))) return false;
-      if (activeStyles.size > 0) {
-        const feats = (p.features ?? []).map((f) => f.toLowerCase());
-        const hasStyle = Array.from(activeStyles).some((s) => feats.includes(s));
-        if (!hasStyle) return false;
+      if (activePasvorm.size > 0 && (!p.pasvorm || !activePasvorm.has(p.pasvorm))) return false;
+      if (activeHals.size > 0 && (!p.hals || !activeHals.has(p.hals))) return false;
+      if (activeMouw.size > 0 && (!p.mouw || !activeMouw.has(p.mouw))) return false;
+      if (activeMat.size > 0) {
+        const mats = p.materialen ?? [];
+        if (!Array.from(activeMat).some((m) => mats.includes(m))) return false;
+      }
+      if (activeCateg.size > 0) {
+        const cats = p.categorieen ?? [];
+        if (!Array.from(activeCateg).some((c) => cats.includes(c))) return false;
       }
       if (q && !p.name.toLowerCase().includes(q) && !(p.brand ?? '').toLowerCase().includes(q)) return false;
       return true;
     });
-  }, [products, search, activeBrands, activeStyles, activeCollection]);
+  }, [products, search, activeBrands, activePasvorm, activeHals, activeMouw, activeMat, activeCateg, activeCollection]);
 
-  function toggleStyle(key: string) {
-    setActiveStyles((prev) => {
-      const next = new Set(prev);
-      next.has(key) ? next.delete(key) : next.add(key);
-      return next;
-    });
-  }
-
-  function toggleBrand(brand: string) {
-    setActiveBrands((prev) => {
-      const next = new Set(prev);
-      next.has(brand) ? next.delete(brand) : next.add(brand);
-      return next;
-    });
+  function toggle(setter: React.Dispatch<React.SetStateAction<Set<string>>>, key: string) {
+    setter((prev) => { const next = new Set(prev); next.has(key) ? next.delete(key) : next.add(key); return next; });
   }
 
   function clearAll() {
-    setSearch('');
-    setActiveStyles(new Set());
-    setActiveBrands(new Set());
-    setActiveCollection(null);
+    setSearch(''); setActivePasvorm(new Set()); setActiveHals(new Set()); setActiveMouw(new Set());
+    setActiveMat(new Set()); setActiveCateg(new Set()); setActiveBrands(new Set()); setActiveCollection(null);
   }
 
-  const hasFilters = search || activeStyles.size > 0 || activeBrands.size > 0 || activeCollection;
-  const activeFilterCount = activeStyles.size + activeBrands.size + (activeCollection ? 1 : 0) + (search ? 1 : 0);
-
-  // Count helpers
-  function styleCount(key: string) {
-    return products.filter((p) => (p.features ?? []).map((f) => f.toLowerCase()).includes(key)).length;
-  }
-  function brandCount(brand: string) {
-    return products.filter((p) => p.brand === brand).length;
-  }
+  const activeFilterCount = activePasvorm.size + activeHals.size + activeMouw.size + activeMat.size +
+    activeCateg.size + activeBrands.size + (activeCollection ? 1 : 0) + (search ? 1 : 0);
+  const hasFilters = activeFilterCount > 0;
 
   const sidebar = (
     <aside className="w-64 flex-shrink-0">
-      {/* Clear filters */}
       {hasFilters && (
-        <button
-          onClick={clearAll}
-          className="mb-4 text-[10px] tracking-[0.2em] uppercase font-body text-taupe underline underline-offset-4 hover:text-charcoal transition-colors"
-        >
+        <button onClick={clearAll} className="mb-4 text-[10px] tracking-[0.2em] uppercase font-body text-taupe underline underline-offset-4 hover:text-charcoal transition-colors">
           Wis filters ({activeFilterCount})
         </button>
       )}
 
-      {/* Stijl */}
-      <SidebarSection title="Stijl">
-        {STYLES.map(({ label, key }) => {
-          const count = styleCount(key);
-          return (
-            <CheckItem
-              key={key}
-              label={label}
-              checked={activeStyles.has(key)}
-              onChange={() => toggleStyle(key)}
-              count={count}
-            />
-          );
-        })}
+      <SidebarSection title="Pasvorm">
+        {PASVORM.map(({ key, label }) => (
+          <CheckItem key={key} label={label} checked={activePasvorm.has(key)} onChange={() => toggle(setActivePasvorm, key)} />
+        ))}
       </SidebarSection>
 
-      {/* Merken */}
-      {brands.length > 0 && (
-        <SidebarSection title="Onze merken">
+      <SidebarSection title="Categorie">
+        {CATEGORIEEN.map(({ key, label }) => (
+          <CheckItem key={key} label={label} checked={activeCateg.has(key)} onChange={() => toggle(setActiveCateg, key)} />
+        ))}
+      </SidebarSection>
+
+      <SidebarSection title="Materiaal">
+        {MATERIALEN.map(({ key, label }) => (
+          <CheckItem key={key} label={label} checked={activeMat.has(key)} onChange={() => toggle(setActiveMat, key)} />
+        ))}
+      </SidebarSection>
+
+      <SidebarSection title="Halslijn">
+        {HALS.map(({ key, label }) => (
+          <CheckItem key={key} label={label} checked={activeHals.has(key)} onChange={() => toggle(setActiveHals, key)} />
+        ))}
+      </SidebarSection>
+
+      <SidebarSection title="Mouw">
+        {MOUW.map(({ key, label }) => (
+          <CheckItem key={key} label={label} checked={activeMouw.has(key)} onChange={() => toggle(setActiveMouw, key)} />
+        ))}
+      </SidebarSection>
+
+      {brands.length > 1 && (
+        <SidebarSection title="Merk">
           {brands.map((brand) => (
-            <CheckItem
-              key={brand}
-              label={brand}
-              checked={activeBrands.has(brand)}
-              onChange={() => toggleBrand(brand)}
-              count={brandCount(brand)}
-            />
+            <CheckItem key={brand} label={brand} checked={activeBrands.has(brand)} onChange={() => toggle(setActiveBrands, brand)} />
           ))}
         </SidebarSection>
       )}
 
-      {/* Collecties */}
       {collections.length > 0 && (
         <SidebarSection title="Collectie">
-          <CheckItem
-            label="Alle jurken"
-            checked={activeCollection === null}
-            onChange={() => setActiveCollection(null)}
-          />
+          <CheckItem label="Alle jurken" checked={activeCollection === null} onChange={() => setActiveCollection(null)} />
           {collections.map((col) => (
-            <CheckItem
-              key={col.id}
-              label={col.title}
-              checked={activeCollection === col.id}
-              onChange={() => setActiveCollection(activeCollection === col.id ? null : col.id)}
-            />
+            <CheckItem key={col.id} label={col.title} checked={activeCollection === col.id}
+              onChange={() => setActiveCollection(activeCollection === col.id ? null : col.id)} />
           ))}
         </SidebarSection>
       )}

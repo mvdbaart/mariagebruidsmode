@@ -13,7 +13,7 @@ const collectionIds = (collections ?? []).map((col) => col.id);
 
 const { data: dressProducts } = await supabase
   .from('products')
-  .select('id, name, slug, brand, price_range, features, images, collection_id')
+  .select('id, name, slug, brand, price_range, sale_price, features, images, collection_id, pasvorm, hals, mouw, materialen, kleur, categorieen, in_stock')
   .in('collection_id', collectionIds.length ? collectionIds : ['00000000-0000-0000-0000-000000000000'])
   .order('created_at', { ascending: false });
 

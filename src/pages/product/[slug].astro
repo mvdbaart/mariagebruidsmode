@@ -3,6 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import { supabase } from '../../lib/supabase';
 import { getAdminAuthFromCookies } from '../../lib/serverAuth';
 import { PRODUCT_QUALITIES } from '../../lib/productQualities';
+import { labelFor, PASVORM, HALS, MOUW, MATERIALEN, KLEUREN } from '../../lib/productAttributes';
 
 export const prerender = false;
 
@@ -157,6 +158,54 @@ const productSpecs = rawFeatures
             <p class="text-taupe font-body font-light text-base leading-relaxed mb-8">
               {product.description}
             </p>
+          )}
+
+          {/* Attribute table */}
+          {(product.pasvorm || product.hals || product.mouw || product.materialen?.length || product.kleur?.length || product.maten?.length || product.sale_price || product.categorieen?.length) && (
+            <div class="mb-8 border-t border-b border-champagne py-6 space-y-3">
+              {product.sale_price && (
+                <div class="flex gap-4 items-baseline">
+                  <span class="text-[10px] tracking-[0.2em] uppercase font-body text-taupe w-28 flex-shrink-0">Aanbieding</span>
+                  <span class="font-display text-blush-deep text-xl">{product.sale_price}</span>
+                </div>
+              )}
+              {product.pasvorm && (
+                <div class="flex gap-4">
+                  <span class="text-[10px] tracking-[0.2em] uppercase font-body text-taupe w-28 flex-shrink-0">Pasvorm</span>
+                  <span class="text-sm font-body text-charcoal">{labelFor(PASVORM, product.pasvorm)}</span>
+                </div>
+              )}
+              {product.hals && (
+                <div class="flex gap-4">
+                  <span class="text-[10px] tracking-[0.2em] uppercase font-body text-taupe w-28 flex-shrink-0">Halslijn</span>
+                  <span class="text-sm font-body text-charcoal">{labelFor(HALS, product.hals)}</span>
+                </div>
+              )}
+              {product.mouw && (
+                <div class="flex gap-4">
+                  <span class="text-[10px] tracking-[0.2em] uppercase font-body text-taupe w-28 flex-shrink-0">Mouw</span>
+                  <span class="text-sm font-body text-charcoal">{labelFor(MOUW, product.mouw)}</span>
+                </div>
+              )}
+              {product.materialen?.length > 0 && (
+                <div class="flex gap-4">
+                  <span class="text-[10px] tracking-[0.2em] uppercase font-body text-taupe w-28 flex-shrink-0">Materiaal</span>
+                  <span class="text-sm font-body text-charcoal">{product.materialen.map((m: string) => labelFor(MATERIALEN, m)).join(', ')}</span>
+                </div>
+              )}
+              {product.kleur?.length > 0 && (
+                <div class="flex gap-4">
+                  <span class="text-[10px] tracking-[0.2em] uppercase font-body text-taupe w-28 flex-shrink-0">Kleur</span>
+                  <span class="text-sm font-body text-charcoal">{product.kleur.map((k: string) => labelFor(KLEUREN, k)).join(', ')}</span>
+                </div>
+              )}
+              {product.maten?.length > 0 && (
+                <div class="flex gap-4">
+                  <span class="text-[10px] tracking-[0.2em] uppercase font-body text-taupe w-28 flex-shrink-0">Beschikbare maten</span>
+                  <span class="text-sm font-body text-charcoal">{product.maten.join(', ')}</span>
+                </div>
+              )}
+            </div>
           )}
 
           <!-- Features -->
