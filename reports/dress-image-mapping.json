@@ -1,0 +1,248 @@
+{
+  "generated_at": "2026-03-21T15:56:49.752Z",
+  "mode": "dry-run",
+  "force_overwrite_local": false,
+  "totals": {
+    "dress_products": 11,
+    "image_folders": 208,
+    "matched": 10,
+    "updated": 0,
+    "unchanged": 0,
+    "skipped_existing_local": 10,
+    "ambiguous": 0,
+    "unmatched": 1
+  },
+  "matched": [
+    {
+      "id": "8da53b50-81f9-4235-bd69-e8c9f7f6bd09",
+      "slug": "enzoani-petal",
+      "name": "Enzoani Petal",
+      "brand": "Enzoani",
+      "score": 58,
+      "folder": "Blue by Enzoani/model-petal",
+      "status": "skipped_existing_local",
+      "before_images": [
+        "/images/bruid/Blue by Enzoani/model-petal/blue-by-enzoani-trouwjurk-petal_0.webp",
+        "/images/bruid/Blue by Enzoani/model-petal/blue-by-enzoani-trouwjurk-petal_1.webp"
+      ],
+      "after_images": [
+        "/images/bruid/Blue by Enzoani/model-petal/blue-by-enzoani-trouwjurk-petal_0.webp",
+        "/images/bruid/Blue by Enzoani/model-petal/blue-by-enzoani-trouwjurk-petal_1.webp"
+      ]
+    },
+    {
+      "id": "fb8a4a8b-4829-4e89-b401-a6b6dbe58b58",
+      "slug": "modeca-horacia",
+      "name": "Modeca – Horacia",
+      "brand": "Modeca",
+      "score": 68,
+      "folder": "Modeca/model-horacia",
+      "status": "skipped_existing_local",
+      "before_images": [
+        "/images/bruid/Modeca/model-horacia/modeca-trouwjurk-horacia_0.webp",
+        "/images/bruid/Modeca/model-horacia/modeca-trouwjurk-horacia_1.webp",
+        "/images/bruid/Modeca/model-horacia/modeca-trouwjurk-horacia_2.webp",
+        "/images/bruid/Modeca/model-horacia/modeca-trouwjurk-horacia_3.webp",
+        "/images/bruid/Modeca/model-horacia/modeca-trouwjurk-horacia_4.webp"
+      ],
+      "after_images": [
+        "/images/bruid/Modeca/model-horacia/modeca-trouwjurk-horacia_0.webp",
+        "/images/bruid/Modeca/model-horacia/modeca-trouwjurk-horacia_1.webp",
+        "/images/bruid/Modeca/model-horacia/modeca-trouwjurk-horacia_2.webp",
+        "/images/bruid/Modeca/model-horacia/modeca-trouwjurk-horacia_3.webp",
+        "/images/bruid/Modeca/model-horacia/modeca-trouwjurk-horacia_4.webp"
+      ]
+    },
+    {
+      "id": "e1f63ca5-ce93-42dd-a8e2-7d278fd1be53",
+      "slug": "randy-fenoli-jacqueline-luxe",
+      "name": "Randy Fenoli – Jacqueline Luxe",
+      "brand": "Randy Fenoli",
+      "score": 74,
+      "folder": "Randy Fenoli/model-luxe",
+      "status": "skipped_existing_local",
+      "before_images": [
+        "/images/bruid/Randy Fenoli/model-luxe/randy-fenoli-trouwjurk-gentry-luxe_0.webp",
+        "/images/bruid/Randy Fenoli/model-luxe/randy-fenoli-trouwjurk-gentry-luxe_1.webp",
+        "/images/bruid/Randy Fenoli/model-luxe/randy-fenoli-trouwjurk-gentry-luxe_2.webp",
+        "/images/bruid/Randy Fenoli/model-luxe/randy-fenoli-trouwjurk-jacqueline-luxe_0.webp",
+        "/images/bruid/Randy Fenoli/model-luxe/randy-fenoli-trouwjurk-jacqueline-luxe_1.webp"
+      ],
+      "after_images": [
+        "/images/bruid/Randy Fenoli/model-luxe/randy-fenoli-trouwjurk-gentry-luxe_0.webp",
+        "/images/bruid/Randy Fenoli/model-luxe/randy-fenoli-trouwjurk-gentry-luxe_1.webp",
+        "/images/bruid/Randy Fenoli/model-luxe/randy-fenoli-trouwjurk-gentry-luxe_2.webp",
+        "/images/bruid/Randy Fenoli/model-luxe/randy-fenoli-trouwjurk-jacqueline-luxe_0.webp",
+        "/images/bruid/Randy Fenoli/model-luxe/randy-fenoli-trouwjurk-jacqueline-luxe_1.webp"
+      ]
+    },
+    {
+      "id": "82122d4e-b179-4b4c-8c80-f785021252e3",
+      "slug": "randy-fenoli-goldie",
+      "name": "Randy Fenoli – Goldie",
+      "brand": "Randy Fenoli",
+      "score": 71,
+      "folder": "Randy Fenoli/model-goldie",
+      "status": "skipped_existing_local",
+      "before_images": [
+        "/images/bruid/Randy Fenoli/model-goldie/randy-fenoli-trouwjurk-goldie_0.webp",
+        "/images/bruid/Randy Fenoli/model-goldie/randy-fenoli-trouwjurk-goldie_1.webp",
+        "/images/bruid/Randy Fenoli/model-goldie/randy-fenoli-trouwjurk-goldie_2.webp"
+      ],
+      "after_images": [
+        "/images/bruid/Randy Fenoli/model-goldie/randy-fenoli-trouwjurk-goldie_0.webp",
+        "/images/bruid/Randy Fenoli/model-goldie/randy-fenoli-trouwjurk-goldie_1.webp",
+        "/images/bruid/Randy Fenoli/model-goldie/randy-fenoli-trouwjurk-goldie_2.webp"
+      ]
+    },
+    {
+      "id": "5e2608a8-f8a2-4671-84af-b83da8e308c5",
+      "slug": "dama-avalon",
+      "name": "Dama – Avalon",
+      "brand": "Dama Couture",
+      "score": 58,
+      "folder": "Dama/model-avalon",
+      "status": "skipped_existing_local",
+      "before_images": [
+        "/images/bruid/Dama/model-avalon/dama-trouwjurk-avalon_0.webp",
+        "/images/bruid/Dama/model-avalon/dama-trouwjurk-avalon_1.webp",
+        "/images/bruid/Dama/model-avalon/dama-trouwjurk-avalon_2.webp",
+        "/images/bruid/Dama/model-avalon/dama-trouwjurk-avalon_3.webp",
+        "/images/bruid/Dama/model-avalon/dama-trouwjurk-avalon_4.webp"
+      ],
+      "after_images": [
+        "/images/bruid/Dama/model-avalon/dama-trouwjurk-avalon_0.webp",
+        "/images/bruid/Dama/model-avalon/dama-trouwjurk-avalon_1.webp",
+        "/images/bruid/Dama/model-avalon/dama-trouwjurk-avalon_2.webp",
+        "/images/bruid/Dama/model-avalon/dama-trouwjurk-avalon_3.webp",
+        "/images/bruid/Dama/model-avalon/dama-trouwjurk-avalon_4.webp"
+      ]
+    },
+    {
+      "id": "1046f83c-b5dd-4efe-9487-b7e60eb14e7a",
+      "slug": "enzoani-samantha",
+      "name": "Enzoani Samantha",
+      "brand": "Enzoani",
+      "score": 58,
+      "folder": "Blue by Enzoani/model-samantha",
+      "status": "skipped_existing_local",
+      "before_images": [
+        "/images/bruid/Blue by Enzoani/model-samantha/blue-by-enzoani-trouwjurk-samantha_0.webp",
+        "/images/bruid/Blue by Enzoani/model-samantha/blue-by-enzoani-trouwjurk-samantha_1.webp",
+        "/images/bruid/Blue by Enzoani/model-samantha/blue-by-enzoani-trouwjurk-samantha_2.webp",
+        "/images/bruid/Blue by Enzoani/model-samantha/blue-by-enzoani-trouwjurk-samantha_3.webp",
+        "/images/bruid/Blue by Enzoani/model-samantha/blue-by-enzoani-trouwjurk-samantha_4.webp"
+      ],
+      "after_images": [
+        "/images/bruid/Blue by Enzoani/model-samantha/blue-by-enzoani-trouwjurk-samantha_0.webp",
+        "/images/bruid/Blue by Enzoani/model-samantha/blue-by-enzoani-trouwjurk-samantha_1.webp",
+        "/images/bruid/Blue by Enzoani/model-samantha/blue-by-enzoani-trouwjurk-samantha_2.webp",
+        "/images/bruid/Blue by Enzoani/model-samantha/blue-by-enzoani-trouwjurk-samantha_3.webp",
+        "/images/bruid/Blue by Enzoani/model-samantha/blue-by-enzoani-trouwjurk-samantha_4.webp"
+      ]
+    },
+    {
+      "id": "d3eb5b46-f9f6-43aa-bb27-790e2f33cf7d",
+      "slug": "etoile-erin",
+      "name": "Etoile – Erin",
+      "brand": "Etoile by Enzoani",
+      "score": 71,
+      "folder": "Etoile by Enzoani/model-erin",
+      "status": "skipped_existing_local",
+      "before_images": [
+        "/images/bruid/Etoile by Enzoani/model-erin/etoile-trouwjurk-erin_0.webp",
+        "/images/bruid/Etoile by Enzoani/model-erin/etoile-trouwjurk-erin_1.webp",
+        "/images/bruid/Etoile by Enzoani/model-erin/etoile-trouwjurk-erin_2.webp"
+      ],
+      "after_images": [
+        "/images/bruid/Etoile by Enzoani/model-erin/etoile-trouwjurk-erin_0.webp",
+        "/images/bruid/Etoile by Enzoani/model-erin/etoile-trouwjurk-erin_1.webp",
+        "/images/bruid/Etoile by Enzoani/model-erin/etoile-trouwjurk-erin_2.webp"
+      ]
+    },
+    {
+      "id": "5ea5df81-6b81-44d4-a446-a16e080dc7e6",
+      "slug": "modeca-dusty",
+      "name": "Modeca – Dusty",
+      "brand": "Modeca",
+      "score": 68,
+      "folder": "Modeca/model-dusty",
+      "status": "skipped_existing_local",
+      "before_images": [
+        "/images/bruid/Modeca/model-dusty/modeca-trouwjurk-dusty_0.webp",
+        "/images/bruid/Modeca/model-dusty/modeca-trouwjurk-dusty_1.webp",
+        "/images/bruid/Modeca/model-dusty/modeca-trouwjurk-dusty_2.webp",
+        "/images/bruid/Modeca/model-dusty/modeca-trouwjurk-dusty_3.webp",
+        "/images/bruid/Modeca/model-dusty/modeca-trouwjurk-dusty_4.webp"
+      ],
+      "after_images": [
+        "/images/bruid/Modeca/model-dusty/modeca-trouwjurk-dusty_0.webp",
+        "/images/bruid/Modeca/model-dusty/modeca-trouwjurk-dusty_1.webp",
+        "/images/bruid/Modeca/model-dusty/modeca-trouwjurk-dusty_2.webp",
+        "/images/bruid/Modeca/model-dusty/modeca-trouwjurk-dusty_3.webp",
+        "/images/bruid/Modeca/model-dusty/modeca-trouwjurk-dusty_4.webp"
+      ]
+    },
+    {
+      "id": "0642b48b-5a28-4629-bd1e-fe4008059478",
+      "slug": "demetrios-1507",
+      "name": "Demetrios – 1507",
+      "brand": "Demetrios",
+      "score": 68,
+      "folder": "Demetrios/model-1507",
+      "status": "skipped_existing_local",
+      "before_images": [
+        "/images/bruid/Demetrios/model-1507/demetrios-trouwjurk-1507_0.webp",
+        "/images/bruid/Demetrios/model-1507/demetrios-trouwjurk-1507_1.webp",
+        "/images/bruid/Demetrios/model-1507/demetrios-trouwjurk-1507_2.webp"
+      ],
+      "after_images": [
+        "/images/bruid/Demetrios/model-1507/demetrios-trouwjurk-1507_0.webp",
+        "/images/bruid/Demetrios/model-1507/demetrios-trouwjurk-1507_1.webp",
+        "/images/bruid/Demetrios/model-1507/demetrios-trouwjurk-1507_2.webp"
+      ]
+    },
+    {
+      "id": "3431d951-1dcf-40f1-8b33-de8956873eba",
+      "slug": "oksana-mukha-willow",
+      "name": "Oksana Mukha – Willow",
+      "brand": "Oksana Mukha",
+      "score": 71,
+      "folder": "OKSANA MUKHA/model-willow",
+      "status": "skipped_existing_local",
+      "before_images": [
+        "/images/bruid/OKSANA MUKHA/model-willow/oksana-mukha-trouwjurk-willow_0.webp",
+        "/images/bruid/OKSANA MUKHA/model-willow/oksana-mukha-trouwjurk-willow_1.webp",
+        "/images/bruid/OKSANA MUKHA/model-willow/oksana-mukha-trouwjurk-willow_2.webp"
+      ],
+      "after_images": [
+        "/images/bruid/OKSANA MUKHA/model-willow/oksana-mukha-trouwjurk-willow_0.webp",
+        "/images/bruid/OKSANA MUKHA/model-willow/oksana-mukha-trouwjurk-willow_1.webp",
+        "/images/bruid/OKSANA MUKHA/model-willow/oksana-mukha-trouwjurk-willow_2.webp"
+      ]
+    }
+  ],
+  "ambiguous": [],
+  "unmatched": [
+    {
+      "id": "7feba17a-5a64-46c0-bc90-6fb3db5302e1",
+      "slug": "dama-venus",
+      "name": "Dama – Venus",
+      "brand": "Dama Couture",
+      "top_candidates": [
+        {
+          "folder": "Dama/model-avalon",
+          "score": 21
+        },
+        {
+          "folder": "Modeca Couture/model-zino",
+          "score": 3
+        },
+        {
+          "folder": "Modeca Couture/model-ziva",
+          "score": 3
+        }
+      ]
+    }
+  ]
+}

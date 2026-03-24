@@ -29,8 +29,14 @@ const suitFallbacks = [
           Stijlvolle <br/><span class="italic font-light text-secondary">trouwpakken</span>
         </h1>
         <p class="text-lg text-accent/70 font-light leading-relaxed">
-          Voor de moderne bruidegom die op zoek is naar perfectie. Ontdek onze collectie pakken van topmerken zoals Rembrant en meer.
+          Voor de moderne bruidegom die op zoek is naar perfectie. Ontdek onze collectie pakken van topmerken zoals Immediate, Roberto Vicentti en Crinoligne.
         </p>
+      </div>
+      <!-- Brands -->
+      <div class="flex flex-wrap gap-3 mb-10">
+        {['Immediate', 'Roberto Vicentti', 'Crinoligne'].map(brand => (
+          <span class="text-[11px] tracking-[0.15em] uppercase font-body text-accent/70 border border-accent/20 px-5 py-2 hover:border-accent/60 hover:text-accent transition-colors">{brand}</span>
+        ))}
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

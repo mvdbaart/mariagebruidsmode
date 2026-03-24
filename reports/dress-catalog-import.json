@@ -1,0 +1,1273 @@
+{
+  "generated_at": "2026-03-21T16:33:42.272Z",
+  "mode": "apply",
+  "totals": {
+    "source_model_folders": 208,
+    "brands": 33,
+    "collections_created_or_reused": 33,
+    "created": 202,
+    "updated": 6,
+    "unchanged": 0,
+    "conflicts": 0
+  },
+  "slug_conflicts": [],
+  "created": [
+    {
+      "slug": "atelier-by-monica-loretti-2",
+      "folder": "Atelier by Monica Loretti/model-2",
+      "images": 3,
+      "collection_slug": "dress-atelier-by-monica-loretti"
+    },
+    {
+      "slug": "bianco-evento-kerena",
+      "folder": "Bianco Evento/model-kerena",
+      "images": 5,
+      "collection_slug": "dress-bianco-evento"
+    },
+    {
+      "slug": "bianco-evento-olena",
+      "folder": "Bianco Evento/model-olena",
+      "images": 4,
+      "collection_slug": "dress-bianco-evento"
+    },
+    {
+      "slug": "bianco-evento-vermax",
+      "folder": "Bianco Evento/model-vermax",
+      "images": 4,
+      "collection_slug": "dress-bianco-evento"
+    },
+    {
+      "slug": "blue-by-enzoani-enzoani",
+      "folder": "Blue by Enzoani/model-enzoani",
+      "images": 1,
+      "collection_slug": "dress-blue-by-enzoani"
+    },
+    {
+      "slug": "blue-by-enzoani-katie",
+      "folder": "Blue by Enzoani/model-katie",
+      "images": 1,
+      "collection_slug": "dress-blue-by-enzoani"
+    },
+    {
+      "slug": "blue-by-enzoani-ollie",
+      "folder": "Blue by Enzoani/model-ollie",
+      "images": 3,
+      "collection_slug": "dress-blue-by-enzoani"
+    },
+    {
+      "slug": "blue-by-enzoani-paula",
+      "folder": "Blue by Enzoani/model-paula",
+      "images": 2,
+      "collection_slug": "dress-blue-by-enzoani"
+    },
+    {
+      "slug": "blue-by-enzoani-petal",
+      "folder": "Blue by Enzoani/model-petal",
+      "images": 2,
+      "collection_slug": "dress-blue-by-enzoani"
+    },
+    {
+      "slug": "blue-by-enzoani-sage",
+      "folder": "Blue by Enzoani/model-sage",
+      "images": 5,
+      "collection_slug": "dress-blue-by-enzoani"
+    },
+    {
+      "slug": "blue-by-enzoani-samantha",
+      "folder": "Blue by Enzoani/model-samantha",
+      "images": 5,
+      "collection_slug": "dress-blue-by-enzoani"
+    },
+    {
+      "slug": "cosmobella-7955",
+      "folder": "Cosmobella/model-7955",
+      "images": 3,
+      "collection_slug": "dress-cosmobella"
+    },
+    {
+      "slug": "cosmobella-8208",
+      "folder": "Cosmobella/model-8208",
+      "images": 3,
+      "collection_slug": "dress-cosmobella"
+    },
+    {
+      "slug": "cosmobella-8250",
+      "folder": "Cosmobella/model-8250",
+      "images": 4,
+      "collection_slug": "dress-cosmobella"
+    },
+    {
+      "slug": "daniela-di-marino-6317",
+      "folder": "Daniela di Marino/model-6317",
+      "images": 2,
+      "collection_slug": "dress-daniela-di-marino"
+    },
+    {
+      "slug": "daniela-di-marino-6342",
+      "folder": "Daniela di Marino/model-6342",
+      "images": 3,
+      "collection_slug": "dress-daniela-di-marino"
+    },
+    {
+      "slug": "daniela-di-marino-6354",
+      "folder": "Daniela di Marino/model-6354",
+      "images": 3,
+      "collection_slug": "dress-daniela-di-marino"
+    },
+    {
+      "slug": "daniela-di-marino-6355",
+      "folder": "Daniela di Marino/model-6355",
+      "images": 2,
+      "collection_slug": "dress-daniela-di-marino"
+    },
+    {
+      "slug": "daniela-di-marino-6365",
+      "folder": "Daniela di Marino/model-6365",
+      "images": 2,
+      "collection_slug": "dress-daniela-di-marino"
+    },
+    {
+      "slug": "daniela-di-marino-6372",
+      "folder": "Daniela di Marino/model-6372",
+      "images": 3,
+      "collection_slug": "dress-daniela-di-marino"
+    },
+    {
+      "slug": "daniela-di-marino-6385",
+      "folder": "Daniela di Marino/model-6385",
+      "images": 3,
+      "collection_slug": "dress-daniela-di-marino"
+    },
+    {
+      "slug": "daniela-di-marino-6395",
+      "folder": "Daniela di Marino/model-6395",
+      "images": 3,
+      "collection_slug": "dress-daniela-di-marino"
+    },
+    {
+      "slug": "daniela-di-marino-6407",
+      "folder": "Daniela di Marino/model-6407",
+      "images": 3,
+      "collection_slug": "dress-daniela-di-marino"
+    },
+    {
+      "slug": "daniela-di-marino-6415",
+      "folder": "Daniela di Marino/model-6415",
+      "images": 2,
+      "collection_slug": "dress-daniela-di-marino"
+    },
+    {
+      "slug": "daniela-di-marino-6419",
+      "folder": "Daniela di Marino/model-6419",
+      "images": 2,
+      "collection_slug": "dress-daniela-di-marino"
+    },
+    {
+      "slug": "dany-tabet-ariel",
+      "folder": "Dany Tabet/model-ariel",
+      "images": 4,
+      "collection_slug": "dress-dany-tabet"
+    },
+    {
+      "slug": "dany-tabet-ava",
+      "folder": "Dany Tabet/model-ava",
+      "images": 3,
+      "collection_slug": "dress-dany-tabet"
+    },
+    {
+      "slug": "dany-tabet-cassel",
+      "folder": "Dany Tabet/model-cassel",
+      "images": 5,
+      "collection_slug": "dress-dany-tabet"
+    },
+    {
+      "slug": "dany-tabet-celia",
+      "folder": "Dany Tabet/model-celia",
+      "images": 3,
+      "collection_slug": "dress-dany-tabet"
+    },
+    {
+      "slug": "dany-tabet-flora",
+      "folder": "Dany Tabet/model-flora",
+      "images": 2,
+      "collection_slug": "dress-dany-tabet"
+    },
+    {
+      "slug": "dany-tabet-helena",
+      "folder": "Dany Tabet/model-helena",
+      "images": 4,
+      "collection_slug": "dress-dany-tabet"
+    },
+    {
+      "slug": "dany-tabet-kara",
+      "folder": "Dany Tabet/model-kara",
+      "images": 3,
+      "collection_slug": "dress-dany-tabet"
+    },
+    {
+      "slug": "dany-tabet-meghan",
+      "folder": "Dany Tabet/model-meghan",
+      "images": 3,
+      "collection_slug": "dress-dany-tabet"
+    },
+    {
+      "slug": "dany-tabet-perla",
+      "folder": "Dany Tabet/model-perla",
+      "images": 4,
+      "collection_slug": "dress-dany-tabet"
+    },
+    {
+      "slug": "demetrios-1207",
+      "folder": "Demetrios/model-1207",
+      "images": 5,
+      "collection_slug": "dress-demetrios"
+    },
+    {
+      "slug": "demetrios-1236",
+      "folder": "Demetrios/model-1236",
+      "images": 4,
+      "collection_slug": "dress-demetrios"
+    },
+    {
+      "slug": "demetrios-1255",
+      "folder": "Demetrios/model-1255",
+      "images": 4,
+      "collection_slug": "dress-demetrios"
+    },
+    {
+      "slug": "demetrios-1263",
+      "folder": "Demetrios/model-1263",
+      "images": 3,
+      "collection_slug": "dress-demetrios"
+    },
+    {
+      "slug": "demetrios-1296",
+      "folder": "Demetrios/model-1296",
+      "images": 5,
+      "collection_slug": "dress-demetrios"
+    },
+    {
+      "slug": "demetrios-1521",
+      "folder": "Demetrios/model-1521",
+      "images": 3,
+      "collection_slug": "dress-demetrios"
+    },
+    {
+      "slug": "demetrios-1532",
+      "folder": "Demetrios/model-1532",
+      "images": 3,
+      "collection_slug": "dress-demetrios"
+    },
+    {
+      "slug": "demetrios-1536",
+      "folder": "Demetrios/model-1536",
+      "images": 3,
+      "collection_slug": "dress-demetrios"
+    },
+    {
+      "slug": "demetrios-1545",
+      "folder": "Demetrios/model-1545",
+      "images": 3,
+      "collection_slug": "dress-demetrios"
+    },
+    {
+      "slug": "demetrios-1550",
+      "folder": "Demetrios/model-1550",
+      "images": 3,
+      "collection_slug": "dress-demetrios"
+    },
+    {
+      "slug": "demetrios-200147",
+      "folder": "Demetrios/model-200147",
+      "images": 4,
+      "collection_slug": "dress-demetrios"
+    },
+    {
+      "slug": "demetrios-dp527",
+      "folder": "Demetrios/model-dp527",
+      "images": 5,
+      "collection_slug": "dress-demetrios"
+    },
+    {
+      "slug": "demetrios-platinum-469",
+      "folder": "Demetrios Platinum/model-469",
+      "images": 3,
+      "collection_slug": "dress-demetrios-platinum"
+    },
+    {
+      "slug": "destination-romance-398",
+      "folder": "Destination Romance/model-398",
+      "images": 4,
+      "collection_slug": "dress-destination-romance"
+    },
+    {
+      "slug": "destination-romance-dr397",
+      "folder": "Destination Romance/model-dr397",
+      "images": 4,
+      "collection_slug": "dress-destination-romance"
+    },
+    {
+      "slug": "elysee-by-enzoani-fae",
+      "folder": "Elysee by Enzoani/model-fae",
+      "images": 4,
+      "collection_slug": "dress-elysee-by-enzoani"
+    },
+    {
+      "slug": "elysee-by-enzoani-fia",
+      "folder": "Elysee by Enzoani/model-fia",
+      "images": 3,
+      "collection_slug": "dress-elysee-by-enzoani"
+    },
+    {
+      "slug": "elysee-by-enzoani-harlow",
+      "folder": "Elysee by Enzoani/model-harlow",
+      "images": 2,
+      "collection_slug": "dress-elysee-by-enzoani"
+    },
+    {
+      "slug": "elysee-by-enzoani-laurent",
+      "folder": "Elysee by Enzoani/model-laurent",
+      "images": 2,
+      "collection_slug": "dress-elysee-by-enzoani"
+    },
+    {
+      "slug": "enzoani-naya",
+      "folder": "Enzoani/model-naya",
+      "images": 2,
+      "collection_slug": "dress-enzoani"
+    },
+    {
+      "slug": "enzoani-silvia",
+      "folder": "Enzoani/model-silvia",
+      "images": 4,
+      "collection_slug": "dress-enzoani"
+    },
+    {
+      "slug": "etoile-by-enzoani-cheyenne",
+      "folder": "Etoile by Enzoani/model-cheyenne",
+      "images": 6,
+      "collection_slug": "dress-etoile-by-enzoani"
+    },
+    {
+      "slug": "etoile-by-enzoani-erin",
+      "folder": "Etoile by Enzoani/model-erin",
+      "images": 3,
+      "collection_slug": "dress-etoile-by-enzoani"
+    },
+    {
+      "slug": "etoile-by-enzoani-guinevere",
+      "folder": "Etoile by Enzoani/model-guinevere",
+      "images": 5,
+      "collection_slug": "dress-etoile-by-enzoani"
+    },
+    {
+      "slug": "etoile-by-enzoani-reilly",
+      "folder": "Etoile by Enzoani/model-reilly",
+      "images": 4,
+      "collection_slug": "dress-etoile-by-enzoani"
+    },
+    {
+      "slug": "etoile-by-enzoani-whitley",
+      "folder": "Etoile by Enzoani/model-whitley",
+      "images": 5,
+      "collection_slug": "dress-etoile-by-enzoani"
+    },
+    {
+      "slug": "gbs-herve-paris-bibian",
+      "folder": "GBS Herve Paris/model-bibian",
+      "images": 4,
+      "collection_slug": "dress-gbs-herve-paris"
+    },
+    {
+      "slug": "gbs-herve-paris-brunela",
+      "folder": "GBS Herve Paris/model-brunela",
+      "images": 3,
+      "collection_slug": "dress-gbs-herve-paris"
+    },
+    {
+      "slug": "gbs-herve-paris-carter",
+      "folder": "GBS Herve Paris/model-carter",
+      "images": 8,
+      "collection_slug": "dress-gbs-herve-paris"
+    },
+    {
+      "slug": "gbs-herve-paris-caylee",
+      "folder": "GBS Herve Paris/model-caylee",
+      "images": 4,
+      "collection_slug": "dress-gbs-herve-paris"
+    },
+    {
+      "slug": "gbs-herve-paris-lewis",
+      "folder": "GBS Herve Paris/model-lewis",
+      "images": 4,
+      "collection_slug": "dress-gbs-herve-paris"
+    },
+    {
+      "slug": "gbs-herve-paris-lior",
+      "folder": "GBS Herve Paris/model-lior",
+      "images": 4,
+      "collection_slug": "dress-gbs-herve-paris"
+    },
+    {
+      "slug": "gbs-herve-paris-lotus",
+      "folder": "GBS Herve Paris/model-lotus",
+      "images": 3,
+      "collection_slug": "dress-gbs-herve-paris"
+    },
+    {
+      "slug": "gbs-herve-paris-lumen",
+      "folder": "GBS Herve Paris/model-lumen",
+      "images": 4,
+      "collection_slug": "dress-gbs-herve-paris"
+    },
+    {
+      "slug": "gbs-herve-paris-lyra",
+      "folder": "GBS Herve Paris/model-lyra",
+      "images": 2,
+      "collection_slug": "dress-gbs-herve-paris"
+    },
+    {
+      "slug": "jarice-13",
+      "folder": "Jarice/model-13",
+      "images": 2,
+      "collection_slug": "dress-jarice"
+    },
+    {
+      "slug": "jarice-elenor",
+      "folder": "Jarice/model-elenor",
+      "images": 2,
+      "collection_slug": "dress-jarice"
+    },
+    {
+      "slug": "jarice-sarah",
+      "folder": "Jarice/model-sarah",
+      "images": 1,
+      "collection_slug": "dress-jarice"
+    },
+    {
+      "slug": "jarice-sunshine",
+      "folder": "Jarice/model-sunshine",
+      "images": 1,
+      "collection_slug": "dress-jarice"
+    },
+    {
+      "slug": "kenneth-winston-1706",
+      "folder": "Kenneth Winston/model-1706",
+      "images": 4,
+      "collection_slug": "dress-kenneth-winston"
+    },
+    {
+      "slug": "ladybird-317162",
+      "folder": "Ladybird/model-317162",
+      "images": 1,
+      "collection_slug": "dress-ladybird"
+    },
+    {
+      "slug": "ladybird-522031",
+      "folder": "Ladybird/model-522031",
+      "images": 3,
+      "collection_slug": "dress-ladybird"
+    },
+    {
+      "slug": "ladybird-alzena",
+      "folder": "Ladybird/model-alzena",
+      "images": 3,
+      "collection_slug": "dress-ladybird"
+    },
+    {
+      "slug": "ladybird-annabell",
+      "folder": "Ladybird/model-annabell",
+      "images": 1,
+      "collection_slug": "dress-ladybird"
+    },
+    {
+      "slug": "ladybird-ashly",
+      "folder": "Ladybird/model-ashly",
+      "images": 5,
+      "collection_slug": "dress-ladybird"
+    },
+    {
+      "slug": "ladybird-chara",
+      "folder": "Ladybird/model-chara",
+      "images": 3,
+      "collection_slug": "dress-ladybird"
+    },
+    {
+      "slug": "ladybird-clarisa",
+      "folder": "Ladybird/model-clarisa",
+      "images": 3,
+      "collection_slug": "dress-ladybird"
+    },
+    {
+      "slug": "ladybird-estel",
+      "folder": "Ladybird/model-estel",
+      "images": 3,
+      "collection_slug": "dress-ladybird"
+    },
+    {
+      "slug": "ladybird-fritha",
+      "folder": "Ladybird/model-fritha",
+      "images": 3,
+      "collection_slug": "dress-ladybird"
+    },
+    {
+      "slug": "ladybird-galatia",
+      "folder": "Ladybird/model-galatia",
+      "images": 3,
+      "collection_slug": "dress-ladybird"
+    },
+    {
+      "slug": "ladybird-illusia",
+      "folder": "Ladybird/model-illusia",
+      "images": 5,
+      "collection_slug": "dress-ladybird"
+    },
+    {
+      "slug": "ladybird-jacinta",
+      "folder": "Ladybird/model-jacinta",
+      "images": 3,
+      "collection_slug": "dress-ladybird"
+    },
+    {
+      "slug": "ladybird-josephina",
+      "folder": "Ladybird/model-josephina",
+      "images": 5,
+      "collection_slug": "dress-ladybird"
+    },
+    {
+      "slug": "ladybird-liber",
+      "folder": "Ladybird/model-liber",
+      "images": 3,
+      "collection_slug": "dress-ladybird"
+    },
+    {
+      "slug": "ladybird-luella",
+      "folder": "Ladybird/model-luella",
+      "images": 3,
+      "collection_slug": "dress-ladybird"
+    },
+    {
+      "slug": "ladybird-mei",
+      "folder": "Ladybird/model-mei",
+      "images": 3,
+      "collection_slug": "dress-ladybird"
+    },
+    {
+      "slug": "ladybird-nisa",
+      "folder": "Ladybird/model-nisa",
+      "images": 5,
+      "collection_slug": "dress-ladybird"
+    },
+    {
+      "slug": "le-papillon-modeca-baska",
+      "folder": "Le Papillon Modeca/model-baska",
+      "images": 4,
+      "collection_slug": "dress-le-papillon-modeca"
+    },
+    {
+      "slug": "le-papillon-modeca-belen",
+      "folder": "Le Papillon Modeca/model-belen",
+      "images": 5,
+      "collection_slug": "dress-le-papillon-modeca"
+    },
+    {
+      "slug": "le-papillon-modeca-bluelle",
+      "folder": "Le Papillon Modeca/model-bluelle",
+      "images": 5,
+      "collection_slug": "dress-le-papillon-modeca"
+    },
+    {
+      "slug": "le-papillon-modeca-eliana",
+      "folder": "Le Papillon Modeca/model-eliana",
+      "images": 5,
+      "collection_slug": "dress-le-papillon-modeca"
+    },
+    {
+      "slug": "le-papillon-modeca-elmas",
+      "folder": "Le Papillon Modeca/model-elmas",
+      "images": 7,
+      "collection_slug": "dress-le-papillon-modeca"
+    },
+    {
+      "slug": "le-papillon-modeca-sharon",
+      "folder": "Le Papillon Modeca/model-sharon",
+      "images": 4,
+      "collection_slug": "dress-le-papillon-modeca"
+    },
+    {
+      "slug": "libelle-bridal-hiba",
+      "folder": "Libelle Bridal/model-hiba",
+      "images": 5,
+      "collection_slug": "dress-libelle-bridal"
+    },
+    {
+      "slug": "libelle-bridal-jip",
+      "folder": "Libelle Bridal/model-jip",
+      "images": 5,
+      "collection_slug": "dress-libelle-bridal"
+    },
+    {
+      "slug": "love-by-enzoani-amina",
+      "folder": "Love by Enzoani/model-amina",
+      "images": 3,
+      "collection_slug": "dress-love-by-enzoani"
+    },
+    {
+      "slug": "love-by-enzoani-dallas",
+      "folder": "Love by Enzoani/model-dallas",
+      "images": 5,
+      "collection_slug": "dress-love-by-enzoani"
+    },
+    {
+      "slug": "love-by-enzoani-denise",
+      "folder": "Love by Enzoani/model-denise",
+      "images": 7,
+      "collection_slug": "dress-love-by-enzoani"
+    },
+    {
+      "slug": "love-by-enzoani-denver",
+      "folder": "Love by Enzoani/model-denver",
+      "images": 4,
+      "collection_slug": "dress-love-by-enzoani"
+    },
+    {
+      "slug": "love-by-enzoani-dixie",
+      "folder": "Love by Enzoani/model-dixie",
+      "images": 4,
+      "collection_slug": "dress-love-by-enzoani"
+    },
+    {
+      "slug": "love-by-enzoani-elsa",
+      "folder": "Love by Enzoani/model-elsa",
+      "images": 3,
+      "collection_slug": "dress-love-by-enzoani"
+    },
+    {
+      "slug": "love-by-enzoani-everly",
+      "folder": "Love by Enzoani/model-everly",
+      "images": 7,
+      "collection_slug": "dress-love-by-enzoani"
+    },
+    {
+      "slug": "modeca-acacia",
+      "folder": "Modeca/model-acacia",
+      "images": 4,
+      "collection_slug": "dress-modeca"
+    },
+    {
+      "slug": "modeca-alaska",
+      "folder": "Modeca/model-alaska",
+      "images": 4,
+      "collection_slug": "dress-modeca"
+    },
+    {
+      "slug": "modeca-anika",
+      "folder": "Modeca/model-anika",
+      "images": 4,
+      "collection_slug": "dress-modeca"
+    },
+    {
+      "slug": "modeca-asja",
+      "folder": "Modeca/model-asja",
+      "images": 3,
+      "collection_slug": "dress-modeca"
+    },
+    {
+      "slug": "modeca-aura",
+      "folder": "Modeca/model-aura",
+      "images": 4,
+      "collection_slug": "dress-modeca"
+    },
+    {
+      "slug": "modeca-avenah",
+      "folder": "Modeca/model-avenah",
+      "images": 4,
+      "collection_slug": "dress-modeca"
+    },
+    {
+      "slug": "modeca-awesta",
+      "folder": "Modeca/model-awesta",
+      "images": 4,
+      "collection_slug": "dress-modeca"
+    },
+    {
+      "slug": "modeca-daisy",
+      "folder": "Modeca/model-daisy",
+      "images": 4,
+      "collection_slug": "dress-modeca"
+    },
+    {
+      "slug": "modeca-darling",
+      "folder": "Modeca/model-darling",
+      "images": 4,
+      "collection_slug": "dress-modeca"
+    },
+    {
+      "slug": "modeca-dembee",
+      "folder": "Modeca/model-dembee",
+      "images": 3,
+      "collection_slug": "dress-modeca"
+    },
+    {
+      "slug": "modeca-denise",
+      "folder": "Modeca/model-denise",
+      "images": 5,
+      "collection_slug": "dress-modeca"
+    },
+    {
+      "slug": "modeca-derin",
+      "folder": "Modeca/model-derin",
+      "images": 3,
+      "collection_slug": "dress-modeca"
+    },
+    {
+      "slug": "modeca-noon",
+      "folder": "Modeca/model-noon",
+      "images": 2,
+      "collection_slug": "dress-modeca"
+    },
+    {
+      "slug": "modeca-sally",
+      "folder": "Modeca/model-sally",
+      "images": 4,
+      "collection_slug": "dress-modeca"
+    },
+    {
+      "slug": "modeca-couture-zino",
+      "folder": "Modeca Couture/model-zino",
+      "images": 7,
+      "collection_slug": "dress-modeca-couture"
+    },
+    {
+      "slug": "modeca-couture-ziva",
+      "folder": "Modeca Couture/model-ziva",
+      "images": 7,
+      "collection_slug": "dress-modeca-couture"
+    },
+    {
+      "slug": "monica-loretti-8122",
+      "folder": "Monica Loretti/model-8122",
+      "images": 2,
+      "collection_slug": "dress-monica-loretti"
+    },
+    {
+      "slug": "monica-loretti-8126",
+      "folder": "Monica Loretti/model-8126",
+      "images": 2,
+      "collection_slug": "dress-monica-loretti"
+    },
+    {
+      "slug": "monica-loretti-8134",
+      "folder": "Monica Loretti/model-8134",
+      "images": 2,
+      "collection_slug": "dress-monica-loretti"
+    },
+    {
+      "slug": "monica-loretti-8138",
+      "folder": "Monica Loretti/model-8138",
+      "images": 3,
+      "collection_slug": "dress-monica-loretti"
+    },
+    {
+      "slug": "monica-loretti-8140",
+      "folder": "Monica Loretti/model-8140",
+      "images": 2,
+      "collection_slug": "dress-monica-loretti"
+    },
+    {
+      "slug": "monica-loretti-8198",
+      "folder": "Monica Loretti/model-8198",
+      "images": 2,
+      "collection_slug": "dress-monica-loretti"
+    },
+    {
+      "slug": "monica-loretti-8216",
+      "folder": "Monica Loretti/model-8216",
+      "images": 3,
+      "collection_slug": "dress-monica-loretti"
+    },
+    {
+      "slug": "monica-loretti-8219",
+      "folder": "Monica Loretti/model-8219",
+      "images": 3,
+      "collection_slug": "dress-monica-loretti"
+    },
+    {
+      "slug": "monica-loretti-8239",
+      "folder": "Monica Loretti/model-8239",
+      "images": 3,
+      "collection_slug": "dress-monica-loretti"
+    },
+    {
+      "slug": "monica-loretti-8244",
+      "folder": "Monica Loretti/model-8244",
+      "images": 3,
+      "collection_slug": "dress-monica-loretti"
+    },
+    {
+      "slug": "monica-loretti-8270",
+      "folder": "Monica Loretti/model-8270",
+      "images": 3,
+      "collection_slug": "dress-monica-loretti"
+    },
+    {
+      "slug": "monica-loretti-8282",
+      "folder": "Monica Loretti/model-8282",
+      "images": 3,
+      "collection_slug": "dress-monica-loretti"
+    },
+    {
+      "slug": "monica-loretti-8291",
+      "folder": "Monica Loretti/model-8291",
+      "images": 3,
+      "collection_slug": "dress-monica-loretti"
+    },
+    {
+      "slug": "monica-loretti-8293",
+      "folder": "Monica Loretti/model-8293",
+      "images": 2,
+      "collection_slug": "dress-monica-loretti"
+    },
+    {
+      "slug": "monica-loretti-8357",
+      "folder": "Monica Loretti/model-8357",
+      "images": 5,
+      "collection_slug": "dress-monica-loretti"
+    },
+    {
+      "slug": "morilee-18772",
+      "folder": "Morilee/model-18772",
+      "images": 5,
+      "collection_slug": "dress-morilee"
+    },
+    {
+      "slug": "morilee-2608",
+      "folder": "Morilee/model-2608",
+      "images": 4,
+      "collection_slug": "dress-morilee"
+    },
+    {
+      "slug": "morilee-3423",
+      "folder": "Morilee/model-3423",
+      "images": 4,
+      "collection_slug": "dress-morilee"
+    },
+    {
+      "slug": "morilee-52027",
+      "folder": "Morilee/model-52027",
+      "images": 4,
+      "collection_slug": "dress-morilee"
+    },
+    {
+      "slug": "morilee-69926",
+      "folder": "Morilee/model-69926",
+      "images": 3,
+      "collection_slug": "dress-morilee"
+    },
+    {
+      "slug": "morilee-69928b",
+      "folder": "Morilee/model-69928b",
+      "images": 4,
+      "collection_slug": "dress-morilee"
+    },
+    {
+      "slug": "oksana-mukha-ayah",
+      "folder": "OKSANA MUKHA/model-ayah",
+      "images": 3,
+      "collection_slug": "dress-oksana-mukha"
+    },
+    {
+      "slug": "oksana-mukha-caroline",
+      "folder": "OKSANA MUKHA/model-caroline",
+      "images": 5,
+      "collection_slug": "dress-oksana-mukha"
+    },
+    {
+      "slug": "oksana-mukha-darcia",
+      "folder": "OKSANA MUKHA/model-darcia",
+      "images": 5,
+      "collection_slug": "dress-oksana-mukha"
+    },
+    {
+      "slug": "oksana-mukha-heidi",
+      "folder": "OKSANA MUKHA/model-heidi",
+      "images": 5,
+      "collection_slug": "dress-oksana-mukha"
+    },
+    {
+      "slug": "oksana-mukha-manuela",
+      "folder": "OKSANA MUKHA/model-manuela",
+      "images": 4,
+      "collection_slug": "dress-oksana-mukha"
+    },
+    {
+      "slug": "oksana-mukha-molly",
+      "folder": "OKSANA MUKHA/model-molly",
+      "images": 2,
+      "collection_slug": "dress-oksana-mukha"
+    },
+    {
+      "slug": "oksana-mukha-paige",
+      "folder": "OKSANA MUKHA/model-paige",
+      "images": 3,
+      "collection_slug": "dress-oksana-mukha"
+    },
+    {
+      "slug": "oksana-mukha-tilly",
+      "folder": "OKSANA MUKHA/model-tilly",
+      "images": 3,
+      "collection_slug": "dress-oksana-mukha"
+    },
+    {
+      "slug": "orea-sposa-l917",
+      "folder": "Orea Sposa/model-l917",
+      "images": 2,
+      "collection_slug": "dress-orea-sposa"
+    },
+    {
+      "slug": "orea-sposa-l918",
+      "folder": "Orea Sposa/model-l918",
+      "images": 3,
+      "collection_slug": "dress-orea-sposa"
+    },
+    {
+      "slug": "orea-sposa-l965",
+      "folder": "Orea Sposa/model-l965",
+      "images": 2,
+      "collection_slug": "dress-orea-sposa"
+    },
+    {
+      "slug": "private-label-by-mariage-trouwjurk",
+      "folder": "Private Label by Mariage/model-trouwjurk",
+      "images": 2,
+      "collection_slug": "dress-private-label-by-mariage"
+    },
+    {
+      "slug": "randy-fenoli-dani",
+      "folder": "Randy Fenoli/model-dani",
+      "images": 4,
+      "collection_slug": "dress-randy-fenoli"
+    },
+    {
+      "slug": "randy-fenoli-dimitira",
+      "folder": "Randy Fenoli/model-dimitira",
+      "images": 5,
+      "collection_slug": "dress-randy-fenoli"
+    },
+    {
+      "slug": "randy-fenoli-dominique",
+      "folder": "Randy Fenoli/model-dominique",
+      "images": 4,
+      "collection_slug": "dress-randy-fenoli"
+    },
+    {
+      "slug": "randy-fenoli-faith",
+      "folder": "Randy Fenoli/model-faith",
+      "images": 5,
+      "collection_slug": "dress-randy-fenoli"
+    },
+    {
+      "slug": "randy-fenoli-fleetwood",
+      "folder": "Randy Fenoli/model-fleetwood",
+      "images": 3,
+      "collection_slug": "dress-randy-fenoli"
+    },
+    {
+      "slug": "randy-fenoli-foster",
+      "folder": "Randy Fenoli/model-foster",
+      "images": 5,
+      "collection_slug": "dress-randy-fenoli"
+    },
+    {
+      "slug": "randy-fenoli-giselle",
+      "folder": "Randy Fenoli/model-giselle",
+      "images": 5,
+      "collection_slug": "dress-randy-fenoli"
+    },
+    {
+      "slug": "randy-fenoli-goddess",
+      "folder": "Randy Fenoli/model-goddess",
+      "images": 6,
+      "collection_slug": "dress-randy-fenoli"
+    },
+    {
+      "slug": "randy-fenoli-ida",
+      "folder": "Randy Fenoli/model-ida",
+      "images": 3,
+      "collection_slug": "dress-randy-fenoli"
+    },
+    {
+      "slug": "randy-fenoli-luxe",
+      "folder": "Randy Fenoli/model-luxe",
+      "images": 6,
+      "collection_slug": "dress-randy-fenoli"
+    },
+    {
+      "slug": "ronald-joyce-wedella",
+      "folder": "Ronald Joyce/model-wedella",
+      "images": 4,
+      "collection_slug": "dress-ronald-joyce"
+    },
+    {
+      "slug": "rosa-clara-dalila",
+      "folder": "Rosa Clara/model-dalila",
+      "images": 3,
+      "collection_slug": "dress-rosa-clara"
+    },
+    {
+      "slug": "st-patrick-chatty",
+      "folder": "St. Patrick/model-chatty",
+      "images": 4,
+      "collection_slug": "dress-st-patrick"
+    },
+    {
+      "slug": "st-patrick-inno",
+      "folder": "St. Patrick/model-inno",
+      "images": 5,
+      "collection_slug": "dress-st-patrick"
+    },
+    {
+      "slug": "st-patrick-magica",
+      "folder": "St. Patrick/model-magica",
+      "images": 4,
+      "collection_slug": "dress-st-patrick"
+    },
+    {
+      "slug": "st-patrick-mediva",
+      "folder": "St. Patrick/model-mediva",
+      "images": 5,
+      "collection_slug": "dress-st-patrick"
+    },
+    {
+      "slug": "st-patrick-odessa",
+      "folder": "St. Patrick/model-odessa",
+      "images": 4,
+      "collection_slug": "dress-st-patrick"
+    },
+    {
+      "slug": "st-patrick-renne",
+      "folder": "St. Patrick/model-renne",
+      "images": 5,
+      "collection_slug": "dress-st-patrick"
+    },
+    {
+      "slug": "st-patrick-santia",
+      "folder": "St. Patrick/model-santia",
+      "images": 5,
+      "collection_slug": "dress-st-patrick"
+    },
+    {
+      "slug": "st-patrick-simmer",
+      "folder": "St. Patrick/model-simmer",
+      "images": 2,
+      "collection_slug": "dress-st-patrick"
+    },
+    {
+      "slug": "st-patrick-willy",
+      "folder": "St. Patrick/model-willy",
+      "images": 4,
+      "collection_slug": "dress-st-patrick"
+    },
+    {
+      "slug": "stella-york-2",
+      "folder": "Stella York/model-2",
+      "images": 5,
+      "collection_slug": "dress-stella-york"
+    },
+    {
+      "slug": "stella-york-7117",
+      "folder": "Stella York/model-7117",
+      "images": 3,
+      "collection_slug": "dress-stella-york"
+    },
+    {
+      "slug": "stella-york-7420",
+      "folder": "Stella York/model-7420",
+      "images": 6,
+      "collection_slug": "dress-stella-york"
+    },
+    {
+      "slug": "stella-york-7529",
+      "folder": "Stella York/model-7529",
+      "images": 4,
+      "collection_slug": "dress-stella-york"
+    },
+    {
+      "slug": "stella-york-7568",
+      "folder": "Stella York/model-7568",
+      "images": 5,
+      "collection_slug": "dress-stella-york"
+    },
+    {
+      "slug": "stella-york-7609",
+      "folder": "Stella York/model-7609",
+      "images": 8,
+      "collection_slug": "dress-stella-york"
+    },
+    {
+      "slug": "stella-york-7650",
+      "folder": "Stella York/model-7650",
+      "images": 7,
+      "collection_slug": "dress-stella-york"
+    },
+    {
+      "slug": "stella-york-7653",
+      "folder": "Stella York/model-7653",
+      "images": 6,
+      "collection_slug": "dress-stella-york"
+    },
+    {
+      "slug": "stella-york-7675",
+      "folder": "Stella York/model-7675",
+      "images": 8,
+      "collection_slug": "dress-stella-york"
+    },
+    {
+      "slug": "stella-york-7928",
+      "folder": "Stella York/model-7928",
+      "images": 5,
+      "collection_slug": "dress-stella-york"
+    },
+    {
+      "slug": "stella-york-7965",
+      "folder": "Stella York/model-7965",
+      "images": 4,
+      "collection_slug": "dress-stella-york"
+    },
+    {
+      "slug": "stella-york-8027",
+      "folder": "Stella York/model-8027",
+      "images": 5,
+      "collection_slug": "dress-stella-york"
+    },
+    {
+      "slug": "stella-york-8036",
+      "folder": "Stella York/model-8036",
+      "images": 4,
+      "collection_slug": "dress-stella-york"
+    },
+    {
+      "slug": "stella-york-split",
+      "folder": "Stella York/model-split",
+      "images": 4,
+      "collection_slug": "dress-stella-york"
+    },
+    {
+      "slug": "stella-york-sy8084",
+      "folder": "Stella York/model-sy8084",
+      "images": 3,
+      "collection_slug": "dress-stella-york"
+    },
+    {
+      "slug": "stella-york-sy8105",
+      "folder": "Stella York/model-sy8105",
+      "images": 6,
+      "collection_slug": "dress-stella-york"
+    },
+    {
+      "slug": "stella-york-sy8110",
+      "folder": "Stella York/model-sy8110",
+      "images": 3,
+      "collection_slug": "dress-stella-york"
+    },
+    {
+      "slug": "stella-york-sy8122",
+      "folder": "Stella York/model-sy8122",
+      "images": 4,
+      "collection_slug": "dress-stella-york"
+    },
+    {
+      "slug": "stella-york-sy8126",
+      "folder": "Stella York/model-sy8126",
+      "images": 3,
+      "collection_slug": "dress-stella-york"
+    },
+    {
+      "slug": "stella-york-sy8162",
+      "folder": "Stella York/model-sy8162",
+      "images": 7,
+      "collection_slug": "dress-stella-york"
+    },
+    {
+      "slug": "stella-york-sy8163",
+      "folder": "Stella York/model-sy8163",
+      "images": 6,
+      "collection_slug": "dress-stella-york"
+    },
+    {
+      "slug": "white-one-gentian",
+      "folder": "White One/model-gentian",
+      "images": 3,
+      "collection_slug": "dress-white-one"
+    },
+    {
+      "slug": "white-one-maitai",
+      "folder": "White One/model-maitai",
+      "images": 3,
+      "collection_slug": "dress-white-one"
+    },
+    {
+      "slug": "white-one-ojeda",
+      "folder": "White One/model-ojeda",
+      "images": 2,
+      "collection_slug": "dress-white-one"
+    },
+    {
+      "slug": "white-one-oleiro",
+      "folder": "White One/model-oleiro",
+      "images": 2,
+      "collection_slug": "dress-white-one"
+    },
+    {
+      "slug": "white-one-tsubaki",
+      "folder": "White One/model-tsubaki",
+      "images": 3,
+      "collection_slug": "dress-white-one"
+    }
+  ],
+  "updated": [
+    {
+      "slug": "dama-avalon",
+      "folder": "Dama/model-avalon",
+      "before_image_count": 5,
+      "after_image_count": 5,
+      "collection_slug": "dress-dama"
+    },
+    {
+      "slug": "demetrios-1507",
+      "folder": "Demetrios/model-1507",
+      "before_image_count": 3,
+      "after_image_count": 3,
+      "collection_slug": "dress-demetrios"
+    },
+    {
+      "slug": "modeca-dusty",
+      "folder": "Modeca/model-dusty",
+      "before_image_count": 6,
+      "after_image_count": 6,
+      "collection_slug": "dress-modeca"
+    },
+    {
+      "slug": "modeca-horacia",
+      "folder": "Modeca/model-horacia",
+      "before_image_count": 5,
+      "after_image_count": 5,
+      "collection_slug": "dress-modeca"
+    },
+    {
+      "slug": "oksana-mukha-willow",
+      "folder": "OKSANA MUKHA/model-willow",
+      "before_image_count": 3,
+      "after_image_count": 3,
+      "collection_slug": "dress-oksana-mukha"
+    },
+    {
+      "slug": "randy-fenoli-goldie",
+      "folder": "Randy Fenoli/model-goldie",
+      "before_image_count": 3,
+      "after_image_count": 3,
+      "collection_slug": "dress-randy-fenoli"
+    }
+  ],
+  "unchanged": []
+}

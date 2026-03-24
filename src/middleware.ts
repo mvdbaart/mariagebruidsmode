@@ -1,6 +1,7 @@
 import { defineMiddleware } from "astro:middleware";
 import { clearAuthCookies, getAdminAuthFromCookies } from "./lib/serverAuth";
 import { getActiveRedirects } from "./lib/redirects";
+import { shouldLog404, logNotFound } from "./lib/notFoundLogger";
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
 
@@ -98,5 +99,18 @@ export const onRequest = defineMiddleware(async ({ url, redirect, cookies, reque
     }
   }
 
-  return next();
+  const response = await next();
+
+  // 404 monitor: log non-asset 404s so we can spot missing redirects
+  if (
+    response.status === 404 &&
+    !url.pathname.startsWith('/admin') &&
+    !url.pathname.startsWith('/api') &&
+    shouldLog404(url.pathname)
+  ) {
+    // Fire-and-forget: logging must never delay or break the response
+    logNotFound(url.pathname, request).catch(() => {});
+  }
+
+  return response;
 });
