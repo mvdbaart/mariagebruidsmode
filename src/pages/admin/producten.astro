@@ -1,6 +1,7 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import { supabase } from '../../lib/supabase';
+import { DRESS_STYLES } from '../../lib/productStyles';
 
 const { data: products } = await supabase
   .from('products')
@@ -9,6 +10,8 @@ const { data: products } = await supabase
 
 const dressCount = products?.filter(p => p.collections?.type === 'dress').length ?? 0;
 const suitCount  = products?.filter(p => p.collections?.type === 'suit').length  ?? 0;
+
+const brands = [...new Set((products ?? []).map(p => p.brand).filter(Boolean))].sort();
 ---
 
 <AdminLayout title="Beheer Producten">
@@ -53,10 +56,48 @@ const suitCount  = products?.filter(p => p.collections?.type === 'suit').length 
         </div>
       </div>
 
+      <!-- Filter toolbar -->
+      <div class="flex flex-wrap gap-4 mb-8 items-end">
+        <!-- Search -->
+        <div class="relative flex-1 min-w-[200px] max-w-sm">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-taupe pointer-events-none w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="admin-search" type="search" placeholder="Zoek op naam of merk…" class="w-full pl-9 pr-4 py-2.5 bg-white border border-champagne text-charcoal text-sm font-body placeholder:text-taupe/50 focus:outline-none focus:border-taupe transition-colors" />
+        </div>
+
+        <!-- Brand filter -->
+        {brands.length > 1 && (
+          <select id="admin-brand" class="bg-white border border-champagne text-charcoal text-[11px] tracking-[0.1em] uppercase font-body px-4 py-2.5 focus:outline-none focus:border-taupe transition-colors min-w-[140px]">
+            <option value="">Alle merken</option>
+            {brands.map(b => <option value={b}>{b}</option>)}
+          </select>
+        )}
+
+        <!-- Style filter -->
+        <select id="admin-style" class="bg-white border border-champagne text-charcoal text-[11px] tracking-[0.1em] uppercase font-body px-4 py-2.5 focus:outline-none focus:border-taupe transition-colors min-w-[180px]">
+          <option value="">Alle stijlen</option>
+          {DRESS_STYLES.map(s => <option value={s.key}>{s.label}</option>)}
+        </select>
+
+        <!-- Type filter -->
+        <div class="flex gap-2">
+          <button data-type="" class="admin-type-btn text-[10px] tracking-[0.2em] uppercase font-body px-4 py-2.5 border border-charcoal bg-charcoal text-white transition-colors">Alle</button>
+          <button data-type="dress" class="admin-type-btn text-[10px] tracking-[0.2em] uppercase font-body px-4 py-2.5 border border-champagne text-taupe hover:border-charcoal hover:text-charcoal transition-colors">Jurken</button>
+          <button data-type="suit" class="admin-type-btn text-[10px] tracking-[0.2em] uppercase font-body px-4 py-2.5 border border-champagne text-taupe hover:border-charcoal hover:text-charcoal transition-colors">Pakken</button>
+        </div>
+
+        <span id="admin-result-count" class="text-[10px] tracking-[0.15em] uppercase text-taupe font-body ml-auto self-center"></span>
+      </div>
+
       <!-- Products grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="admin-products-grid">
         {products?.map((prod) => (
-          <div class="bg-white border border-champagne shadow-soft overflow-hidden group hover:shadow-card transition-all duration-300">
+          <div
+            class="bg-white border border-champagne shadow-soft overflow-hidden group hover:shadow-card transition-all duration-300 admin-product-card"
+            data-name={(prod.name ?? '').toLowerCase()}
+            data-brand={(prod.brand ?? '').toLowerCase()}
+            data-type={prod.collections?.type ?? ''}
+            data-features={JSON.stringify((prod.features ?? []).map((f: string) => f.toLowerCase()))}
+          >
             <div class="aspect-[3/4] bg-linen overflow-hidden relative">
               {prod.images?.[0] ? (
                 <img 
@@ -115,6 +156,59 @@ const suitCount  = products?.filter(p => p.collections?.type === 'suit').length 
 </dialog>
 
 <script>
+  // ── Filter logic ──────────────────────────────────────────────────────────
+  const searchInput = document.getElementById('admin-search') as HTMLInputElement | null;
+  const brandSelect = document.getElementById('admin-brand') as HTMLSelectElement | null;
+  const styleSelect = document.getElementById('admin-style') as HTMLSelectElement | null;
+  const resultCount = document.getElementById('admin-result-count');
+  const cards = Array.from(document.querySelectorAll<HTMLElement>('.admin-product-card'));
+  let activeType = '';
+
+  function applyFilters() {
+    const q = (searchInput?.value ?? '').trim().toLowerCase();
+    const brand = (brandSelect?.value ?? '').toLowerCase();
+    const style = (styleSelect?.value ?? '').toLowerCase();
+    let visible = 0;
+
+    cards.forEach((card) => {
+      const name = card.dataset.name ?? '';
+      const cardBrand = card.dataset.brand ?? '';
+      const type = card.dataset.type ?? '';
+      const features: string[] = JSON.parse(card.dataset.features ?? '[]');
+
+      const matchSearch = !q || name.includes(q) || cardBrand.includes(q);
+      const matchBrand = !brand || cardBrand === brand;
+      const matchStyle = !style || features.includes(style);
+      const matchType = !activeType || type === activeType;
+
+      const show = matchSearch && matchBrand && matchStyle && matchType;
+      card.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+
+    if (resultCount) {
+      resultCount.textContent = visible === cards.length ? '' : `${visible} van ${cards.length} producten`;
+    }
+  }
+
+  searchInput?.addEventListener('input', applyFilters);
+  brandSelect?.addEventListener('change', applyFilters);
+  styleSelect?.addEventListener('change', applyFilters);
+
+  document.querySelectorAll<HTMLButtonElement>('.admin-type-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      activeType = btn.dataset.type ?? '';
+      document.querySelectorAll<HTMLButtonElement>('.admin-type-btn').forEach((b) => {
+        const active = b.dataset.type === activeType;
+        b.className = active
+          ? 'admin-type-btn text-[10px] tracking-[0.2em] uppercase font-body px-4 py-2.5 border border-charcoal bg-charcoal text-white transition-colors'
+          : 'admin-type-btn text-[10px] tracking-[0.2em] uppercase font-body px-4 py-2.5 border border-champagne text-taupe hover:border-charcoal hover:text-charcoal transition-colors';
+      });
+      applyFilters();
+    });
+  });
+
+  // ── Delete logic ──────────────────────────────────────────────────────────
   const dialog = document.getElementById('delete-dialog') as HTMLDialogElement | null;
   const confirmBtn = document.getElementById('confirm-delete');
   const cancelBtn = document.getElementById('cancel-delete');
@@ -140,7 +234,7 @@ const suitCount  = products?.filter(p => p.collections?.type === 'suit').length 
     const response = await fetch(`/api/admin/products/${id}`, { method: 'DELETE' });
     if (response.ok) {
       // Remove the card element (find by delete button's parent chain)
-      document.querySelector(`.delete-product-btn[data-id="${id}"]`)?.closest('.bg-white')?.remove();
+      document.querySelector(`.delete-product-btn[data-id="${id}"]`)?.closest('.admin-product-card')?.remove();
     } else {
       alert('Fout bij verwijderen. Probeer opnieuw.');
     }

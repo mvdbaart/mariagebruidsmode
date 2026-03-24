@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import ProductFilter from '../../components/ProductFilter';
 import { supabase } from '../../lib/supabase';
 
 const { data: collections } = await supabase
@@ -17,6 +18,7 @@ const { data: dressProducts } = await supabase
   .order('created_at', { ascending: false });
 
 const dressFallbackImage = '/images/jurkvormen/a-lijn.png';
+const collectionsForFilter = (collections ?? []).map(({ id, title, slug }) => ({ id, title, slug }));
 ---
 
 <Layout title="Trouwjurken | Mariage Bruidsmode">
@@ -41,75 +43,12 @@ const dressFallbackImage = '/images/jurkvormen/a-lijn.png';
     </div>
   </div>
 
-  <section class="py-20 bg-ivory">
-    <div class="container mx-auto px-6">
-      {collections && collections.length > 0 && (
-        <div class="flex flex-wrap gap-3 mb-14">
-          <a href="/trouwjurken" class="text-[11px] tracking-[0.15em] uppercase font-body px-5 py-3 border border-charcoal bg-charcoal text-warm-white transition-colors">Alle jurken</a>
-          {collections.map(col => (
-            <a href={`/trouwjurken/${col.slug}`} class="text-[11px] tracking-[0.15em] uppercase font-body px-5 py-3 border border-champagne text-taupe hover:border-charcoal hover:text-charcoal transition-colors">{col.title}</a>
-          ))}
-        </div>
-      )}
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="products-grid">
-        {dressProducts?.map((prod, index) => (
-          <div class="group product-card relative overflow-hidden">
-            <a href={`/product/${prod.slug}`} class="block relative aspect-[3/4] overflow-hidden">
-              <div class="w-full h-full bg-linen relative overflow-hidden">
-                {(() => {
-                  const img = prod.images?.[0];
-                  const displayImg = (img && img.length > 0) ? img : dressFallbackImage;
-                  return (
-                    <img
-                      src={displayImg}
-                      alt={prod.name}
-                      onerror={`this.onerror=null;this.src='${dressFallbackImage}'`}
-                      class={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${index % 3 === 0 ? 'animate-pan-right' : index % 3 === 1 ? 'animate-pan-left' : 'animate-zoom'}`}
-                      loading="lazy"
-                    />
-                  );
-                })()}
-
-                <div class="absolute inset-0 bg-charcoal/20 md:bg-charcoal/0 md:group-hover:bg-charcoal/20 transition-all duration-500 flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100">
-                  <span class="bg-warm-white text-charcoal px-5 py-2.5 text-[11px] tracking-[0.15em] uppercase font-body font-medium">
-                    Bekijk product
-                  </span>
-                </div>
-
-                <div class="absolute top-4 left-4 bg-charcoal/80 text-warm-white text-[9px] tracking-[0.15em] uppercase font-body px-2 py-1">
-                  {prod.brand}
-                </div>
-              </div>
-            </a>
-
-            <button
-              class="wishlist-btn absolute top-3 right-3 z-10 w-9 h-9 flex items-center justify-center bg-white/85 backdrop-blur-sm hover:bg-white transition-colors shadow-soft"
-              data-slug={prod.slug}
-              data-name={prod.name}
-              data-image={prod.images?.[0] || ''}
-              aria-label={`${prod.name} toevoegen aan verlanglijst`}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="heart-icon transition-colors text-taupe" fill="none">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-              </svg>
-            </button>
-
-            <div class="p-5 border-t border-champagne">
-              <h3 class="font-display font-normal text-charcoal text-lg leading-tight">{prod.name}</h3>
-            </div>
-          </div>
-        ))}
-
-        {!dressProducts?.length && (
-          <div class="col-span-full py-24 text-center">
-            <p class="font-italic italic text-taupe-light text-lg">De collecties worden momenteel samengesteld.</p>
-            <a href="/afspraak-maken" class="btn-primary mt-8 inline-flex">Maak een afspraak voor persoonlijk advies</a>
-          </div>
-        )}
-      </div>
-    </div>
-  </section>
+  <ProductFilter
+    client:load
+    products={dressProducts ?? []}
+    collections={collectionsForFilter}
+    fallbackImage={dressFallbackImage}
+  />
 
   <section class="py-24 bg-charcoal text-center">
     <div class="container mx-auto px-6 max-w-xl">
@@ -124,46 +63,3 @@ const dressFallbackImage = '/images/jurkvormen/a-lijn.png';
     </div>
   </section>
 </Layout>
-
-<script>
-  function initWishlistButtons() {
-    const wl = (window as any).mariageWishlist;
-    if (!wl) return;
-
-    document.querySelectorAll<HTMLButtonElement>('.wishlist-btn').forEach(btn => {
-      const slug = btn.dataset.slug!;
-      const name = btn.dataset.name!;
-      const image = btn.dataset.image || undefined;
-      const icon = btn.querySelector<SVGElement>('.heart-icon');
-
-      function updateIcon(inWishlist: boolean) {
-        if (!icon) return;
-        if (inWishlist) {
-          icon.setAttribute('fill', 'currentColor');
-          icon.classList.remove('text-taupe');
-          icon.classList.add('text-blush-deep');
-        } else {
-          icon.setAttribute('fill', 'none');
-          icon.classList.add('text-taupe');
-          icon.classList.remove('text-blush-deep');
-        }
-      }
-
-      updateIcon(wl.has(slug));
-
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const added = wl.toggle({ slug, name, image, url: `/product/${slug}` });
-        updateIcon(added);
-      });
-    });
-  }
-
-  // MobileTabBar initialises mariageWishlist; wait for it if needed
-  if ((window as any).mariageWishlist) {
-    initWishlistButtons();
-  } else {
-    window.addEventListener('load', initWishlistButtons);
-  }
-</script>

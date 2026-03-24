@@ -2,6 +2,7 @@
 import AdminLayout from '../../../../layouts/AdminLayout.astro';
 import { supabase } from '../../../../lib/supabase';
 import { PRODUCT_QUALITIES } from '../../../../lib/productQualities';
+import { DRESS_STYLES } from '../../../../lib/productStyles';
 
 const { id } = Astro.params;
 
@@ -21,6 +22,17 @@ const { data: collections } = await supabase
   .order('title', { ascending: true });
 
 const previewFallbackImage = '/images/jurkvormen/a-lijn.png';
+
+function encodeImagePath(url: string | null | undefined): string {
+  if (!url) return previewFallbackImage;
+  if (/^https?:\/\//.test(url)) return url;
+  return url.split('/').map((s) => encodeURIComponent(s)).join('/');
+}
+
+const styleKeys = new Set(DRESS_STYLES.map((s) => s.key));
+const productFeatures: string[] = Array.isArray(product.features) ? product.features : [];
+const productStyleKeys = productFeatures.filter((f) => styleKeys.has(f as any));
+const productCustomTags = productFeatures.filter((f) => !styleKeys.has(f as any)).join(', ');
 ---
 
 <AdminLayout title={`Bewerk ${product.name}`}>
@@ -77,9 +89,34 @@ const previewFallbackImage = '/images/jurkvormen/a-lijn.png';
             <textarea name="description" rows="4" class="w-full border border-accent/10 p-4 focus:border-secondary outline-none transition-colors font-light bg-primary/10 resize-none">{product.description}</textarea>
           </div>
 
+          <!-- Stijlkenmerken (predefined styles) -->
+          <div class="space-y-4">
+            <label class="text-[10px] tracking-widest uppercase text-accent font-medium block">Stijlkenmerken</label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {DRESS_STYLES.map((style) => {
+                const checked = productStyleKeys.includes(style.key);
+                return (
+                  <label class={`style-checkbox-label flex items-center gap-3 px-4 py-3 border cursor-pointer select-none transition-all text-[11px] uppercase tracking-[0.1em] font-body ${checked ? 'border-secondary bg-secondary/5 text-accent' : 'border-accent/10 hover:border-accent/30 bg-white text-accent/60'}`} data-key={style.key}>
+                    <input type="checkbox" name="style_keys" value={style.key} checked={checked} class="sr-only style-checkbox" />
+                    <span class={`w-4 h-4 border flex-shrink-0 flex items-center justify-center transition-colors ${checked ? 'border-secondary bg-secondary' : 'border-accent/20 bg-white'}`}>
+                      {checked && (
+                        <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                          <path d="M1 4l3 3 5-6" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                      )}
+                    </span>
+                    {style.label}
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
+          <!-- Custom tags -->
           <div class="space-y-2">
-            <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Specificaties/Tags (komma gescheiden)</label>
-            <input type="text" name="features" value={product.features?.join(', ')} class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent" placeholder="bijv. A-lijn, kant, #bohemian, #2026" />
+            <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Overige tags (komma gescheiden)</label>
+            <input type="text" id="custom-tags-input" value={productCustomTags} class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent" placeholder="bijv. kant, #bohemian, #2026" />
+            <p class="text-[9px] text-accent/40 font-light">Vrij tekstveld voor extra kenmerken. Gebruik # voor hashtags.</p>
           </div>
 
           <!-- Product Qualities -->
@@ -129,8 +166,8 @@ const previewFallbackImage = '/images/jurkvormen/a-lijn.png';
             </div>
 
             <!-- Gallery -->
-            <div id="file-gallery" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 pt-4">
-              <!-- Files will be injected here -->
+            <div id="file-gallery" class="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-2">
+              <!-- Filled by renderGallery() -->
             </div>
             
             <p class="text-[10px] text-accent/50 uppercase tracking-wider italic">De eerste afbeelding in de rij wordt gebruikt als preview image.</p>
@@ -143,81 +180,124 @@ const previewFallbackImage = '/images/jurkvormen/a-lijn.png';
             const statusDiv = document.getElementById('upload-status');
             const progressBar = document.getElementById('progress-bar');
             const progressText = document.getElementById('upload-progress');
+            const fallbackSrc = '/images/jurkvormen/a-lijn.png';
 
-            let files = initialImages || [];
+            // Encode spaces/special chars in local paths so the browser resolves them correctly.
+            // Leave absolute http(s) URLs untouched (Supabase storage etc.).
+            function toSrc(url) {
+              if (!url) return fallbackSrc;
+              if (/^https?:\/\//.test(url)) return url;
+              return url.split('/').map((seg) => encodeURIComponent(seg)).join('/');
+            }
+
+            let files = Array.isArray(initialImages) ? [...initialImages] : [];
 
             function renderGallery() {
               if (!gallery) return;
               gallery.innerHTML = '';
-              
+
+              if (files.length === 0) {
+                gallery.innerHTML = '<p class="col-span-full text-[11px] text-taupe italic font-body py-4">Nog geen afbeeldingen toegevoegd.</p>';
+                document.dispatchEvent(new CustomEvent('product-images-changed'));
+                return;
+              }
+
               files.forEach((url, index) => {
+                const isVideo = typeof url === 'string' && url.toLowerCase().endsWith('.mp4');
+                const isFirst = index === 0;
+
                 const item = document.createElement('div');
-                item.className = 'relative aspect-[3/4] bg-primary/5 border border-accent/10 group overflow-hidden rounded-md shadow-sm';
-                
-                const isVideo = url.toLowerCase().endsWith('.mp4');
-                
-                item.innerHTML = `
-                  <div class="w-full h-full">
-                    ${isVideo 
-                      ? `<div class="w-full h-full flex flex-col items-center justify-center bg-accent/10">
-                           <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-accent/30" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                           <span class="text-[8px] uppercase tracking-tighter text-accent/50 mt-2 truncate max-w-full px-2">Video</span>
-                         </div>`
-                      : `<img src="${url}" class="w-full h-full object-cover" />`
-                    }
-                  </div>
-                  
-                  <!-- Preview Badge -->
-                  ${index === 0 ? `<div class="absolute top-2 left-2 bg-secondary text-white text-[8px] uppercase tracking-wider px-2 py-0.5 rounded-full z-10 shadow-sm">Preview</div>` : ''}
+                item.className = 'border border-champagne bg-white overflow-hidden';
 
-                  <!-- Actions Overlay -->
-                  <div class="absolute inset-x-0 bottom-0 bg-accent/80 backdrop-blur-sm p-3 flex justify-between items-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
-                    <div class="flex gap-1">
-                      <button type="button" class="move-up-btn p-1.5 bg-white/10 hover:bg-white/20 text-white rounded transition-colors disabled:opacity-20" data-index="${index}" ${index === 0 ? 'disabled' : ''}>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-                      </button>
-                      <button type="button" class="move-down-btn p-1.5 bg-white/10 hover:bg-white/20 text-white rounded transition-colors disabled:opacity-20" data-index="${index}" ${index === files.length - 1 ? 'disabled' : ''}>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-                      </button>
-                    </div>
-                    <button type="button" class="remove-btn p-1.5 bg-red-500/20 hover:bg-red-500 text-white rounded transition-colors" data-index="${index}">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                    </button>
-                  </div>
-                `;
-                gallery.appendChild(item);
-              });
+                // Thumbnail
+                const thumb = document.createElement('div');
+                thumb.className = 'relative aspect-[3/4] bg-linen overflow-hidden';
 
-              // Add event listeners
-              document.querySelectorAll('.move-up-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                  e.stopPropagation();
-                  const idx = parseInt(btn.dataset.index);
-                  if (idx > 0) {
-                    [files[idx], files[idx-1]] = [files[idx-1], files[idx]];
-                    renderGallery();
-                  }
+                if (isVideo) {
+                  thumb.innerHTML = `
+                    <div class="w-full h-full flex flex-col items-center justify-center gap-2 bg-charcoal/5">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-taupe" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span class="text-[9px] uppercase tracking-widest text-taupe font-body">Video</span>
+                    </div>`;
+                } else {
+                  const img = document.createElement('img');
+                  img.src = toSrc(url);
+                  img.alt = 'Product afbeelding ' + (index + 1);
+                  img.className = 'w-full h-full object-cover';
+                  img.onerror = () => { img.onerror = null; img.src = fallbackSrc; };
+                  thumb.appendChild(img);
+                }
+
+                // Main badge
+                if (isFirst) {
+                  const badge = document.createElement('div');
+                  badge.className = 'absolute top-2 left-2 bg-charcoal text-white text-[8px] uppercase tracking-[0.15em] font-body px-2 py-1 z-10';
+                  badge.textContent = 'Hoofdafbeelding';
+                  thumb.appendChild(badge);
+                }
+
+                item.appendChild(thumb);
+
+                // Controls bar below image
+                const controls = document.createElement('div');
+                controls.className = 'flex items-center justify-between px-3 py-2 border-t border-champagne bg-ivory';
+
+                // Position label
+                const pos = document.createElement('span');
+                pos.className = 'text-[10px] tracking-[0.1em] uppercase font-body text-taupe';
+                pos.textContent = isFirst ? '1 — Hoofd' : String(index + 1);
+                controls.appendChild(pos);
+
+                // Arrow buttons + remove
+                const btnGroup = document.createElement('div');
+                btnGroup.className = 'flex items-center gap-1';
+
+                const upBtn = document.createElement('button');
+                upBtn.type = 'button';
+                upBtn.title = 'Omhoog';
+                upBtn.disabled = index === 0;
+                upBtn.className = 'move-up-btn p-1.5 border border-champagne text-taupe hover:border-charcoal hover:text-charcoal transition-colors disabled:opacity-25 disabled:cursor-not-allowed';
+                upBtn.dataset.index = String(index);
+                upBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 15l-7-7-7 7"/></svg>`;
+
+                const downBtn = document.createElement('button');
+                downBtn.type = 'button';
+                downBtn.title = 'Omlaag';
+                downBtn.disabled = index === files.length - 1;
+                downBtn.className = 'move-down-btn p-1.5 border border-champagne text-taupe hover:border-charcoal hover:text-charcoal transition-colors disabled:opacity-25 disabled:cursor-not-allowed';
+                downBtn.dataset.index = String(index);
+                downBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 9l7 7 7-7"/></svg>`;
+
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.title = 'Verwijderen';
+                removeBtn.className = 'remove-btn p-1.5 border border-champagne text-red-400 hover:border-red-400 hover:text-red-600 transition-colors ml-1';
+                removeBtn.dataset.index = String(index);
+                removeBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>`;
+
+                upBtn.addEventListener('click', () => {
+                  const idx = parseInt(upBtn.dataset.index);
+                  if (idx > 0) { [files[idx], files[idx - 1]] = [files[idx - 1], files[idx]]; renderGallery(); }
                 });
-              });
-
-              document.querySelectorAll('.move-down-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                  e.stopPropagation();
-                  const idx = parseInt(btn.dataset.index);
-                  if (idx < files.length - 1) {
-                    [files[idx], files[idx+1]] = [files[idx+1], files[idx]];
-                    renderGallery();
-                  }
+                downBtn.addEventListener('click', () => {
+                  const idx = parseInt(downBtn.dataset.index);
+                  if (idx < files.length - 1) { [files[idx], files[idx + 1]] = [files[idx + 1], files[idx]]; renderGallery(); }
                 });
-              });
-
-              document.querySelectorAll('.remove-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                  e.stopPropagation();
-                  const idx = parseInt(btn.dataset.index);
+                removeBtn.addEventListener('click', () => {
+                  const idx = parseInt(removeBtn.dataset.index);
                   files.splice(idx, 1);
                   renderGallery();
                 });
+
+                btnGroup.appendChild(upBtn);
+                btnGroup.appendChild(downBtn);
+                btnGroup.appendChild(removeBtn);
+                controls.appendChild(btnGroup);
+                item.appendChild(controls);
+                gallery.appendChild(item);
               });
 
               document.dispatchEvent(new CustomEvent('product-images-changed'));
@@ -288,9 +368,8 @@ const previewFallbackImage = '/images/jurkvormen/a-lijn.png';
               fileInput.value = ''; // Reset
             });
 
-            renderGallery();
-
             (window as any).getCurrentImages = () => files;
+            renderGallery();
           </script>
 
           <div class="flex gap-6 pt-8">
@@ -307,7 +386,7 @@ const previewFallbackImage = '/images/jurkvormen/a-lijn.png';
             <div class="aspect-[3/4] bg-primary/5 border-b border-secondary/10">
               <img
                 id="preview-image"
-                src={product.images?.[0] || previewFallbackImage}
+                src={encodeImagePath(product.images?.[0])}
                 alt={product.name}
                 class="w-full h-full object-cover"
                 onerror={`this.onerror=null;this.src='${previewFallbackImage}'`}
@@ -353,8 +432,10 @@ const previewFallbackImage = '/images/jurkvormen/a-lijn.png';
 
   function renderFeatureChips() {
     if (!form || !previewSpecs || !previewTags) return;
-    const raw = String(new FormData(form).get('features') ?? '');
-    const all = parseFeatures(raw);
+    const styleKeys = Array.from(form.querySelectorAll<HTMLInputElement>('input[name="style_keys"]:checked')).map((cb) => cb.value);
+    const customRaw = (document.getElementById('custom-tags-input') as HTMLInputElement)?.value ?? '';
+    const customParts = customRaw.split(',').map((s) => s.trim()).filter(Boolean);
+    const all = [...styleKeys, ...customParts];
     const specs = all.filter((item) => !item.startsWith('#'));
     const tags = all.filter((item) => item.startsWith('#'));
 
@@ -373,10 +454,11 @@ const previewFallbackImage = '/images/jurkvormen/a-lijn.png';
     const brand = String(data.get('brand') ?? '').trim();
     const price = String(data.get('price_range') ?? '').trim();
     const description = String(data.get('description') ?? '').trim();
-    const images = (window as any).getCurrentImages ? (window as any).getCurrentImages() : [];
-    const firstImage = Array.isArray(images) && images.length ? images[0] : previewFallback;
-
-    if (previewImage) previewImage.src = firstImage;
+    const images: string[] = (window as any).getCurrentImages?.() ?? [];
+    if (previewImage && Array.isArray(images) && images.length > 0) {
+      const url = images[0];
+      previewImage.src = /^https?:\/\//.test(url) ? url : url.split('/').map((s) => encodeURIComponent(s)).join('/');
+    }
     if (previewName) previewName.textContent = name || 'Naam ontbreekt';
     if (previewBrand) previewBrand.textContent = brand || 'Merk';
     if (previewPrice) previewPrice.textContent = price || 'Prijs op aanvraag';
@@ -384,6 +466,26 @@ const previewFallbackImage = '/images/jurkvormen/a-lijn.png';
 
     renderFeatureChips();
   }
+
+  // Style checkbox toggle styling
+  document.querySelectorAll<HTMLLabelElement>('.style-checkbox-label').forEach((label) => {
+    const cb = label.querySelector<HTMLInputElement>('.style-checkbox');
+    if (!cb) return;
+    label.addEventListener('click', () => {
+      requestAnimationFrame(() => {
+        const box = label.querySelector<HTMLSpanElement>('span');
+        if (cb.checked) {
+          label.classList.add('border-secondary', 'bg-secondary/5', 'text-accent');
+          label.classList.remove('border-accent/10', 'hover:border-accent/30', 'bg-white', 'text-accent/60');
+          if (box) { box.classList.add('border-secondary', 'bg-secondary'); box.classList.remove('border-accent/20', 'bg-white'); box.innerHTML = '<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
+        } else {
+          label.classList.remove('border-secondary', 'bg-secondary/5', 'text-accent');
+          label.classList.add('border-accent/10', 'hover:border-accent/30', 'bg-white', 'text-accent/60');
+          if (box) { box.classList.remove('border-secondary', 'bg-secondary'); box.classList.add('border-accent/20', 'bg-white'); box.innerHTML = ''; }
+        }
+      });
+    });
+  });
 
   // Quality checkbox toggle styling
   document.querySelectorAll<HTMLLabelElement>('.quality-checkbox-label').forEach((label) => {
@@ -404,8 +506,14 @@ const previewFallbackImage = '/images/jurkvormen/a-lijn.png';
   });
 
   form?.addEventListener('input', refreshPreview);
+  document.getElementById('custom-tags-input')?.addEventListener('input', refreshPreview);
   document.addEventListener('product-images-changed', refreshPreview);
-  refreshPreview();
+
+  // Initial preview: if getCurrentImages is already set (inline script ran first), refresh now.
+  // If not, the 'product-images-changed' event from renderGallery() will trigger it.
+  if (typeof (window as any).getCurrentImages === 'function') {
+    refreshPreview();
+  }
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -422,8 +530,10 @@ const previewFallbackImage = '/images/jurkvormen/a-lijn.png';
     const slug = formData.get('slug');
     const price_range = formData.get('price_range');
     const description = formData.get('description');
-    const featuresLine = formData.get('features') as string;
-    const features = featuresLine ? featuresLine.split(',').map(f => f.trim()) : [];
+    const styleKeys = formData.getAll('style_keys') as string[];
+    const customTagsRaw = (document.getElementById('custom-tags-input') as HTMLInputElement)?.value ?? '';
+    const customTags = customTagsRaw.split(',').map((t) => t.trim()).filter(Boolean);
+    const features = [...styleKeys, ...customTags];
     const qualities = formData.getAll('qualities') as string[];
     const images = (window as any).getCurrentImages ? (window as any).getCurrentImages() : [];
 
