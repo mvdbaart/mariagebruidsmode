@@ -2,6 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import { supabase } from '../../lib/supabase';
 import { getAdminAuthFromCookies } from '../../lib/serverAuth';
+import { PRODUCT_QUALITIES } from '../../lib/productQualities';
 
 export const prerender = false;
 
@@ -35,6 +36,9 @@ const suitFallbackImage = '/images/team/TKF_9016-scaled.jpg';
 const primaryFallbackImage = isGroom ? suitFallbackImage : dressFallbackImage;
 const productImages = product.images && product.images.length > 0 ? product.images : [primaryFallbackImage];
 const rawFeatures = Array.isArray(product.features) ? product.features : [];
+const productQualities = PRODUCT_QUALITIES.filter((q) =>
+  Array.isArray(product.qualities) && product.qualities.includes(q.id)
+);
 const productTags = rawFeatures
   .map((item: string) => String(item || '').trim())
   .filter((item: string) => item.startsWith('#'));
@@ -182,8 +186,41 @@ const productSpecs = rawFeatures
             </div>
           )}
 
+          <!-- Product Qualities accordion -->
+          {productQualities.length > 0 && (
+            <div class="mb-10 border border-champagne" id="qualities-accordion">
+              <button
+                type="button"
+                id="qualities-toggle"
+                class="w-full flex items-center justify-between px-5 py-4 text-left group"
+                aria-expanded="false"
+                aria-controls="qualities-panel"
+              >
+                <span class="text-[10px] tracking-[0.25em] uppercase text-taupe font-body group-hover:text-charcoal transition-colors">Product Kwaliteiten</span>
+                <svg id="qualities-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="text-taupe transition-transform duration-300">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+              <div id="qualities-panel" class="hidden border-t border-champagne" role="region" aria-labelledby="qualities-toggle">
+                <div class="divide-y divide-champagne">
+                  {productQualities.map((q, i) => (
+                    <div class="quality-row flex items-center gap-5 px-5 py-5" style={`animation-delay:${i * 0.08}s`}>
+                      <div class="quality-icon-wrap shrink-0 w-16 h-16 border border-champagne flex items-center justify-center bg-ivory">
+                        <svg viewBox="0 0 80 80" class="quality-svg w-10 h-10 text-charcoal" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" set:html={q.svgContent} />
+                      </div>
+                      <div>
+                        <p class="text-[11px] uppercase tracking-[0.15em] font-body font-medium text-charcoal mb-1">{q.label}</p>
+                        <p class="text-[12px] font-body font-light text-taupe leading-relaxed">{q.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           <!-- CTA buttons -->
-          <div class="flex flex-col sm:flex-row gap-4 mb-6">
+          <div class="flex flex-col sm:flex-row gap-4 mb-4">
             <a href="/afspraak-maken" class="btn-premium flex-1 justify-center py-4">
               Pasafspraak maken
             </a>
@@ -191,6 +228,18 @@ const productSpecs = rawFeatures
               Bel ons
             </a>
           </div>
+
+          <!-- Wishlist button -->
+          <button
+            id="wishlist-detail-btn"
+            class="w-full flex items-center justify-center gap-2.5 py-3.5 mb-6 border border-champagne text-taupe text-[11px] tracking-[0.15em] uppercase font-body hover:border-blush-deep hover:text-blush-deep transition-colors"
+            aria-label="Toevoegen aan verlanglijst"
+          >
+            <svg id="wishlist-detail-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" fill="none" class="transition-colors">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+            <span id="wishlist-detail-label">Voeg toe aan verlanglijst</span>
+          </button>
 
           <p class="text-[11px] font-body text-taupe-light leading-relaxed">
             ✓ Gratis persoonlijk advies &nbsp;·&nbsp; ✓ Probeer in onze winkel &nbsp;·&nbsp; ✓ Geldrop
@@ -443,6 +492,91 @@ const productSpecs = rawFeatures
     if (e.key === 'ArrowLeft') lightboxPrev?.click();
     if (e.key === 'ArrowRight') lightboxNext?.click();
   });
+
+  // Product Qualities accordion
+  const qualitiesToggle = document.getElementById('qualities-toggle');
+  const qualitiesPanel = document.getElementById('qualities-panel');
+  const qualitiesChevron = document.getElementById('qualities-chevron');
+  let qualitiesAnimated = false;
+
+  function openQualities() {
+    if (!qualitiesPanel || !qualitiesToggle || !qualitiesChevron) return;
+    qualitiesPanel.classList.remove('hidden');
+    qualitiesToggle.setAttribute('aria-expanded', 'true');
+    qualitiesChevron.style.transform = 'rotate(180deg)';
+    // Trigger animation on first open
+    if (!qualitiesAnimated) {
+      qualitiesAnimated = true;
+      requestAnimationFrame(() => {
+        qualitiesPanel.classList.add('qualities-animate');
+      });
+    }
+  }
+
+  function closeQualities() {
+    if (!qualitiesPanel || !qualitiesToggle || !qualitiesChevron) return;
+    qualitiesPanel.classList.add('hidden');
+    qualitiesToggle.setAttribute('aria-expanded', 'false');
+    qualitiesChevron.style.transform = '';
+  }
+
+  qualitiesToggle?.addEventListener('click', () => {
+    const isOpen = qualitiesToggle.getAttribute('aria-expanded') === 'true';
+    if (isOpen) { closeQualities(); } else { openQualities(); }
+  });
+
+  // Wishlist
+  const wishlistBtn = document.getElementById('wishlist-detail-btn');
+  const wishlistIcon = document.getElementById('wishlist-detail-icon');
+  const wishlistLabel = document.getElementById('wishlist-detail-label');
+
+  const wishlistItem = {
+    slug: document.title.split('—')[0]?.trim() || '',
+    name: '',
+    image: (document.getElementById('main-product-image') as HTMLImageElement | null)?.src || '',
+    url: window.location.pathname,
+  };
+
+  function initDetailWishlist() {
+    const wl = (window as any).mariageWishlist;
+    if (!wl || !wishlistBtn) return;
+
+    // Extract slug from URL
+    const slug = window.location.pathname.replace('/product/', '').replace(/\/$/, '');
+    const name = document.querySelector<HTMLElement>('h1')?.textContent?.trim() || '';
+    wishlistItem.slug = slug;
+    wishlistItem.name = name;
+
+    function updateBtn(inWishlist: boolean) {
+      if (!wishlistIcon || !wishlistLabel || !wishlistBtn) return;
+      if (inWishlist) {
+        wishlistIcon.setAttribute('fill', 'currentColor');
+        wishlistIcon.style.color = 'var(--color-blush-deep, #A66352)';
+        wishlistLabel.textContent = 'Opgeslagen in verlanglijst ✓';
+        wishlistBtn.classList.add('border-blush-deep', 'text-blush-deep');
+        wishlistBtn.classList.remove('border-champagne', 'text-taupe');
+      } else {
+        wishlistIcon.setAttribute('fill', 'none');
+        wishlistIcon.style.color = '';
+        wishlistLabel.textContent = 'Voeg toe aan verlanglijst';
+        wishlistBtn.classList.remove('border-blush-deep', 'text-blush-deep');
+        wishlistBtn.classList.add('border-champagne', 'text-taupe');
+      }
+    }
+
+    updateBtn(wl.has(slug));
+
+    wishlistBtn.addEventListener('click', () => {
+      const added = wl.toggle(wishlistItem);
+      updateBtn(added);
+    });
+  }
+
+  if ((window as any).mariageWishlist) {
+    initDetailWishlist();
+  } else {
+    window.addEventListener('load', initDetailWishlist);
+  }
 </script>
 
 <style>
@@ -458,6 +592,29 @@ const productSpecs = rawFeatures
   }
   #image-lightbox::backdrop {
     background: transparent;
+  }
+
+  /* Quality SVG draw animation */
+  .quality-svg .q-path {
+    stroke-dasharray: 400;
+    stroke-dashoffset: 400;
+    transition: none;
+  }
+  .qualities-animate .quality-svg .q-path {
+    animation: q-draw 0.9s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+  @keyframes q-draw {
+    to { stroke-dashoffset: 0; }
+  }
+  /* Row fade-in */
+  .quality-row {
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+  .qualities-animate .quality-row {
+    opacity: 1;
+    transform: none;
   }
 </style>
 

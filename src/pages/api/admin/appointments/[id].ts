@@ -2,16 +2,18 @@ import type { APIRoute } from 'astro';
 import { getAdminAuthFromCookies, getServiceRoleClient } from '../../../../lib/serverAuth';
 
 const VALID_STATUSES = new Set(['pending', 'confirmed', 'cancelled']);
-const VALID_TYPES = new Set(['standard', 'vip']);
-const VALID_TIMES = new Set(['', '10:00', '11:30', '13:00', '14:30', '16:00']);
+const VALID_TYPES = new Set(['standard_bride', 'standard_groom', 'vip', 'standard']);
+// All valid block start times (weekday + weekend), plus empty string to clear
+const VALID_TIMES = new Set(['', '10:00', '13:00', '15:30', '09:30', '12:00', '14:30']);
 
-function addMinutes(time: string, minutes: number): string {
-  const [h, m] = time.split(':').map(Number);
-  const total = h * 60 + m + minutes;
-  const hh = String(Math.floor(total / 60) % 24).padStart(2, '0');
-  const mm = String(total % 60).padStart(2, '0');
-  return `${hh}:${mm}`;
-}
+const BLOCK_ENDS: Record<string, string> = {
+  '10:00': '12:00',
+  '13:00': '15:00',
+  '15:30': '17:30',
+  '09:30': '11:30',
+  '12:00': '14:00',
+  '14:30': '16:30',
+};
 
 export const PUT: APIRoute = async ({ params, request, cookies }) => {
   const auth = await getAdminAuthFromCookies(cookies);
@@ -79,13 +81,7 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
       });
     }
     updates.start_time = time || null;
-    if (time) {
-      const type = body.appointment_type || updates.appointment_type || 'standard';
-      const durationMinutes = type === 'vip' ? 120 : 90;
-      updates.end_time = addMinutes(time, durationMinutes);
-    } else {
-      updates.end_time = null;
-    }
+    updates.end_time = time ? (BLOCK_ENDS[time] ?? null) : null;
   }
 
   if (body.employee_id !== undefined) {

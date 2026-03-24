@@ -1,6 +1,7 @@
 ---
-import Layout from '../../../../layouts/Layout.astro';
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
 import { supabase } from '../../../../lib/supabase';
+import { PRODUCT_QUALITIES } from '../../../../lib/productQualities';
 
 const { id } = Astro.params;
 
@@ -22,8 +23,8 @@ const { data: collections } = await supabase
 const previewFallbackImage = '/images/jurkvormen/a-lijn.png';
 ---
 
-<Layout title={`Bewerk ${product.name}`}>
-  <div class="pt-32 pb-24 bg-accent/5 min-h-screen">
+<AdminLayout title={`Bewerk ${product.name}`}>
+  <div class="pt-8 pb-24 bg-accent/5 min-h-screen">
     <div class="container mx-auto px-6">
       <nav class="mb-12 flex items-center gap-4 text-[10px] tracking-[0.2em] uppercase text-accent/40">
         <a href="/admin" class="hover:text-secondary">Dashboard</a>
@@ -79,6 +80,26 @@ const previewFallbackImage = '/images/jurkvormen/a-lijn.png';
           <div class="space-y-2">
             <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Specificaties/Tags (komma gescheiden)</label>
             <input type="text" name="features" value={product.features?.join(', ')} class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent" placeholder="bijv. A-lijn, kant, #bohemian, #2026" />
+          </div>
+
+          <!-- Product Qualities -->
+          <div class="space-y-4">
+            <label class="text-[10px] tracking-widest uppercase text-accent font-medium block">Product Kwaliteiten</label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {PRODUCT_QUALITIES.map((q) => {
+                const checked = Array.isArray(product.qualities) && product.qualities.includes(q.id);
+                return (
+                  <label class={`quality-checkbox-label flex items-center gap-4 p-4 border cursor-pointer select-none transition-all ${checked ? 'border-secondary bg-secondary/5' : 'border-accent/10 hover:border-accent/30 bg-white'}`} data-id={q.id}>
+                    <input type="checkbox" name="qualities" value={q.id} checked={checked} class="sr-only quality-checkbox" />
+                    <svg viewBox="0 0 80 80" class="w-10 h-10 shrink-0 text-accent/70" fill="none" stroke="currentColor" stroke-width="1.5" set:html={q.svgContent} />
+                    <div>
+                      <p class="text-[11px] uppercase tracking-[0.12em] font-medium text-accent">{q.label}</p>
+                      <p class="text-[10px] text-accent/50 font-light leading-snug mt-0.5">{q.description}</p>
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
           </div>
 
           <div class="space-y-6" id="file-uploader">
@@ -312,7 +333,7 @@ const previewFallbackImage = '/images/jurkvormen/a-lijn.png';
       </div>
     </div>
   </div>
-</Layout>
+</AdminLayout>
 
 <script>
   const form = document.getElementById('edit-product-form') as HTMLFormElement;
@@ -364,6 +385,24 @@ const previewFallbackImage = '/images/jurkvormen/a-lijn.png';
     renderFeatureChips();
   }
 
+  // Quality checkbox toggle styling
+  document.querySelectorAll<HTMLLabelElement>('.quality-checkbox-label').forEach((label) => {
+    const cb = label.querySelector<HTMLInputElement>('.quality-checkbox');
+    if (!cb) return;
+    label.addEventListener('click', () => {
+      // toggle happens after click naturally; we just update styling
+      requestAnimationFrame(() => {
+        if (cb.checked) {
+          label.classList.add('border-secondary', 'bg-secondary/5');
+          label.classList.remove('border-accent/10', 'hover:border-accent/30', 'bg-white');
+        } else {
+          label.classList.remove('border-secondary', 'bg-secondary/5');
+          label.classList.add('border-accent/10', 'hover:border-accent/30', 'bg-white');
+        }
+      });
+    });
+  });
+
   form?.addEventListener('input', refreshPreview);
   document.addEventListener('product-images-changed', refreshPreview);
   refreshPreview();
@@ -385,6 +424,7 @@ const previewFallbackImage = '/images/jurkvormen/a-lijn.png';
     const description = formData.get('description');
     const featuresLine = formData.get('features') as string;
     const features = featuresLine ? featuresLine.split(',').map(f => f.trim()) : [];
+    const qualities = formData.getAll('qualities') as string[];
     const images = (window as any).getCurrentImages ? (window as any).getCurrentImages() : [];
 
     const response = await fetch(`/api/admin/products/${id}`, {
@@ -400,6 +440,7 @@ const previewFallbackImage = '/images/jurkvormen/a-lijn.png';
         price_range,
         description,
         features,
+        qualities,
         images,
       }),
     });

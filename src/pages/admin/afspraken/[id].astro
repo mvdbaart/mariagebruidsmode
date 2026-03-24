@@ -1,5 +1,5 @@
 ---
-import Layout from '../../../layouts/Layout.astro';
+import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { getServiceRoleClient } from '../../../lib/serverAuth';
 
 const { id } = Astro.params;
@@ -15,7 +15,8 @@ if (!appointment) {
   return Astro.redirect('/admin/afspraken');
 }
 
-const timeSlots = ['', '10:00', '11:30', '13:00', '14:30', '16:00'];
+// Weekday slots: 10:00, 13:00, 15:30 | Weekend slots: 09:30, 12:00, 14:30
+const timeSlots = ['', '09:30', '10:00', '12:00', '13:00', '14:30', '15:30'];
 
 const statusOptions = [
   { value: 'pending', label: 'In afwachting' },
@@ -30,8 +31,8 @@ const statusColor: Record<string, string> = {
 };
 ---
 
-<Layout title="Afspraak Bewerken">
-  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+<AdminLayout title="Afspraak Bewerken">
+  <div class="pt-8 pb-24 bg-ivory min-h-screen">
     <div class="container mx-auto px-6">
       <div class="flex justify-between items-center mb-10">
         <h1 class="font-display font-normal text-charcoal text-3xl italic">Afspraak <span class="text-blush-deep opacity-60">Bewerken</span></h1>
@@ -114,11 +115,21 @@ const statusColor: Record<string, string> = {
 
               <div class="space-y-2">
                 <label class="text-[10px] tracking-widest uppercase text-charcoal font-medium block">Type Afspraak</label>
-                <div class="flex gap-6 pt-2">
+                <div class="flex flex-wrap gap-6 pt-2">
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="appointment_type" value="standard_bride" class="accent-blush-deep"
+                      checked={appointment.appointment_type === 'standard_bride'} />
+                    <span class="text-[11px] tracking-wider text-taupe uppercase">Bruid (90 min)</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="appointment_type" value="standard_groom" class="accent-blush-deep"
+                      checked={appointment.appointment_type === 'standard_groom'} />
+                    <span class="text-[11px] tracking-wider text-taupe uppercase">Bruidegom (90 min)</span>
+                  </label>
                   <label class="flex items-center gap-2 cursor-pointer">
                     <input type="radio" name="appointment_type" value="standard" class="accent-blush-deep"
-                      checked={appointment.appointment_type !== 'vip'} />
-                    <span class="text-[11px] tracking-wider text-taupe uppercase">Standaard (90 min)</span>
+                      checked={appointment.appointment_type === 'standard'} />
+                    <span class="text-[11px] tracking-wider text-taupe uppercase">Standaard (legacy)</span>
                   </label>
                   <label class="flex items-center gap-2 cursor-pointer">
                     <input type="radio" name="appointment_type" value="vip" class="accent-blush-deep"
@@ -183,7 +194,7 @@ const statusColor: Record<string, string> = {
       </div>
     </div>
   </div>
-</Layout>
+</AdminLayout>
 
 <script define:vars={{ appointmentId: appointment.id }}>
   const form = document.getElementById('edit-form');

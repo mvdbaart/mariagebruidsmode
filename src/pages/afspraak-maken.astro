@@ -2,8 +2,6 @@
 import Layout from '../layouts/Layout.astro';
 import { supabase } from '../lib/supabase';
 
-const today = new Date().toISOString().split('T')[0];
-
 const { data: settings } = await supabase
   .from('site_settings')
   .select('key, value');
@@ -55,29 +53,103 @@ const bridalLiveForm = settingsMap.bridallive_embed_appointment;
                     <label for="phone" class="text-[10px] tracking-widest uppercase text-charcoal font-medium">Telefoonnummer</label>
                     <input type="tel" id="phone" name="phone" class="w-full border-b border-champagne py-3 focus:border-blush-deep outline-none transition-colors font-light bg-transparent" placeholder="06 12345678" />
                   </div>
-                  <div class="space-y-2">
-                    <label for="preferred_date" class="text-[10px] tracking-widest uppercase text-charcoal font-medium">Voorkeursdatum</label>
-                    <input type="date" id="preferred_date" name="preferred_date" required class="w-full border-b border-champagne py-3 focus:border-blush-deep outline-none transition-colors font-light bg-transparent" />
+                  <div class="space-y-3 md:col-span-2">
+                    <p class="text-[10px] tracking-widest uppercase text-charcoal font-medium">Voorkeursdatum</p>
+                    <!-- Custom calendar date picker -->
+                    <div id="date-picker-widget" class="border border-champagne bg-[#fcfbf9] p-5">
+                      <!-- Month navigation -->
+                      <div class="flex items-center justify-between mb-5">
+                        <button id="prev-month" type="button" aria-label="Vorige maand"
+                          class="w-8 h-8 flex items-center justify-center text-taupe hover:text-charcoal transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-lg leading-none">
+                          ‹
+                        </button>
+                        <span id="month-label" class="font-display text-charcoal font-light text-base tracking-wide"></span>
+                        <button id="next-month" type="button" aria-label="Volgende maand"
+                          class="w-8 h-8 flex items-center justify-center text-taupe hover:text-charcoal transition-colors text-lg leading-none">
+                          ›
+                        </button>
+                      </div>
+                      <!-- Weekday headers -->
+                      <div class="grid grid-cols-7 mb-2">
+                        {['MA','DI','WO','DO','VR','ZA','ZO'].map(d => (
+                          <div class="text-center text-[9px] tracking-widest uppercase text-taupe-light font-body py-1">{d}</div>
+                        ))}
+                      </div>
+                      <!-- Day grid (populated by JS) -->
+                      <div id="calendar-grid" class="grid grid-cols-7 gap-y-1" role="grid" aria-label="Kalender"></div>
+                      <!-- Loading state -->
+                      <div id="cal-loading" class="hidden text-center py-6 text-xs text-taupe italic font-body">
+                        <span class="inline-block w-3 h-3 border border-taupe-light border-t-taupe rounded-full animate-spin mr-2"></span>Laden…
+                      </div>
+                      <!-- Legend -->
+                      <div class="flex items-center gap-5 mt-4 pt-4 border-t border-champagne/50">
+                        <span class="flex items-center gap-1.5 text-[9px] tracking-widest uppercase text-taupe font-body">
+                          <span class="w-3 h-3 rounded-full bg-green-200 inline-block"></span>Beschikbaar
+                        </span>
+                        <span class="flex items-center gap-1.5 text-[9px] tracking-widest uppercase text-taupe font-body">
+                          <span class="w-3 h-3 rounded-full bg-red-200 inline-block"></span>Vol / Gesloten
+                        </span>
+                      </div>
+                    </div>
+                    <!-- Hidden input used by the form -->
+                    <input type="hidden" id="preferred_date" name="preferred_date" required />
+                    <p id="selected-date-label" class="text-[11px] text-taupe font-body italic hidden"></p>
                   </div>
                   <div class="space-y-2">
-                    <label for="preferred_time" class="text-[10px] tracking-widest uppercase text-charcoal font-medium">Voorkeurstijd <span class="normal-case tracking-normal text-taupe-light">(optioneel)</span></label>
-                    <select id="preferred_time" name="preferred_time" class="w-full border-b border-champagne py-3 focus:border-blush-deep outline-none transition-colors font-light bg-transparent text-taupe appearance-none cursor-pointer">
-                      <option value="">Geen voorkeur</option>
-                      <option value="10:00">10:00</option>
-                      <option value="11:30">11:30</option>
-                      <option value="13:00">13:00</option>
-                      <option value="14:30">14:30</option>
-                      <option value="16:00">16:00</option>
+                    <label for="dress_size" class="text-[10px] tracking-widest uppercase text-charcoal font-medium">Kledingmaat <span class="normal-case tracking-normal text-taupe-light">(optioneel)</span></label>
+                    <select id="dress_size" name="dress_size" class="w-full border-b border-champagne py-3 focus:border-blush-deep outline-none transition-colors font-light bg-transparent text-taupe appearance-none cursor-pointer">
+                      <option value="">Onbekend / nog te bepalen</option>
+                      <option value="34">34</option>
+                      <option value="36">36</option>
+                      <option value="38">38</option>
+                      <option value="40">40</option>
+                      <option value="42">42</option>
+                      <option value="44">44</option>
+                      <option value="46">46</option>
+                      <option value="48">48</option>
+                      <option value="50">50</option>
+                      <option value="52">52</option>
                     </select>
                   </div>
+                </div>
+
+                <!-- Time slot picker -->
+                <div class="space-y-4">
+                  <p class="text-[10px] tracking-widest uppercase text-charcoal font-medium">Tijdblok <span class="normal-case tracking-normal text-taupe-light">(verplicht na datumselectie)</span></p>
+
+                  <!-- Placeholder before date is selected -->
+                  <div id="time-placeholder" class="text-xs text-taupe-light italic font-body py-2">
+                    Selecteer eerst een datum om de beschikbare tijdblokken te zien.
+                  </div>
+
+                  <!-- Loading indicator -->
+                  <div id="time-loading" class="hidden text-xs text-taupe italic font-body py-2 flex items-center gap-2">
+                    <span class="inline-block w-3 h-3 border border-taupe-light border-t-taupe rounded-full animate-spin"></span>
+                    Beschikbaarheid laden…
+                  </div>
+
+                  <!-- Closed day message -->
+                  <div id="time-closed" class="hidden py-4 px-5 bg-cream border border-champagne text-xs text-taupe font-body"></div>
+
+                  <!-- Block grid -->
+                  <div id="time-blocks" class="hidden grid grid-cols-2 sm:grid-cols-4 gap-3" role="group" aria-labelledby="time-blocks-label">
+                    <!-- Blocks rendered by JS -->
+                  </div>
+
+                  <!-- Hidden input that stores the selected time -->
+                  <input type="hidden" id="preferred_time" name="preferred_time" />
                 </div>
 
                 <fieldset class="space-y-5">
                   <legend class="text-[10px] tracking-widest uppercase text-charcoal font-medium mb-3 block">Type Afspraak</legend>
                   <div class="flex flex-col sm:flex-row gap-8 mt-0">
                     <label class="flex items-center gap-3 cursor-pointer group">
-                      <input type="radio" name="appointment_type" value="standard" checked class="accent-blush-deep scale-110" />
-                      <span class="text-[11px] tracking-wider text-taupe group-hover:text-charcoal transition-colors uppercase">Standaard pasafspraak (90 min)</span>
+                      <input type="radio" name="appointment_type" value="standard_bride" checked class="accent-blush-deep scale-110" />
+                      <span class="text-[11px] tracking-wider text-taupe group-hover:text-charcoal transition-colors uppercase">Pasafspraak bruid (90 min)</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer group">
+                      <input type="radio" name="appointment_type" value="standard_groom" class="accent-blush-deep scale-110" />
+                      <span class="text-[11px] tracking-wider text-taupe group-hover:text-charcoal transition-colors uppercase">Pasafspraak bruidegom (90 min)</span>
                     </label>
                     <label class="flex items-center gap-3 cursor-pointer group">
                       <input type="radio" name="appointment_type" value="vip" class="accent-blush-deep scale-110" />
@@ -96,13 +168,13 @@ const bridalLiveForm = settingsMap.bridallive_embed_appointment;
                     Afspraak aanvragen
                   </button>
                 </div>
-                
+
                 <p id="form-status" class="text-center text-xs font-body italic mt-6 hidden" role="status" aria-live="polite"></p>
               </form>
             </div>
           )}
         </div>
-        
+
         <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 text-center border-t border-champagne pt-16">
           <div>
             <h4 class="font-display text-charcoal text-xl mb-3">Persoonlijke aandacht</h4>
@@ -123,21 +195,297 @@ const bridalLiveForm = settingsMap.bridallive_embed_appointment;
 </Layout>
 
 <script>
+  // ─── DOM refs ───────────────────────────────────────────────────────────────
   const form = document.getElementById('appointment-form') as HTMLFormElement | null;
-  const status = document.getElementById('form-status');
+  const formStatus = document.getElementById('form-status');
   const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement | null;
+  const dateHidden = document.getElementById('preferred_date') as HTMLInputElement | null;
+  const selectedDateLabel = document.getElementById('selected-date-label');
+  const timeHidden = document.getElementById('preferred_time') as HTMLInputElement | null;
+  const timePlaceholder = document.getElementById('time-placeholder');
+  const timeLoading = document.getElementById('time-loading');
+  const timeClosed = document.getElementById('time-closed');
+  const timeBlocks = document.getElementById('time-blocks');
 
+  // Calendar DOM refs
+  const calGrid = document.getElementById('calendar-grid');
+  const calLoading = document.getElementById('cal-loading');
+  const monthLabel = document.getElementById('month-label');
+  const prevBtn = document.getElementById('prev-month') as HTMLButtonElement | null;
+  const nextBtn = document.getElementById('next-month') as HTMLButtonElement | null;
+
+  // ─── Pre-fill message from URL param ────────────────────────────────────────
+  const params = new URLSearchParams(location.search);
+  const jurken = params.get('jurken');
+  if (jurken && form) {
+    const messageField = form.querySelector<HTMLTextAreaElement>('#message');
+    if (messageField && !messageField.value) {
+      messageField.value = `Geselecteerde jurken uit mijn verlanglijst:\n${jurken}\n\n`;
+    }
+  }
+
+  // ─── Calendar state ──────────────────────────────────────────────────────────
+  const todayDate = new Date();
+  todayDate.setHours(0, 0, 0, 0);
+  const todayStr = todayDate.toISOString().split('T')[0];
+
+  let calYear = todayDate.getFullYear();
+  let calMonth = todayDate.getMonth() + 1; // 1-based
+  let selectedDate = '';
+
+  // Cache: "YYYY-M" → days array
+  const monthCache = new Map<string, Array<{ date: string; status: string }>>();
+
+  const NL_MONTHS = [
+    'Januari','Februari','Maart','April','Mei','Juni',
+    'Juli','Augustus','September','Oktober','November','December',
+  ];
+
+  // ─── Calendar rendering ──────────────────────────────────────────────────────
+  async function renderCalendar(year: number, month: number) {
+    if (!calGrid || !monthLabel) return;
+
+    const cacheKey = `${year}-${month}`;
+
+    // Update header
+    monthLabel.textContent = `${NL_MONTHS[month - 1]} ${year}`;
+
+    // Disable prev-month if we're already at the current month
+    if (prevBtn) {
+      const isCurrentMonth = year === todayDate.getFullYear() && month === todayDate.getMonth() + 1;
+      prevBtn.disabled = isCurrentMonth;
+    }
+
+    // Show loading
+    calGrid.innerHTML = '';
+    calGrid.classList.add('hidden');
+    calLoading?.classList.remove('hidden');
+
+    let days: Array<{ date: string; status: string }>;
+
+    if (monthCache.has(cacheKey)) {
+      days = monthCache.get(cacheKey)!;
+    } else {
+      try {
+        const res = await fetch(`/api/appointments/month-availability?year=${year}&month=${month}`);
+        const data = await res.json();
+        days = data.days || [];
+        monthCache.set(cacheKey, days);
+      } catch {
+        days = [];
+      }
+    }
+
+    calLoading?.classList.add('hidden');
+    calGrid.classList.remove('hidden');
+
+    // Build a map for quick lookup
+    const dayMap = new Map<string, string>();
+    for (const d of days) dayMap.set(d.date, d.status);
+
+    // Determine first weekday of the month (Monday = 0)
+    const firstDay = new Date(year, month - 1, 1).getDay(); // 0=Sun…6=Sat
+    const offset = firstDay === 0 ? 6 : firstDay - 1; // convert to Mon-based
+
+    const daysInMonth = new Date(year, month, 0).getDate();
+
+    calGrid.innerHTML = '';
+
+    // Empty cells for offset
+    for (let i = 0; i < offset; i++) {
+      const empty = document.createElement('div');
+      calGrid.appendChild(empty);
+    }
+
+    // Day cells
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dayStr = String(d).padStart(2, '0');
+      const monthStr = String(month).padStart(2, '0');
+      const dateStr = `${year}-${monthStr}-${dayStr}`;
+      const status = dayMap.get(dateStr) || 'past';
+      const isToday = dateStr === todayStr;
+      const isSelected = dateStr === selectedDate;
+
+      const cell = document.createElement('div');
+      cell.className = 'flex items-center justify-center py-0.5';
+      cell.setAttribute('role', 'gridcell');
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.setAttribute('aria-label', dateStr);
+      btn.dataset.date = dateStr;
+
+      // Base: circle shape
+      btn.className = 'relative w-9 h-9 rounded-full flex items-center justify-center text-sm font-body transition-all ';
+
+      if (isSelected) {
+        btn.className += 'bg-charcoal text-ivory font-medium';
+      } else if (status === 'available') {
+        btn.className += 'bg-green-100 text-green-800 hover:bg-green-200 cursor-pointer font-medium';
+      } else if (status === 'full') {
+        btn.className += 'bg-red-50 text-red-300 cursor-not-allowed';
+        btn.disabled = true;
+        btn.title = 'Alle tijdblokken zijn vol';
+      } else {
+        // closed or past
+        btn.className += 'text-champagne/60 cursor-not-allowed';
+        btn.disabled = true;
+      }
+
+      btn.innerHTML = `<span>${d}</span>`;
+
+      // Today indicator dot
+      if (isToday && !isSelected) {
+        const dot = document.createElement('span');
+        dot.className = 'absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-blush-deep';
+        btn.appendChild(dot);
+      }
+
+      if (status === 'available') {
+        btn.addEventListener('click', () => handleDaySelect(dateStr));
+      }
+
+      cell.appendChild(btn);
+      calGrid.appendChild(cell);
+    }
+  }
+
+  function handleDaySelect(date: string) {
+    selectedDate = date;
+    if (dateHidden) dateHidden.value = date;
+
+    // Update label
+    if (selectedDateLabel) {
+      const [y, m, d] = date.split('-').map(Number);
+      selectedDateLabel.textContent = `Geselecteerd: ${d} ${NL_MONTHS[m - 1]} ${y}`;
+      selectedDateLabel.classList.remove('hidden');
+    }
+
+    // Re-render to update selected state
+    renderCalendar(calYear, calMonth);
+
+    // Load time blocks
+    loadAvailability(date);
+  }
+
+  // Month navigation
+  prevBtn?.addEventListener('click', () => {
+    calMonth--;
+    if (calMonth < 1) { calMonth = 12; calYear--; }
+    renderCalendar(calYear, calMonth);
+  });
+
+  nextBtn?.addEventListener('click', () => {
+    calMonth++;
+    if (calMonth > 12) { calMonth = 1; calYear++; }
+    renderCalendar(calYear, calMonth);
+  });
+
+  // Initial render
+  renderCalendar(calYear, calMonth);
+
+  // ─── Time slot section helpers ───────────────────────────────────────────────
+  function setSection(visible: 'placeholder' | 'loading' | 'closed' | 'blocks') {
+    timePlaceholder?.classList.toggle('hidden', visible !== 'placeholder');
+    timeLoading?.classList.toggle('hidden', visible !== 'loading');
+    timeClosed?.classList.toggle('hidden', visible !== 'closed');
+    timeBlocks?.classList.toggle('hidden', visible !== 'blocks');
+  }
+
+  function renderBlocks(blocks: Array<{ start: string; end: string; label: string; available: boolean }>) {
+    if (!timeBlocks || !timeHidden) return;
+    timeBlocks.innerHTML = '';
+
+    if (blocks.length === 0) {
+      timeBlocks.innerHTML = '<p class="col-span-4 text-xs text-taupe-light italic font-body">Geen tijdblokken beschikbaar op deze dag.</p>';
+      setSection('blocks');
+      return;
+    }
+
+    blocks.forEach((block) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.dataset.time = block.start;
+      btn.disabled = !block.available;
+
+      if (block.available) {
+        btn.className = [
+          'time-block-btn border py-4 px-2 text-center transition-all cursor-pointer',
+          'border-champagne hover:border-blush-deep hover:bg-blush/5',
+          'text-[11px] tracking-wide text-taupe font-body',
+        ].join(' ');
+      } else {
+        btn.className = [
+          'time-block-btn border py-4 px-2 text-center cursor-not-allowed',
+          'border-champagne/40 bg-gray-50',
+          'text-[11px] tracking-wide text-taupe-light line-through font-body',
+        ].join(' ');
+        btn.setAttribute('aria-disabled', 'true');
+        btn.title = 'Dit tijdblok is al bezet';
+      }
+
+      btn.innerHTML = `<span class="block font-medium">${block.label}</span><span class="block text-[9px] mt-1 tracking-widest uppercase">${block.available ? 'Beschikbaar' : 'Bezet'}</span>`;
+      timeBlocks.appendChild(btn);
+    });
+
+    // Click handler
+    timeBlocks.querySelectorAll<HTMLButtonElement>('.time-block-btn:not(:disabled)').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        timeBlocks.querySelectorAll('.time-block-btn').forEach((b) => {
+          b.classList.remove('border-charcoal', 'bg-charcoal/10', 'text-charcoal', 'font-semibold');
+        });
+        btn.classList.add('border-charcoal', 'bg-charcoal/10', 'text-charcoal', 'font-semibold');
+        if (timeHidden) timeHidden.value = btn.dataset.time || '';
+      });
+    });
+
+    setSection('blocks');
+  }
+
+  async function loadAvailability(date: string) {
+    if (!date) {
+      setSection('placeholder');
+      if (timeHidden) timeHidden.value = '';
+      return;
+    }
+
+    setSection('loading');
+    if (timeHidden) timeHidden.value = '';
+
+    try {
+      const res = await fetch(`/api/appointments/availability?date=${encodeURIComponent(date)}`);
+      const data = await res.json();
+
+      if (data.status === 'closed' || data.status === 'sunday_closed') {
+        if (timeClosed) timeClosed.textContent = data.message || 'We zijn op deze dag gesloten.';
+        setSection('closed');
+      } else {
+        renderBlocks(data.blocks || []);
+      }
+    } catch {
+      if (timeClosed) timeClosed.textContent = 'Beschikbaarheid kon niet worden opgehaald. Probeer het later opnieuw.';
+      setSection('closed');
+    }
+  }
+
+  // ─── Form submission ─────────────────────────────────────────────────────────
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (!status) return;
+      if (!formStatus) return;
+
+      if (!timeHidden?.value) {
+        formStatus.textContent = 'Kies eerst een tijdblok voor de afspraak.';
+        formStatus.className = 'text-center text-xs font-body text-red-600 italic mt-6 block';
+        return;
+      }
 
       if (submitBtn) {
         submitBtn.disabled = true;
         submitBtn.textContent = 'Bezig met verzenden...';
       }
-      status.textContent = '';
-      status.className = 'text-center text-xs font-body text-taupe italic mt-6 hidden';
+      formStatus.textContent = '';
+      formStatus.className = 'text-center text-xs font-body text-taupe italic mt-6 hidden';
 
       const formData = new FormData(form);
       const payload = {
@@ -147,6 +495,7 @@ const bridalLiveForm = settingsMap.bridallive_embed_appointment;
         preferred_date: formData.get('preferred_date'),
         preferred_time: formData.get('preferred_time'),
         appointment_type: formData.get('appointment_type'),
+        dress_size: formData.get('dress_size'),
         message: formData.get('message'),
       };
 
@@ -162,16 +511,22 @@ const bridalLiveForm = settingsMap.bridallive_embed_appointment;
           throw new Error(result.error || 'Er is iets misgegaan.');
         }
 
-        status.textContent = 'Bedankt! We hebben je aanvraag ontvangen en nemen snel contact op.';
-        status.className = 'text-center text-xs font-body text-green-700 italic mt-6 block';
+        formStatus.textContent = 'Bedankt! We hebben je aanvraag ontvangen en nemen snel contact op.';
+        formStatus.className = 'text-center text-xs font-body text-green-700 italic mt-6 block';
         form.reset();
+        selectedDate = '';
+        if (dateHidden) dateHidden.value = '';
+        if (selectedDateLabel) selectedDateLabel.classList.add('hidden');
+        setSection('placeholder');
+        if (timeHidden) timeHidden.value = '';
+        renderCalendar(calYear, calMonth);
         if (submitBtn) {
           submitBtn.disabled = false;
           submitBtn.textContent = 'Afspraak aanvragen';
         }
       } catch (err: any) {
-        status.textContent = err.message || 'Er is iets misgegaan. Probeer het later opnieuw.';
-        status.className = 'text-center text-xs font-body text-red-600 italic mt-6 block';
+        formStatus.textContent = err.message || 'Er is iets misgegaan. Probeer het later opnieuw.';
+        formStatus.className = 'text-center text-xs font-body text-red-600 italic mt-6 block';
         if (submitBtn) {
           submitBtn.disabled = false;
           submitBtn.textContent = 'Afspraak aanvragen';
@@ -180,4 +535,3 @@ const bridalLiveForm = settingsMap.bridallive_embed_appointment;
     });
   }
 </script>
-

@@ -1,5 +1,5 @@
 ---
-import Layout from '../../../../layouts/Layout.astro';
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
 import { getServiceRoleClient } from '../../../../lib/serverAuth';
 import type { FieldDefinition } from '../../../../lib/forms';
 
@@ -17,8 +17,8 @@ const fields: FieldDefinition[] = form.fields ?? [];
 const fieldMap = Object.fromEntries(fields.map(f => [f.id, f.label]));
 ---
 
-<Layout title={`Inzendingen: ${form.name}`}>
-  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+<AdminLayout title={`Inzendingen: ${form.name}`}>
+  <div class="pt-8 pb-24 bg-ivory min-h-screen">
     <div class="container mx-auto px-6">
       <nav class="mb-10 flex items-center gap-3 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">
         <a href="/admin" class="hover:text-charcoal transition-colors">Dashboard</a>
@@ -96,7 +96,7 @@ const fieldMap = Object.fromEntries(fields.map(f => [f.id, f.label]));
       )}
     </div>
   </div>
-</Layout>
+</AdminLayout>
 
 <script define:vars={{ submissions, fields, formName: form.name }}>
   document.getElementById('export-csv-btn')?.addEventListener('click', () => {

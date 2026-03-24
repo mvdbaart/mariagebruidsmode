@@ -1,5 +1,5 @@
 ---
-import Layout from '../../layouts/Layout.astro';
+import AdminLayout from '../../layouts/AdminLayout.astro';
 import { getAdminAuthFromCookies, getServiceRoleClient, getUserRole } from '../../lib/serverAuth';
 
 const adminAuth = await getAdminAuthFromCookies(Astro.cookies);
@@ -32,8 +32,8 @@ const users = authUsers.map(u => ({
 }));
 ---
 
-<Layout title="Gebruikersbeheer - Admin">
-  <main class="min-h-screen bg-primary py-20 px-4">
+<AdminLayout title="Gebruikersbeheer - Admin">
+  <div class="min-h-screen bg-ivory py-8 px-4">
     <div class="max-w-5xl mx-auto">
       <div class="flex items-center justify-between mb-12">
         <div class="flex items-center gap-4">
@@ -43,6 +43,13 @@ const users = authUsers.map(u => ({
           </a>
           <h1 class="text-3xl font-serif text-accent">Gebruikersbeheer</h1>
         </div>
+        <button
+          id="open-add-user-btn"
+          class="px-4 py-2 bg-accent text-white text-[10px] uppercase tracking-widest rounded transition-all hover:bg-secondary flex items-center gap-2"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+          Gebruiker toevoegen
+        </button>
       </div>
 
       {fetchError && (
@@ -124,8 +131,50 @@ const users = authUsers.map(u => ({
         </ul>
       </div>
     </div>
-  </main>
-</Layout>
+  </div>
+</AdminLayout>
+
+<dialog id="add-user-dialog" style="border:1px solid #e8e0d5;padding:2rem;max-width:420px;width:100%;background:#fff;border-radius:4px;">
+  <h2 style="font-family:serif;font-size:1.25rem;margin-bottom:1.25rem;color:#2c2a28;">Gebruiker toevoegen</h2>
+  <div style="display:flex;flex-direction:column;gap:1rem;margin-bottom:1.5rem;">
+    <div>
+      <label style="display:block;font-size:0.625rem;letter-spacing:0.1em;text-transform:uppercase;color:#9b8e82;margin-bottom:0.375rem;">E-mailadres</label>
+      <input
+        id="add-user-email"
+        type="email"
+        placeholder="naam@voorbeeld.nl"
+        style="width:100%;border:0;border-bottom:1px solid #e8e0d5;padding:0.5rem 0;font-size:0.875rem;outline:none;background:transparent;"
+      />
+    </div>
+    <div>
+      <label style="display:block;font-size:0.625rem;letter-spacing:0.1em;text-transform:uppercase;color:#9b8e82;margin-bottom:0.375rem;">Wachtwoord (min. 8 tekens)</label>
+      <input
+        id="add-user-password"
+        type="password"
+        placeholder="••••••••"
+        style="width:100%;border:0;border-bottom:1px solid #e8e0d5;padding:0.5rem 0;font-size:0.875rem;outline:none;background:transparent;"
+      />
+    </div>
+    <div>
+      <label style="display:block;font-size:0.625rem;letter-spacing:0.1em;text-transform:uppercase;color:#9b8e82;margin-bottom:0.375rem;">Rol</label>
+      <select
+        id="add-user-role"
+        style="width:100%;border:0;border-bottom:1px solid #e8e0d5;padding:0.5rem 0;font-size:0.875rem;outline:none;background:transparent;"
+      >
+        <option value="none">Geen toegang</option>
+        <option value="admin">Admin</option>
+        <option value="moderator">Moderator</option>
+        <option value="marketing">Marketing</option>
+        <option value="extern">Extern</option>
+      </select>
+    </div>
+  </div>
+  <p id="add-user-error" style="display:none;font-size:0.75rem;color:rgb(239,68,68);margin-bottom:1rem;"></p>
+  <div style="display:flex;gap:1rem;">
+    <button id="confirm-add-user" style="background:#2c2a28;color:#fff;padding:0.625rem 1.5rem;font-size:0.625rem;letter-spacing:0.15em;text-transform:uppercase;border:none;cursor:pointer;">Toevoegen</button>
+    <button id="cancel-add-user" style="border:1px solid #e8e0d5;padding:0.625rem 1.25rem;font-size:0.625rem;letter-spacing:0.15em;text-transform:uppercase;background:transparent;cursor:pointer;color:#9b8e82;">Annuleren</button>
+  </div>
+</dialog>
 
 <dialog id="edit-email-dialog" style="border:1px solid #e8e0d5;padding:2rem;max-width:400px;width:100%;background:#fff;">
   <h2 style="font-family:serif;font-size:1.25rem;margin-bottom:0.75rem;color:#2c2a28;">E-mailadres wijzigen</h2>
@@ -198,6 +247,132 @@ const users = authUsers.map(u => ({
       editingUserId = null;
     } else {
       if (editEmailError) { editEmailError.textContent = json.error ?? 'Fout bij opslaan.'; editEmailError.style.display = 'block'; }
+    }
+  });
+
+  // Add user dialog
+  const addUserDialog = document.getElementById('add-user-dialog') as HTMLDialogElement | null;
+  const addUserEmail = document.getElementById('add-user-email') as HTMLInputElement | null;
+  const addUserPassword = document.getElementById('add-user-password') as HTMLInputElement | null;
+  const addUserRole = document.getElementById('add-user-role') as HTMLSelectElement | null;
+  const addUserError = document.getElementById('add-user-error');
+  const confirmAddUserBtn = document.getElementById('confirm-add-user') as HTMLButtonElement | null;
+  const cancelAddUserBtn = document.getElementById('cancel-add-user');
+
+  document.getElementById('open-add-user-btn')?.addEventListener('click', () => {
+    if (addUserEmail) addUserEmail.value = '';
+    if (addUserPassword) addUserPassword.value = '';
+    if (addUserRole) addUserRole.value = 'none';
+    if (addUserError) { addUserError.textContent = ''; addUserError.style.display = 'none'; }
+    addUserDialog?.showModal();
+    setTimeout(() => addUserEmail?.focus(), 50);
+  });
+
+  cancelAddUserBtn?.addEventListener('click', () => addUserDialog?.close());
+  addUserDialog?.addEventListener('click', (e) => { if (e.target === addUserDialog) addUserDialog.close(); });
+
+  confirmAddUserBtn?.addEventListener('click', async () => {
+    if (!addUserEmail || !addUserPassword || !addUserRole || !confirmAddUserBtn) return;
+
+    const email = addUserEmail.value.trim();
+    const password = addUserPassword.value;
+    const role = addUserRole.value;
+
+    if (addUserError) { addUserError.textContent = ''; addUserError.style.display = 'none'; }
+
+    confirmAddUserBtn.textContent = '...';
+    confirmAddUserBtn.disabled = true;
+
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ email, password, role }),
+      });
+      const json = await res.json();
+
+      if (!res.ok) {
+        if (addUserError) { addUserError.textContent = json.error ?? 'Fout bij aanmaken.'; addUserError.style.display = 'block'; }
+        return;
+      }
+
+      // Add new row to table
+      const tbody = document.getElementById('user-table-body');
+      if (tbody) {
+        const noUsersRow = tbody.querySelector('tr td[colspan]');
+        if (noUsersRow) noUsersRow.closest('tr')?.remove();
+
+        const tr = document.createElement('tr');
+        tr.className = 'border-t border-accent/10 hover:bg-accent/[0.02] transition-colors group';
+        tr.innerHTML = `
+          <td class="px-6 py-4">
+            <div class="flex flex-col">
+              <span class="text-sm font-medium text-accent">${json.email}</span>
+              <span class="text-[10px] text-accent/40 font-mono uppercase">${json.id}</span>
+            </div>
+          </td>
+          <td class="px-6 py-4">
+            <select class="role-select bg-transparent border-b border-accent/20 py-1 text-xs focus:border-secondary outline-none transition-colors" data-user-id="${json.id}">
+              <option value="none" ${json.role === 'none' ? 'selected' : ''}>Geen toegang</option>
+              <option value="admin" ${json.role === 'admin' ? 'selected' : ''}>Admin</option>
+              <option value="moderator" ${json.role === 'moderator' ? 'selected' : ''}>Moderator</option>
+              <option value="marketing" ${json.role === 'marketing' ? 'selected' : ''}>Marketing</option>
+              <option value="extern" ${json.role === 'extern' ? 'selected' : ''}>Extern</option>
+            </select>
+          </td>
+          <td class="px-6 py-4 text-xs text-accent/60">Nooit</td>
+          <td class="px-6 py-4 text-right">
+            <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button class="edit-email-btn px-3 py-1.5 border border-accent/20 text-accent text-[10px] uppercase tracking-widest rounded transition-all hover:border-secondary hover:text-secondary" data-user-id="${json.id}" data-email="${json.email}">E-mail</button>
+              <button class="save-user-btn px-4 py-1.5 bg-accent text-white text-[10px] uppercase tracking-widest rounded transition-all hover:bg-secondary" data-user-id="${json.id}">Opslaan</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+
+        // Attach event listeners to new row buttons
+        tr.querySelector('.edit-email-btn')?.addEventListener('click', (e) => {
+          const btn = e.currentTarget as HTMLButtonElement;
+          editingUserId = btn.dataset.userId ?? null;
+          if (currentEmailDisplay) currentEmailDisplay.textContent = btn.dataset.email ?? '';
+          if (newEmailInput) newEmailInput.value = '';
+          if (editEmailError) { editEmailError.textContent = ''; editEmailError.style.display = 'none'; }
+          emailDialog?.showModal();
+          setTimeout(() => newEmailInput?.focus(), 50);
+        });
+
+        tr.querySelector('.save-user-btn')?.addEventListener('click', async (e) => {
+          const btn = e.currentTarget as HTMLButtonElement;
+          const userId = btn.dataset.userId;
+          const select = tr.querySelector(`.role-select[data-user-id="${userId}"]`) as HTMLSelectElement;
+          const newRole = select.value;
+          btn.disabled = true;
+          btn.textContent = '...';
+          try {
+            const response = await fetch('/api/admin/users', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ userId, newRole }),
+            });
+            if (response.ok) {
+              alert('Rol succesvol bijgewerkt.');
+            } else {
+              const err = await response.json();
+              alert('Fout: ' + err.error);
+            }
+          } catch {
+            alert('Er is een fout opgetreden.');
+          } finally {
+            btn.disabled = false;
+            btn.textContent = 'Opslaan';
+          }
+        });
+      }
+
+      addUserDialog?.close();
+    } finally {
+      confirmAddUserBtn.textContent = 'Toevoegen';
+      confirmAddUserBtn.disabled = false;
     }
   });
 

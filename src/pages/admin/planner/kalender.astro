@@ -1,5 +1,5 @@
 ---
-import Layout from '../../../layouts/Layout.astro';
+import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { getAdminAuthFromCookies, getServiceRoleClient } from '../../../lib/serverAuth';
 
 const adminAuth = await getAdminAuthFromCookies(Astro.cookies);
@@ -44,8 +44,8 @@ const { data: weekAbsences } = await supabase
 const dayNames = ['Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag', 'Zondag'];
 ---
 
-<Layout title="Planning Kalender - Admin">
-  <main class="min-h-screen bg-primary py-20 px-4">
+<AdminLayout title="Planning Kalender - Admin">
+  <div class="min-h-screen bg-ivory py-8 px-4">
     <div class="max-w-7xl mx-auto">
       <div class="flex items-center justify-between mb-8">
         <div class="flex items-center gap-4">
@@ -167,8 +167,8 @@ const dayNames = ['Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zat
         </form>
       </div>
     </div>
-  </main>
-</Layout>
+  </div>
+</AdminLayout>
 
 <script>
   const modal = document.getElementById('shift-modal');

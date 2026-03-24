@@ -1,5 +1,5 @@
 ---
-import Layout from '../../layouts/Layout.astro';
+import AdminLayout from '../../layouts/AdminLayout.astro';
 import { supabase } from '../../lib/supabase';
 
 const { data: collections } = await supabase
@@ -8,8 +8,8 @@ const { data: collections } = await supabase
   .order('type', { ascending: true });
 ---
 
-<Layout title="Beheer Collecties">
-  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+<AdminLayout title="Beheer Collecties">
+  <div class="pt-8 pb-24 bg-ivory min-h-screen">
     <div class="container mx-auto px-6">
       <nav class="mb-12 flex items-center gap-4 text-[10px] tracking-[0.2em] uppercase font-body text-taupe">
         <a href="/admin" class="hover:text-charcoal transition-colors">Dashboard</a>
@@ -54,4 +54,4 @@ const { data: collections } = await supabase
       </div>
     </div>
   </div>
-</Layout>
+</AdminLayout>

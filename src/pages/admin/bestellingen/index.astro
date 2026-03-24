@@ -1,5 +1,5 @@
 ---
-import Layout from '../../../layouts/Layout.astro';
+import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { getServiceRoleClient } from '../../../lib/serverAuth';
 
 const supabase = getServiceRoleClient();
@@ -25,8 +25,8 @@ const STATUS_COLORS: Record<string, string> = {
 };
 ---
 
-<Layout title="Bestellingen">
-  <div class="pt-32 pb-24 bg-ivory min-h-screen">
+<AdminLayout title="Bestellingen">
+  <div class="pt-8 pb-24 bg-ivory min-h-screen">
     <div class="container mx-auto px-6 max-w-6xl">
       <nav class="mb-10 flex items-center gap-3 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">
         <a href="/admin" class="hover:text-charcoal transition-colors">Dashboard</a>
@@ -120,7 +120,7 @@ const STATUS_COLORS: Record<string, string> = {
       </div>
     </div>
   </div>
-</Layout>
+</AdminLayout>
 
 <script>
   // Status filter

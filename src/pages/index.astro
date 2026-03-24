@@ -55,7 +55,7 @@ const galleryImages = (latestProducts ?? [])
   .map((p) => {
     const img = p.images?.[0];
     return {
-      src: (img && img.startsWith('/images/')) ? img : null,
+      src: (img && img.length > 0) ? img : null,
       alt: p.name,
       href: `/product/${p.slug}`,
     };

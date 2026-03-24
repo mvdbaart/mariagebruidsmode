@@ -186,6 +186,70 @@ const isAccount = pathname.startsWith('/login') || pathname.startsWith('/admin')
     <div id="wishlist-content" class="overflow-y-auto flex-1 px-6 py-4">
       <!-- Populated by JS -->
     </div>
+
+    <!-- Footer — shown when wishlist has items -->
+    <div id="wishlist-appointment-footer" class="hidden flex-shrink-0 border-t border-champagne px-6 py-4 flex-col gap-3">
+
+      <!-- E-mail form (collapsed by default, expands on trigger) -->
+      <div
+        id="wishlist-email-form-wrapper"
+        style="max-height:0;overflow:hidden;transition:max-height 300ms ease,opacity 300ms ease;opacity:0;"
+      >
+        <p class="font-body text-[11px] text-taupe tracking-[0.1em] uppercase mb-3">Stuur de lijst naar jouw e-mail</p>
+        <input
+          id="wishlist-email-name"
+          type="text"
+          placeholder="Voornaam"
+          autocomplete="given-name"
+          maxlength="120"
+          class="w-full border border-champagne bg-ivory px-4 py-2.5 text-sm font-body text-charcoal placeholder-taupe focus:outline-none focus:border-blush-deep transition-colors mb-2"
+        />
+        <input
+          id="wishlist-email-address"
+          type="email"
+          placeholder="E-mailadres"
+          autocomplete="email"
+          maxlength="200"
+          class="w-full border border-champagne bg-ivory px-4 py-2.5 text-sm font-body text-charcoal placeholder-taupe focus:outline-none focus:border-blush-deep transition-colors mb-2"
+        />
+        <div id="wishlist-email-feedback" class="hidden text-xs font-body text-blush-deep mb-2"></div>
+        <div class="flex gap-2">
+          <button
+            id="wishlist-email-cancel"
+            type="button"
+            class="flex-1 btn-gold text-[10px] tracking-[0.2em] uppercase py-2.5"
+          >
+            Annuleren
+          </button>
+          <button
+            id="wishlist-email-submit"
+            type="button"
+            class="flex-1 btn-premium text-[10px] tracking-[0.2em] uppercase py-2.5 flex items-center justify-center gap-2"
+          >
+            Versturen
+          </button>
+        </div>
+      </div>
+
+      <!-- Two CTA buttons -->
+      <div class="flex gap-3">
+        <button
+          id="wishlist-email-trigger"
+          type="button"
+          class="flex-1 btn-gold text-[10px] tracking-[0.2em] uppercase py-3 transition-opacity"
+        >
+          E-mail mijn lijst
+        </button>
+        <a
+          id="wishlist-appointment-btn"
+          href="/afspraak-maken"
+          class="flex-1 btn-blush text-center text-[10px] tracking-[0.2em] uppercase py-3"
+        >
+          Pasafspraak
+        </a>
+      </div>
+
+    </div>
   </div>
 </div>
 
@@ -289,7 +353,145 @@ const isAccount = pathname.startsWith('/login') || pathname.startsWith('/admin')
         updateBadge();
       });
     });
+
+    // Footer CTA — shown when wishlist has items
+    const footer = document.getElementById('wishlist-appointment-footer');
+    const appointmentBtn = document.getElementById('wishlist-appointment-btn') as HTMLAnchorElement | null;
+    if (footer && appointmentBtn) {
+      if (items.length > 0) {
+        footer.classList.remove('hidden');
+        footer.classList.add('flex');
+        const jurken = items.map(i => i.name).join(', ');
+        appointmentBtn.href = `/afspraak-maken?jurken=${encodeURIComponent(jurken)}`;
+      } else {
+        footer.classList.add('hidden');
+        footer.classList.remove('flex');
+      }
+    }
   }
+
+  // ── Email wishlist state machine ──────────────────────────────────────────────
+  type EmailFormState = 'idle' | 'open' | 'loading' | 'success' | 'error';
+
+  function setEmailFormState(state: EmailFormState, message?: string) {
+    const wrapper = document.getElementById('wishlist-email-form-wrapper') as HTMLElement | null;
+    const trigger = document.getElementById('wishlist-email-trigger') as HTMLButtonElement | null;
+    const nameInput = document.getElementById('wishlist-email-name') as HTMLInputElement | null;
+    const emailInput = document.getElementById('wishlist-email-address') as HTMLInputElement | null;
+    const feedback = document.getElementById('wishlist-email-feedback') as HTMLElement | null;
+    const cancelBtn = document.getElementById('wishlist-email-cancel') as HTMLButtonElement | null;
+    const submitBtn = document.getElementById('wishlist-email-submit') as HTMLButtonElement | null;
+
+    if (!wrapper || !trigger || !nameInput || !emailInput || !feedback || !cancelBtn || !submitBtn) return;
+
+    if (state === 'idle') {
+      wrapper.style.maxHeight = '0';
+      wrapper.style.opacity = '0';
+      trigger.style.opacity = '1';
+      trigger.style.pointerEvents = 'auto';
+      nameInput.value = '';
+      emailInput.value = '';
+      nameInput.disabled = false;
+      emailInput.disabled = false;
+      feedback.classList.add('hidden');
+      feedback.textContent = '';
+      cancelBtn.style.display = '';
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'Versturen';
+    } else if (state === 'open') {
+      wrapper.style.maxHeight = '260px';
+      wrapper.style.opacity = '1';
+      trigger.style.opacity = '0.4';
+      trigger.style.pointerEvents = 'none';
+      feedback.classList.add('hidden');
+      feedback.textContent = '';
+      nameInput.disabled = false;
+      emailInput.disabled = false;
+      cancelBtn.style.display = '';
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'Versturen';
+      setTimeout(() => nameInput.focus(), 50);
+    } else if (state === 'loading') {
+      nameInput.disabled = true;
+      emailInput.disabled = true;
+      cancelBtn.style.display = 'none';
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `
+        <svg class="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="flex-shrink:0;">
+          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+        </svg>
+        Versturen…`;
+    } else if (state === 'success') {
+      feedback.classList.remove('hidden');
+      feedback.style.color = '#5E534D';
+      feedback.innerHTML = `
+        <span style="display:flex;align-items:center;gap:6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A66352" stroke-width="2" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+          Gelukt! Controleer je inbox.
+        </span>`;
+      nameInput.style.display = 'none';
+      emailInput.style.display = 'none';
+      cancelBtn.style.display = 'none';
+      submitBtn.style.display = 'none';
+      trigger.style.opacity = '1';
+      trigger.style.pointerEvents = 'auto';
+      setTimeout(() => {
+        nameInput.style.display = '';
+        emailInput.style.display = '';
+        submitBtn.style.display = '';
+        setEmailFormState('idle');
+      }, 4000);
+    } else if (state === 'error') {
+      feedback.classList.remove('hidden');
+      feedback.style.color = '#A66352';
+      feedback.textContent = message || 'Er is iets misgegaan. Probeer het opnieuw.';
+      nameInput.disabled = false;
+      emailInput.disabled = false;
+      cancelBtn.style.display = '';
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'Versturen';
+    }
+  }
+
+  async function handleEmailSubmit() {
+    const nameInput = document.getElementById('wishlist-email-name') as HTMLInputElement | null;
+    const emailInput = document.getElementById('wishlist-email-address') as HTMLInputElement | null;
+    if (!nameInput || !emailInput) return;
+
+    const name = nameInput.value.trim();
+    const email = emailInput.value.trim();
+
+    if (!name) { setEmailFormState('error', 'Vul je voornaam in.'); return; }
+    if (name.length > 120) { setEmailFormState('error', 'Naam is te lang.'); return; }
+    if (!email) { setEmailFormState('error', 'Vul je e-mailadres in.'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setEmailFormState('error', 'Vul een geldig e-mailadres in.'); return; }
+
+    const items = getWishlist();
+    if (items.length === 0) { setEmailFormState('error', 'Je verlanglijst is leeg.'); return; }
+
+    setEmailFormState('loading');
+
+    try {
+      const res = await fetch('/api/wishlist/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, items }),
+      });
+      if (res.ok) {
+        setEmailFormState('success');
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setEmailFormState('error', (data as { error?: string }).error || 'Er is iets misgegaan. Probeer het opnieuw.');
+      }
+    } catch {
+      setEmailFormState('error', 'Geen verbinding. Controleer je internet en probeer opnieuw.');
+    }
+  }
+
+  // Wire up email form buttons
+  document.getElementById('wishlist-email-trigger')?.addEventListener('click', () => setEmailFormState('open'));
+  document.getElementById('wishlist-email-cancel')?.addEventListener('click', () => setEmailFormState('idle'));
+  document.getElementById('wishlist-email-submit')?.addEventListener('click', handleEmailSubmit);
 
   // ── Overlay helpers ──────────────────────────────────────────────────────────
   function openOverlay(overlayId: string, panelId: string) {
@@ -347,11 +549,15 @@ const isAccount = pathname.startsWith('/login') || pathname.startsWith('/admin')
     openOverlay('wishlist-overlay', 'wishlist-panel');
   });
 
-  wishlistClose?.addEventListener('click', () => closeOverlay('wishlist-overlay', 'wishlist-panel'));
-  wishlistBackdrop?.addEventListener('click', () => closeOverlay('wishlist-overlay', 'wishlist-panel'));
+  function closeWishlist() {
+    closeOverlay('wishlist-overlay', 'wishlist-panel', () => setEmailFormState('idle'));
+  }
+
+  wishlistClose?.addEventListener('click', closeWishlist);
+  wishlistBackdrop?.addEventListener('click', closeWishlist);
 
   document.getElementById('wishlist-overlay')?.addEventListener('keydown', (e: KeyboardEvent) => {
-    if (e.key === 'Escape') closeOverlay('wishlist-overlay', 'wishlist-panel');
+    if (e.key === 'Escape') closeWishlist();
   });
 
   // ── Init ─────────────────────────────────────────────────────────────────────
