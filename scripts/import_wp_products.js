@@ -142,16 +142,28 @@ function extractText(html, pattern) {
   return m ? m[1].replace(/<[^>]+>/g, '').trim() : null;
 }
 
-function parseProductHtml(html, wpSlug) {
-  // Price
-  const priceMatch = html.match(/class="[^"]*woocommerce-Price-amount[^"]*"[^>]*>\s*<[^>]+>([€\d.,\s]+)</);
-  const price = priceMatch ? priceMatch[1].replace(/\s+/g, ' ').trim() : null;
+function decodePrice(html) {
+  // Strip tags, decode HTML entities, extract number like "2.995,00"
+  return html
+    .replace(/<[^>]+>/g, '')
+    .replace(/&euro;/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/incl\..*/i, '')
+    .replace(/[^\d.,]/g, '')
+    .trim() || null;
+}
 
-  // Sale price — look for <del> (original) and <ins> (sale)
-  const insMatch = html.match(/<ins[^>]*>.*?woocommerce-Price-amount[^>]*>\s*<[^>]+>([\d.,\s€]+)<\/[^>]+>\s*<\/[^>]+>\s*<\/ins>/s);
-  const delMatch = html.match(/<del[^>]*>.*?woocommerce-Price-amount[^>]*>\s*<[^>]+>([\d.,\s€]+)<\/[^>]+>\s*<\/[^>]+>\s*<\/del>/s);
-  const salePrice = insMatch ? insMatch[1].trim() : null;
-  const regularPrice = delMatch ? delMatch[1].trim() : price;
+function parseProductHtml(html, wpSlug) {
+  // Price — from first class="price" element on the page (= current product)
+  const priceBlock = html.match(/class="price"[^>]*>([\s\S]{0,600}?)<\/span>\s*(?:<small|<\/div>)/)?.[1] ?? '';
+
+  // Check for sale price: <del>original</del> <ins>sale</ins>
+  const delBlock = priceBlock.match(/<del[\s\S]*?<\/del>/)?.[0] ?? '';
+  const insBlock = priceBlock.match(/<ins[\s\S]*?<\/ins>/)?.[0] ?? '';
+  const hasSale = insBlock.length > 0;
+
+  const regularPrice = hasSale ? decodePrice(delBlock) : decodePrice(priceBlock);
+  const salePrice    = hasSale ? decodePrice(insBlock) : null;
 
   // Description — WooCommerce short description
   const descMatch = html.match(/class="[^"]*woocommerce-product-details__short-description[^"]*"[^>]*>([\s\S]*?)<\/div>/);
@@ -182,8 +194,8 @@ function parseProductHtml(html, wpSlug) {
   const maten = [...new Set(sizesHtml.map((s) => s.match(/value="(\d{2})"/)?.[1]).filter(Boolean))].sort();
 
   return {
-    price_range: regularPrice ? `€ ${regularPrice.replace(/[€\s]/g, '')}` : null,
-    sale_price:  salePrice    ? `€ ${salePrice.replace(/[€\s]/g, '')}`    : null,
+    price_range: regularPrice ? `€ ${regularPrice}` : null,
+    sale_price:  salePrice    ? `€ ${salePrice}`    : null,
     description,
     pasvorm:    mapSingle(PASVORM_MAP, pasvormRaw ?? ''),
     hals:       mapSingle(HALS_MAP,   halsRaw ?? ''),
