@@ -130,7 +130,7 @@ const brands = [...new Set((products ?? []).map(p => p.brand).filter(Boolean))].
             data-type={prod.collections?.type ?? ''}
             data-features={JSON.stringify((prod.features ?? []).map((f: string) => f.toLowerCase()))}
           >
-            <div class="aspect-[3/4] bg-linen overflow-hidden relative">
+            <a href={`/admin/product/${prod.id}/edit`} class="aspect-[3/4] bg-linen overflow-hidden relative block">
               {prod.images?.[0] ? (
                 <img 
                   src={prod.images[0]} 
@@ -144,14 +144,11 @@ const brands = [...new Set((products ?? []).map(p => p.brand).filter(Boolean))].
                 </div>
               )}
               <div class="absolute inset-0 bg-charcoal/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <a 
-                  href={`/admin/product/${prod.id}/edit`} 
-                  class="bg-white text-charcoal px-6 py-3 text-[10px] tracking-[0.2em] uppercase font-body font-semibold hover:bg-blush-deep hover:text-white transition-all shadow-xl"
-                >
+                <span class="bg-white text-charcoal px-6 py-3 text-[10px] tracking-[0.2em] uppercase font-body font-semibold hover:bg-blush-deep hover:text-white transition-all shadow-xl">
                   ✎ Bewerken
-                </a>
+                </span>
               </div>
-            </div>
+            </a>
             <div class="p-6 border-t border-champagne bg-[#fcfbf9]">
               <span class="text-[9px] tracking-[0.25em] uppercase text-blush-deep font-body font-semibold block mb-2">{prod.brand}</span>
               <h3 class="font-display font-normal text-charcoal text-lg leading-tight mb-3">{prod.name}</h3>

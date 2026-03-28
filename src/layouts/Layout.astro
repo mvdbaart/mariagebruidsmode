@@ -283,3 +283,31 @@ const orgJsonLd = {
     }, { passive: true });
   })();
 </script>
+
+<script>
+  // Scroll Reveal Observer
+  const observerOptions = {
+    root: null,
+    rootMargin: '0px',
+    threshold: 0.15
+  };
+
+  const handleIntersect = (entries: IntersectionObserverEntry[], observer: IntersectionObserver) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('reveal-visible');
+      }
+    });
+  };
+
+  const observer = new IntersectionObserver(handleIntersect, observerOptions);
+
+  function initReveals() {
+    const revealElements = document.querySelectorAll('.reveal-fade-up');
+    revealElements.forEach(el => observer.observe(el));
+  }
+
+  // Initialize on load and on view transitions
+  document.addEventListener('DOMContentLoaded', initReveals);
+  document.addEventListener('astro:page-load', initReveals);
+</script>

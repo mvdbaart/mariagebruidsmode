@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabase';
 
 const { data: collections } = await supabase
   .from('collections')
-  .select('*')
+  .select('*, products(count)')
   .order('type', { ascending: true });
 ---
 
@@ -17,18 +17,64 @@ const { data: collections } = await supabase
         <span class="text-charcoal font-medium">Beheer Collecties</span>
       </nav>
 
-      <div class="flex items-center justify-between mb-12">
+      <div class="flex items-center justify-between mb-8">
         <h1 class="font-display font-normal text-charcoal text-4xl italic">Beheer <span class="font-signature text-blush-deep text-5xl lowercase px-2">Collecties</span></h1>
         <button class="btn-blush py-3 px-8 text-[11px] tracking-[0.2em] uppercase">Nieuwe Collectie</button>
       </div>
 
-      <div class="bg-white border border-champagne shadow-soft overflow-hidden rounded-2xl">
+      <!-- Quick Filter Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+        <button 
+          id="filterDress" 
+          class="group bg-white border border-champagne p-8 shadow-soft hover:shadow-card transition-all duration-300 rounded-2xl text-left relative overflow-hidden"
+          data-type="dress"
+        >
+          <div class="relative z-10">
+            <h3 class="font-display text-2xl text-charcoal italic group-hover:text-blush-deep transition-colors">Bruid</h3>
+            <p class="text-[10px] tracking-[0.2em] uppercase text-taupe-light mt-1">Trouwjurken & Accessoires</p>
+          </div>
+          <div class="absolute right-[-20px] bottom-[-20px] opacity-[0.03] group-hover:opacity-[0.07] transition-opacity">
+            <svg width="120" height="120" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4.5 20.29L5.21 21L12 18L18.79 21L19.5 20.29L12 2Z"/></svg>
+          </div>
+        </button>
+
+        <button 
+          id="filterSuit" 
+          class="group bg-white border border-champagne p-8 shadow-soft hover:shadow-card transition-all duration-300 rounded-2xl text-left relative overflow-hidden"
+          data-type="suit"
+        >
+          <div class="relative z-10">
+            <h3 class="font-display text-2xl text-charcoal italic group-hover:text-blush-deep transition-colors">Bruidegom</h3>
+            <p class="text-[10px] tracking-[0.2em] uppercase text-taupe-light mt-1">Trouwpakken & Maatwerk</p>
+          </div>
+          <div class="absolute right-[-20px] bottom-[-20px] opacity-[0.03] group-hover:opacity-[0.07] transition-opacity">
+            <svg width="120" height="120" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4.5 20.29L5.21 21L12 18L18.79 21L19.5 20.29L12 2Z"/></svg>
+          </div>
+        </button>
+      </div>
+
+      <div class="bg-white border border-champagne shadow-soft overflow-hidden rounded-2xl relative">
+        <!-- Sticky Search Bar -->
+        <div class="sticky top-0 z-20 bg-linen/95 backdrop-blur-sm border-b border-champagne p-4">
+          <div class="relative max-w-md">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-taupe/50">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            </span>
+            <input 
+              type="text" 
+              id="collectionSearch" 
+              placeholder="Snel zoeken naar collecties..." 
+              class="block w-full pl-10 pr-3 py-2 border border-champagne rounded-lg bg-white/50 text-sm font-body placeholder-taupe/40 focus:outline-none focus:ring-1 focus:ring-blush-deep focus:border-blush-deep transition-all"
+            />
+          </div>
+        </div>
         <div class="overflow-x-auto">
         <table class="w-full min-w-[760px] text-left border-collapse">
           <thead>
             <tr class="bg-linen/50 text-[10px] tracking-[0.2em] uppercase text-charcoal border-b border-champagne">
               <th class="px-6 py-5 font-medium">Titel</th>
               <th class="px-6 py-5 font-medium">Type</th>
+              <th class="px-6 py-5 font-medium">Producten</th>
               <th class="px-6 py-5 font-medium">Slug</th>
               <th class="px-6 py-5 font-medium text-right">Acties</th>
             </tr>
@@ -42,6 +88,11 @@ const { data: collections } = await supabase
                   </a>
                 </td>
                 <td class="px-6 py-5 text-taupe">{col.type === 'dress' ? 'Jurken' : 'Pakken'}</td>
+                <td class="px-6 py-5">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-linen text-taupe">
+                    {col.products?.[0]?.count ?? 0}
+                  </span>
+                </td>
                 <td class="px-6 py-5 text-taupe-light font-light">{col.slug}</td>
                 <td class="px-6 py-5 text-right">
                   <div class="flex justify-end gap-5 uppercase text-[10px] tracking-[0.15em] font-medium whitespace-nowrap">
@@ -60,3 +111,51 @@ const { data: collections } = await supabase
     </div>
   </div>
 </AdminLayout>
+
+<script>
+  const searchInput = document.getElementById('collectionSearch') as HTMLInputElement;
+  const filterDress = document.getElementById('filterDress');
+  const filterSuit = document.getElementById('filterSuit');
+  const tableRows = document.querySelectorAll('tbody tr') as NodeListOf<HTMLTableRowElement>;
+
+  let activeTypeFilter: string | null = null;
+
+  function filterRows() {
+    const query = searchInput?.value.toLowerCase().trim() || '';
+    
+    tableRows.forEach(row => {
+      const typeCell = row.querySelector('td:nth-child(2)')?.textContent?.toLowerCase() || '';
+      const textMatch = row.textContent?.toLowerCase().includes(query);
+      
+      let typeMatch = true;
+      if (activeTypeFilter === 'dress') {
+        typeMatch = typeCell.includes('jurken');
+      } else if (activeTypeFilter === 'suit') {
+        typeMatch = typeCell.includes('pakken');
+      }
+
+      if (textMatch && typeMatch) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
+
+  function toggleFilter(type: string, element: HTMLElement) {
+    if (activeTypeFilter === type) {
+      activeTypeFilter = null;
+      element.classList.remove('ring-2', 'ring-blush-deep', 'border-blush-deep');
+    } else {
+      activeTypeFilter = type;
+      // Reset other
+      [filterDress, filterSuit].forEach(el => el?.classList.remove('ring-2', 'ring-blush-deep', 'border-blush-deep'));
+      element.classList.add('ring-2', 'ring-blush-deep', 'border-blush-deep');
+    }
+    filterRows();
+  }
+
+  filterDress?.addEventListener('click', () => toggleFilter('dress', filterDress));
+  filterSuit?.addEventListener('click', () => toggleFilter('suit', filterSuit));
+  searchInput?.addEventListener('input', filterRows);
+</script>
