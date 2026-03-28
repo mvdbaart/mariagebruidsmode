@@ -5,69 +5,121 @@ const settings = await getSiteSettings(Astro);
 const logoUrl = settings?.logo_url ?? null;
 const c = (settings?.contact_info ?? {}) as Record<string, string>;
 
-const address   = c.address      || 'Langstraat 128';
-const postal    = c.postal_code  || '5664 GK';
-const city      = c.city         || 'Geldrop';
-const phone     = c.phone        || '040 286 3673';
-const phoneHref = 'tel:' + (c.phone || '+31402863673').replace(/\s/g, '');
-const email     = c.email        || 'info@mariagebruidsmode.nl';
+const phone     = c.phone || '(0)40 286 91 65';
+const phoneHref = 'tel:' + (c.phone || '+31402869165').replace(/[\s()]/g, '');
+const email     = c.email || 'bruidsmode@mariagebruidsmode.nl';
 const year      = new Date().getFullYear();
 ---
 
-<footer class="bg-charcoal text-warm-white pt-24 pb-12 px-6">
+<footer class="bg-charcoal text-warm-white pt-20 pb-10 px-6">
   <div class="container mx-auto max-w-6xl">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-16 mb-20">
-      
-      <!-- Contact Info -->
-      <div>
-        <h4 class="text-[11px] tracking-[0.2em] uppercase text-white/40 mb-8 font-body">Contact Info</h4>
-        <div class="space-y-4 text-sm font-body font-light">
-          <p class="text-lg font-display text-white">{phone}</p>
-          <p class="text-white/60">{email}</p>
-          <div class="flex gap-4 pt-4">
-            <a href="#" class="text-white/40 hover:text-blush-deep transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-            </a>
-            <a href="#" class="text-white/40 hover:text-blush-deep transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
-            </a>
+
+    <!-- Top grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+
+      <!-- Kolom 1: Merk + contact -->
+      <div class="space-y-6">
+        <a href="/" class="inline-block">
+          {logoUrl ? (
+            <img src={logoUrl} alt="Mariage Bruidsmode" class="h-8 w-auto object-contain brightness-0 invert" />
+          ) : (
+            <span class="font-display text-xl text-white tracking-[0.15em]">MARIAGE</span>
+          )}
+        </a>
+        <p class="text-white/50 font-body font-light text-xs leading-relaxed">
+          Exclusief bruidsmodehuis in Geldrop.<br/>Al meer dan 30 jaar jouw droomjurk.
+        </p>
+        <div class="space-y-2 text-xs font-body font-light">
+          <a href={phoneHref} class="block text-white/70 hover:text-white transition-colors">{phone}</a>
+          <a href={`mailto:${email}`} class="block text-white/70 hover:text-white transition-colors">{email}</a>
+          <div class="pt-2 text-white/50 text-xs leading-relaxed">
+            <p>Parallelweg 26e</p>
+            <p>5664 AD Geldrop</p>
+            <a href="https://www.google.com/maps/dir//Parallelweg+26e,+5664+AD+Geldrop" target="_blank" rel="noopener" class="inline-block mt-2 border-b border-white/20 pb-0.5 hover:border-blush-deep hover:text-white transition-colors tracking-widest uppercase text-[9px]">Route plannen</a>
           </div>
         </div>
-      </div>
-
-      <!-- Location -->
-      <div>
-        <h4 class="text-[11px] tracking-[0.2em] uppercase text-white/40 mb-8 font-body">Location</h4>
-        <div class="space-y-2 text-sm font-body font-light text-white/80">
-          <p>{address}</p>
-          <p>{postal} {city}</p>
-          <p>The Netherlands</p>
-          <a href="#" class="inline-block mt-4 text-[10px] tracking-widest uppercase border-b border-white/20 pb-1 hover:border-blush-deep transition-colors">Route plannen</a>
+        <div class="flex gap-4 pt-1">
+          <a href="https://www.instagram.com/mariagebruidsmode" target="_blank" rel="noopener" aria-label="Instagram" class="text-white/40 hover:text-blush-deep transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+          <a href="https://www.facebook.com/mariagebruidsmode" target="_blank" rel="noopener" aria-label="Facebook" class="text-white/40 hover:text-blush-deep transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
         </div>
       </div>
 
-      <!-- Single-field appointment -->
+      <!-- Kolom 2: Collecties -->
       <div>
-        <h4 class="text-[11px] tracking-[0.2em] uppercase text-white/40 mb-8 font-body">Single-field appointment request</h4>
-        <form class="space-y-4">
-          <input 
-            type="email" 
-            placeholder="Email" 
-            class="w-full bg-white/5 border border-white/10 px-4 py-3 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-blush-deep transition-colors"
-          />
-          <button class="w-full bg-blush-deep text-white py-3 text-[10px] tracking-[0.3em] uppercase font-body hover:bg-opacity-90 transition-all">
-            Verzenden
-          </button>
-        </form>
+        <h4 class="text-[10px] tracking-[0.3em] uppercase text-white/40 mb-6 font-body">Collecties</h4>
+        <ul class="space-y-3">
+          {[
+            { label: 'Trouwjurken',       href: '/trouwjurken' },
+            { label: 'Trouwpakken',       href: '/trouwpakken' },
+            { label: 'Kinderjurkjes',     href: '/kinderjurkjes' },
+            { label: 'Accessoires',       href: '/bruid/accessoires' },
+            { label: 'Bruidsschoenen',    href: '/bruidsschoenen' },
+            { label: 'VIP Arrangement',   href: '/vip-arrangement' },
+            { label: 'Inspiratie',        href: '/inspiratie' },
+            { label: 'Blog',              href: '/blog' },
+          ].map(({ label, href }) => (
+            <li>
+              <a href={href} class="text-xs font-body font-light text-white/60 hover:text-white transition-colors">{label}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Kolom 3: Over Ons -->
+      <div>
+        <h4 class="text-[10px] tracking-[0.3em] uppercase text-white/40 mb-6 font-body">Over Ons</h4>
+        <ul class="space-y-3">
+          {[
+            { label: 'Over Ons',     href: '/over-ons' },
+            { label: 'Onze Winkel', href: '/onze-winkel' },
+            { label: 'Het Team',    href: '/het-team' },
+            { label: 'Events',      href: '/events' },
+            { label: 'FAQ',         href: '/faq' },
+            { label: 'Vacatures',   href: '/vacatures' },
+            { label: 'Contact',     href: '/contact' },
+          ].map(({ label, href }) => (
+            <li>
+              <a href={href} class="text-xs font-body font-light text-white/60 hover:text-white transition-colors">{label}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Kolom 4: Openingstijden -->
+      <div>
+        <h4 class="text-[10px] tracking-[0.3em] uppercase text-white/40 mb-6 font-body">Openingstijden</h4>
+        <ul class="space-y-2.5">
+          {[
+            { dag: 'Maandag',   tijd: 'Gesloten' },
+            { dag: 'Di – Vr',   tijd: '10:00 – 17:30' },
+            { dag: 'Zaterdag',  tijd: '9:30 – 17:00' },
+            { dag: 'Zondag',    tijd: 'Op afspraak' },
+          ].map(({ dag, tijd }) => (
+            <li class="flex justify-between text-xs font-body font-light border-b border-white/5 pb-2.5">
+              <span class="text-white/50">{dag}</span>
+              <span class={tijd === 'Gesloten' ? 'text-white/25' : 'text-white/70'}>{tijd}</span>
+            </li>
+          ))}
+        </ul>
+        <a href="https://nlmariage-kremen.savviihq.com/online-agenda/" target="_blank" rel="noopener" class="inline-block mt-6 btn-gold text-[9px] py-2.5 px-5">
+          Afspraak maken
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[9px] tracking-[0.2em] uppercase text-white/25 font-body">
+      <p>© {year} Mariage Bruidsmode — Geldrop</p>
+      <div class="flex gap-8">
+        <a href="/privacy" class="hover:text-white/60 transition-colors">Privacybeleid</a>
+        <a href="/voorwaarden" class="hover:text-white/60 transition-colors">Voorwaarden</a>
       </div>
     </div>
 
-    <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[9px] tracking-[0.2em] uppercase text-white/30 font-body">
-      <p>Copyright © {year} • Mariage • All Rights Reserved</p>
-      <div class="flex gap-8">
-        <a href="/privacy" class="hover:text-white transition-colors">Privacy</a>
-        <a href="/voorwaarden" class="hover:text-white transition-colors">Terms</a>
-      </div>
-    </div>
   </div>
 </footer>
