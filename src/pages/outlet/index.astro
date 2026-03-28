@@ -1,0 +1,128 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { supabase } from '../../lib/supabase';
+
+const { data: outletProducts } = await supabase
+  .from('products')
+  .select('id, name, slug, brand, price_range, sale_price, images, collection_id, pasvorm, kleur, categorieen, in_stock')
+  .contains('categorieen', ['outlet'])
+  .order('created_at', { ascending: false });
+
+const fallbackImage = '/images/jurkvormen/a-lijn.png';
+---
+
+<Layout title="Outlet | Mariage Bruidsmode">
+
+  <!-- Hero -->
+  <section class="pt-40 pb-20 bg-ivory border-b border-champagne">
+    <div class="container mx-auto px-6 max-w-4xl">
+      <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-6">Outlet</p>
+      <h1 class="font-display font-normal text-charcoal leading-tight mb-6" style="font-size: clamp(40px, 6vw, 64px);">
+        Outlet <em class="italic font-light text-taupe">collectie</em>
+      </h1>
+      <p class="text-taupe font-light leading-relaxed max-w-2xl mb-4">
+        Ontdek onze outlet collectie: showroom- en stalen jurken en pakken met een aantrekkelijke korting. Stuk voor stuk uniek, altijd in uitstekende staat.
+      </p>
+      <p class="text-taupe/60 font-light text-sm">
+        Outletartikelen worden verkocht "as is" en zijn niet inwisselbaar of retourneerbaar.
+      </p>
+    </div>
+  </section>
+
+  <!-- Producten grid -->
+  <section class="py-16 bg-white">
+    <div class="container mx-auto px-6 max-w-7xl">
+      {(outletProducts ?? []).length === 0 ? (
+        <div class="text-center py-24">
+          <p class="font-display text-charcoal text-3xl mb-4">Op dit moment geen outlet artikelen</p>
+          <p class="text-taupe font-light mb-8">Wij vernieuwen onze outlet collectie regelmatig. Kom gerust langs of maak een afspraak.</p>
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="/trouwjurken" class="btn-gold">Bekijk alle trouwjurken</a>
+            <a href="/afspraak-maken" class="btn-premium">Afspraak maken</a>
+          </div>
+        </div>
+      ) : (
+        <>
+          <p class="text-taupe font-light text-sm mb-10">{outletProducts!.length} {outletProducts!.length === 1 ? 'artikel' : 'artikelen'} beschikbaar</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {outletProducts!.map((product) => {
+              const img = product.images?.[0] ?? fallbackImage;
+              const hasDiscount = product.sale_price && product.price_range;
+              return (
+                <a href={`/product/${product.slug}`} class="group block">
+                  <div class="relative overflow-hidden bg-ivory aspect-[3/4] mb-4">
+                    <img
+                      src={img}
+                      alt={product.name}
+                      class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                    <div class="absolute top-3 left-3">
+                      <span class="bg-blush-deep text-white text-[9px] tracking-[0.2em] uppercase px-3 py-1 font-body">Outlet</span>
+                    </div>
+                    {!product.in_stock && (
+                      <div class="absolute top-3 right-3">
+                        <span class="bg-charcoal text-white text-[9px] tracking-[0.2em] uppercase px-3 py-1 font-body">Verkocht</span>
+                      </div>
+                    )}
+                  </div>
+                  <div class="space-y-1">
+                    {product.brand && (
+                      <p class="text-[9px] tracking-[0.3em] uppercase text-taupe/60 font-body">{product.brand}</p>
+                    )}
+                    <h3 class="font-display text-charcoal text-lg group-hover:text-blush-deep transition-colors">{product.name}</h3>
+                    {product.pasvorm && (
+                      <p class="text-xs text-taupe font-light">{product.pasvorm}</p>
+                    )}
+                    <div class="flex items-center gap-3 pt-1">
+                      {hasDiscount ? (
+                        <>
+                          <span class="text-blush-deep font-body text-sm">€{product.sale_price}</span>
+                          <span class="text-taupe/40 font-light text-xs line-through">{product.price_range}</span>
+                        </>
+                      ) : product.price_range ? (
+                        <span class="text-charcoal font-body text-sm">{product.price_range}</span>
+                      ) : null}
+                    </div>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </div>
+  </section>
+
+  <!-- Info sectie -->
+  <section class="py-20 bg-ivory border-t border-champagne">
+    <div class="container mx-auto px-6 max-w-5xl">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
+        {[
+          { titel: 'Altijd in topstaat', tekst: 'Onze outletartikelen zijn showroomexemplaren en stalen die in uitstekende staat verkeren.' },
+          { titel: 'Directe beschikbaarheid', tekst: 'Outletartikelen zijn beschikbaar voor directe meename — geen wachttijd op bestelling.' },
+          { titel: 'Aanpassingen mogelijk', tekst: 'Onze coupeuses kunnen ook outletjurken aanpassen voor de perfecte pasvorm.' },
+        ].map(({ titel, tekst }) => (
+          <div class="space-y-3">
+            <div class="w-px h-8 bg-blush mx-auto"></div>
+            <h3 class="font-display text-charcoal text-xl">{titel}</h3>
+            <p class="text-taupe font-light text-sm leading-relaxed">{tekst}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-20 bg-charcoal text-center">
+    <div class="container mx-auto px-6 max-w-xl">
+      <p class="text-[10px] tracking-[0.4em] uppercase text-blush font-body mb-4">Persoonlijk advies</p>
+      <h2 class="font-display text-warm-white text-3xl mb-6">Vragen over <em class="italic text-blush font-light">onze outlet?</em></h2>
+      <p class="text-warm-white/60 font-light text-sm mb-10">
+        Maak een afspraak en kom de outletjurken in het echt bekijken. Onze stylisten helpen je graag.
+      </p>
+      <a href="/afspraak-maken" class="btn-gold">Afspraak maken</a>
+    </div>
+  </section>
+
+</Layout>

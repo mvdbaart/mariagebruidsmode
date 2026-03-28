@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getServiceRoleClient } from '../../lib/serverAuth';
+import { Resend } from 'resend';
 
 const VALID_TYPES = new Set(['standard_bride', 'standard_groom', 'vip']);
 
@@ -144,6 +145,32 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       });
     }
 
+    // Send confirmation email (non-blocking — don't fail the request if email fails)
+    const resendApiKey = import.meta.env.RESEND_API_KEY;
+    if (resendApiKey && email) {
+      try {
+        const resend = new Resend(resendApiKey);
+        const fromEmail = import.meta.env.RESEND_FROM_EMAIL || 'Mariage Bruidsmode <onboarding@resend.dev>';
+        const typeLabels: Record<string, string> = {
+          standard_bride: 'Bruid pasafspraak',
+          standard_groom: 'Bruidegom pasafspraak',
+          vip: 'VIP arrangement',
+        };
+        const typeLabel = typeLabels[appointmentType!] ?? appointmentType;
+        const [y, m, d] = preferredDate!.split('-');
+        const formattedDate = `${d}-${m}-${y}`;
+        const html = buildConfirmationHtml(fullName!, email, formattedDate, startTime, endTime, typeLabel, message);
+        await resend.emails.send({
+          from: fromEmail,
+          to: [email],
+          subject: 'Afspraakbevestiging — Mariage Bruidsmode',
+          html,
+        });
+      } catch (emailErr) {
+        console.error('[appointments] Confirmation email failed:', emailErr);
+      }
+    }
+
     return new Response(JSON.stringify({ ok: true }), {
       status: 200,
       headers: { 'content-type': 'application/json' },
@@ -155,6 +182,72 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     });
   }
 };
+
+function buildConfirmationHtml(
+  name: string,
+  email: string,
+  date: string,
+  startTime: string | null,
+  endTime: string | null,
+  type: string,
+  message: string | null,
+): string {
+  const siteUrl = 'https://www.mariagebruidsmode.nl';
+  const timeStr = startTime ? `${startTime}${endTime ? ` – ${endTime}` : ''}` : 'Nader te bepalen';
+  return `<!DOCTYPE html>
+<html lang="nl">
+<head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Afspraakbevestiging</title></head>
+<body style="margin:0;padding:0;background-color:#FAF7F4;font-family:Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#FAF7F4;">
+    <tr><td align="center" style="padding:32px 16px;">
+      <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
+        <!-- HEADER -->
+        <tr><td style="background-color:#2C2A28;padding:40px;text-align:center;">
+          <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:30px;font-weight:400;color:#C9A96E;letter-spacing:0.35em;text-transform:uppercase;">MARIAGE</p>
+          <p style="margin:6px 0 0;font-family:Arial,sans-serif;font-size:10px;color:#E8C9BB;letter-spacing:0.3em;text-transform:uppercase;">Bruidsmode</p>
+        </td></tr>
+        <!-- BODY -->
+        <tr><td style="background-color:#FAF7F4;padding:40px;">
+          <p style="margin:0 0 16px;font-family:Georgia,'Times New Roman',serif;font-size:22px;color:#2C2A28;">Beste ${name},</p>
+          <p style="margin:0 0 24px;font-family:Arial,sans-serif;font-size:14px;color:#5E534D;line-height:1.7;">
+            Bedankt voor het aanvragen van een afspraak bij Mariage Bruidsmode! Wij hebben jouw aanvraag goed ontvangen en nemen zo spoedig mogelijk contact met je op ter bevestiging.
+          </p>
+          <div style="background-color:#F3EDE6;padding:24px;margin:0 0 24px;">
+            <p style="margin:0 0 8px;font-family:Arial,sans-serif;font-size:10px;color:#A66352;letter-spacing:0.3em;text-transform:uppercase;">Jouw afspraakdetails</p>
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr><td style="padding:6px 0;font-family:Arial,sans-serif;font-size:13px;color:#5E534D;border-bottom:1px solid #E8DDD0;">Type afspraak</td><td style="padding:6px 0;font-family:Arial,sans-serif;font-size:13px;color:#2C2A28;text-align:right;border-bottom:1px solid #E8DDD0;">${type}</td></tr>
+              <tr><td style="padding:6px 0;font-family:Arial,sans-serif;font-size:13px;color:#5E534D;border-bottom:1px solid #E8DDD0;">Datum</td><td style="padding:6px 0;font-family:Arial,sans-serif;font-size:13px;color:#2C2A28;text-align:right;border-bottom:1px solid #E8DDD0;">${date}</td></tr>
+              <tr><td style="padding:6px 0;font-family:Arial,sans-serif;font-size:13px;color:#5E534D;">Tijdblok</td><td style="padding:6px 0;font-family:Arial,sans-serif;font-size:13px;color:#2C2A28;text-align:right;">${timeStr}</td></tr>
+            </table>
+          </div>
+          ${message ? `<p style="margin:0 0 24px;font-family:Arial,sans-serif;font-size:13px;color:#5E534D;line-height:1.7;"><strong>Jouw bericht:</strong><br />${message}</p>` : ''}
+          <p style="margin:0 0 8px;font-family:Arial,sans-serif;font-size:14px;color:#5E534D;line-height:1.7;">
+            Heb je vragen? Neem dan contact met ons op:
+          </p>
+          <p style="margin:0;font-family:Arial,sans-serif;font-size:14px;color:#5E534D;line-height:1.7;">
+            📞 <a href="tel:+31402869165" style="color:#C9A96E;text-decoration:none;">(0)40 286 91 65</a><br />
+            ✉️ <a href="mailto:bruidsmode@mariagebruidsmode.nl" style="color:#C9A96E;text-decoration:none;">bruidsmode@mariagebruidsmode.nl</a>
+          </p>
+        </td></tr>
+        <!-- ADRES -->
+        <tr><td style="background-color:#F3EDE6;padding:24px 40px;text-align:center;">
+          <p style="margin:0;font-family:Arial,sans-serif;font-size:12px;color:#5E534D;line-height:1.8;">
+            Mariage Bruidsmode &nbsp;·&nbsp; Parallelweg 26e, 5664 AD Geldrop<br />
+            <a href="${siteUrl}" style="color:#C9A96E;text-decoration:none;">www.mariagebruidsmode.nl</a>
+          </p>
+        </td></tr>
+        <!-- FOOTER -->
+        <tr><td style="background-color:#2C2A28;padding:24px 40px;text-align:center;">
+          <p style="margin:0;font-family:Arial,sans-serif;font-size:10px;color:#5E534D;line-height:1.6;">
+            Je ontvangt deze e-mail omdat je een afspraak hebt aangevraagd via onze website.
+          </p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
 
 function err(message: string, status = 400) {
   return new Response(JSON.stringify({ error: message }), {

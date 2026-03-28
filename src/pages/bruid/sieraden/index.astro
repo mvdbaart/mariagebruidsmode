@@ -1,0 +1,76 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+
+const types = [
+  { naam: 'Oorbellen', beschrijving: 'Van subtiele studs tot dramatische druppels — oorbellen die aansluiten op de halsuitsnijding van jouw jurk.' },
+  { naam: 'Kettingen', beschrijving: 'Delicate kettingen met parel- of kristaldecoraties voor een tijdloze, elegante uitstraling.' },
+  { naam: 'Armbanden', beschrijving: 'Tennisarmbanden, paarlarmbanden en manchetten die de polsen subtiel accentueren.' },
+  { naam: 'Sets', beschrijving: 'Complete bruidssets met bijpassende oorbellen, ketting en armband voor een harmonieuze look.' },
+];
+---
+
+<Layout title="Bruidssieraden | Mariage Bruidsmode">
+
+  <!-- Hero -->
+  <section class="pt-40 pb-24 bg-ivory">
+    <div class="container mx-auto px-6">
+      <div class="max-w-3xl">
+        <nav class="text-[10px] tracking-[0.2em] uppercase text-taupe/60 font-body mb-8 flex items-center gap-2">
+          <a href="/bruid/accessoires" class="hover:text-taupe transition-colors">Accessoires</a>
+          <span>›</span>
+          <span class="text-taupe">Sieraden</span>
+        </nav>
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-6">Accessoires</p>
+        <h1 class="font-display text-charcoal leading-tight mb-8" style="font-size: clamp(40px, 8vw, 72px); font-weight: 300;">
+          Bruids<em class="italic font-light text-taupe">sieraden</em>
+        </h1>
+        <p class="text-taupe font-light leading-relaxed text-base max-w-xl mb-10">
+          De juiste sieraden maken een bruidslook compleet. Onze collectie bruidssieraden is zorgvuldig samengesteld om de schoonheid van jouw jurk te benadrukken.
+        </p>
+        <a href="/afspraak-maken" class="btn-premium">Afspraak maken</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Types -->
+  <section class="py-24 bg-white border-t border-champagne">
+    <div class="container mx-auto px-6 max-w-4xl">
+      <div class="text-center mb-16">
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">Collectie</p>
+        <h2 class="font-display text-charcoal text-4xl">Onze <em class="italic font-light text-taupe">sieraden</em></h2>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+        {types.map(({ naam, beschrijving }) => (
+          <div class="border border-champagne bg-ivory/40 p-8 space-y-3">
+            <div class="w-px h-6 bg-blush"></div>
+            <h3 class="font-display text-charcoal text-xl">{naam}</h3>
+            <p class="text-taupe font-light text-sm leading-relaxed">{beschrijving}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Tip -->
+  <section class="py-20 bg-ivory border-t border-champagne">
+    <div class="container mx-auto px-6 max-w-3xl text-center">
+      <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">Stylingtip</p>
+      <h2 class="font-display text-charcoal text-3xl mb-6">Less is <em class="italic font-light text-taupe">more</em></h2>
+      <p class="text-taupe font-light text-sm leading-relaxed">
+        Bij een jurk met veel details (kant, kralen, applicaties) kies je voor subtiele sieraden die niet concurreren. Bij een eenvoudige, strakke jurk mag je gerust een statement ketting of oorbellen dragen. Onze stylisten adviseren je graag.
+      </p>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-20 bg-charcoal text-center">
+    <div class="container mx-auto px-6 max-w-xl">
+      <h2 class="font-display text-warm-white text-3xl mb-4">Sieraden <em class="italic text-blush font-light">uitproberen?</em></h2>
+      <p class="text-warm-white/60 font-light text-sm mb-8">
+        Bekijk onze sieradencollectie tijdens een pasafspraak — zo zie je precies hoe alles samenkomen.
+      </p>
+      <a href="/afspraak-maken" class="btn-gold">Afspraak maken</a>
+    </div>
+  </section>
+
+</Layout>

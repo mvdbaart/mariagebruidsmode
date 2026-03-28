@@ -1,0 +1,155 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const reviews = [
+  {
+    naam: 'Laura & Thomas',
+    datum: 'September 2024',
+    sterren: 5,
+    tekst: 'Wat een geweldige ervaring bij Mariage! Van de eerste afspraak tot de ophaaldag voelde ik me als een prinses behandeld. De stylistes namen écht de tijd en hielpen me om mijn droomjurk te vinden — die ik in geen enkele andere winkel had gezien. Absoluut een aanrader!',
+    jurk: 'Bianco Evento',
+  },
+  {
+    naam: 'Sophie & Jeroen',
+    datum: 'Juni 2024',
+    sterren: 5,
+    tekst: 'Wij kwamen voor een trouwpak voor mijn man en zijn vertrokken met een prachtig Cleofe Finati pak. De persoonlijke aandacht en kennis van het team was indrukwekkend. Ze dachten echt mee en het resultaat was perfect. Bedankt Mariage!',
+    jurk: 'Cleofe Finati',
+  },
+  {
+    naam: 'Emma & David',
+    datum: 'Maart 2024',
+    sterren: 5,
+    tekst: 'Na een teleurstellende ervaring elders waren we sceptisch. Maar Mariage heeft ons volledig verrast. Rustige sfeer, geen haast, geweldig advies. De jurk die ik uiteindelijk koos was niet eens wat ik in gedachten had — maar het was de perfecte keuze. Zo blij!',
+    jurk: 'Oksana Mukha',
+  },
+  {
+    naam: 'Nathalie & Sander',
+    datum: 'Oktober 2023',
+    sterren: 5,
+    tekst: 'Van begin tot eind een 10! De aanpassingen waren perfect, de communicatie vlot en de jurk was een droom. Zelfs ons boeket werd hier aangemeld — niets was te gek. We raden Mariage aan iedereen aan!',
+    jurk: 'Damy Couture',
+  },
+  {
+    naam: 'Iris & Finn',
+    datum: 'Augustus 2023',
+    sterren: 5,
+    tekst: 'Als bruidsmeisjesgroep kwamen we met 5 meiden tegelijk. Geen enkel probleem — we werden allemaal geholpen met aandacht en plezier. De jurken zaten perfect en pasten mooi bij de bruidslook. Dank jullie wel!',
+    jurk: 'Bruidsmeisjesjurken',
+  },
+  {
+    naam: 'Charlotte & Pieter',
+    datum: 'Mei 2023',
+    sterren: 5,
+    tekst: 'Mariage heeft mijn bruiloft compleet gemaakt. De styliste zag meteen wat bij mij paste en had gelijk. Na één afspraak wist ik al dat dit mijn jurk was. De sfeer in de winkel is warm, professioneel en inspirerend. Een unieke winkel!',
+    jurk: 'San Patrick',
+  },
+];
+---
+
+<Layout title="Reviews & Ervaringen | Mariage Bruidsmode">
+
+  <!-- Hero -->
+  <section class="pt-40 pb-20 bg-ivory">
+    <div class="container mx-auto px-6 text-center max-w-3xl">
+      <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-6">Ervaringen</p>
+      <h1 class="font-display text-charcoal leading-tight mb-6" style="font-size: clamp(40px, 8vw, 72px); font-weight: 300;">
+        Wat onze <em class="italic font-light text-taupe">bruiden zeggen</em>
+      </h1>
+      <p class="text-taupe font-light leading-relaxed text-base max-w-xl mx-auto">
+        Niets is mooier dan de verhalen van bruiden die hun droomjurk bij ons hebben gevonden. Lees hun ervaringen en laat je inspireren.
+      </p>
+    </div>
+  </section>
+
+  <!-- Sterren gemiddelde -->
+  <section class="py-12 bg-white border-y border-champagne">
+    <div class="container mx-auto px-6 max-w-3xl">
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-8 text-center">
+        <div>
+          <p class="font-display text-charcoal text-6xl mb-1">4.9</p>
+          <div class="flex justify-center gap-1 mb-1">
+            {Array(5).fill(0).map(() => (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#C9A96E" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+            ))}
+          </div>
+          <p class="text-taupe font-light text-xs tracking-wider">Gemiddelde beoordeling</p>
+        </div>
+        <div class="w-px h-16 bg-champagne hidden sm:block"></div>
+        <div>
+          <p class="font-display text-charcoal text-6xl mb-1">{reviews.length}</p>
+          <p class="text-taupe font-light text-xs tracking-wider">Beoordelingen</p>
+        </div>
+        <div class="w-px h-16 bg-champagne hidden sm:block"></div>
+        <div>
+          <p class="font-display text-charcoal text-6xl mb-1">30+</p>
+          <p class="text-taupe font-light text-xs tracking-wider">Jaar ervaring</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reviews grid -->
+  <section class="py-24 bg-white">
+    <div class="container mx-auto px-6 max-w-6xl">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {reviews.map(({ naam, datum, sterren, tekst, jurk }) => (
+          <div class="bg-ivory border border-champagne p-8 flex flex-col gap-6">
+            <!-- Sterren -->
+            <div class="flex gap-1">
+              {Array(sterren).fill(0).map(() => (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#C9A96E" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+              ))}
+            </div>
+            <!-- Tekst -->
+            <p class="text-taupe font-light text-sm leading-relaxed italic flex-1">"{tekst}"</p>
+            <!-- Footer -->
+            <div class="pt-4 border-t border-champagne flex justify-between items-end">
+              <div>
+                <p class="font-display text-charcoal text-base">{naam}</p>
+                <p class="text-taupe/60 font-light text-xs">{datum}</p>
+              </div>
+              <p class="text-[9px] tracking-[0.2em] uppercase text-blush-deep font-body">{jurk}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Google Reviews CTA -->
+  <section class="py-20 bg-ivory border-t border-champagne">
+    <div class="container mx-auto px-6 max-w-3xl text-center">
+      <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">Jouw mening telt</p>
+      <h2 class="font-display text-charcoal text-3xl mb-4">Deel jouw <em class="italic font-light text-taupe">ervaring</em></h2>
+      <p class="text-taupe font-light text-sm leading-relaxed mb-8 max-w-xl mx-auto">
+        Was jij ook een Mariage-bruid? Wij zijn altijd blij met jouw verhaal. Laat een review achter op Google en help andere bruiden bij hun keuze.
+      </p>
+      <a
+        href="https://www.google.com/search?q=Mariage+Bruidsmode+Geldrop#lrd=0x0:0x0,1"
+        target="_blank"
+        rel="noopener"
+        class="btn-gold"
+      >
+        Review achterlaten op Google
+      </a>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-20 bg-charcoal text-center">
+    <div class="container mx-auto px-6 max-w-xl">
+      <p class="text-[10px] tracking-[0.4em] uppercase text-blush font-body mb-4">Jouw droomjurk wacht</p>
+      <h2 class="font-display text-warm-white text-3xl mb-6">Maak een <em class="italic text-blush font-light">afspraak</em></h2>
+      <p class="text-warm-white/60 font-light text-sm mb-10">
+        Sluit je aan bij honderden bruiden die hun droomjurk bij Mariage hebben gevonden.
+      </p>
+      <a href="/afspraak-maken" class="btn-gold">Afspraak maken</a>
+    </div>
+  </section>
+
+</Layout>

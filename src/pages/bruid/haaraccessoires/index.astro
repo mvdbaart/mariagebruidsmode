@@ -1,0 +1,67 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+
+const types = [
+  { naam: 'Tiara\'s & kronen', beschrijving: 'Van subtiele kristaltiara\'s tot koninklijke kronen — voor de bruid die een prinses wil zijn.' },
+  { naam: 'Haarbanden', beschrijving: 'Romantische bloemenkransen, parel- en kristalhaarbanden voor elke haarstijl.' },
+  { naam: 'Haarspelden & clips', beschrijving: 'Decoratieve spelden en clips om je updo of halve opsteekkapsels te accentueren.' },
+  { naam: 'Haarstokken', beschrijving: 'Elegante haarstokken met kristal- of paarldecoraties voor een verfijnde updo.' },
+  { naam: 'Bloemenkransen', beschrijving: 'Verse of gesimuleerde bloemenkransen voor een romantisch, bohemian gevoel.' },
+  { naam: 'Hoofdbanden', beschrijving: 'Brede en smalle hoofdbanden in diverse stijlen, van minimalistisch tot statement.' },
+];
+---
+
+<Layout title="Haaraccessoires voor de Bruid | Mariage Bruidsmode">
+
+  <!-- Hero -->
+  <section class="pt-40 pb-24 bg-ivory">
+    <div class="container mx-auto px-6">
+      <div class="max-w-3xl">
+        <nav class="text-[10px] tracking-[0.2em] uppercase text-taupe/60 font-body mb-8 flex items-center gap-2">
+          <a href="/bruid/accessoires" class="hover:text-taupe transition-colors">Accessoires</a>
+          <span>›</span>
+          <span class="text-taupe">Haaraccessoires</span>
+        </nav>
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-6">Accessoires</p>
+        <h1 class="font-display text-charcoal leading-tight mb-8" style="font-size: clamp(40px, 8vw, 72px); font-weight: 300;">
+          Haar<em class="italic font-light text-taupe">accessoires</em>
+        </h1>
+        <p class="text-taupe font-light leading-relaxed text-base max-w-xl mb-10">
+          Jouw haarstyling is een essentieel onderdeel van de complete bruidslook. Onze collectie haaraccessoires biedt voor elke stijl en elk kapsel de perfecte afwerking.
+        </p>
+        <a href="/afspraak-maken" class="btn-premium">Afspraak maken</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Types -->
+  <section class="py-24 bg-white border-t border-champagne">
+    <div class="container mx-auto px-6 max-w-5xl">
+      <div class="text-center mb-16">
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">Collectie</p>
+        <h2 class="font-display text-charcoal text-4xl">Onze <em class="italic font-light text-taupe">haaraccessoires</em></h2>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+        {types.map(({ naam, beschrijving }) => (
+          <div class="border border-champagne bg-ivory/40 p-6 space-y-3">
+            <div class="w-px h-6 bg-blush"></div>
+            <h3 class="font-display text-charcoal text-lg">{naam}</h3>
+            <p class="text-taupe font-light text-sm leading-relaxed">{beschrijving}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-20 bg-charcoal text-center">
+    <div class="container mx-auto px-6 max-w-xl">
+      <h2 class="font-display text-warm-white text-3xl mb-4">Laat je <em class="italic text-blush font-light">inspireren</em></h2>
+      <p class="text-warm-white/60 font-light text-sm mb-8">
+        Bekijk onze haaraccessoires tijdens je pasafspraak — zo vind je de perfecte combinatie met je jurk.
+      </p>
+      <a href="/afspraak-maken" class="btn-gold">Afspraak maken</a>
+    </div>
+  </section>
+
+</Layout>

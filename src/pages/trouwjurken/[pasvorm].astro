@@ -1,0 +1,153 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ProductFilter from '../../components/ProductFilter';
+import { supabase } from '../../lib/supabase';
+
+export async function getStaticPaths() {
+  return [
+    { params: { pasvorm: 'a-lijn' } },
+    { params: { pasvorm: 'ballerina' } },
+    { params: { pasvorm: 'empire' } },
+    { params: { pasvorm: 'prinses' } },
+    { params: { pasvorm: 'zeemeermin' } },
+    { params: { pasvorm: 'stijl' } },
+    { params: { pasvorm: 'trumpet' } },
+  ];
+}
+
+const PASVORM_META: Record<string, { label: string; beschrijving: string; seoTip: string }> = {
+  'a-lijn': {
+    label: 'A-lijn',
+    beschrijving: 'De A-lijn trouwjurk is de meest klassieke en universeel flatterende silhouet. Hij is nauw aansluitend bij het bovenlichaam en wijdt geleidelijk uit naar beneden — als de letter A. Perfect voor vrijwel elk lichaamstype.',
+    seoTip: 'De tijdloze A-lijn is ideaal als je een elegante, vrouwelijke uitstraling wil zonder overdaad.',
+  },
+  'ballerina': {
+    label: 'Ballerina',
+    beschrijving: 'De ballerinajurk heeft een romantische tule rok die uitwaaiert tot de knie of midi-lengte, geïnspireerd op het ballet. Luchtig, speels en ideaal voor een zomerse of buitenbruiloft.',
+    seoTip: 'Kies een ballerinajurk als je wil dansen tot in de vroege uurtjes zonder te struikelen over je sleep.',
+  },
+  'empire': {
+    label: 'Empire',
+    beschrijving: 'Een empirejurk heeft een hoge taille direct onder de borsten en valt soepel langs het lichaam. Dit silhouet is sierlijk, comfortabel en bijzonder flatterend voor bruid met een langere romp.',
+    seoTip: 'De empiresilhouet geeft een romantisch, Grieks-klassiek gevoel en werkt goed voor elke lichaamsbouw.',
+  },
+  'prinses': {
+    label: 'Prinses',
+    beschrijving: 'De prinsessenjurk is het ultieme bruidsdroom: nauw bij het lijf met een volle, uitbollende rok. Dankzij de naaddetails (princessnaden) sluit hij perfect aan zonder aparte taille-naad.',
+    seoTip: 'Wil je de echt sprookjesachtige prinses-uitstraling op je trouwdag? Dan is dit jouw silhouet.',
+  },
+  'zeemeermin': {
+    label: 'Zeemeermin',
+    beschrijving: 'De zeemeerminjurk omsluit het volledige lichaam tot onder de knie en wijdt dan dramatisch uit. Sensueel, sculptural en ideaal voor een bruid die haar curves wil vieren.',
+    seoTip: 'Dit figuurvolgend silhouet vraagt om zelfvertrouwen — en geeft het ook.',
+  },
+  'stijl': {
+    label: 'Stijl (Sheath)',
+    beschrijving: 'Een stijljurk (ook wel "column" of "sheath") heeft een rechte, figuurvolgede lijn van boven tot onder. Minimalistisch, modern en tijdloos elegant. Perfect voor de minimalist bride.',
+    seoTip: 'Less is more: de stijljurk straalt moderniteit en zelfverzekerde elegantie uit.',
+  },
+  'trumpet': {
+    label: 'Trumpet',
+    beschrijving: 'Vergelijkbaar met zeemeermin maar iets minder strak — de trompetjurk wijdt uit iets hoger dan de knie, wat meer bewegingsvrijheid geeft. Een flaterende middenweg tussen stijl en drama.',
+    seoTip: 'De trumpetjurk combineert de dramatiek van de zeemeermin met iets meer comfort.',
+  },
+};
+
+const { pasvorm } = Astro.params;
+const meta = PASVORM_META[pasvorm ?? ''];
+
+if (!meta) {
+  return Astro.redirect('/trouwjurken');
+}
+
+const { data: collections } = await supabase
+  .from('collections')
+  .select('id, title, slug, type')
+  .eq('type', 'dress')
+  .order('title', { ascending: true });
+
+const collectionIds = (collections ?? []).map((col) => col.id);
+
+const { data: filteredProducts } = await supabase
+  .from('products')
+  .select('id, name, slug, brand, price_range, sale_price, features, images, collection_id, pasvorm, hals, mouw, materialen, kleur, categorieen, in_stock')
+  .in('collection_id', collectionIds.length ? collectionIds : ['00000000-0000-0000-0000-000000000000'])
+  .ilike('pasvorm', `%${meta.label}%`)
+  .order('created_at', { ascending: false });
+
+const dressFallbackImage = '/images/jurkvormen/a-lijn.png';
+const collectionsForFilter = (collections ?? []).map(({ id, title, slug }) => ({ id, title, slug }));
+---
+
+<Layout title={`${meta.label} Trouwjurken | Mariage Bruidsmode`}>
+
+  <!-- Hero -->
+  <div class="pt-40 pb-20 bg-ivory border-b border-champagne">
+    <div class="container mx-auto px-6 max-w-4xl">
+      <nav class="text-[10px] tracking-[0.2em] uppercase text-taupe/60 font-body mb-8 flex items-center gap-2">
+        <a href="/trouwjurken" class="hover:text-taupe transition-colors">Trouwjurken</a>
+        <span>›</span>
+        <span class="text-taupe">{meta.label}</span>
+      </nav>
+      <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-6">Silhouet</p>
+      <h1 class="font-display font-normal text-charcoal leading-tight mb-6" style="font-size: clamp(36px, 6vw, 60px);">
+        {meta.label} <em class="italic font-light text-taupe">trouwjurken</em>
+      </h1>
+      <p class="text-taupe font-light leading-relaxed max-w-2xl mb-4">{meta.beschrijving}</p>
+      <p class="text-taupe/60 font-light text-sm italic">{meta.seoTip}</p>
+    </div>
+  </div>
+
+  <!-- Filter + producten -->
+  {(filteredProducts ?? []).length > 0 ? (
+    <ProductFilter
+      client:load
+      products={filteredProducts ?? []}
+      collections={collectionsForFilter}
+      fallbackImage={dressFallbackImage}
+    />
+  ) : (
+    <section class="py-32 text-center bg-white">
+      <div class="container mx-auto px-6 max-w-xl">
+        <p class="font-display text-charcoal text-3xl mb-4">Geen {meta.label} jurken gevonden</p>
+        <p class="text-taupe font-light mb-8">Bekijk onze volledige collectie of maak een afspraak voor persoonlijk advies.</p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a href="/trouwjurken" class="btn-gold">Alle trouwjurken</a>
+          <a href="/afspraak-maken" class="btn-premium">Afspraak maken</a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Andere silhouetten -->
+  <section class="py-20 bg-ivory border-t border-champagne">
+    <div class="container mx-auto px-6 max-w-5xl">
+      <div class="text-center mb-10">
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-3">Ontdek meer</p>
+        <h2 class="font-display text-charcoal text-3xl">Andere <em class="italic font-light text-taupe">silhouetten</em></h2>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+        {Object.entries(PASVORM_META).filter(([slug]) => slug !== pasvorm).map(([slug, m]) => (
+          <a href={`/trouwjurken/${slug}`} class="border border-champagne bg-white hover:border-blush-deep hover:bg-ivory transition-all p-4 text-center group">
+            <p class="font-display text-charcoal text-base group-hover:text-blush-deep transition-colors">{m.label}</p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-24 bg-charcoal text-center">
+    <div class="container mx-auto px-6 max-w-xl">
+      <p class="text-[10px] tracking-[0.3em] uppercase text-gold-light font-body mb-4">Persoonlijk advies</p>
+      <h2 class="font-display font-normal text-warm-white mb-6" style="font-size: clamp(24px, 3vw, 40px);">
+        Weet je niet zeker welk silhouet past?
+      </h2>
+      <p class="text-taupe-light font-light text-sm leading-relaxed mb-10">
+        Onze stylisten helpen je om het perfecte silhouet voor jouw lichaam en persoonlijkheid te vinden. Maak een afspraak.
+      </p>
+      <a href="/afspraak-maken" class="btn-blush">Maak een pasafspraak</a>
+    </div>
+  </section>
+
+</Layout>
