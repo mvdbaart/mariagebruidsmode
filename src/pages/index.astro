@@ -76,112 +76,99 @@ const hasSlider = activeSlides.length > 0;
 <Layout title="Home">
 
   <!-- ===== HERO ===== -->
-  {hasSlider ? (
-    <!-- SLIDER -->
-    <section class="w-full relative bg-linen pt-20 overflow-hidden" id="hero-slider">
-      <!-- Track -->
-      <div id="hero-track" class="flex transition-transform duration-700 ease-in-out will-change-transform">
-        {activeSlides.map((slide) => {
-          const alignClass = slide.text_align === 'left'
-            ? 'items-start text-left pl-8 md:pl-20'
-            : slide.text_align === 'right'
-            ? 'items-end text-right pr-8 md:pr-20'
-            : 'items-center text-center px-6';
-          return (
-            <div class="slide w-full shrink-0 relative">
-              <div class="w-full aspect-[21/9] md:aspect-[21/7] overflow-hidden">
-                <img
-                  src={slide.image_url}
-                  alt={slide.title || 'Hero slide'}
-                  class="w-full h-full object-cover"
-                  loading="eager"
-                />
-              </div>
-              <!-- Overlay -->
-              <div
-                class="absolute inset-0 bg-black pointer-events-none"
-                style={`opacity: ${(slide.overlay_opacity ?? 40) / 100}`}
-              ></div>
-              <!-- Text -->
-              <div class={`absolute inset-0 flex flex-col justify-center gap-4 ${alignClass}`}>
-                {slide.eyebrow && (
-                  <p class="text-[10px] tracking-[0.35em] uppercase text-white/80 font-body">{slide.eyebrow}</p>
-                )}
-                {slide.title && (
-                  <h1 class="font-display text-white leading-tight drop-shadow-lg" style="font-size: clamp(28px, 5vw, 56px); font-weight: 300;">
-                    {slide.title}
-                  </h1>
-                )}
-                {slide.subtitle && (
-                  <p class="text-white/90 font-body font-light text-sm md:text-base max-w-xl drop-shadow">{slide.subtitle}</p>
-                )}
-                {(slide.button1_text || slide.button2_text) && (
-                  <div class={`flex flex-wrap gap-3 mt-2 ${slide.text_align === 'right' ? 'justify-end' : slide.text_align === 'left' ? 'justify-start' : 'justify-center'}`}>
-                    {slide.button1_text && slide.button1_url && (
-                      <a href={slide.button1_url} class="inline-block bg-[#A66352] text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-opacity-90 transition-colors min-w-[180px] text-center">
-                        {slide.button1_text}
-                      </a>
-                    )}
-                    {slide.button2_text && slide.button2_url && (
-                      <a href={slide.button2_url} class="inline-block bg-black text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-gray-900 transition-colors min-w-[180px] text-center">
-                        {slide.button2_text}
-                      </a>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+  <section class="relative w-full h-[85vh] flex items-center justify-center overflow-hidden bg-ivory">
+    <div class="absolute inset-0 z-0">
+      <img 
+        src={heroFallbackImage} 
+        alt="Find Your Perfect Moment" 
+        class="w-full h-full object-cover animate-zoom opacity-80"
+        loading="eager"
+      />
+      <div class="absolute inset-0 bg-gradient-to-b from-charcoal/20 via-transparent to-ivory"></div>
+    </div>
+    
+    <div class="relative z-10 text-center px-6 max-w-4xl">
+      <h1 class="font-display text-charcoal leading-tight mb-8" style="font-size: clamp(42px, 8vw, 84px); font-weight: 300;">
+        Find Your <em class="font-normal italic text-taupe">Perfect</em> Moment
+      </h1>
+      <a href="/afspraak-maken" class="inline-block bg-blush-deep text-white px-12 py-4 text-[12px] tracking-[0.3em] uppercase hover:bg-opacity-90 transition-all shadow-xl">
+        MAAK AFSPRAAK
+      </a>
+    </div>
+  </section>
 
-      {activeSlides.length > 1 && (
-        <>
-          <!-- Prev/Next -->
-          <button id="hero-prev" aria-label="Vorige slide"
-            class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center text-white transition-colors z-10">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
-          </button>
-          <button id="hero-next" aria-label="Volgende slide"
-            class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center text-white transition-colors z-10">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-          </button>
-
-          <!-- Dots -->
-          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-            {activeSlides.map((_, i) => (
-              <button
-                class={`hero-dot w-2 h-2 rounded-full transition-colors ${i === 0 ? 'bg-white' : 'bg-white/40'}`}
-                data-index={i}
-                aria-label={`Slide ${i + 1}`}
-              ></button>
-            ))}
+  <!-- Shop by Style (Mobile only) -->
+  <section class="lg:hidden bg-[#FAF9F6] py-8 border-b border-champagne overflow-x-auto no-scrollbar">
+    <div class="flex items-center gap-10 px-8 min-w-max">
+      {['A-Line', 'Bell Gown', 'Mermaid', 'Boho', 'Outlet'].map(style => (
+        <div class="flex flex-col items-center gap-2">
+          <div class="w-10 h-10 flex items-center justify-center text-charcoal/30">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" class="w-full h-full"><path d="M12 4L4 20H20L12 4Z"/></svg>
           </div>
-        </>
-      )}
-    </section>
-  ) : (
-    <!-- STATIC FALLBACK -->
-    <section class="w-full relative bg-linen pt-20">
-      <div class="w-full aspect-[21/9] md:aspect-[21/7] overflow-hidden">
-        <img src={heroFallbackImage} alt="Trouwjurken bij Mariage" class="w-full h-full object-cover animate-pan-right" loading="eager" />
-      </div>
-      <div class="text-center py-10 px-4 bg-white">
-        <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-3">Onze collecties</p>
-        <h1 class="font-display text-charcoal leading-tight mb-8" style="font-size: clamp(32px, 5vw, 48px); font-weight: 300;">
-          De mooiste bruidsmode van nu
-        </h1>
-        <div class="flex flex-col items-center gap-3">
-          <a href="/trouwjurken" class="inline-block bg-[#A66352] text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-opacity-90 transition-colors min-w-[220px]">
-            BEKIJK TROUWJURKEN
-          </a>
-          <a href="/afspraak-maken" class="inline-block bg-black text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-gray-900 transition-colors min-w-[220px]">
-            AFSPRAAK MAKEN
+          <span class="text-[9px] tracking-widest uppercase font-body text-charcoal/60">{style}</span>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- The Collections Grid -->
+  <section class="py-24 bg-white">
+    <div class="container mx-auto px-6 max-w-7xl">
+      <h2 class="font-display text-4xl md:text-5xl text-charcoal text-center mb-16">
+        The <em class="font-normal italic text-taupe">Collections</em>
+      </h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6 md:h-[1000px]">
+        <!-- Boho Style (Large Left) -->
+        <div class="md:col-span-4 h-full">
+          <a href="/boho" class="block group relative h-full overflow-hidden">
+            <img src="/images/team/TKF_9016-scaled.jpg" alt="Boho Style" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+            <div class="absolute bottom-8 left-0 right-0 text-center">
+              <span class="text-white font-display text-2xl drop-shadow-md">Boho Style</span>
+            </div>
           </a>
         </div>
+        
+        <!-- Center Column -->
+        <div class="md:col-span-4 flex flex-col gap-6 h-full">
+          <!-- Modern Style (Top) -->
+          <div class="flex-1">
+            <a href="/modern" class="block group relative h-full overflow-hidden">
+              <img src="/images/team/TKF_9043-scaled.jpg" alt="Modern Style" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <div class="absolute bottom-8 left-0 right-0 text-center">
+                <span class="text-white font-display text-2xl drop-shadow-md">Modern Style</span>
+              </div>
+            </a>
+          </div>
+          <!-- Wide Bottom -->
+          <div class="h-[30%]">
+            <a href="/collectie" class="block group relative h-full overflow-hidden">
+              <img src="/images/team/TKF_8994-scaled.jpg" alt="Collectie" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+            </a>
+          </div>
+        </div>
+        
+        <!-- Right Column -->
+        <div class="md:col-span-4 flex flex-col gap-6 h-full">
+          <!-- A-Line (Top) -->
+          <div class="h-[60%]">
+            <a href="/a-line" class="block group relative h-full overflow-hidden">
+              <img src="/images/team/TKF_9208-scaled-scaled.jpg" alt="A-Line Collection" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <div class="absolute bottom-8 left-0 right-0 text-center">
+                <span class="text-white font-display text-2xl drop-shadow-md">A-Line Collection</span>
+              </div>
+            </a>
+          </div>
+          <!-- Smaller Bottom -->
+          <div class="flex-1">
+            <a href="/collectie" class="block group relative h-full overflow-hidden">
+              <img src="/images/team/TKF_9276-scaled-scaled.jpg" alt="Collectie" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+            </a>
+          </div>
+        </div>
       </div>
-    </section>
-  )}
+    </div>
+  </section>
 
   <!-- Product Grid -->
   <section class="pb-16 bg-white">
@@ -214,118 +201,93 @@ const hasSlider = activeSlides.length > 0;
     </div>
   </section>
 
-  <!-- Real Brides & Grooms -->
-  <section class="py-16 bg-white text-center">
-    <div class="container mx-auto px-4">
-      <p class="text-[12px] italic text-[#A66352] font-serif mb-2">{hp.brides_eyebrow || 'Liefde vieren'}</p>
-      <h2 class="font-display text-charcoal mb-8" style="font-size: clamp(28px, 4vw, 42px); font-weight: 300;">{hp.brides_heading || 'Real Brides & Grooms'}</h2>
-
-      <div class="flex flex-col sm:flex-row justify-center items-center gap-3 mb-10">
-        <a href={hp.brides_btn1_url || '/inspiratie'} class="inline-block bg-[#8b8772] text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-opacity-90 transition-colors min-w-[200px]">
-          {hp.brides_btn1_text?.toUpperCase() || 'BEKIJK VERHALEN'}
-        </a>
-        <a href="/inspiratie" class="inline-block bg-[#A66352] text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-opacity-90 transition-colors min-w-[200px]">
-          LEES MEER
-        </a>
+  <!-- Real Brides & Stories -->
+  <section class="py-24 bg-ivory">
+    <div class="container mx-auto px-6 max-w-5xl text-center">
+      <div class="mb-16">
+        <span class="font-signature text-3xl text-blush-deep block mb-[-10px] lowercase opacity-60">the</span>
+        <h2 class="font-display text-4xl md:text-5xl text-charcoal">Real Bride & Stories</h2>
       </div>
 
-      <div class="max-w-5xl mx-auto">
-        <a href={featuredWeddingCard.slug ? `/inspiratie/${featuredWeddingCard.slug}` : '/inspiratie'} class="block relative overflow-hidden group">
-          <div class="aspect-[16/8] w-full overflow-hidden">
-            <img src={featuredWeddingCard.cover_image} alt={`${featuredWeddingCard.bride_name} en ${featuredWeddingCard.groom_name}`} class="w-full h-full object-cover animate-zoom" loading="lazy" />
-          </div>
-          <div class="absolute inset-0 bg-black/40 flex flex-col justify-center items-center text-white px-4">
-            <h3 class="font-display italic text-center leading-tight mb-4 max-w-2xl" style="font-size: clamp(20px, 3.5vw, 36px);">
-              "{hp.brides_quote || 'We voelden ons helemaal onszelf en we vonden elkaar adembenemend prachtig!'}"
-            </h3>
-            <p class="text-xs uppercase tracking-widest font-light">{featuredWeddingCard.bride_name} &amp; {featuredWeddingCard.groom_name}</p>
-          </div>
-        </a>
+      <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mb-16">
+        <a href="/inspiratie" class="btn-gold min-w-[220px]">VIEW STORIES</a>
+        <a href="/afspraak-maken" class="btn-blush min-w-[220px]">BOOK AN APPOINTMENT</a>
+      </div>
+
+      <div class="relative group overflow-hidden shadow-card rounded-sm">
+        <div class="aspect-[16/9] w-full overflow-hidden">
+          <img src={featuredWeddingCard.cover_image} alt="Real Wedding" class="w-full h-full object-cover animate-zoom" />
+        </div>
+        <div class="absolute inset-x-8 bottom-8 bg-white/95 backdrop-blur-md p-8 text-left max-w-md hidden md:block border-l-4 border-blush-deep">
+          <p class="font-signature text-blush-deep text-xl mb-2 lowercase">new story</p>
+          <h3 class="font-display text-2xl text-charcoal mb-4">"We voelden ons helemaal onszelf en we vonden elkaar adembenemend prachtig!"</h3>
+          <a href={featuredWeddingCard.slug ? `/inspiratie/${featuredWeddingCard.slug}` : '/inspiratie'} class="text-[10px] tracking-widest uppercase font-body text-charcoal/60 hover:text-blush-deep transition-colors">Read their story &nbsp;›</a>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Blog -->
-  <section class="py-16 bg-white text-center">
-    <div class="container mx-auto px-4 max-w-6xl">
-      <p class="text-[12px] italic text-[#A66352] font-serif mb-2">{hp.blog_eyebrow || 'Tips & inspiratie'}</p>
-      <h2 class="font-display text-charcoal mb-10" style="font-size: clamp(28px, 4vw, 42px); font-weight: 300;">{hp.blog_heading || 'Mariage blog'}</h2>
+  <!-- Style Guide -->
+  <section class="py-24 bg-white">
+    <div class="container mx-auto px-6 max-w-6xl text-center">
+      <div class="mb-16">
+        <span class="font-signature text-2xl text-blush-deep block mb-[-8px] lowercase opacity-60">mariage selection</span>
+        <h2 class="font-display text-4xl text-charcoal uppercase tracking-wider">Style Guide</h2>
+      </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-        {(latestPosts ?? []).map((post, i) => {
-          const displayImg = (post.cover_image && post.cover_image.startsWith('/images/'))
-            ? post.cover_image
-            : blogFallbacks[i % blogFallbacks.length];
-          return (
-            <article class="group">
-              <a href={`/blog/${post.slug}`} class="block aspect-[16/10] overflow-hidden mb-4 rounded-xl">
-                <img src={displayImg} alt={post.title} class={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${i % 2 === 0 ? 'animate-pan-right' : 'animate-pan-left'}`} loading="lazy" />
-              </a>
-              <p class="text-[10px] tracking-[0.15em] uppercase text-[#e8bfae] font-semibold mb-2">
-                {new Date(post.published_at).toLocaleDateString('nl-NL')}
-              </p>
-              <h3 class="font-display text-charcoal text-xl leading-tight mb-2 group-hover:text-taupe transition-colors">
-                <a href={`/blog/${post.slug}`}>{post.title}</a>
-              </h3>
-              <p class="text-xs text-gray-500 leading-relaxed line-clamp-2">{post.excerpt ?? ''}</p>
-            </article>
-          );
-        })}
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {[
+          { title: 'Real Weddings & Stories of Inspiration', img: '/images/team/TKF_9597-scaled-scaled.jpg' },
+          { title: 'Designing - Summer Trends', img: '/images/team/TKF_9303-scaled-scaled.jpg' },
+          { title: 'Intermixing the Experience: Visit us in our boutique', img: '/images/team/TKF_9055-1-scaled-e1704372521721.jpg' }
+        ].map(item => (
+          <div class="group cursor-pointer">
+            <div class="aspect-square rounded-[32px] overflow-hidden mb-6 shadow-soft group-hover:shadow-card transition-all duration-500">
+              <img src={item.img} alt={item.title} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+            </div>
+            <h3 class="font-display text-xl text-charcoal px-4">{item.title}</h3>
+            <p class="text-[10px] tracking-widest uppercase text-charcoal/40 mt-3 group-hover:text-blush-deep transition-colors tracking-[0.2em]">Ontdek meer &nbsp;›</p>
+          </div>
+        ))}
       </div>
     </div>
   </section>
 
-  <!-- Contact Form -->
-  <section class="py-16 bg-white border-t border-gray-100">
-    <div class="container mx-auto px-4 max-w-5xl">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-        <div class="flex flex-col items-center justify-center text-center">
-          <p class="text-[12px] italic text-[#e8bfae] font-serif mb-2">Vragen?</p>
-          <h3 class="font-display text-charcoal mb-4" style="font-size: clamp(24px, 3vw, 36px); font-weight: 300;">
-            Algemeen contact formulier
-          </h3>
-          <p class="text-xs text-gray-400 mb-8 max-w-sm leading-relaxed">
-            Heb je een vraag, wil je een afspraak maken of ben je op zoek naar iets specifieks? Bel direct of vul het formulier in.
-          </p>
-          <div class="text-sm text-gray-600 mb-6">
-            <p>Langstraat 128, 5664 GK Geldrop</p>
-            <p class="mt-1"><a href="tel:0402863673" class="hover:text-[#e8bfae] transition-colors">040 286 3673</a></p>
-            <p class="mt-1"><a href="mailto:info@mariagebruidsmode.nl" class="hover:text-[#e8bfae] transition-colors">info@mariagebruidsmode.nl</a></p>
-          </div>
-        </div>
-        <div>
-          <form id="quick-contact-form" class="space-y-4">
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="sr-only" for="quick-name">Naam</label>
-                <input id="quick-name" name="full_name" required placeholder="Naam *" class="w-full border-b border-gray-300 px-3 py-3 text-sm bg-transparent focus:outline-none focus:border-[#e8bfae] transition-colors" />
-              </div>
-              <div>
-                <label class="sr-only" for="quick-email">E-mail</label>
-                <input id="quick-email" name="email" type="email" required placeholder="E-mail *" class="w-full border-b border-gray-300 px-3 py-3 text-sm bg-transparent focus:outline-none focus:border-[#e8bfae] transition-colors" />
-              </div>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <input name="phone" type="tel" placeholder="Telefoonnummer" class="w-full border-b border-gray-300 px-3 py-3 text-sm bg-transparent focus:outline-none focus:border-[#e8bfae] transition-colors" />
-              </div>
-              <div>
-                <input name="preferred_date" type="date" class="w-full border-b border-gray-300 px-3 py-3 text-sm bg-transparent focus:outline-none focus:border-[#e8bfae] transition-colors text-gray-500" />
-              </div>
-            </div>
-            <div class="pt-2">
-              <textarea name="message" rows={4} placeholder="Opmerking of vraag" class="w-full border border-gray-200 bg-gray-50/50 p-4 text-sm focus:outline-none focus:border-[#e8bfae] transition-colors"></textarea>
-            </div>
-            <input type="hidden" name="appointment_type" value="standard" />
-            <div class="pt-4 text-right">
-              <button id="quick-submit-btn" type="submit" class="inline-block bg-[#A66352] text-white px-8 py-3 text-[11px] tracking-[0.2em] uppercase hover:bg-opacity-90 transition-colors border-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
-                VERSTUREN
-              </button>
-            </div>
-          </form>
-          <p id="quick-contact-status" class="text-xs mt-3 text-right hidden" role="status" aria-live="polite"></p>
-        </div>
+  <!-- The Mariage Experience -->
+  <section class="py-24 bg-ivory">
+    <div class="container mx-auto px-6 max-w-6xl text-center">
+      <div class="mb-16">
+        <span class="font-signature text-2xl text-blush-deep block mb-[-8px] lowercase opacity-60">the</span>
+        <h2 class="font-display text-4xl text-charcoal">Mariage Experience</h2>
       </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+        {[
+          { name: 'Sanne', quote: 'Ik zou Mariage iedereen aanraden. De aandacht en de service is van ongekende klasse.', img: '/images/team/Sanne.jpg' },
+          { name: 'Bruid Barbara', quote: 'De passie voor bruidsmode straalt ervan af bij alle medewerkers van Mariage.', img: '/images/team/Barbara.jpg' },
+          { name: 'Hester', quote: 'Ik voelde me ontzettend welkom en heb hier mijn droomjurk gevonden!', img: '/images/team/Hester.jpg' }
+        ].map(exp => (
+          <div class="flex flex-col items-center">
+            <div class="w-32 h-32 rounded-full overflow-hidden mb-8 shadow-md border-4 border-white">
+              <img src={galleryFallbacks[4]} alt={exp.name} class="w-full h-full object-cover" />
+            </div>
+            <p class="text-charcoal/80 font-body font-light text-sm leading-relaxed italic mb-4">"{exp.quote}"</p>
+            <span class="text-[10px] tracking-widest uppercase font-body text-taupe">{exp.name}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Schedule Your Fitting -->
+  <section class="py-32 bg-white text-center">
+    <div class="container mx-auto px-6 max-w-3xl border-t border-champagne pt-24">
+      <span class="font-signature text-3xl text-blush-deep block mb-[-10px] lowercase opacity-60">the</span>
+      <h2 class="font-display text-5xl text-charcoal mb-8">Schedule Your Fitting</h2>
+      <p class="font-body text-charcoal/60 font-light mb-12 leading-relaxed">
+        Let us lead the choir of your soul, so that we can find providing only our love and our service, personally giving you the look you truly wish for.
+      </p>
+      <a href="/afspraak-maken" class="btn-blush px-16 py-4">AFSPRAAK PLANNEN</a>
     </div>
   </section>
 </Layout>

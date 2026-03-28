@@ -1,0 +1,152 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const openingstijden = [
+  { dag: 'Maandag', tijd: 'Gesloten' },
+  { dag: 'Dinsdag', tijd: '10:00 – 17:30' },
+  { dag: 'Woensdag', tijd: '10:00 – 17:30' },
+  { dag: 'Donderdag', tijd: '10:00 – 17:30' },
+  { dag: 'Vrijdag', tijd: '10:00 – 17:30' },
+  { dag: 'Zaterdag', tijd: '9:30 – 17:00' },
+  { dag: 'Zondag', tijd: 'Op afspraak' },
+];
+---
+
+<Layout title="Contact | Mariage Bruidsmode">
+
+  <!-- Hero -->
+  <section class="pt-40 pb-16 bg-ivory">
+    <div class="container mx-auto px-6 text-center max-w-3xl">
+      <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-6">Contact</p>
+      <h1 class="font-display text-charcoal leading-tight mb-6" style="font-size: clamp(40px, 8vw, 72px); font-weight: 300;">
+        Neem contact <br/><em class="italic font-light text-taupe">op</em>
+      </h1>
+      <p class="text-taupe font-light leading-relaxed text-base">
+        Heb je een vraag, wil je een afspraak plannen of gewoon even kennismaken? We horen graag van je.
+      </p>
+    </div>
+  </section>
+
+  <!-- Contact content -->
+  <section class="py-16 bg-white">
+    <div class="container mx-auto px-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 max-w-5xl mx-auto">
+
+        <!-- Links: info + openingstijden -->
+        <div class="space-y-12">
+          <!-- Contactgegevens -->
+          <div>
+            <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-6">Contactgegevens</p>
+            <div class="space-y-5 text-sm text-taupe font-light leading-relaxed">
+              <div>
+                <p class="font-body font-medium text-charcoal text-xs tracking-widest uppercase mb-1">Adres</p>
+                <p>Parallelweg 26e<br/>5664 AD Geldrop (bij Eindhoven)</p>
+              </div>
+              <div>
+                <p class="font-body font-medium text-charcoal text-xs tracking-widest uppercase mb-1">Telefoon</p>
+                <a href="tel:+31402869165" class="hover:text-charcoal transition-colors">(0)40 286 91 65</a>
+              </div>
+              <div>
+                <p class="font-body font-medium text-charcoal text-xs tracking-widest uppercase mb-1">E-mail bruidsmode</p>
+                <a href="mailto:bruidsmode@mariagebruidsmode.nl" class="hover:text-charcoal transition-colors">bruidsmode@mariagebruidsmode.nl</a>
+              </div>
+              <div>
+                <p class="font-body font-medium text-charcoal text-xs tracking-widest uppercase mb-1">E-mail herenmode</p>
+                <a href="mailto:herenmode@mariagebruidsmode.nl" class="hover:text-charcoal transition-colors">herenmode@mariagebruidsmode.nl</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Openingstijden -->
+          <div>
+            <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-6">Openingstijden</p>
+            <div class="space-y-2.5">
+              {openingstijden.map(({ dag, tijd }) => (
+                <div class="flex justify-between items-center border-b border-champagne pb-2.5">
+                  <span class="text-sm font-body text-charcoal">{dag}</span>
+                  <span class={`text-sm font-body ${tijd === 'Gesloten' ? 'text-taupe/40' : 'text-charcoal'}`}>{tijd}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <!-- Afspraak CTA -->
+          <div class="bg-ivory border border-champagne p-8">
+            <p class="font-display italic text-charcoal text-xl mb-3">Liever direct een afspraak?</p>
+            <p class="text-taupe font-light text-sm mb-6 leading-relaxed">Plan eenvoudig online een afspraak in onze agenda.</p>
+            <a href="https://nlmariage-kremen.savviihq.com/online-agenda/" target="_blank" rel="noopener" class="btn-premium">Afspraak maken</a>
+          </div>
+        </div>
+
+        <!-- Rechts: contactformulier -->
+        <div>
+          <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-6">Stuur een bericht</p>
+          <form
+            id="contact-form"
+            method="POST"
+            action="/api/contact"
+            class="space-y-5"
+          >
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <label for="voornaam" class="block text-[10px] tracking-[0.2em] uppercase text-charcoal font-body mb-2">Voornaam</label>
+                <input type="text" id="voornaam" name="voornaam" required
+                  class="w-full border border-champagne bg-ivory px-4 py-3 text-sm font-body text-charcoal placeholder:text-taupe/40 focus:outline-none focus:border-blush-deep transition-colors" />
+              </div>
+              <div>
+                <label for="achternaam" class="block text-[10px] tracking-[0.2em] uppercase text-charcoal font-body mb-2">Achternaam</label>
+                <input type="text" id="achternaam" name="achternaam" required
+                  class="w-full border border-champagne bg-ivory px-4 py-3 text-sm font-body text-charcoal placeholder:text-taupe/40 focus:outline-none focus:border-blush-deep transition-colors" />
+              </div>
+            </div>
+            <div>
+              <label for="email" class="block text-[10px] tracking-[0.2em] uppercase text-charcoal font-body mb-2">E-mailadres</label>
+              <input type="email" id="email" name="email" required
+                class="w-full border border-champagne bg-ivory px-4 py-3 text-sm font-body text-charcoal placeholder:text-taupe/40 focus:outline-none focus:border-blush-deep transition-colors" />
+            </div>
+            <div>
+              <label for="telefoon" class="block text-[10px] tracking-[0.2em] uppercase text-charcoal font-body mb-2">Telefoonnummer</label>
+              <input type="tel" id="telefoon" name="telefoon"
+                class="w-full border border-champagne bg-ivory px-4 py-3 text-sm font-body text-charcoal placeholder:text-taupe/40 focus:outline-none focus:border-blush-deep transition-colors" />
+            </div>
+            <div>
+              <label for="trouwdatum" class="block text-[10px] tracking-[0.2em] uppercase text-charcoal font-body mb-2">Trouwdatum (optioneel)</label>
+              <input type="date" id="trouwdatum" name="trouwdatum"
+                class="w-full border border-champagne bg-ivory px-4 py-3 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
+            </div>
+            <div>
+              <label for="bericht" class="block text-[10px] tracking-[0.2em] uppercase text-charcoal font-body mb-2">Bericht</label>
+              <textarea id="bericht" name="bericht" rows="5" required
+                class="w-full border border-champagne bg-ivory px-4 py-3 text-sm font-body text-charcoal placeholder:text-taupe/40 focus:outline-none focus:border-blush-deep transition-colors resize-none"></textarea>
+            </div>
+            <div class="flex items-start gap-3">
+              <input type="checkbox" id="privacy" name="privacy" required
+                class="mt-1 w-4 h-4 border-champagne accent-blush-deep flex-shrink-0" />
+              <label for="privacy" class="text-xs text-taupe font-light leading-relaxed">
+                Ik ga akkoord met het verwerken van mijn gegevens conform de <a href="/privacy" class="underline hover:text-charcoal transition-colors">privacyverklaring</a>.
+              </label>
+            </div>
+            <div>
+              <button type="submit" class="btn-premium w-full justify-center">Bericht versturen</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Kaart -->
+  <section class="border-t border-champagne">
+    <iframe
+      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2487.3!2d5.5516!3d51.4233!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNTHCsDI1JzIzLjkiTiA1wrAzMycwNS44IkU!5e0!3m2!1snl!2snl!4v1600000000000!5m2!1snl!2snl"
+      width="100%"
+      height="420"
+      style="border:0; display:block;"
+      allowfullscreen
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+      title="Mariage Bruidsmode – Parallelweg 26e Geldrop"
+    ></iframe>
+  </section>
+
+</Layout>

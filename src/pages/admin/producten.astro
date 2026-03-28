@@ -3,10 +3,31 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 import { supabase } from '../../lib/supabase';
 import { DRESS_STYLES } from '../../lib/productStyles';
 
-const { data: products } = await supabase
+const collectionId = Astro.url.searchParams.get('collectionId');
+
+let query = supabase
   .from('products')
   .select('*, collections(title, type)')
   .order('created_at', { ascending: false });
+
+if (collectionId) {
+  query = query.eq('collection_id', collectionId);
+}
+
+const { data: products } = await query;
+
+let activeCollectionTitle = '';
+if (collectionId && products && products.length > 0) {
+  activeCollectionTitle = products[0].collections?.title || '';
+} else if (collectionId) {
+  // If no products, fetch collection title separately
+  const { data: colData } = await supabase
+    .from('collections')
+    .select('title')
+    .eq('id', collectionId)
+    .single();
+  activeCollectionTitle = colData?.title || '';
+}
 
 const dressCount = products?.filter(p => p.collections?.type === 'dress').length ?? 0;
 const suitCount  = products?.filter(p => p.collections?.type === 'suit').length  ?? 0;
@@ -20,37 +41,42 @@ const brands = [...new Set((products ?? []).map(p => p.brand).filter(Boolean))].
       <nav class="mb-10 flex items-center gap-3 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">
         <a href="/admin" class="hover:text-charcoal transition-colors">Dashboard</a>
         <span class="text-champagne">›</span>
-        <span class="text-charcoal">Beheer Producten</span>
+        <span class="text-charcoal font-medium">Beheer Producten</span>
       </nav>
 
       <div class="flex items-end justify-between mb-12">
         <div>
           <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">Backoffice</p>
-          <h1 class="font-display font-normal text-charcoal text-4xl leading-tight">
-            Beheer <em class="font-normal italic text-taupe">Producten</em>
+          <h1 class="font-display font-normal text-charcoal text-4xl leading-tight italic">
+            Beheer <span class="font-signature text-blush-deep text-5xl lowercase px-2">Producten</span>
+            {activeCollectionTitle && (
+              <span class="text-2xl block mt-2 text-taupe-light font-body font-light tracking-wide italic">
+                Filter: {activeCollectionTitle}
+              </span>
+            )}
           </h1>
         </div>
         <div class="flex items-center gap-6">
           <span class="text-[10px] tracking-widest uppercase font-body text-taupe font-medium">{products?.length || 0} items</span>
-          <a href="/admin/product/new" class="bg-charcoal text-warm-white px-8 py-3 text-[10px] tracking-widest uppercase hover:bg-taupe transition-all font-medium">+ Nieuw Product</a>
+          <a href="/admin/product/new" class="btn-blush py-3 px-8 text-[11px] tracking-[0.2em] uppercase">+ Nieuw Product</a>
         </div>
       </div>
 
       <!-- Stats -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-16">
-        <div class="bg-white border border-champagne p-8 shadow-soft">
+        <div class="bg-white border border-champagne p-8 shadow-soft rounded-2xl">
           <p class="text-4xl font-display text-charcoal leading-none mb-2">{products?.length || 0}</p>
           <p class="text-[9px] tracking-[0.25em] uppercase text-taupe font-body">Totaal</p>
         </div>
-        <div class="bg-white border border-champagne p-8 shadow-soft">
+        <div class="bg-white border border-champagne p-8 shadow-soft rounded-2xl">
           <p class="text-4xl font-display text-charcoal leading-none mb-2">{dressCount}</p>
           <p class="text-[9px] tracking-[0.25em] uppercase text-taupe font-body">Trouwjurken</p>
         </div>
-        <div class="bg-white border border-champagne p-8 shadow-soft">
+        <div class="bg-white border border-champagne p-8 shadow-soft rounded-2xl">
           <p class="text-4xl font-display text-charcoal leading-none mb-2">{suitCount}</p>
           <p class="text-[9px] tracking-[0.25em] uppercase text-taupe font-body">Trouwpakken</p>
         </div>
-        <div class="bg-white border border-champagne p-8 shadow-soft">
+        <div class="bg-white border border-champagne p-8 shadow-soft rounded-2xl">
           <p class="text-4xl font-display text-charcoal leading-none mb-2">{products?.filter(p => p.images?.[0]).length || 0}</p>
           <p class="text-[9px] tracking-[0.25em] uppercase text-taupe font-body">Met afbeelding</p>
         </div>
@@ -61,38 +87,44 @@ const brands = [...new Set((products ?? []).map(p => p.brand).filter(Boolean))].
         <!-- Search -->
         <div class="relative flex-1 min-w-[200px] max-w-sm">
           <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-taupe pointer-events-none w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input id="admin-search" type="search" placeholder="Zoek op naam of merk…" class="w-full pl-9 pr-4 py-2.5 bg-white border border-champagne text-charcoal text-sm font-body placeholder:text-taupe/50 focus:outline-none focus:border-taupe transition-colors" />
+          <input id="admin-search" type="search" placeholder="Zoek op naam of merk…" class="w-full pl-9 pr-4 py-2.5 bg-white border border-champagne text-charcoal text-sm font-body placeholder:text-taupe/50 focus:outline-none focus:border-taupe transition-colors rounded-xl" />
         </div>
 
         <!-- Brand filter -->
         {brands.length > 1 && (
-          <select id="admin-brand" class="bg-white border border-champagne text-charcoal text-[11px] tracking-[0.1em] uppercase font-body px-4 py-2.5 focus:outline-none focus:border-taupe transition-colors min-w-[140px]">
+          <select id="admin-brand" class="bg-white border border-champagne text-charcoal text-[11px] tracking-[0.1em] uppercase font-body px-4 py-2.5 focus:outline-none focus:border-taupe transition-colors min-w-[140px] rounded-xl">
             <option value="">Alle merken</option>
             {brands.map(b => <option value={b}>{b}</option>)}
           </select>
         )}
 
         <!-- Style filter -->
-        <select id="admin-style" class="bg-white border border-champagne text-charcoal text-[11px] tracking-[0.1em] uppercase font-body px-4 py-2.5 focus:outline-none focus:border-taupe transition-colors min-w-[180px]">
+        <select id="admin-style" class="bg-white border border-champagne text-charcoal text-[11px] tracking-[0.1em] uppercase font-body px-4 py-2.5 focus:outline-none focus:border-taupe transition-colors min-w-[180px] rounded-xl">
           <option value="">Alle stijlen</option>
           {DRESS_STYLES.map(s => <option value={s.key}>{s.label}</option>)}
         </select>
 
         <!-- Type filter -->
         <div class="flex gap-2">
-          <button data-type="" class="admin-type-btn text-[10px] tracking-[0.2em] uppercase font-body px-4 py-2.5 border border-charcoal bg-charcoal text-white transition-colors">Alle</button>
-          <button data-type="dress" class="admin-type-btn text-[10px] tracking-[0.2em] uppercase font-body px-4 py-2.5 border border-champagne text-taupe hover:border-charcoal hover:text-charcoal transition-colors">Jurken</button>
-          <button data-type="suit" class="admin-type-btn text-[10px] tracking-[0.2em] uppercase font-body px-4 py-2.5 border border-champagne text-taupe hover:border-charcoal hover:text-charcoal transition-colors">Pakken</button>
+          <button data-type="" class="admin-type-btn text-[10px] tracking-[0.2em] uppercase font-body px-4 py-2.5 border border-charcoal bg-charcoal text-white transition-colors rounded-xl">Alle</button>
+          <button data-type="dress" class="admin-type-btn text-[10px] tracking-[0.2em] uppercase font-body px-4 py-2.5 border border-champagne text-taupe hover:border-charcoal hover:text-charcoal transition-colors rounded-xl">Jurken</button>
+          <button data-type="suit" class="admin-type-btn text-[10px] tracking-[0.2em] uppercase font-body px-4 py-2.5 border border-champagne text-taupe hover:border-charcoal hover:text-charcoal transition-colors rounded-xl">Pakken</button>
         </div>
 
         <span id="admin-result-count" class="text-[10px] tracking-[0.15em] uppercase text-taupe font-body ml-auto self-center"></span>
+
+        {collectionId && (
+          <a href="/admin/producten" class="bg-linen text-charcoal border border-champagne px-4 py-2.5 text-[10px] tracking-[0.15em] uppercase font-body hover:bg-champagne transition-colors">
+            ✕ Filter wissen
+          </a>
+        )}
       </div>
 
       <!-- Products grid -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="admin-products-grid">
         {products?.map((prod) => (
           <div
-            class="bg-white border border-champagne shadow-soft overflow-hidden group hover:shadow-card transition-all duration-300 admin-product-card"
+            class="bg-white border border-champagne shadow-soft overflow-hidden group hover:shadow-card transition-all duration-300 admin-product-card rounded-2xl"
             data-name={(prod.name ?? '').toLowerCase()}
             data-brand={(prod.brand ?? '').toLowerCase()}
             data-type={prod.collections?.type ?? ''}
@@ -201,8 +233,8 @@ const brands = [...new Set((products ?? []).map(p => p.brand).filter(Boolean))].
       document.querySelectorAll<HTMLButtonElement>('.admin-type-btn').forEach((b) => {
         const active = b.dataset.type === activeType;
         b.className = active
-          ? 'admin-type-btn text-[10px] tracking-[0.2em] uppercase font-body px-4 py-2.5 border border-charcoal bg-charcoal text-white transition-colors'
-          : 'admin-type-btn text-[10px] tracking-[0.2em] uppercase font-body px-4 py-2.5 border border-champagne text-taupe hover:border-charcoal hover:text-charcoal transition-colors';
+          ? 'admin-type-btn text-[10px] tracking-[0.2em] uppercase font-body px-4 py-2.5 border border-charcoal bg-charcoal text-white transition-colors rounded-xl'
+          : 'admin-type-btn text-[10px] tracking-[0.2em] uppercase font-body px-4 py-2.5 border border-champagne text-taupe hover:border-charcoal hover:text-charcoal transition-colors rounded-xl';
       });
       applyFilters();
     });

@@ -4,7 +4,7 @@
   --color-ivory: #FAF7F4;
   --color-cream: #F3EDE6;
   --color-blush: #E8C9BB;
-  --color-blush-deep: #A66352;
+  --color-blush-deep: #D4A395; /* Premium Rose Gold */
   --color-champagne: #E8DDD0;
   --color-linen: #EDE5DC;
   --color-warm-white: #FDFAF8;
@@ -166,8 +166,14 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .ds-quote {
-    font-family: var(--font-italic, serif);
+    font-family: var(--font-signature, serif);
     @apply italic text-[clamp(18px,2.5vw,26px)] font-light leading-[1.6] text-charcoal;
+  }
+
+  .font-signature {
+    font-family: var(--font-signature), cursive;
+    text-transform: none !important;
+    letter-spacing: normal !important;
   }
 }
 

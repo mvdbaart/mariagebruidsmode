@@ -42,7 +42,24 @@ const logoUrl = settings?.logo_url ?? null;
       </div>
 
       <a href="/inspiratie" class="text-[9px] font-body font-normal tracking-[0.25em] uppercase text-charcoal hover:opacity-60 transition-opacity">Inspiratie</a>
-      <a href="/over-ons" class="text-[9px] font-body font-normal tracking-[0.25em] uppercase text-charcoal hover:opacity-60 transition-opacity">Over Ons</a>
+      <!-- Over Ons dropdown -->
+      <div class="relative group h-full flex items-center">
+        <a href="/over-ons" class="text-[9px] font-body font-normal tracking-[0.25em] uppercase text-charcoal hover:opacity-60 transition-opacity flex items-center gap-1">
+          Over Ons
+          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="transition-transform duration-200 group-hover:rotate-180"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </a>
+        <div class="absolute top-full left-1/2 -translate-x-1/2 hidden group-hover:block pt-0">
+          <div class="bg-white border border-champagne shadow-md min-w-[180px] py-2">
+            <a href="/over-ons" class="block px-5 py-2.5 text-[9px] font-body font-normal tracking-[0.2em] uppercase text-charcoal hover:bg-ivory hover:text-charcoal transition-colors">Over Ons</a>
+            <a href="/onze-winkel" class="block px-5 py-2.5 text-[9px] font-body font-normal tracking-[0.2em] uppercase text-charcoal hover:bg-ivory hover:text-charcoal transition-colors">Onze Winkel</a>
+            <a href="/het-team" class="block px-5 py-2.5 text-[9px] font-body font-normal tracking-[0.2em] uppercase text-charcoal hover:bg-ivory hover:text-charcoal transition-colors">Het Team</a>
+            <a href="/events" class="block px-5 py-2.5 text-[9px] font-body font-normal tracking-[0.2em] uppercase text-charcoal hover:bg-ivory hover:text-charcoal transition-colors">Events</a>
+            <a href="/faq" class="block px-5 py-2.5 text-[9px] font-body font-normal tracking-[0.2em] uppercase text-charcoal hover:bg-ivory hover:text-charcoal transition-colors">FAQ</a>
+            <a href="/vacatures" class="block px-5 py-2.5 text-[9px] font-body font-normal tracking-[0.2em] uppercase text-charcoal hover:bg-ivory hover:text-charcoal transition-colors">Vacatures</a>
+            <a href="/contact" class="block px-5 py-2.5 text-[9px] font-body font-normal tracking-[0.2em] uppercase text-charcoal hover:bg-ivory hover:text-charcoal transition-colors">Contact</a>
+          </div>
+        </div>
+      </div>
     </nav>
 
     <!-- Mobile toggle (left on mobile) -->
@@ -104,6 +121,44 @@ const logoUrl = settings?.logo_url ?? null;
     </div>
   </div>
 
+  <!-- Shop by Style (Desktop) -->
+  <div class="hidden lg:block border-t border-champagne bg-[#FAF9F6]">
+    <div class="container mx-auto px-6 py-4">
+      <div class="flex items-center justify-center gap-16">
+        <div class="flex flex-col items-center gap-1 group cursor-pointer opacity-80 hover:opacity-100 transition-opacity">
+          <div class="w-8 h-8 flex items-center justify-center text-charcoal/40 group-hover:text-blush-deep transition-colors">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" class="w-full h-full"><path d="M12 4L4 20H20L12 4Z"/><path d="M12 4V20"/></svg>
+          </div>
+          <span class="text-[8px] tracking-[0.2em] uppercase font-body text-charcoal/60 group-hover:text-charcoal transition-colors">A-Line</span>
+        </div>
+        <div class="flex flex-col items-center gap-1 group cursor-pointer opacity-80 hover:opacity-100 transition-opacity">
+          <div class="w-8 h-8 flex items-center justify-center text-charcoal/40 group-hover:text-blush-deep transition-colors">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" class="w-full h-full"><path d="M12 4C12 4 4 12 4 20H20C20 12 12 4 12 4Z"/></svg>
+          </div>
+          <span class="text-[8px] tracking-[0.2em] uppercase font-body text-charcoal/60 group-hover:text-charcoal transition-colors">Ball Gown</span>
+        </div>
+        <div class="flex flex-col items-center gap-1 group cursor-pointer opacity-80 hover:opacity-100 transition-opacity">
+          <div class="w-8 h-8 flex items-center justify-center text-charcoal/40 group-hover:text-blush-deep transition-colors">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" class="w-full h-full"><path d="M12 4L8 16L4 20H20L16 16L12 4Z"/></svg>
+          </div>
+          <span class="text-[8px] tracking-[0.2em] uppercase font-body text-charcoal/60 group-hover:text-charcoal transition-colors">Mermaid</span>
+        </div>
+        <div class="flex flex-col items-center gap-1 group cursor-pointer opacity-80 hover:opacity-100 transition-opacity">
+          <div class="w-8 h-8 flex items-center justify-center text-charcoal/40 group-hover:text-blush-deep transition-colors">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" class="w-full h-full"><path d="M6 4L4 20M18 4L20 20M4 10H20M4 16H20" stroke-dasharray="1 2"/></svg>
+          </div>
+          <span class="text-[8px] tracking-[0.2em] uppercase font-body text-charcoal/60 group-hover:text-charcoal transition-colors">Boho</span>
+        </div>
+        <div class="flex flex-col items-center gap-1 group cursor-pointer opacity-80 hover:opacity-100 transition-opacity">
+          <div class="w-8 h-8 flex items-center justify-center text-charcoal/40 group-hover:text-blush-deep transition-colors">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" class="w-full h-full"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10H20M10 4V20" stroke-dasharray="2 2"/></svg>
+          </div>
+          <span class="text-[8px] tracking-[0.2em] uppercase font-body text-charcoal/60 group-hover:text-charcoal transition-colors">Outlet</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Mobile menu (hidden by default) -->
   <div
     id="mobile-menu"
@@ -155,7 +210,29 @@ const logoUrl = settings?.logo_url ?? null;
       </div>
 
       <a href="/inspiratie" class="py-4 text-xs font-body font-normal tracking-[0.16em] uppercase text-taupe hover:text-charcoal transition-colors border-b border-champagne">Inspiratie</a>
-      <a href="/over-ons" class="py-4 text-xs font-body font-normal tracking-[0.16em] uppercase text-taupe hover:text-charcoal transition-colors border-b border-champagne">Over Ons</a>
+      <!-- Over Ons accordion -->
+      <div data-accordion="over-ons" class="border-b border-champagne">
+        <div class="flex items-center justify-between">
+          <a href="/over-ons" class="py-4 text-xs font-body font-normal tracking-[0.16em] uppercase text-taupe hover:text-charcoal transition-colors">Over Ons</a>
+          <button
+            data-accordion-toggle="over-ons"
+            aria-expanded="false"
+            aria-label="Over Ons submenu uitklappen"
+            class="p-2 text-taupe hover:text-charcoal transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="accordion-chevron transition-transform duration-200"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+        </div>
+        <div data-accordion-content="over-ons" class="hidden pb-2 pl-4">
+          <a href="/over-ons" class="block py-2.5 text-[10px] font-body font-normal tracking-[0.16em] uppercase text-taupe hover:text-charcoal transition-colors">Over Ons</a>
+          <a href="/onze-winkel" class="block py-2.5 text-[10px] font-body font-normal tracking-[0.16em] uppercase text-taupe hover:text-charcoal transition-colors">Onze Winkel</a>
+          <a href="/het-team" class="block py-2.5 text-[10px] font-body font-normal tracking-[0.16em] uppercase text-taupe hover:text-charcoal transition-colors">Het Team</a>
+          <a href="/events" class="block py-2.5 text-[10px] font-body font-normal tracking-[0.16em] uppercase text-taupe hover:text-charcoal transition-colors">Events</a>
+          <a href="/faq" class="block py-2.5 text-[10px] font-body font-normal tracking-[0.16em] uppercase text-taupe hover:text-charcoal transition-colors">FAQ</a>
+          <a href="/vacatures" class="block py-2.5 text-[10px] font-body font-normal tracking-[0.16em] uppercase text-taupe hover:text-charcoal transition-colors">Vacatures</a>
+          <a href="/contact" class="block py-2.5 text-[10px] font-body font-normal tracking-[0.16em] uppercase text-taupe hover:text-charcoal transition-colors">Contact</a>
+        </div>
+      </div>
       <a href="/blog" class="py-4 text-xs font-body font-normal tracking-[0.16em] uppercase text-taupe hover:text-charcoal transition-colors border-b border-champagne">Blog</a>
       <a href="https://nlmariage-kremen.savviihq.com/online-agenda/" target="_blank" rel="noopener" class="mt-4 btn-blush text-center justify-center">Afspraak plannen</a>
     </nav>

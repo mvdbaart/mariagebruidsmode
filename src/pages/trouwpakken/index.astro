@@ -1,61 +1,59 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import CollectionCard from '../../components/CollectionCard.astro';
+import ProductFilter from '../../components/ProductFilter';
 import { supabase } from '../../lib/supabase';
 
-const { data: collections, error } = await supabase
+const { data: collections } = await supabase
   .from('collections')
-  .select('id, title, slug, image_url')
+  .select('id, title, slug, type')
   .eq('type', 'suit')
+  .order('title', { ascending: true });
+
+const collectionIds = (collections ?? []).map((col) => col.id);
+
+const { data: suitProducts } = await supabase
+  .from('products')
+  .select('id, name, slug, brand, price_range, sale_price, features, images, collection_id, pasvorm, hals, mouw, materialen, kleur, categorieen, in_stock, maten')
+  .in('collection_id', collectionIds.length ? collectionIds : ['00000000-0000-0000-0000-000000000000'])
   .order('created_at', { ascending: false });
 
-if (error) {
-  console.error('Error fetching suit collections:', error);
-}
-
-const suitFallbacks = [
-  '/images/team/TKF_9043-scaled.jpg',
-  '/images/team/TKF_9016-scaled.jpg',
-  '/images/team/TKF_9069-scaled-e1704371934815.jpg',
-];
+const suitFallbackImage = '/images/team/TKF_9016-scaled.jpg';
+const collectionsForFilter = (collections ?? []).map(({ id, title, slug }) => ({ id, title, slug }));
 ---
 
-<Layout title="Onze Trouwpakken Collecties">
-  <div class="pt-32 pb-24 bg-accent/5">
+<Layout title="Trouwpakken | Mariage Bruidsmode">
+  <div class="pt-40 pb-20 bg-ivory border-b border-champagne">
     <div class="container mx-auto px-6">
-      <div class="max-w-3xl mb-16">
-        <span class="text-xs tracking-[0.3em] uppercase text-secondary mb-4 block">Collecties</span>
-        <h1 class="text-5xl md:text-6xl font-serif text-accent mb-8 leading-tight">
-          Stijlvolle <br/><span class="italic font-light text-secondary">trouwpakken</span>
+      <div class="max-w-2xl">
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-6">Collecties</p>
+        <h1 class="font-display font-normal text-charcoal leading-tight mb-8" style="font-size: clamp(40px, 6vw, 64px);">
+          Stijlvolle <em class="italic font-light text-taupe">trouwpakken</em>
         </h1>
-        <p class="text-lg text-accent/70 font-light leading-relaxed">
-          Voor de moderne bruidegom die op zoek is naar perfectie. Ontdek onze collectie pakken van topmerken zoals Immediate, Roberto Vicentti en Crinoligne.
+        <p class="text-taupe font-light leading-relaxed max-w-xl">
+          Voor de moderne bruidegom die op zoek is naar perfectie. Een zorgvuldig geselecteerde collectie van topmerken zoals Immediate, Roberto Vicentti, Crinoligne en Cleofe Finati.
         </p>
-      </div>
-      <!-- Brands -->
-      <div class="flex flex-wrap gap-3 mb-10">
-        {['Immediate', 'Roberto Vicentti', 'Crinoligne'].map(brand => (
-          <span class="text-[11px] tracking-[0.15em] uppercase font-body text-accent/70 border border-accent/20 px-5 py-2 hover:border-accent/60 hover:text-accent transition-colors">{brand}</span>
-        ))}
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {collections?.map((col, idx) => (
-          <CollectionCard
-            title={col.title}
-            category="Trouwpakken"
-            image={col.image_url ?? undefined}
-            fallback={suitFallbacks[idx % suitFallbacks.length]}
-            link={`/trouwpakken/${col.slug}`}
-          />
-        ))}
-
-        {!collections?.length && (
-          <div class="col-span-full py-20 text-center border border-dashed border-secondary/20 rounded-lg">
-            <p class="text-accent/40 font-light italic">De herencollecties worden momenteel voorbereid.</p>
-          </div>
-        )}
       </div>
     </div>
   </div>
+
+  <ProductFilter
+    client:load
+    mode="suit"
+    products={suitProducts ?? []}
+    collections={collectionsForFilter}
+    fallbackImage={suitFallbackImage}
+  />
+
+  <section class="py-24 bg-charcoal text-center">
+    <div class="container mx-auto px-6 max-w-xl">
+      <p class="text-[10px] tracking-[0.3em] uppercase text-gold-light font-body mb-4">Persoonlijk advies</p>
+      <h2 class="font-display font-normal text-warm-white mb-6" style="font-size: clamp(24px, 3vw, 40px);">
+        Niet gevonden wat je zocht?
+      </h2>
+      <p class="text-taupe-light font-light text-sm leading-relaxed mb-10">
+        Onze collectie in de winkel is nog uitgebreider dan online. Maak een afspraak voor persoonlijk advies.
+      </p>
+      <a href="/afspraak-maken" class="btn-blush">Maak een pasafspraak</a>
+    </div>
+  </section>
 </Layout>

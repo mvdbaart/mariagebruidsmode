@@ -1,0 +1,76 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Events | Mariage Bruidsmode">
+
+  <!-- Hero -->
+  <section class="pt-40 pb-24 bg-ivory">
+    <div class="container mx-auto px-6 text-center max-w-3xl">
+      <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-6">Events</p>
+      <h1 class="font-display text-charcoal leading-tight mb-8" style="font-size: clamp(40px, 8vw, 72px); font-weight: 300;">
+        Bruidsevenementen<br/><em class="italic font-light text-taupe">& Shows</em>
+      </h1>
+      <p class="text-taupe font-light leading-relaxed text-base max-w-xl mx-auto">
+        We organiseren regelmatig exclusieve bruidsevenementen en modeshows. Houd deze pagina in de gaten voor aankomende events en wees er als eerste bij.
+      </p>
+    </div>
+  </section>
+
+  <!-- Aankomende events -->
+  <section class="py-24 bg-white">
+    <div class="container mx-auto px-6 max-w-4xl">
+      <div class="text-center mb-16">
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">Agenda</p>
+        <h2 class="font-display text-charcoal text-4xl mb-4">Aankomende <em class="italic font-light text-taupe">events</em></h2>
+      </div>
+
+      <!-- Placeholder -->
+      <div class="border border-champagne bg-ivory/50 py-20 px-8 text-center">
+        <div class="w-12 h-12 mx-auto mb-6 text-champagne">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" class="w-full h-full">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        </div>
+        <p class="font-display italic text-taupe text-xl mb-2">Geen events gepland</p>
+        <p class="font-body text-taupe/70 text-sm font-light">Op dit moment staan er geen evenementen gepland. Kom binnenkort terug of volg ons op social media voor updates.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Soorten events -->
+  <section class="py-24 bg-ivory border-t border-champagne">
+    <div class="container mx-auto px-6 max-w-5xl">
+      <div class="text-center mb-16">
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">Wat wij organiseren</p>
+        <h2 class="font-display text-charcoal text-4xl mb-4">Onze <em class="italic font-light text-taupe">evenementen</em></h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+        {[
+          { title: 'Trunkshows', body: 'Exclusieve shows waarbij ontwerpers hun nieuwste collecties presenteren in onze winkel. Ontmoet de ontwerper en bekijk de volledige collectie.' },
+          { title: 'Open Dagen', body: 'Tijdens onze open dagen kun je zonder afspraak langskomen om onze collecties te bekijken en te voelen. Perfect voor een eerste kennismaking.' },
+          { title: 'Sample Sales', body: 'Tweejaarlijkse uitverkoopevents met stalen trouwjurken en pakken voor sterk gereduceerde prijzen. Ideaal voor bruiden met een kleiner budget.' },
+        ].map(({ title, body }) => (
+          <div class="text-center space-y-4">
+            <div class="w-px h-12 bg-champagne mx-auto"></div>
+            <h3 class="font-display text-charcoal text-2xl">{title}</h3>
+            <p class="text-taupe font-light text-sm leading-relaxed">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-24 bg-charcoal text-center">
+    <div class="container mx-auto px-6 max-w-2xl">
+      <p class="text-[10px] tracking-[0.4em] uppercase text-blush font-body mb-4">Mis niets</p>
+      <h2 class="font-display text-warm-white text-4xl mb-6">Wil je op de hoogte blijven?</h2>
+      <p class="text-warm-white/60 font-light mb-10 leading-relaxed">
+        Maak alvast een afspraak of neem contact op — we informeren je zodra er nieuwe events zijn gepland.
+      </p>
+      <a href="https://nlmariage-kremen.savviihq.com/online-agenda/" target="_blank" rel="noopener" class="btn-gold">Afspraak maken</a>
+    </div>
+  </section>
+
+</Layout>

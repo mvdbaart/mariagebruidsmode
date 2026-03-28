@@ -65,11 +65,11 @@ const todayFormatted = new Date().toLocaleDateString('nl-NL', { weekday: 'long',
   <div class="pb-24 bg-ivory min-h-screen">
     <div class="container mx-auto px-6 pt-8">
       <div class="flex items-center justify-between mb-12">
-        <h1 class="font-display font-normal text-charcoal text-4xl italic">Mariage <span class="text-blush-deep opacity-60">Control</span></h1>
+        <h1 class="font-display font-normal text-charcoal text-4xl italic">Mariage <span class="font-signature text-blush-deep text-5xl lowercase px-2">Control</span></h1>
       </div>
 
       <!-- Daily summary -->
-      <div class="bg-white border border-champagne shadow-soft px-8 py-5 mb-8 flex flex-wrap items-center gap-x-8 gap-y-3">
+      <div class="bg-white border border-champagne shadow-soft px-8 py-5 mb-8 flex flex-wrap items-center gap-x-8 gap-y-3 rounded-2xl">
         <p class="text-xs tracking-[0.2em] uppercase font-body text-taupe capitalize">{todayFormatted}</p>
         <div class="h-4 w-px bg-champagne hidden sm:block"></div>
         <a href="/admin/afspraken" class="flex items-center gap-2 group">
@@ -96,7 +96,7 @@ const todayFormatted = new Date().toLocaleDateString('nl-NL', { weekday: 'long',
       <!-- Live stats row -->
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9 gap-4 mb-14">
         {stats.map(stat => (
-          <a href={stat.href} class="bg-white border border-champagne p-6 shadow-soft hover:shadow-card transition-all duration-300 hover:-translate-y-0.5 group">
+          <a href={stat.href} class="bg-white border border-champagne p-6 shadow-soft hover:shadow-card transition-all duration-300 hover:-translate-y-0.5 group rounded-2xl">
             <p class="text-3xl font-display text-charcoal group-hover:text-blush-deep transition-colors">{stat.value}</p>
             <p class="text-[10px] tracking-[0.2em] uppercase text-taupe-light font-body mt-1">{stat.label}</p>
           </a>
@@ -105,7 +105,7 @@ const todayFormatted = new Date().toLocaleDateString('nl-NL', { weekday: 'long',
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-10">
         <!-- Openstaande Taken -->
-        <div class="bg-white p-8 border border-champagne shadow-soft">
+        <div class="bg-white p-8 border border-champagne shadow-soft rounded-2xl">
           <div class="flex items-center justify-between mb-8 pb-4 border-b border-champagne">
             <h2 class="font-display text-charcoal text-xl italic">Openstaande Taken</h2>
             <span class="text-[10px] tracking-widest uppercase font-body text-taupe">{pendingTaskCount ?? 0} open</span>
@@ -136,7 +136,7 @@ const todayFormatted = new Date().toLocaleDateString('nl-NL', { weekday: 'long',
         </div>
 
         <!-- Verwachte Leveringen -->
-        <div class="bg-white p-8 border border-champagne shadow-soft">
+        <div class="bg-white p-8 border border-champagne shadow-soft rounded-2xl">
           <div class="flex items-center justify-between mb-8 pb-4 border-b border-champagne">
             <h2 class="font-display text-charcoal text-xl italic">Verwachte Leveringen</h2>
             <a href="/admin/bestellingen" class="text-[10px] tracking-widest uppercase text-blush-deep hover:underline font-body">Alle bekijken</a>
@@ -172,7 +172,7 @@ const todayFormatted = new Date().toLocaleDateString('nl-NL', { weekday: 'long',
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
         <!-- Recent Appointments -->
-        <div class="bg-white p-8 border border-champagne shadow-soft">
+        <div class="bg-white p-8 border border-champagne shadow-soft rounded-2xl">
           <div class="flex items-center justify-between mb-8 pb-4 border-b border-champagne">
             <h2 class="font-display text-charcoal text-xl italic">Recente Afspraken</h2>
             <a href="/admin/afspraken" class="text-[10px] tracking-widest uppercase text-blush-deep hover:underline font-body">Alle bekijken</a>
@@ -194,7 +194,7 @@ const todayFormatted = new Date().toLocaleDateString('nl-NL', { weekday: 'long',
         </div>
 
         <!-- Recent Products -->
-        <div class="bg-white p-8 border border-champagne shadow-soft">
+        <div class="bg-white p-8 border border-champagne shadow-soft rounded-2xl">
           <div class="flex items-center justify-between mb-8 pb-4 border-b border-champagne">
             <h2 class="font-display text-charcoal text-xl italic">Nieuwste Producten</h2>
             <a href="/admin/producten" class="text-[10px] tracking-widest uppercase text-blush-deep hover:underline font-body">Alle bekijken</a>

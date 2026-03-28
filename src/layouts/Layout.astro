@@ -57,7 +57,7 @@ const orgJsonLd = {
 		<meta name="generator" content={Astro.generator} />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href={`https://fonts.googleapis.com/css2?family=${typography.heading_font?.replace(/ /g, '+')}:wght@${typography.heading_weight}&family=${typography.body_font?.replace(/ /g, '+')}:wght@${typography.body_weight}&display=swap`} rel="stylesheet">
+    <link href={`https://fonts.googleapis.com/css2?family=${typography.heading_font?.replace(/ /g, '+')}:wght@${typography.heading_weight}&family=${typography.body_font?.replace(/ /g, '+')}:wght@${typography.body_weight}&family=Playball&display=swap`} rel="stylesheet">
 		<title>{title} | {meta.title || 'Mariage Bruidsmode'}</title>
     <meta name="description" content={pageDescription} />
     <link rel="canonical" href={canonicalUrl} />
@@ -112,6 +112,7 @@ const orgJsonLd = {
         
         --font-heading-dynamic: var(--fontHeading);
         --font-body-dynamic: var(--fontBody);
+        --font-signature: 'Playball', cursive;
         --base-font-size-dynamic: var(--baseSize);
         --heading-weight-dynamic: var(--headingWeight);
         

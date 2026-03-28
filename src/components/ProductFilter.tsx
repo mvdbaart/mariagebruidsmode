@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { PASVORM, HALS, MOUW, MATERIALEN, CATEGORIEEN } from '../lib/productAttributes';
+import { PASVORM, HALS, MOUW, MATERIALEN, CATEGORIEEN, SUIT_KLEUREN, SUIT_MATEN, SUIT_CATEGORIEEN } from '../lib/productAttributes';
 
 interface Product {
   id: string;
@@ -30,6 +30,7 @@ interface Props {
   products: Product[];
   collections: Collection[];
   fallbackImage: string;
+  mode?: 'dress' | 'suit';
 }
 
 
@@ -98,7 +99,8 @@ function SidebarSection({ title, children }: { title: string; children: React.Re
   );
 }
 
-export default function ProductFilter({ products, collections, fallbackImage }: Props) {
+export default function ProductFilter({ products, collections, fallbackImage, mode = 'dress' }: Props) {
+  const isSuit = mode === 'suit';
   const [search, setSearch] = useState('');
   const [activePasvorm, setActivePasvorm]     = useState<Set<string>>(new Set());
   const [activeHals, setActiveHals]           = useState<Set<string>>(new Set());
@@ -124,8 +126,19 @@ export default function ProductFilter({ products, collections, fallbackImage }: 
       if (activeHals.size > 0 && (!p.hals || !activeHals.has(p.hals))) return false;
       if (activeMouw.size > 0 && (!p.mouw || !activeMouw.has(p.mouw))) return false;
       if (activeMat.size > 0) {
-        const mats = p.materialen ?? [];
-        if (!Array.from(activeMat).some((m) => mats.includes(m))) return false;
+        if (isSuit) {
+          // In suit mode, activeMat holds color keys
+          const kleuren = p.kleur ?? [];
+          if (!Array.from(activeMat).some((k) => kleuren.includes(k))) return false;
+        } else {
+          const mats = p.materialen ?? [];
+          if (!Array.from(activeMat).some((m) => mats.includes(m))) return false;
+        }
+      }
+      if (isSuit && activeMouw.size > 0) {
+        // In suit mode, activeMouw holds size values
+        const maten = p.maten ?? [];
+        if (!Array.from(activeMouw).some((m) => maten.includes(m))) return false;
       }
       if (activeCateg.size > 0) {
         const cats = p.categorieen ?? [];
@@ -157,35 +170,54 @@ export default function ProductFilter({ products, collections, fallbackImage }: 
         </button>
       )}
 
-      <SidebarSection title="Pasvorm">
-        {PASVORM.map(({ key, label }) => (
-          <CheckItem key={key} label={label} checked={activePasvorm.has(key)} onChange={() => toggle(setActivePasvorm, key)} />
-        ))}
-      </SidebarSection>
+      {!isSuit && (
+        <SidebarSection title="Pasvorm">
+          {PASVORM.map(({ key, label }) => (
+            <CheckItem key={key} label={label} checked={activePasvorm.has(key)} onChange={() => toggle(setActivePasvorm, key)} />
+          ))}
+        </SidebarSection>
+      )}
 
       <SidebarSection title="Categorie">
-        {CATEGORIEEN.map(({ key, label }) => (
+        {(isSuit ? SUIT_CATEGORIEEN : CATEGORIEEN).map(({ key, label }) => (
           <CheckItem key={key} label={label} checked={activeCateg.has(key)} onChange={() => toggle(setActiveCateg, key)} />
         ))}
       </SidebarSection>
 
-      <SidebarSection title="Materiaal">
-        {MATERIALEN.map(({ key, label }) => (
-          <CheckItem key={key} label={label} checked={activeMat.has(key)} onChange={() => toggle(setActiveMat, key)} />
-        ))}
+      <SidebarSection title={isSuit ? 'Kleur' : 'Materiaal'}>
+        {isSuit
+          ? SUIT_KLEUREN.map(({ key, label }) => (
+              <CheckItem key={key} label={label} checked={activeMat.has(key)} onChange={() => toggle(setActiveMat, key)} />
+            ))
+          : MATERIALEN.map(({ key, label }) => (
+              <CheckItem key={key} label={label} checked={activeMat.has(key)} onChange={() => toggle(setActiveMat, key)} />
+            ))
+        }
       </SidebarSection>
 
-      <SidebarSection title="Halslijn">
-        {HALS.map(({ key, label }) => (
-          <CheckItem key={key} label={label} checked={activeHals.has(key)} onChange={() => toggle(setActiveHals, key)} />
-        ))}
-      </SidebarSection>
+      {isSuit && (
+        <SidebarSection title="Maat">
+          {SUIT_MATEN.map((maat) => (
+            <CheckItem key={maat} label={maat} checked={activeMouw.has(maat)} onChange={() => toggle(setActiveMouw, maat)} />
+          ))}
+        </SidebarSection>
+      )}
 
-      <SidebarSection title="Mouw">
-        {MOUW.map(({ key, label }) => (
-          <CheckItem key={key} label={label} checked={activeMouw.has(key)} onChange={() => toggle(setActiveMouw, key)} />
-        ))}
-      </SidebarSection>
+      {!isSuit && (
+        <>
+          <SidebarSection title="Halslijn">
+            {HALS.map(({ key, label }) => (
+              <CheckItem key={key} label={label} checked={activeHals.has(key)} onChange={() => toggle(setActiveHals, key)} />
+            ))}
+          </SidebarSection>
+
+          <SidebarSection title="Mouw">
+            {MOUW.map(({ key, label }) => (
+              <CheckItem key={key} label={label} checked={activeMouw.has(key)} onChange={() => toggle(setActiveMouw, key)} />
+            ))}
+          </SidebarSection>
+        </>
+      )}
 
       {brands.length > 1 && (
         <SidebarSection title="Merk">

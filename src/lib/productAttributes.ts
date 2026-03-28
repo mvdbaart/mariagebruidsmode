@@ -82,6 +82,30 @@ export type MateriaalKey  = typeof MATERIALEN[number]['key'];
 export type KleurKey      = typeof KLEUREN[number]['key'];
 export type CategorieKey  = typeof CATEGORIEEN[number]['key'];
 
+// ── Suit-specific attributes ───────────────────────────────────────────────
+
+export const SUIT_MATEN = [
+  '44','46','48','50','52','54','56','58',
+] as const;
+
+export const SUIT_KLEUREN = [
+  { key: 'beige',         label: 'Beige' },
+  { key: 'blauw',         label: 'Blauw' },
+  { key: 'navy',          label: 'Navy' },
+  { key: 'grijs',         label: 'Grijs' },
+  { key: 'groen',         label: 'Groen' },
+  { key: 'bruin',         label: 'Bruin' },
+  { key: 'bordeaux-roze', label: 'Bordeaux & roze' },
+  { key: 'zwart',         label: 'Zwart' },
+] as const;
+
+export const SUIT_CATEGORIEEN = [
+  { key: 'klassiek', label: 'Klassiek' },
+  { key: 'modern',   label: 'Modern' },
+  { key: 'slim-fit', label: 'Slim fit' },
+  { key: 'outlet',   label: 'Outlet' },
+] as const;
+
 // Helper: find display label for a key
 export function labelFor(list: readonly { key: string; label: string }[], key: string | null | undefined): string {
   if (!key) return '';

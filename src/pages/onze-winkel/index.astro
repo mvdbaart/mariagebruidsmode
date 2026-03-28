@@ -1,0 +1,127 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Onze Winkel | Mariage Bruidsmode">
+
+  <!-- Hero -->
+  <section class="pt-40 pb-24 bg-ivory">
+    <div class="container mx-auto px-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+        <div>
+          <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-6">Onze Winkel</p>
+          <h1 class="font-display text-charcoal leading-tight mb-8" style="font-size: clamp(40px, 8vw, 72px); font-weight: 300;">
+            Bezoek ons in <br/><em class="italic font-light text-taupe">Geldrop</em>
+          </h1>
+          <div class="space-y-4 font-light text-taupe leading-relaxed max-w-lg">
+            <p>
+              Onze bruidsboetiek bevindt zich in het hart van Geldrop, vlakbij Eindhoven. In onze sfeervolle winkel kun je rustig en op afspraak al onze collecties ontdekken.
+            </p>
+            <p>
+              Wij werken uitsluitend op afspraak zodat wij jou de volledige aandacht kunnen geven die je verdient.
+            </p>
+          </div>
+          <div class="mt-10">
+            <a href="https://nlmariage-kremen.savviihq.com/online-agenda/" target="_blank" rel="noopener" class="btn-premium">Afspraak maken</a>
+          </div>
+        </div>
+        <div class="relative">
+          <div class="aspect-[4/5] overflow-hidden shadow-soft">
+            <img
+              src="/wp-content/uploads/2024/01/mariage-winkel.jpg"
+              alt="Mariage Bruidsmode winkel Geldrop"
+              class="w-full h-full object-cover scale-105 hover:scale-100 transition-transform duration-1000"
+              onerror="this.style.display='none'"
+            />
+            <div class="w-full h-full bg-linen absolute inset-0 -z-10 flex items-center justify-center">
+              <span class="font-display italic text-taupe/40 text-2xl">Mariage</span>
+            </div>
+          </div>
+          <div class="absolute -bottom-10 -left-10 bg-charcoal p-10 hidden md:block shadow-2xl">
+            <p class="text-warm-white font-display italic text-2xl">Al meer dan<br/>30 jaar</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Openingstijden + Adres -->
+  <section class="py-24 bg-white">
+    <div class="container mx-auto px-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-16 max-w-4xl mx-auto">
+
+        <!-- Openingstijden -->
+        <div>
+          <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">Openingstijden</p>
+          <h2 class="font-display text-charcoal text-3xl mb-8">Wanneer zijn<br/><em class="italic font-light text-taupe">wij open?</em></h2>
+          <div class="space-y-3">
+            {[
+              { dag: 'Maandag', tijd: 'Gesloten' },
+              { dag: 'Dinsdag', tijd: '10:00 – 17:30' },
+              { dag: 'Woensdag', tijd: '10:00 – 17:30' },
+              { dag: 'Donderdag', tijd: '10:00 – 17:30' },
+              { dag: 'Vrijdag', tijd: '10:00 – 17:30' },
+              { dag: 'Zaterdag', tijd: '9:30 – 17:00' },
+              { dag: 'Zondag', tijd: 'Op afspraak' },
+            ].map(({ dag, tijd }) => (
+              <div class="flex justify-between items-center border-b border-champagne pb-3">
+                <span class="text-sm font-body text-charcoal">{dag}</span>
+                <span class={`text-sm font-body ${tijd === 'Gesloten' ? 'text-taupe/50' : 'text-charcoal'}`}>{tijd}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <!-- Adres & Contact -->
+        <div>
+          <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">Adres & Contact</p>
+          <h2 class="font-display text-charcoal text-3xl mb-8">Hoe ons te<br/><em class="italic font-light text-taupe">bereiken?</em></h2>
+          <div class="space-y-6 text-sm text-taupe font-light leading-relaxed">
+            <div>
+              <p class="font-body font-medium text-charcoal text-xs tracking-widest uppercase mb-2">Adres</p>
+              <p>Parallelweg 26e<br/>5664 AD Geldrop<br/>(bij Eindhoven)</p>
+            </div>
+            <div>
+              <p class="font-body font-medium text-charcoal text-xs tracking-widest uppercase mb-2">Telefoon</p>
+              <a href="tel:+31402869165" class="hover:text-charcoal transition-colors">(0)40 286 91 65</a>
+            </div>
+            <div>
+              <p class="font-body font-medium text-charcoal text-xs tracking-widest uppercase mb-2">Parkeren</p>
+              <p>Gratis parkeren bij station Geldrop (naast de winkel).</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Route -->
+  <section class="py-24 bg-ivory border-t border-champagne">
+    <div class="container mx-auto px-6">
+      <div class="text-center mb-12">
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">Route</p>
+        <h2 class="font-display text-charcoal text-4xl mb-4">Vind ons <em class="italic font-light text-taupe">eenvoudig</em></h2>
+        <p class="text-taupe font-light max-w-md mx-auto text-sm leading-relaxed">
+          Wij zijn goed bereikbaar per auto en openbaar vervoer. Station Geldrop ligt op loopafstand.
+        </p>
+      </div>
+      <div class="max-w-4xl mx-auto mb-10 overflow-hidden shadow-soft">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2486.0!2d5.5516!3d51.4233!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47c6d9b0b0b0b0b0%3A0x0!2sParallelweg+26e%2C+5664+AD+Geldrop!5e0!3m2!1snl!2snl!4v1600000000000"
+          width="100%"
+          height="400"
+          style="border:0;"
+          allowfullscreen
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          title="Mariage Bruidsmode kaart"
+        ></iframe>
+      </div>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="https://www.google.com/maps/dir//Parallelweg+26e,+5664+AD+Geldrop" target="_blank" rel="noopener" class="btn-gold">Route via Google Maps</a>
+        <a href="https://www.ns.nl/reisplanner/#/?locationType_aankomst=poi&location_aankomst=Geldrop" target="_blank" rel="noopener" class="btn-gold">Route via NS</a>
+      </div>
+    </div>
+  </section>
+
+</Layout>

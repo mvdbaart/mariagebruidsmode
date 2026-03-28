@@ -14,15 +14,15 @@ const { data: collections } = await supabase
       <nav class="mb-12 flex items-center gap-4 text-[10px] tracking-[0.2em] uppercase font-body text-taupe">
         <a href="/admin" class="hover:text-charcoal transition-colors">Dashboard</a>
         <span class="text-champagne">›</span>
-        <span class="text-charcoal">Beheer Collecties</span>
+        <span class="text-charcoal font-medium">Beheer Collecties</span>
       </nav>
 
       <div class="flex items-center justify-between mb-12">
-        <h1 class="text-4xl font-display text-charcoal">Beheer <em class="font-normal italic text-taupe">Collecties</em></h1>
-        <button class="bg-charcoal text-warm-white px-8 py-3 text-[10px] tracking-widest uppercase hover:bg-taupe transition-all font-medium">Nieuwe Collectie</button>
+        <h1 class="font-display font-normal text-charcoal text-4xl italic">Beheer <span class="font-signature text-blush-deep text-5xl lowercase px-2">Collecties</span></h1>
+        <button class="btn-blush py-3 px-8 text-[11px] tracking-[0.2em] uppercase">Nieuwe Collectie</button>
       </div>
 
-      <div class="bg-white border border-champagne shadow-soft overflow-hidden">
+      <div class="bg-white border border-champagne shadow-soft overflow-hidden rounded-2xl">
         <div class="overflow-x-auto">
         <table class="w-full min-w-[760px] text-left border-collapse">
           <thead>
@@ -36,11 +36,16 @@ const { data: collections } = await supabase
           <tbody class="divide-y divide-champagne text-sm text-charcoal font-body">
             {collections?.map((col) => (
               <tr class="hover:bg-ivory/50 transition-colors">
-                <td class="px-6 py-5 font-medium uppercase tracking-wider">{col.title}</td>
+                <td class="px-6 py-5 font-medium uppercase tracking-wider">
+                  <a href={`/admin/producten?collectionId=${col.id}`} class="hover:text-blush-deep transition-colors">
+                    {col.title}
+                  </a>
+                </td>
                 <td class="px-6 py-5 text-taupe">{col.type === 'dress' ? 'Jurken' : 'Pakken'}</td>
                 <td class="px-6 py-5 text-taupe-light font-light">{col.slug}</td>
                 <td class="px-6 py-5 text-right">
                   <div class="flex justify-end gap-5 uppercase text-[10px] tracking-[0.15em] font-medium whitespace-nowrap">
+                    <a href={`/admin/producten?collectionId=${col.id}`} class="text-charcoal hover:text-blush-deep hover:underline transition-colors font-bold">Bekijken</a>
                     <a href={`/admin/collection/${col.id}/edit`} class="text-blush-deep hover:text-charcoal hover:underline transition-colors">Aanpassen</a>
                     <button class="text-red-700 hover:text-red-900 transition-colors">Verwijderen</button>
                   </div>

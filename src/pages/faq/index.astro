@@ -1,0 +1,114 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const faqs = [
+  {
+    vraag: 'Hoe lang duurt een trouwjurk passen?',
+    antwoord: 'Een eerste pasbeurt duurt ongeveer 1,5 tot 2 uur. We nemen de tijd om jou rustig te begeleiden bij het vinden van jouw droomjurk. Zo kun je in alle rust vergelijken en beslissen.',
+  },
+  {
+    vraag: 'Moet ik een afspraak maken?',
+    antwoord: 'Ja, wij werken uitsluitend op afspraak zodat wij je volledige aandacht kunnen geven. Maak eenvoudig online een afspraak via onze website of bel ons op (0)40 286 91 65.',
+  },
+  {
+    vraag: 'Wanneer moet ik beginnen met zoeken naar mijn trouwjurk?',
+    antwoord: 'We adviseren om minimaal 9 tot 12 maanden voor je trouwdatum te starten. Voor een op maat gemaakte jurk is soms meer tijd nodig. Heb je minder tijd? Neem dan contact op — we kijken wat er mogelijk is.',
+  },
+  {
+    vraag: 'Wat zijn de kosten voor aanpassingen?',
+    antwoord: 'De kosten voor aanpassingen zijn afhankelijk van de gewenste aanpassingen en worden apart begroot. Na een eerste pasbeurt kunnen onze coupeuses je een nauwkeurige offerte geven.',
+  },
+  {
+    vraag: 'Nemen jullie ook tweedehands of outlet jurken op?',
+    antwoord: 'Wij beschikken over een outlet collectie met stalen jurken tegen gereduceerde prijzen. Dit zijn showmodellen in uitstekende staat. Vraag ernaar tijdens je afspraak.',
+  },
+  {
+    vraag: 'Zijn sieraden en accessoires ook verkrijgbaar?',
+    antwoord: 'Ja, wij bieden een uitgebreide collectie bruidsaccessoires, waaronder sieraden, sluiers, hoofdbanden en schoenen. Zo kun je jouw complete bruidslook bij ons samenstellen.',
+  },
+  {
+    vraag: 'Mag ik iemand meenemen naar mijn afspraak?',
+    antwoord: 'Natuurlijk! Je bent van harte welkom om één of twee vertrouwde personen mee te nemen. We adviseren wel om de groep klein te houden zodat jij centraal staat in de keuze.',
+  },
+  {
+    vraag: 'Kan ik ook trouwpakken passen?',
+    antwoord: 'Absoluut. Wij hebben een uitgebreide collectie trouwpakken van merken als Immediate, Crinoligne, Roberto Vicentti en Cleofe Finati. Afspraken voor trouwpakken zijn ook op afspraak.',
+  },
+];
+---
+
+<Layout title="FAQ | Mariage Bruidsmode">
+
+  <!-- Hero -->
+  <section class="pt-40 pb-20 bg-ivory">
+    <div class="container mx-auto px-6 text-center max-w-3xl">
+      <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-6">Veelgestelde vragen</p>
+      <h1 class="font-display text-charcoal leading-tight mb-8" style="font-size: clamp(40px, 8vw, 72px); font-weight: 300;">
+        Alles wat je wilt <br/><em class="italic font-light text-taupe">weten</em>
+      </h1>
+      <p class="text-taupe font-light leading-relaxed text-base">
+        Hieronder vind je antwoorden op de meest gestelde vragen. Staat jouw vraag er niet bij? Neem dan gerust contact met ons op.
+      </p>
+    </div>
+  </section>
+
+  <!-- FAQ Accordion -->
+  <section class="py-16 bg-white">
+    <div class="container mx-auto px-6 max-w-3xl">
+      <div id="faq-list" class="divide-y divide-champagne">
+        {faqs.map((faq, i) => (
+          <div class="faq-item">
+            <button
+              type="button"
+              aria-expanded="false"
+              aria-controls={`faq-answer-${i}`}
+              class="faq-trigger w-full flex items-center justify-between py-6 text-left gap-4 hover:opacity-70 transition-opacity"
+            >
+              <span class="font-display text-charcoal text-xl">{faq.vraag}</span>
+              <span class="faq-icon flex-shrink-0 w-6 h-6 text-blush-deep transition-transform duration-300">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12" class="faq-minus"></line>
+                </svg>
+              </span>
+            </button>
+            <div id={`faq-answer-${i}`} class="faq-answer hidden pb-6">
+              <p class="text-taupe font-light leading-relaxed">{faq.antwoord}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-20 bg-ivory border-t border-champagne text-center">
+    <div class="container mx-auto px-6 max-w-xl">
+      <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">Nog een vraag?</p>
+      <h2 class="font-display text-charcoal text-3xl mb-6">Wij helpen je <em class="italic font-light text-taupe">graag</em></h2>
+      <p class="text-taupe font-light text-sm mb-8 leading-relaxed">
+        Staat jouw vraag er niet tussen? Neem contact op of maak direct een afspraak.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/contact" class="btn-gold">Contact opnemen</a>
+        <a href="https://nlmariage-kremen.savviihq.com/online-agenda/" target="_blank" rel="noopener" class="btn-premium">Afspraak maken</a>
+      </div>
+    </div>
+  </section>
+
+</Layout>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('.faq-trigger').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const isOpen = btn.getAttribute('aria-expanded') === 'true';
+      const answerId = btn.getAttribute('aria-controls')!;
+      const answer = document.getElementById(answerId);
+      const icon = btn.querySelector('.faq-icon') as HTMLElement | null;
+
+      btn.setAttribute('aria-expanded', String(!isOpen));
+      answer?.classList.toggle('hidden', isOpen);
+      if (icon) icon.style.transform = isOpen ? '' : 'rotate(45deg)';
+    });
+  });
+</script>
