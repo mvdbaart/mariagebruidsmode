@@ -46,19 +46,23 @@ const [
 ]);
 
 const stats = [
-  { label: 'Producten', value: productCount ?? 0, href: '/admin/producten' },
-  { label: 'Collecties', value: collectionCount ?? 0, href: '/admin/collecties' },
-  { label: 'Blog Artikelen', value: blogCount ?? 0, href: '/admin/blog' },
-  { label: 'Afspraken', value: appointmentCount ?? 0, href: '/admin/afspraken' },
-  { label: 'Bruidsverhalen', value: weddingCount ?? 0, href: '/admin/inspiratie' },
-  { label: 'Formulieren', value: formCount ?? 0, href: '/admin/formulieren' },
-  { label: 'Klanten', value: customerCount ?? 0, href: '/admin/klanten' },
-  { label: 'Leveranciers', value: supplierCount ?? 0, href: '/admin/leveranciers' },
-  { label: 'Open Taken', value: pendingTaskCount ?? 0, href: '/admin/klanten' },
-  { label: 'A/B Tests', value: landingPageCount ?? 0, href: '/admin/landingpages' },
+  { label: 'Producten', value: productCount ?? 0, href: '/admin/producten', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7v3a2 2 0 0 1-2 2v0a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12v0a2 2 0 0 1-2-2V7"/></svg>` },
+  { label: 'Collecties', value: collectionCount ?? 0, href: '/admin/collecties', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>` },
+  { label: 'Afspraken', value: appointmentCount ?? 0, href: '/admin/afspraken', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-1.5"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="m16 21 2-2 4 4"/></svg>` },
+  { label: 'Klanten', value: customerCount ?? 0, href: '/admin/klanten', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>` },
+  { label: 'Inspiratie', value: weddingCount ?? 0, href: '/admin/inspiratie', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 2H8C4.69 2 2 4.69 2 8v8c0 3.31 2.69 6 6 6h8c3.31 0 6-2.69 6-6V8c0-3.31-2.69-6-6-6Z"/><path d="M12 18s4.5-3.5 4.5-5.5a4.5 4.5 0 0 0-9 0C7.5 14.5 12 18 12 18Z"/></svg>` },
+  { label: 'Blog', value: blogCount ?? 0, href: '/admin/blog', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M8 7h6"/><path d="M8 11h8"/><path d="M8 15h6"/></svg>` },
+  { label: 'Formulieren', value: formCount ?? 0, href: '/admin/formulieren', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>` }, // Placeholder icon
+  { label: 'Leveranciers', value: supplierCount ?? 0, href: '/admin/leveranciers', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 11V7a5 5 0 0 1 10 0v4"/><path d="M12 18v4"/><path d="M2 11h20v4a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5v-4z"/></svg>` },
+  { label: 'Planning', value: pendingTaskCount ?? 0, href: '/admin/planner/medewerkers', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>` },
 ];
 
 const todayFormatted = new Date().toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' });
+
+const todayApps = recentAppointments?.filter(a => a.preferred_date === today) ?? [];
+const upcomingApps = recentAppointments?.filter(a => a.preferred_date > today) ?? [];
+const appTypeLabel: { [key: string]: string } = { vip: 'VIP', standard_bride: 'Bruid', standard_groom: 'Bruidegom' };
+const appStatusColor: { [key: string]: string } = { pending: 'bg-amber-100 text-amber-800', confirmed: 'bg-green-100 text-green-800', cancelled: 'bg-gray-100 text-gray-400' };
 ---
 
 <AdminLayout title="Dashboard">
@@ -93,27 +97,32 @@ const todayFormatted = new Date().toLocaleDateString('nl-NL', { weekday: 'long',
         </a>
         <div class="h-4 w-px bg-champagne hidden sm:block"></div>
         <a href="/admin/klanten" class="flex items-center gap-2 group">
-          <span class={`text-xl font-display transition-colors ${(overdueTaskCount ?? 0) > 0 ? 'text-red-500' : 'text-charcoal group-hover:text-blush-deep'}`}>{overdueTaskCount ?? 0}</span>
+          <span class:list={['text-xl font-display transition-colors', (overdueTaskCount ?? 0) > 0 ? 'text-red-500' : 'text-charcoal group-hover:text-blush-deep']}>{overdueTaskCount ?? 0}</span>
           <span class="text-[10px] tracking-[0.15em] uppercase font-body text-taupe-light">verlate taken</span>
         </a>
         <div class="h-4 w-px bg-champagne hidden sm:block"></div>
         <a href="/admin/bestellingen" class="flex items-center gap-2 group">
-          <span class={`text-xl font-display transition-colors ${(overdueOrderCount ?? 0) > 0 ? 'text-red-500' : 'text-charcoal group-hover:text-blush-deep'}`}>{overdueOrderCount ?? 0}</span>
+          <span class:list={['text-xl font-display transition-colors', (overdueOrderCount ?? 0) > 0 ? 'text-red-500' : 'text-charcoal group-hover:text-blush-deep']}>{overdueOrderCount ?? 0}</span>
           <span class="text-[10px] tracking-[0.15em] uppercase font-body text-taupe-light">verlate leveringen</span>
         </a>
         <div class="h-4 w-px bg-champagne hidden sm:block"></div>
         <a href="/admin/klanten" class="flex items-center gap-2 group">
-          <span class={`text-xl font-display transition-colors ${(pendingTaskCount ?? 0) > 0 ? 'text-gold' : 'text-charcoal group-hover:text-blush-deep'}`}>{pendingTaskCount ?? 0}</span>
+          <span class:list={['text-xl font-display transition-colors', (pendingTaskCount ?? 0) > 0 ? 'text-amber-600' : 'text-charcoal group-hover:text-blush-deep']}>{pendingTaskCount ?? 0}</span>
           <span class="text-[10px] tracking-[0.15em] uppercase font-body text-taupe-light">open taken totaal</span>
         </a>
       </div>
 
-      <!-- Live stats row -->
-      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9 gap-4 mb-14">
+      <!-- Main Tile Grid -->
+      <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-16">
         {stats.map(stat => (
-          <a href={stat.href} class="bg-white border border-champagne p-6 shadow-soft hover:shadow-card transition-all duration-300 hover:-translate-y-0.5 group rounded-2xl">
-            <p class="text-3xl font-display text-charcoal group-hover:text-blush-deep transition-colors">{stat.value}</p>
-            <p class="text-[10px] tracking-[0.2em] uppercase text-taupe-light font-body mt-1">{stat.label}</p>
+          <a href={stat.href} class="dashboard-tile bg-white border border-champagne p-8 shadow-soft hover:shadow-card transition-all duration-300 hover:-translate-y-1 group rounded-3xl flex flex-col items-center text-center relative overflow-hidden h-full">
+            <div class="mb-5 p-4 bg-linen rounded-2xl text-taupe group-hover:bg-blush-deep group-hover:text-white transition-all duration-300" set:html={stat.icon} />
+            <p class="text-4xl font-display text-charcoal mb-1">{stat.value}</p>
+            <p class="text-[10px] tracking-[0.2em] uppercase text-taupe-light font-body font-medium">{stat.label}</p>
+            
+            <div class="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blush-deep"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </div>
           </a>
         ))}
       </div>
@@ -192,58 +201,50 @@ const todayFormatted = new Date().toLocaleDateString('nl-NL', { weekday: 'long',
             <h2 class="font-display text-charcoal text-xl italic">Planning</h2>
             <a href="/admin/afspraken" class="text-[10px] tracking-widest uppercase text-blush-deep hover:underline font-body">Alle bekijken</a>
           </div>
-          {(() => {
-            const todayApps = recentAppointments?.filter(a => a.preferred_date === today) ?? [];
-            const upcomingApps = recentAppointments?.filter(a => a.preferred_date > today) ?? [];
-            const typeLabel: Record<string, string> = { vip: 'VIP', standard_bride: 'Bruid', standard_groom: 'Bruidegom' };
-            const statusColor: Record<string, string> = { pending: 'bg-amber-100 text-amber-800', confirmed: 'bg-green-100 text-green-800', cancelled: 'bg-gray-100 text-gray-400' };
-            return (
-              <div class="space-y-6">
-                {/* Vandaag */}
-                <div>
-                  <p class="text-[9px] tracking-[0.3em] uppercase text-taupe font-body mb-3">Vandaag</p>
-                  {todayApps.length === 0 && <p class="text-sm font-body text-taupe-light italic">Geen afspraken vandaag.</p>}
-                  <div class="space-y-2">
-                    {todayApps.map(app => (
-                      <div class={`flex items-center gap-3 px-3 py-2.5 rounded-sm ${app.appointment_type === 'vip' ? 'bg-gold/10' : 'bg-blush/10'}`}>
-                        <span class="text-sm font-body font-medium text-charcoal tabular-nums w-14 shrink-0">
-                          {app.start_time ? app.start_time.slice(0, 5) : '—'}
-                        </span>
-                        <span class="text-sm font-body text-charcoal flex-1 truncate">{app.full_name}</span>
-                        <span class={`text-[9px] uppercase tracking-wider font-body px-1.5 py-0.5 shrink-0 ${app.appointment_type === 'vip' ? 'bg-gold/20 text-charcoal' : 'bg-champagne text-taupe'}`}>
-                          {typeLabel[app.appointment_type] ?? 'Standaard'}
-                        </span>
-                        <span class={`text-[9px] uppercase tracking-wider font-body px-1.5 py-0.5 rounded-sm shrink-0 ${statusColor[app.status] ?? statusColor.pending}`}>
-                          {app.status === 'pending' ? 'Afwachting' : app.status === 'confirmed' ? 'Bevestigd' : app.status}
-                        </span>
-                      </div>
-                    ))}
+          <div class="space-y-6">
+            <!-- Vandaag -->
+            <div>
+              <p class="text-[9px] tracking-[0.3em] uppercase text-taupe font-body mb-3">Vandaag</p>
+              {todayApps.length === 0 && <p class="text-sm font-body text-taupe-light italic">Geen afspraken vandaag.</p>}
+              <div class="space-y-2">
+                {todayApps.map(app => (
+                  <div class={`flex items-center gap-3 px-3 py-2.5 rounded-sm ${app.appointment_type === 'vip' ? 'bg-gold/10' : 'bg-blush/10'}`}>
+                    <span class="text-sm font-body font-medium text-charcoal tabular-nums w-14 shrink-0">
+                      {app.start_time ? app.start_time.slice(0, 5) : '—'}
+                    </span>
+                    <span class="text-sm font-body text-charcoal flex-1 truncate">{app.full_name}</span>
+                    <span class={`text-[9px] uppercase tracking-wider font-body px-1.5 py-0.5 shrink-0 ${app.appointment_type === 'vip' ? 'bg-gold/20 text-charcoal' : 'bg-champagne text-taupe'}`}>
+                      {appTypeLabel[app.appointment_type] ?? 'Standaard'}
+                    </span>
+                    <span class={`text-[9px] uppercase tracking-wider font-body px-1.5 py-0.5 rounded-sm shrink-0 ${appStatusColor[app.status] ?? appStatusColor.pending}`}>
+                      {app.status === 'pending' ? 'Afwachting' : app.status === 'confirmed' ? 'Bevestigd' : app.status}
+                    </span>
                   </div>
-                </div>
-                {/* Aankomend */}
-                {upcomingApps.length > 0 && (
-                  <div>
-                    <p class="text-[9px] tracking-[0.3em] uppercase text-taupe font-body mb-3">Aankomend</p>
-                    <div class="space-y-3">
-                      {upcomingApps.map(app => (
-                        <div class="flex items-center gap-3">
-                          <span class="text-xs font-body text-taupe w-24 shrink-0">
-                            {new Date(app.preferred_date + 'T00:00:00').toLocaleDateString('nl-NL', { weekday: 'short', day: 'numeric', month: 'short' })}
-                          </span>
-                          {app.start_time && <span class="text-xs font-body text-taupe-light tabular-nums w-10 shrink-0">{app.start_time.slice(0, 5)}</span>}
-                          <span class="text-sm font-body text-charcoal flex-1 truncate">{app.full_name}</span>
-                          <span class={`text-[9px] uppercase tracking-wider font-body px-1.5 py-0.5 shrink-0 ${app.appointment_type === 'vip' ? 'bg-gold/20 text-charcoal' : 'bg-champagne text-taupe'}`}>
-                            {typeLabel[app.appointment_type] ?? 'Standaard'}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {!recentAppointments?.length && <p class="text-sm font-body text-taupe-light italic">Geen aankomende afspraken.</p>}
+                ))}
               </div>
-            );
-          })()}
+            </div>
+            <!-- Aankomend -->
+            {upcomingApps.length > 0 && (
+              <div>
+                <p class="text-[9px] tracking-[0.3em] uppercase text-taupe font-body mb-3">Aankomend</p>
+                <div class="space-y-3">
+                  {upcomingApps.map(app => (
+                    <div class="flex items-center gap-3">
+                      <span class="text-xs font-body text-taupe w-24 shrink-0">
+                        {new Date(app.preferred_date + 'T00:00:00').toLocaleDateString('nl-NL', { weekday: 'short', day: 'numeric', month: 'short' })}
+                      </span>
+                      {app.start_time && <span class="text-xs font-body text-taupe-light tabular-nums w-10 shrink-0">{app.start_time.slice(0, 5)}</span>}
+                      <span class="text-sm font-body text-charcoal flex-1 truncate">{app.full_name}</span>
+                      <span class={`text-[9px] uppercase tracking-wider font-body px-1.5 py-0.5 shrink-0 ${app.appointment_type === 'vip' ? 'bg-gold/20 text-charcoal' : 'bg-champagne text-taupe'}`}>
+                        {appTypeLabel[app.appointment_type] ?? 'Standaard'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {!recentAppointments?.length && <p class="text-sm font-body text-taupe-light italic">Geen aankomende afspraken.</p>}
+          </div>
         </div>
 
         <!-- Recent Products -->
@@ -278,22 +279,19 @@ const todayFormatted = new Date().toLocaleDateString('nl-NL', { weekday: 'long',
   const searchInput = document.getElementById('dashboardSearch') as HTMLInputElement;
   
   // Elements to filter
-  const searchableElements = '.bg-white.p-8, .grid.grid-cols-2 > a, .space-y-4 > div, .space-y-5 > div, .flex.items-start.justify-between';
-  const sectionContainers = document.querySelectorAll('.bg-white.p-8, .grid.grid-cols-2.md\\:grid-cols-3');
+  const searchableElements = '.dashboard-tile, .bg-white.p-8, .space-y-4 > div, .space-y-5 > div, .flex.items-start.justify-between, .space-y-2 > div';
+  const sectionContainers = document.querySelectorAll('.bg-white.p-8, .grid.grid-cols-2.lg\\:grid-cols-3');
 
   searchInput?.addEventListener('input', () => {
     const query = searchInput.value.toLowerCase().trim();
 
     if (!query) {
-      // Show everything if search is empty
       document.querySelectorAll('.hidden').forEach(el => {
-        // Only remove hidden from elements we might have hidden
         if (el.closest('.container')) el.classList.remove('hidden');
       });
       return;
     }
 
-    // Filter individual items
     const allItems = document.querySelectorAll(searchableElements);
     allItems.forEach(el => {
       const text = el.textContent?.toLowerCase() || '';
@@ -304,7 +302,6 @@ const todayFormatted = new Date().toLocaleDateString('nl-NL', { weekday: 'long',
       }
     });
 
-    // Optionally hide sections if all children are hidden (more advanced)
     sectionContainers.forEach(section => {
       const visibleChildren = section.querySelectorAll(`${searchableElements}:not(.hidden)`);
       if (visibleChildren.length === 0) {
