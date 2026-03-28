@@ -1,0 +1,107 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const bruidsmerken = [
+  { naam: 'Bianco Evento', stijl: 'Romantisch & elegant', href: '/trouwjurken' },
+  { naam: 'Dama Couture', stijl: 'Luxe & modern', href: '/trouwjurken' },
+  { naam: 'Dany Tabet', stijl: 'Sophisticated & vrouwelijk', href: '/trouwjurken' },
+  { naam: 'Oksana Mukha', stijl: 'Hoog couture & avantgarde', href: '/trouwjurken' },
+  { naam: 'San Patrick', stijl: 'Klassiek & tijdloos', href: '/trouwjurken' },
+  { naam: 'Modeca', stijl: 'Modern & veelzijdig', href: '/trouwjurken' },
+  { naam: 'Monica Loretti', stijl: 'Italiaans & romantisch', href: '/trouwjurken' },
+  { naam: 'Ladybird', stijl: 'Toegankelijk & stijlvol', href: '/trouwjurken' },
+  { naam: 'Enzoani', stijl: 'Sensueel & modern', href: '/trouwjurken' },
+  { naam: 'Daniela di Marino', stijl: 'Italiaanse elegantie', href: '/trouwjurken' },
+  { naam: 'Demetrios', stijl: 'Klassiek & romantisch', href: '/trouwjurken' },
+  { naam: 'Morilee', stijl: 'Divers & betaalbaar luxe', href: '/trouwjurken' },
+  { naam: 'Cosmobella', stijl: 'Mediterraans & romantisch', href: '/trouwjurken' },
+  { naam: 'Etoile', stijl: 'Verfijnd & minimalistisch', href: '/trouwjurken' },
+  { naam: 'GBS Hervé Paris', stijl: 'Frans & chic', href: '/trouwjurken' },
+  { naam: 'Jarice', stijl: 'Modern & toegankelijk', href: '/trouwjurken' },
+  { naam: 'Orea Sposa', stijl: 'Traditioneel & elegant', href: '/trouwjurken' },
+  { naam: 'Libelle Bridal', stijl: 'Luchtig & romantisch', href: '/trouwjurken' },
+  { naam: 'Randy Fenoli', stijl: 'Dramatisch & statement', href: '/trouwjurken' },
+  { naam: 'Stella York', stijl: 'Betaalbaar & stijlvol', href: '/trouwjurken' },
+  { naam: 'White One', stijl: 'Spaans & sensueel', href: '/trouwjurken' },
+];
+
+const herenmerken = [
+  { naam: 'Immediate', stijl: 'Modern & veelzijdig', href: '/trouwpakken' },
+  { naam: 'Crinoligne', stijl: 'Klassiek & Italiaans', href: '/trouwpakken' },
+  { naam: 'Roberto Vicentti', stijl: 'Mediterraans & elegant', href: '/trouwpakken' },
+  { naam: 'Cleofe Finati', stijl: 'Hoog couture herenmode', href: '/trouwpakken' },
+];
+---
+
+<Layout title="Onze Merken | Mariage Bruidsmode">
+
+  <!-- Hero -->
+  <section class="pt-40 pb-20 bg-ivory">
+    <div class="container mx-auto px-6 text-center max-w-3xl">
+      <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-6">Merken</p>
+      <h1 class="font-display text-charcoal leading-tight mb-6" style="font-size: clamp(40px, 8vw, 72px); font-weight: 300;">
+        Onze <em class="italic font-light text-taupe">designermerken</em>
+      </h1>
+      <p class="text-taupe font-light leading-relaxed text-base max-w-xl mx-auto">
+        Bij Mariage Bruidsmode werken wij uitsluitend samen met gerenommeerde ontwerpers en merken. Ontdek onze zorgvuldig samengestelde collectie van internationale bruidsmode en herenmode.
+      </p>
+    </div>
+  </section>
+
+  <!-- Bruidsmerken -->
+  <section class="py-20 bg-white">
+    <div class="container mx-auto px-6 max-w-6xl">
+      <div class="flex items-center gap-6 mb-12">
+        <div class="flex-1 h-px bg-champagne"></div>
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body shrink-0">Bruidsmode</p>
+        <div class="flex-1 h-px bg-champagne"></div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {bruidsmerken.map(({ naam, stijl, href }) => (
+          <a href={href} class="group border border-champagne bg-ivory/40 hover:bg-white hover:border-blush-deep hover:shadow-soft transition-all duration-300 p-6 text-center">
+            <h3 class="font-display text-charcoal text-lg mb-1 group-hover:text-blush-deep transition-colors">{naam}</h3>
+            <p class="text-taupe font-light text-xs">{stijl}</p>
+          </a>
+        ))}
+      </div>
+      <div class="text-center mt-10">
+        <a href="/trouwjurken" class="btn-gold">Bekijk trouwjurken</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Herenmerken -->
+  <section class="py-20 bg-ivory border-t border-champagne">
+    <div class="container mx-auto px-6 max-w-6xl">
+      <div class="flex items-center gap-6 mb-12">
+        <div class="flex-1 h-px bg-champagne"></div>
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body shrink-0">Herenmode</p>
+        <div class="flex-1 h-px bg-champagne"></div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        {herenmerken.map(({ naam, stijl, href }) => (
+          <a href={href} class="group border border-champagne bg-white hover:border-blush-deep hover:shadow-soft transition-all duration-300 p-6 text-center">
+            <h3 class="font-display text-charcoal text-lg mb-1 group-hover:text-blush-deep transition-colors">{naam}</h3>
+            <p class="text-taupe font-light text-xs">{stijl}</p>
+          </a>
+        ))}
+      </div>
+      <div class="text-center mt-10">
+        <a href="/trouwpakken" class="btn-gold">Bekijk trouwpakken</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Merkpartner CTA -->
+  <section class="py-20 bg-charcoal text-center">
+    <div class="container mx-auto px-6 max-w-2xl">
+      <p class="text-[10px] tracking-[0.4em] uppercase text-blush font-body mb-4">Persoonlijk advies</p>
+      <h2 class="font-display text-warm-white text-4xl mb-6">Welk merk past <em class="italic text-blush font-light">bij jou?</em></h2>
+      <p class="text-warm-white/60 font-light mb-10 text-sm leading-relaxed">
+        Onze stylistes kennen elk merk van binnen en buiten. Maak een afspraak en laat je persoonlijk adviseren.
+      </p>
+      <a href="https://nlmariage-kremen.savviihq.com/online-agenda/" target="_blank" rel="noopener" class="btn-gold">Afspraak maken</a>
+    </div>
+  </section>
+
+</Layout>
