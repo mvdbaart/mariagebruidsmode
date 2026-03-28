@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import ProductFilter from '../../components/ProductFilter';
+import NewsletterSignup from '../../components/NewsletterSignup.astro';
 import { supabase } from '../../lib/supabase';
 
 const { data: collections } = await supabase
@@ -35,6 +36,87 @@ const collectionsForFilter = (collections ?? []).map(({ id, title, slug }) => ({
       </div>
     </div>
   </div>
+
+  <!-- Kleur & stof gids -->
+  <section class="py-20 bg-white border-b border-champagne">
+    <div class="container mx-auto px-6 max-w-6xl">
+      <div class="text-center mb-14">
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">Stijlgids</p>
+        <h2 class="font-display text-charcoal text-4xl mb-4">Kleur & <em class="italic font-light text-taupe">stof</em></h2>
+        <p class="text-taupe font-light max-w-xl mx-auto text-sm leading-relaxed">
+          De keuze van kleur en stof bepaalt grotendeels het karakter van uw trouwpak. Ontdek welke combinatie past bij uw stijl en het seizoen.
+        </p>
+      </div>
+
+      <!-- Kleuren -->
+      <div class="mb-14">
+        <h3 class="font-body text-[10px] tracking-[0.3em] uppercase text-taupe mb-6 text-center">Populaire kleuren</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4">
+          {[
+            { naam: 'Marineblauw', hex: '#1B2A4A', tip: 'Tijdloos, veelzijdig, elegant' },
+            { naam: 'Antraciet', hex: '#3D3D3D', tip: 'Modern, strak, statement' },
+            { naam: 'Lichtgrijs', hex: '#9E9E9E', tip: 'Luchtig, zomers, klassiek' },
+            { naam: 'Camel', hex: '#C19A6B', tip: 'Warm, trendy, herfst/winter' },
+            { naam: 'Bordeaux', hex: '#722F37', tip: 'Diepte, drama, avond' },
+            { naam: 'Champagne', hex: '#D4B896', tip: 'Romantisch, subtiel, dag' },
+            { naam: 'Groen', hex: '#3A5C3A', tip: 'Fris, natuur, zomer' },
+            { naam: 'Zwart', hex: '#1C1C1C', tip: 'Onverslaanbaar, formeel' },
+          ].map(({ naam, hex, tip }) => (
+            <div class="text-center group cursor-default">
+              <div
+                class="w-full aspect-square mb-3 shadow-soft transition-transform duration-300 group-hover:scale-105"
+                style={`background-color: ${hex};`}
+              ></div>
+              <p class="font-body text-charcoal text-xs font-medium">{naam}</p>
+              <p class="text-taupe/60 text-[9px] font-light mt-0.5">{tip}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Stoffen -->
+      <div>
+        <h3 class="font-body text-[10px] tracking-[0.3em] uppercase text-taupe mb-6 text-center">Stoffen per seizoen</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            {
+              stof: 'Wol',
+              seizoen: 'Herfst / Winter',
+              beschrijving: 'Warm, structuurrijk en drapeerbaar. De klassieke keuze voor formele gelegenheden en koude maanden. Valt uitstekend en behoudt zijn vorm.',
+              icon: '❄',
+            },
+            {
+              stof: 'Linnen',
+              seizoen: 'Lente / Zomer',
+              beschrijving: 'Luchtig, ademend en licht gerimpeld karakter. Perfect voor buiten bruiloften of een ontspannen mediterraanse sfeer.',
+              icon: '☀',
+            },
+            {
+              stof: 'Mohair',
+              seizoen: 'Voorjaar',
+              beschrijving: 'Fijne glans door de zachte vezel. Licht van gewicht maar warm genoeg voor een koele avond. Geeft een premium uitstraling.',
+              icon: '✦',
+            },
+            {
+              stof: 'Flanel',
+              seizoen: 'Herfst / Lente',
+              beschrijving: 'Geborsteld oppervlak met matte, zachte uitstraling. Uitstekend comfort, tijdloos en veelzijdig in elke kleur.',
+              icon: '◈',
+            },
+          ].map(({ stof, seizoen, beschrijving, icon }) => (
+            <div class="border border-champagne bg-ivory/40 p-6 space-y-3">
+              <div class="flex items-center justify-between">
+                <h4 class="font-display text-charcoal text-xl">{stof}</h4>
+                <span class="text-lg text-blush-deep/40">{icon}</span>
+              </div>
+              <p class="text-[9px] tracking-[0.2em] uppercase text-blush-deep font-body">{seizoen}</p>
+              <p class="text-taupe font-light text-sm leading-relaxed">{beschrijving}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
 
   <ProductFilter
     client:load

@@ -1,0 +1,30 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import WishlistPage from '../../components/WishlistPage';
+---
+
+<Layout title="Verlanglijst | Mariage Bruidsmode">
+
+  <!-- Hero -->
+  <section class="pt-40 pb-16 bg-ivory border-b border-champagne">
+    <div class="container mx-auto px-6">
+      <div class="max-w-2xl">
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">Mijn lijst</p>
+        <h1 class="font-display font-normal text-charcoal leading-tight mb-4" style="font-size: clamp(36px, 5vw, 56px);">
+          Mijn <em class="italic font-light text-taupe">verlanglijst</em>
+        </h1>
+        <p class="text-taupe font-light text-sm leading-relaxed">
+          Bewaar je favoriete jurken en pakken en stuur de lijst eenvoudig naar jezelf of je partner.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Wishlist content -->
+  <section class="py-16 bg-white">
+    <div class="container mx-auto px-6">
+      <WishlistPage client:load />
+    </div>
+  </section>
+
+</Layout>

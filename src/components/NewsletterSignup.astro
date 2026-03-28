@@ -1,0 +1,90 @@
+---
+interface Props {
+  variant?: 'dark' | 'light';
+}
+const { variant = 'dark' } = Astro.props;
+const isDark = variant === 'dark';
+---
+
+<section class={isDark ? 'py-20 bg-charcoal' : 'py-20 bg-ivory border-t border-champagne'}>
+  <div class="container mx-auto px-6 max-w-xl text-center">
+    <p class={`text-[10px] tracking-[0.4em] uppercase font-body mb-4 ${isDark ? 'text-blush' : 'text-blush-deep'}`}>Nieuwsbrief</p>
+    <h2 class={`font-display text-3xl mb-4 ${isDark ? 'text-warm-white' : 'text-charcoal'}`}>
+      Blijf <em class={`italic font-light ${isDark ? 'text-blush' : 'text-taupe'}`}>op de hoogte</em>
+    </h2>
+    <p class={`font-light text-sm leading-relaxed mb-8 max-w-md mx-auto ${isDark ? 'text-warm-white/60' : 'text-taupe'}`}>
+      Ontvang als eerste nieuws over nieuwe collecties, evenementen en exclusieve tips voor jouw trouwdag.
+    </p>
+
+    <form id="newsletter-form" class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+      <input
+        type="text"
+        name="name"
+        placeholder="Voornaam"
+        autocomplete="given-name"
+        class="flex-none w-full sm:w-32 border border-champagne bg-white px-4 py-3 text-sm font-body text-charcoal placeholder:text-taupe/50 focus:outline-none focus:border-taupe transition-colors"
+      />
+      <input
+        type="email"
+        name="email"
+        placeholder="jouw@email.nl"
+        required
+        autocomplete="email"
+        class="flex-1 border border-champagne bg-white px-4 py-3 text-sm font-body text-charcoal placeholder:text-taupe/50 focus:outline-none focus:border-taupe transition-colors"
+      />
+      <button
+        type="submit"
+        class={isDark ? 'btn-gold whitespace-nowrap' : 'btn-premium whitespace-nowrap'}
+      >
+        Aanmelden
+      </button>
+    </form>
+
+    <p id="newsletter-msg" class="mt-4 text-xs font-body hidden"></p>
+    <p class={`mt-4 text-[9px] font-body ${isDark ? 'text-warm-white/30' : 'text-taupe/50'}`}>
+      Geen spam. Afmelden kan altijd. Zie ons <a href="/privacy" class="underline hover:opacity-70 transition-opacity">privacybeleid</a>.
+    </p>
+  </div>
+</section>
+
+<script>
+  const form = document.getElementById('newsletter-form') as HTMLFormElement | null;
+  const msg = document.getElementById('newsletter-msg');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = new FormData(form!);
+    const email = (data.get('email') as string)?.trim();
+    const name = (data.get('name') as string)?.trim();
+
+    const btn = form!.querySelector('button[type="submit"]') as HTMLButtonElement;
+    btn.disabled = true;
+    btn.textContent = 'Aanmelden…';
+
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, name }),
+      });
+      if (res.ok) {
+        form!.classList.add('hidden');
+        msg!.textContent = '✓ Bedankt! Je ontvangt een bevestiging per e-mail.';
+        msg!.classList.remove('hidden');
+        msg!.classList.add('text-blush-deep');
+      } else {
+        const json = await res.json().catch(() => ({}));
+        msg!.textContent = json.error || 'Aanmelden mislukt. Probeer het later opnieuw.';
+        msg!.classList.remove('hidden');
+        msg!.classList.add('text-red-500');
+        btn.disabled = false;
+        btn.textContent = 'Aanmelden';
+      }
+    } catch {
+      msg!.textContent = 'Aanmelden mislukt. Probeer het later opnieuw.';
+      msg!.classList.remove('hidden');
+      btn.disabled = false;
+      btn.textContent = 'Aanmelden';
+    }
+  });
+</script>

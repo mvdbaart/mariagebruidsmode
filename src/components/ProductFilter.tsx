@@ -1,4 +1,39 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
+
+const WISHLIST_KEY = 'mb_wishlist';
+
+interface WishlistItem {
+  slug: string;
+  name: string;
+  image: string;
+  url: string;
+}
+
+function loadWishlist(): Set<string> {
+  try {
+    const raw = localStorage.getItem(WISHLIST_KEY);
+    if (!raw) return new Set();
+    const items: WishlistItem[] = JSON.parse(raw);
+    return new Set(items.map((i) => i.slug));
+  } catch { return new Set(); }
+}
+
+function saveToWishlist(item: WishlistItem) {
+  try {
+    const raw = localStorage.getItem(WISHLIST_KEY);
+    const items: WishlistItem[] = raw ? JSON.parse(raw) : [];
+    if (!items.find((i) => i.slug === item.slug)) items.push(item);
+    localStorage.setItem(WISHLIST_KEY, JSON.stringify(items));
+  } catch {}
+}
+
+function removeFromWishlist(slug: string) {
+  try {
+    const raw = localStorage.getItem(WISHLIST_KEY);
+    const items: WishlistItem[] = raw ? JSON.parse(raw) : [];
+    localStorage.setItem(WISHLIST_KEY, JSON.stringify(items.filter((i) => i.slug !== slug)));
+  } catch {}
+}
 import { PASVORM, HALS, MOUW, MATERIALEN, CATEGORIEEN, SUIT_KLEUREN, SUIT_MATEN, SUIT_CATEGORIEEN } from '../lib/productAttributes';
 
 interface Product {
@@ -102,6 +137,7 @@ function SidebarSection({ title, children }: { title: string; children: React.Re
 export default function ProductFilter({ products, collections, fallbackImage, mode = 'dress' }: Props) {
   const isSuit = mode === 'suit';
   const [search, setSearch] = useState('');
+  const [wishlist, setWishlist] = useState<Set<string>>(new Set());
   const [activePasvorm, setActivePasvorm]     = useState<Set<string>>(new Set());
   const [activeHals, setActiveHals]           = useState<Set<string>>(new Set());
   const [activeMouw, setActiveMouw]           = useState<Set<string>>(new Set());
@@ -110,6 +146,19 @@ export default function ProductFilter({ products, collections, fallbackImage, mo
   const [activeBrands, setActiveBrands]       = useState<Set<string>>(new Set());
   const [activeCollection, setActiveCollection] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => { setWishlist(loadWishlist()); }, []);
+
+  const toggleWishlist = useCallback((prod: Product) => {
+    const img = prod.images?.[0] ?? fallbackImage;
+    if (wishlist.has(prod.slug)) {
+      removeFromWishlist(prod.slug);
+      setWishlist((prev) => { const n = new Set(prev); n.delete(prod.slug); return n; });
+    } else {
+      saveToWishlist({ slug: prod.slug, name: prod.name, image: img, url: `/product/${prod.slug}` });
+      setWishlist((prev) => new Set(prev).add(prod.slug));
+    }
+  }, [wishlist, fallbackImage]);
 
   const brands = useMemo(() => {
     const seen = new Set<string>();
@@ -341,6 +390,16 @@ export default function ProductFilter({ products, collections, fallbackImage, mo
 
                 return (
                   <div key={prod.id} className="group product-card relative overflow-hidden">
+                    {/* Wishlist heart button */}
+                    <button
+                      onClick={() => toggleWishlist(prod)}
+                      aria-label={wishlist.has(prod.slug) ? 'Verwijder uit verlanglijst' : 'Voeg toe aan verlanglijst'}
+                      className="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center bg-white/90 hover:bg-white transition-colors shadow-sm"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill={wishlist.has(prod.slug) ? '#A66352' : 'none'} stroke={wishlist.has(prod.slug) ? '#A66352' : '#5E534D'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                      </svg>
+                    </button>
                     <a href={`/product/${prod.slug}`} className="block relative aspect-[3/4] overflow-hidden">
                       <div className="w-full h-full bg-linen relative overflow-hidden">
                         <img
