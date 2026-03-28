@@ -1,0 +1,186 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Maattabel & Pashulp | Mariage Bruidsmode">
+
+  <!-- Hero -->
+  <section class="pt-40 pb-20 bg-ivory">
+    <div class="container mx-auto px-6 text-center max-w-3xl">
+      <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-6">Advies</p>
+      <h1 class="font-display text-charcoal leading-tight mb-6" style="font-size: clamp(36px, 6vw, 60px); font-weight: 300;">
+        Maattabel & <em class="italic font-light text-taupe">pashulp</em>
+      </h1>
+      <p class="text-taupe font-light leading-relaxed max-w-xl mx-auto">
+        Een trouwjurk of trouwpak wordt besteld op basis van uw maten — niet op confectiemaat. Hieronder vindt u alles over het opmeten, maatconversie en wat u kunt verwachten.
+      </p>
+    </div>
+  </section>
+
+  <!-- Opmeten -->
+  <section class="py-20 bg-white">
+    <div class="container mx-auto px-6 max-w-5xl">
+      <div class="text-center mb-14">
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">Stap 1</p>
+        <h2 class="font-display text-charcoal text-4xl">Uzelf <em class="italic font-light text-taupe">opmeten</em></h2>
+        <p class="text-taupe font-light max-w-xl mx-auto text-sm leading-relaxed mt-4">
+          Meet uzelf op in ondergoed of een nauwsluitend kledingstuk. Gebruik een soepel meetlint en meet altijd in centimeters.
+        </p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {[
+          {
+            nr: '01',
+            maat: 'Borstomvang',
+            instructie: 'Meet rondom het volle deel van de borst, met het meetlint horizontaal en niet te strak. Houd de armen langs het lichaam.',
+          },
+          {
+            nr: '02',
+            maat: 'Taille',
+            instructie: 'Meet rondom het smalste deel van de taille — meestal circa 3 cm boven de navel. Het meetlint mag licht aanliggen maar niet inknijpen.',
+          },
+          {
+            nr: '03',
+            maat: 'Heupen',
+            instructie: 'Meet rondom het breedste deel van de heupen en billen, doorgaans 18–23 cm onder de taillelijn. Houd het meetlint horizontaal.',
+          },
+        ].map(({ nr, maat, instructie }) => (
+          <div class="border border-champagne bg-ivory/40 p-8 space-y-4">
+            <p class="font-display text-5xl text-champagne">{nr}</p>
+            <h3 class="font-display text-charcoal text-xl">{maat}</h3>
+            <p class="text-taupe font-light text-sm leading-relaxed">{instructie}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Maattabellen -->
+  <section class="py-20 bg-ivory border-t border-champagne">
+    <div class="container mx-auto px-6 max-w-5xl">
+      <div class="text-center mb-14">
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">Stap 2</p>
+        <h2 class="font-display text-charcoal text-4xl">Maat<em class="italic font-light text-taupe">tabellen</em></h2>
+        <p class="text-taupe font-light max-w-xl mx-auto text-sm mt-4 leading-relaxed">
+          Gebruik uw opmaten om uw jurkmaat te bepalen. Kies altijd de maat die overeenkomt met uw grootste maat — aanpassen naar kleiner is altijd mogelijk.
+        </p>
+      </div>
+
+      <!-- Bruidsmode -->
+      <div class="mb-16">
+        <h3 class="font-display text-charcoal text-2xl mb-6">Trouwjurken <em class="italic font-light text-taupe">damesstabel</em></h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm font-body border-collapse">
+            <thead>
+              <tr class="bg-charcoal text-warm-white">
+                <th class="px-4 py-3 text-left text-[9px] tracking-[0.2em] uppercase font-normal">Jurkmaat</th>
+                <th class="px-4 py-3 text-left text-[9px] tracking-[0.2em] uppercase font-normal">NL maat</th>
+                <th class="px-4 py-3 text-left text-[9px] tracking-[0.2em] uppercase font-normal">Borst (cm)</th>
+                <th class="px-4 py-3 text-left text-[9px] tracking-[0.2em] uppercase font-normal">Taille (cm)</th>
+                <th class="px-4 py-3 text-left text-[9px] tracking-[0.2em] uppercase font-normal">Heupen (cm)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                ['2 / XS', '34', '79–81', '61–63', '87–89'],
+                ['4 / S', '36', '83–85', '65–67', '91–93'],
+                ['6 / S', '38', '87–89', '69–71', '95–97'],
+                ['8 / M', '40', '91–93', '73–75', '99–101'],
+                ['10 / M', '42', '95–97', '77–79', '103–105'],
+                ['12 / L', '44', '99–101', '81–83', '107–109'],
+                ['14 / L', '46', '104–106', '86–88', '112–114'],
+                ['16 / XL', '48', '109–111', '91–93', '117–119'],
+                ['18 / XXL', '50', '114–117', '96–99', '122–125'],
+                ['20 / XXL', '52', '119–122', '101–104', '127–130'],
+                ['22 / 3XL', '54', '125–128', '107–110', '133–136'],
+                ['24 / 3XL', '56', '131–134', '113–116', '139–142'],
+              ].map((row, i) => (
+                <tr class={i % 2 === 0 ? 'bg-white' : 'bg-ivory/50'}>
+                  {row.map((cell, j) => (
+                    <td class={`px-4 py-3 text-${j === 0 ? 'charcoal font-medium' : 'taupe'} border-b border-champagne`}>{cell}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Herenmode -->
+      <div>
+        <h3 class="font-display text-charcoal text-2xl mb-6">Trouwpakken <em class="italic font-light text-taupe">heren</em></h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm font-body border-collapse">
+            <thead>
+              <tr class="bg-charcoal text-warm-white">
+                <th class="px-4 py-3 text-left text-[9px] tracking-[0.2em] uppercase font-normal">Maat</th>
+                <th class="px-4 py-3 text-left text-[9px] tracking-[0.2em] uppercase font-normal">NL maat</th>
+                <th class="px-4 py-3 text-left text-[9px] tracking-[0.2em] uppercase font-normal">Borst (cm)</th>
+                <th class="px-4 py-3 text-left text-[9px] tracking-[0.2em] uppercase font-normal">Taille (cm)</th>
+                <th class="px-4 py-3 text-left text-[9px] tracking-[0.2em] uppercase font-normal">Heupen (cm)</th>
+                <th class="px-4 py-3 text-left text-[9px] tracking-[0.2em] uppercase font-normal">Schouder (cm)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                ['44 / XS', '44', '86–88', '76–78', '90–92', '42'],
+                ['46 / S', '46', '90–92', '80–82', '94–96', '43.5'],
+                ['48 / M', '48', '94–96', '84–86', '98–100', '45'],
+                ['50 / M', '50', '98–100', '88–90', '102–104', '46.5'],
+                ['52 / L', '52', '102–104', '92–94', '106–108', '48'],
+                ['54 / L', '54', '106–108', '96–98', '110–112', '49.5'],
+                ['56 / XL', '56', '110–112', '100–102', '114–116', '51'],
+                ['58 / XXL', '58', '115–117', '105–107', '119–121', '53'],
+                ['60 / XXL', '60', '120–122', '110–112', '124–126', '55'],
+              ].map((row, i) => (
+                <tr class={i % 2 === 0 ? 'bg-white' : 'bg-ivory/50'}>
+                  {row.map((cell, j) => (
+                    <td class={`px-4 py-3 text-${j === 0 ? 'charcoal font-medium' : 'taupe'} border-b border-champagne`}>{cell}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tips -->
+  <section class="py-20 bg-white border-t border-champagne">
+    <div class="container mx-auto px-6 max-w-5xl">
+      <div class="text-center mb-12">
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">Stap 3</p>
+        <h2 class="font-display text-charcoal text-4xl">Belangrijke <em class="italic font-light text-taupe">richtlijnen</em></h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {[
+          { titel: 'Kies altijd de grootste maat', tekst: 'Als uw maten in twee grootten vallen, kies dan altijd de grotere maat. Een jurk inkrimpen is altijd mogelijk; hem groter maken is soms niet haalbaar.' },
+          { titel: 'Aanpassingen zijn normaal', tekst: 'Vrijwel elke trouwjurk heeft kleine aanpassingen nodig. Onze eigen coupeuses verzorgen dit. Houd rekening met extra kosten en levertijd.' },
+          { titel: 'Maten kunnen per merk verschillen', tekst: 'Bruidsmode-maattabellen wijken af van confectiematen. Een maat 44 in bruidsmode staat niet gelijk aan een NL maat 44 in de kledingwinkel.' },
+          { titel: 'Meet opnieuw vlak voor bestellen', tekst: 'Maten kunnen veranderen. Meet uzelf opnieuw op het moment dat u uw jurk bestelt, zeker als uw pasafspraak al een tijdje geleden was.' },
+        ].map(({ titel, tekst }) => (
+          <div class="flex gap-4 border-b border-champagne pb-6">
+            <div class="w-1.5 h-1.5 rounded-full bg-blush-deep shrink-0 mt-1.5"></div>
+            <div>
+              <h3 class="font-body text-charcoal text-sm font-medium mb-2">{titel}</h3>
+              <p class="text-taupe font-light text-sm leading-relaxed">{tekst}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-20 bg-charcoal text-center">
+    <div class="container mx-auto px-6 max-w-xl">
+      <h2 class="font-display text-warm-white text-3xl mb-4">Hulp nodig met <em class="italic text-blush font-light">maten?</em></h2>
+      <p class="text-warm-white/60 font-light text-sm mb-8">
+        Tijdens een pasafspraak meten we u professioneel op en adviseren we u over de juiste maat.
+      </p>
+      <a href="/afspraak-maken" class="btn-gold">Afspraak maken</a>
+    </div>
+  </section>
+
+</Layout>

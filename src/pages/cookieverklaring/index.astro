@@ -1,0 +1,100 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const year = new Date().getFullYear();
+---
+
+<Layout title="Cookieverklaring | Mariage Bruidsmode">
+
+  <section class="pt-40 pb-20 bg-ivory">
+    <div class="container mx-auto px-6 text-center max-w-3xl">
+      <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-6">Juridisch</p>
+      <h1 class="font-display text-charcoal leading-tight mb-6" style="font-size: clamp(36px, 6vw, 60px); font-weight: 300;">
+        Cookie<em class="italic font-light text-taupe">verklaring</em>
+      </h1>
+      <p class="text-taupe font-light leading-relaxed max-w-xl mx-auto">
+        Mariage Bruidsmode gebruikt cookies om de website goed te laten functioneren en inzicht te krijgen in het gebruik.
+      </p>
+    </div>
+  </section>
+
+  <section class="py-20 bg-white">
+    <div class="container mx-auto px-6 max-w-3xl space-y-12">
+
+      <div>
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-3">Wat zijn cookies?</p>
+        <h2 class="font-display text-charcoal text-2xl mb-4">Cookies <em class="italic font-light text-taupe">uitgelegd</em></h2>
+        <p class="text-taupe font-light text-sm leading-relaxed">
+          Cookies zijn kleine tekstbestanden die bij een bezoek aan onze website op uw apparaat worden opgeslagen. Ze helpen ons de website goed te laten werken en te verbeteren op basis van uw gebruik.
+        </p>
+      </div>
+
+      <div class="w-full h-px bg-champagne"></div>
+
+      <div>
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-3">Soorten cookies</p>
+        <h2 class="font-display text-charcoal text-2xl mb-4">Welke cookies <em class="italic font-light text-taupe">gebruiken wij?</em></h2>
+        <div class="space-y-6">
+          {[
+            {
+              naam: 'Functionele cookies',
+              vereist: true,
+              beschrijving: 'Deze cookies zijn noodzakelijk voor de werking van de website. Ze onthouden bijvoorbeeld uw cookie-instellingen, uw verlanglijst en of u bent ingelogd. Zonder deze cookies werkt de website niet goed.',
+            },
+            {
+              naam: 'Analytische cookies',
+              vereist: false,
+              beschrijving: 'We gebruiken anonieme sessie-tracking om te begrijpen hoe bezoekers onze website gebruiken. De gegevens zijn niet herleidbaar tot individuen en worden niet gedeeld met derden.',
+            },
+          ].map(({ naam, vereist, beschrijving }) => (
+            <div class="border border-champagne bg-ivory/40 p-6">
+              <div class="flex items-center gap-3 mb-3">
+                <h3 class="font-display text-charcoal text-lg">{naam}</h3>
+                <span class={`text-[9px] tracking-[0.2em] uppercase px-2 py-0.5 font-body ${vereist ? 'bg-blush-deep/10 text-blush-deep' : 'bg-champagne text-taupe'}`}>
+                  {vereist ? 'Vereist' : 'Optioneel'}
+                </span>
+              </div>
+              <p class="text-taupe font-light text-sm leading-relaxed">{beschrijving}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div class="w-full h-px bg-champagne"></div>
+
+      <div>
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-3">Beheer</p>
+        <h2 class="font-display text-charcoal text-2xl mb-4">Uw <em class="italic font-light text-taupe">voorkeuren</em></h2>
+        <p class="text-taupe font-light text-sm leading-relaxed mb-4">
+          U kunt uw cookie-voorkeur op elk moment wijzigen door op de knop hieronder te klikken. U kunt cookies ook verwijderen via de instellingen van uw browser.
+        </p>
+        <button
+          id="reset-cookie-consent"
+          class="btn-gold text-xs"
+        >
+          Cookie-instellingen wijzigen
+        </button>
+      </div>
+
+      <div class="w-full h-px bg-champagne"></div>
+
+      <div>
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-3">Contact</p>
+        <h2 class="font-display text-charcoal text-2xl mb-4">Vragen over <em class="italic font-light text-taupe">cookies?</em></h2>
+        <p class="text-taupe font-light text-sm leading-relaxed">
+          Heeft u vragen over onze cookieverklaring? Neem contact op via{' '}
+          <a href="mailto:bruidsmode@mariagebruidsmode.nl" class="text-blush-deep hover:underline">bruidsmode@mariagebruidsmode.nl</a>.
+        </p>
+        <p class="text-taupe/50 font-light text-xs mt-4">Laatste update: {year}</p>
+      </div>
+
+    </div>
+  </section>
+
+</Layout>
+
+<script>
+  document.getElementById('reset-cookie-consent')?.addEventListener('click', () => {
+    localStorage.removeItem('mb_cookie_consent');
+    window.location.reload();
+  });
+</script>

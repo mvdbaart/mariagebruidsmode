@@ -4,72 +4,68 @@ import Layout from '../../layouts/Layout.astro';
 const silhouettes = [
   {
     name: 'A-lijn',
+    slug: 'a-lijn',
     image: '/images/jurkvormen/a-lijn.png',
     description: 'De A-lijn is een klassieke keuze die nauw aansluit bij de taille en geleidelijk uitloopt naar beneden in de vorm van een "A". Dit silhouet is flatterend voor bijna elk figuur.',
     features: ['Flatteert elk figuur', 'Tijdloze uitstraling', 'Comfortabel en zwierig']
   },
   {
-    name: 'Strak / Kokermodel',
+    name: 'Stijl / Kokermodel',
+    slug: 'stijl',
     image: '/images/jurkvormen/a-lijn-silhouet.png',
     description: 'De strakke trouwjurk sluit nauw aan langs het hele lichaam en benadrukt elke curve. Dit silhouet straalt moderniteit en zelfvertrouwen uit — ideaal voor de bruid die haar figuur wil tonen.',
     features: ['Slank en gestroomlijnd', 'Modern en gedurfd', 'Benadrukt je figuur']
   },
   {
-    name: 'Prinsessen',
+    name: 'Prinses',
+    slug: 'prinses',
     image: '/images/jurkvormen/a-lijn-silhouet.png',
-    description: 'De prinsessenstijl (of baljurk) heeft een strak lijfje en een zeer volle rok. Dit silhouet creëert een echt sprookjesgevoel en is ideaal voor een formele bruiloft.',
+    description: 'De prinsessenstijl heeft een strak lijfje en een zeer volle rok. Dit silhouet creëert een echt sprookjesgevoel en is ideaal voor een formele bruiloft.',
     features: ['Groots en dramatisch', 'Accentueert de taille', 'Sprookjesachtige look']
   },
   {
-    name: 'Bohemian',
+    name: 'Empire',
+    slug: 'empire',
     image: '/images/jurkvormen/a-lijn.png',
-    description: 'De bohemian trouwjurk heeft een vrije, romantische uitstraling met vloeiende stoffen, kanten details en een ongedwongen silhouet. Perfect voor een bruiloft buiten of in de natuur.',
-    features: ['Vrij en romantisch', 'Vloeiende stoffen', 'Ideaal voor buiten bruiloften']
+    description: 'De empirestijl heeft een hoge taille direct onder de borsten en valt soepel langs het lichaam. Sierlijk, comfortabel en bijzonder flatterend.',
+    features: ['Vrij en romantisch', 'Hoge taille', 'Ideaal voor buiten bruiloften']
   },
   {
-    name: 'Vintage',
+    name: 'Ballerina',
+    slug: 'ballerina',
     image: '/images/jurkvormen/photoshop-silhouet2.png',
-    description: 'Vintage trouwjurken zijn geïnspireerd op stijlen uit vervlogen tijden — denk aan kanten mouwen, geknopte ruggen en retro silhouetten. Ze ademen karakter en nostalgie.',
-    features: ['Tijdloze charme', 'Unieke detaillering', 'Kanten en retro accenten']
+    description: 'De ballerinajurk heeft een romantische tule rok die uitwaaiert tot de knie of midi-lengte. Luchtig, speels en ideaal voor een zomerse bruiloft.',
+    features: ['Luchtig en romantisch', 'Midi of knielengte', 'Speels en elegant']
   },
   {
     name: 'Zeemeermin',
+    slug: 'zeemeermin',
     image: '/images/jurkvormen/photoshop-silhouet2.png',
     description: 'Dit silhouet volgt de contouren van het lichaam van de buste tot de knieën, waarna de rok dramatisch uitloopt. Perfect voor de bruid die haar rondingen wil laten zien.',
-    features: ['Sexy en elegant', 'Accentueert rondingen', 'Modern en chic']
+    features: ['Sensueel en elegant', 'Accentueert rondingen', 'Dramatisch onderstuk']
   },
   {
-    name: 'Simpel & Minimalistisch',
+    name: 'Trumpet',
+    slug: 'trumpet',
     image: '/images/jurkvormen/a-lijn.png',
-    description: 'Minder is meer. De simpele trouwjurk spreekt door haar zuiverheid en elegantie — geen overdreven details, maar strakke lijnen en prachtige stoffen die voor zichzelf spreken.',
-    features: ['Tijdloos en verfijnd', 'Kwaliteit staat centraal', 'Veelzijdig te stylen']
+    description: 'Vergelijkbaar met zeemeermin maar iets minder strak — de trompetjurk wijdt iets hoger uit dan de knie, wat meer bewegingsvrijheid geeft.',
+    features: ['Elegantie met vrijheid', 'Minder strak dan zeemeermin', 'Dramatisch maar comfortabel']
   },
-  {
-    name: 'Grote Maat',
-    image: '/images/jurkvormen/a-lijn-silhouet.png',
-    description: 'Elke bruid verdient een jurk die haar doet stralen. Onze grote maten collectie biedt prachtige silhouetten die speciaal zijn ontworpen om flatteuse en comfortabel te zijn voor een vol figuur.',
-    features: ['Inclusief en flatterend', 'Speciaal ontworpen pasvorm', 'Breed aanbod in alle stijlen']
-  },
-  {
-    name: 'Kort',
-    image: '/images/jurkvormen/a-lijn.png',
-    description: 'De korte trouwjurk is perfect voor het burgerlijk huwelijk, een feestelijke borgerlijke trouw of een bruid die van een speelse, moderne look houdt. Luchtig, eigentijds en heel elegant.',
-    features: ['Speels en modern', 'Ideaal voor een klein feest', 'Comfortabel en stijlvol']
-  }
 ];
 ---
 
-<Layout title="Jurkvormen Gids | Mariage Bruidsmode">
+<Layout title="Trouwjurk Silhouetten Gids | Mariage Bruidsmode">
   <div class="pt-40 pb-24 bg-ivory min-h-screen">
     <div class="container mx-auto px-6 max-w-5xl">
       <div class="text-center mb-20">
-        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">Inspiratie & Advies</p>
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">Stijlgids</p>
         <h1 class="font-display text-charcoal leading-tight mb-8" style="font-size: clamp(32px, 5vw, 56px); font-weight: 300;">
           Vind jouw perfecte <em class="italic font-light text-taupe">silhouet</em>
         </h1>
-        <p class="text-taupe leading-relaxed max-w-2xl mx-auto font-light">
-          Elk lichaam is uniek. Onze gids helpt je de verschillende vormen te begrijpen, zodat je met vertrouwen kunt komen passen in onze boutique.
+        <p class="text-taupe leading-relaxed max-w-2xl mx-auto font-light mb-8">
+          Elk lichaam is uniek. Onze gids helpt je de verschillende silhouetten te begrijpen, zodat je met vertrouwen kunt komen passen in onze boutique.
         </p>
+        <a href="/stijlquiz" class="btn-gold">Stijlquiz → Vind jouw silhouet</a>
       </div>
 
       <div class="space-y-32">
@@ -98,9 +94,12 @@ const silhouettes = [
                   </li>
                 ))}
               </ul>
-              <div class="pt-8">
-                <a href="/afspraak-maken" class="inline-block bg-charcoal text-warm-white px-10 py-4 text-[10px] tracking-[0.3em] uppercase hover:bg-taupe transition-all font-medium">
-                  Kom deze vorm passen
+              <div class="pt-8 flex flex-wrap gap-3">
+                <a href={`/trouwjurken/${s.slug}`} class="inline-block bg-charcoal text-warm-white px-8 py-3 text-[10px] tracking-[0.3em] uppercase hover:bg-taupe transition-all font-body">
+                  Bekijk {s.name} jurken
+                </a>
+                <a href="/afspraak-maken" class="btn-gold text-[10px] py-3">
+                  Afspraak maken
                 </a>
               </div>
             </div>

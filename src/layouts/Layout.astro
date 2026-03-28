@@ -4,6 +4,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import AnnouncementBar from '../components/AnnouncementBar.astro';
 import MobileTabBar from '../components/MobileTabBar.astro';
+import CookieBanner from '../components/CookieBanner.astro';
 import { getSiteSettings } from '../lib/settings';
 
 interface Props {
@@ -153,6 +154,7 @@ const orgJsonLd = {
     </button>
 
     <MobileTabBar />
+    <CookieBanner />
 
     <!-- Floating mobile CTA -->
     <div

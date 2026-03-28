@@ -1,0 +1,64 @@
+<!-- Cookie consent banner — shown until user accepts or declines -->
+<div
+  id="cookie-banner"
+  role="dialog"
+  aria-label="Cookie-instellingen"
+  aria-modal="false"
+  class="fixed bottom-0 left-0 right-0 z-[9999] bg-charcoal text-warm-white translate-y-full transition-transform duration-500 ease-out md:bottom-4 md:left-4 md:right-auto md:max-w-sm md:rounded-sm"
+  style="display:none"
+>
+  <div class="p-6 space-y-4">
+    <div class="flex items-start justify-between gap-3">
+      <p class="text-[10px] tracking-[0.3em] uppercase text-blush font-body">Cookies</p>
+    </div>
+    <p class="text-warm-white/80 text-xs font-light leading-relaxed">
+      Wij gebruiken cookies om de website goed te laten werken en het gebruik te analyseren. Lees meer in ons
+      <a href="/cookieverklaring" class="underline text-blush hover:text-warm-white transition-colors">cookiebeleid</a>.
+    </p>
+    <div class="flex gap-3 pt-1">
+      <button
+        id="cookie-accept"
+        class="flex-1 bg-blush-deep hover:bg-blush text-white text-[9px] tracking-[0.2em] uppercase py-2.5 px-4 font-body transition-colors"
+      >
+        Accepteren
+      </button>
+      <button
+        id="cookie-decline"
+        class="flex-1 bg-white/10 hover:bg-white/20 text-warm-white text-[9px] tracking-[0.2em] uppercase py-2.5 px-4 font-body transition-colors"
+      >
+        Weigeren
+      </button>
+    </div>
+    <a href="/cookieverklaring" class="block text-center text-[9px] text-warm-white/40 hover:text-warm-white/70 transition-colors tracking-wider">
+      Meer informatie
+    </a>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const STORAGE_KEY = 'mb_cookie_consent';
+    const banner = document.getElementById('cookie-banner');
+    if (!banner) return;
+
+    const consent = localStorage.getItem(STORAGE_KEY);
+    if (consent) return; // already decided
+
+    // Show after short delay
+    setTimeout(() => {
+      banner.style.display = 'block';
+      requestAnimationFrame(() => {
+        banner.classList.remove('translate-y-full');
+      });
+    }, 1200);
+
+    function dismiss(value: 'accepted' | 'declined') {
+      localStorage.setItem(STORAGE_KEY, value);
+      banner.classList.add('translate-y-full');
+      setTimeout(() => { banner.style.display = 'none'; }, 500);
+    }
+
+    document.getElementById('cookie-accept')?.addEventListener('click', () => dismiss('accepted'));
+    document.getElementById('cookie-decline')?.addEventListener('click', () => dismiss('declined'));
+  })();
+</script>

@@ -1,0 +1,42 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import StyleQuiz from '../../components/StyleQuiz';
+---
+
+<Layout title="Stijlquiz — Vind Jouw Droomjurk | Mariage Bruidsmode">
+
+  <!-- Hero -->
+  <section class="pt-40 pb-16 bg-ivory">
+    <div class="container mx-auto px-6 text-center max-w-3xl">
+      <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-6">Style Finder</p>
+      <h1 class="font-display text-charcoal leading-tight mb-6" style="font-size: clamp(40px, 7vw, 68px); font-weight: 300;">
+        Vind jouw <em class="italic font-light text-taupe">droomjurk</em>
+      </h1>
+      <p class="text-taupe font-light leading-relaxed text-base max-w-xl mx-auto">
+        Beantwoord 5 korte vragen en we vertellen je welk silhouet het beste bij jou past — inclusief een gepersonaliseerde jurkselectie.
+      </p>
+    </div>
+  </section>
+
+  <!-- Quiz -->
+  <section class="py-16 bg-white border-t border-champagne">
+    <div class="container mx-auto px-6 max-w-3xl">
+      <StyleQuiz client:load />
+    </div>
+  </section>
+
+  <!-- Offline advies -->
+  <section class="py-20 bg-ivory border-t border-champagne">
+    <div class="container mx-auto px-6 max-w-3xl text-center">
+      <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">Persoonlijk advies</p>
+      <h2 class="font-display text-charcoal text-3xl mb-4">
+        Liever in <em class="italic font-light text-taupe">het echt?</em>
+      </h2>
+      <p class="text-taupe font-light text-sm leading-relaxed mb-8 max-w-lg mx-auto">
+        Een quiz geeft een eerste richting, maar niets vervangt het gevoel van een jurk die je écht past. Maak een afspraak en ontdek het in onze boutique.
+      </p>
+      <a href="/afspraak-maken" class="btn-premium">Afspraak inplannen</a>
+    </div>
+  </section>
+
+</Layout>
