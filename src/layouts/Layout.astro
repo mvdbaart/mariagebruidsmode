@@ -56,9 +56,7 @@ const orgJsonLd = {
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href={`https://fonts.googleapis.com/css2?family=${typography.heading_font?.replace(/ /g, '+')}:wght@${typography.heading_weight}&family=${typography.body_font?.replace(/ /g, '+')}:wght@${typography.body_weight}&family=Playball&display=swap`} rel="stylesheet">
+    <!-- Fonts worden lokaal geserveerd (GDPR-compliant — geen verbinding met fonts.googleapis.com) -->
 		<title>{title} | {meta.title || 'Mariage Bruidsmode'}</title>
     <meta name="description" content={pageDescription} />
     <link rel="canonical" href={canonicalUrl} />
@@ -211,78 +209,103 @@ const orgJsonLd = {
 </script>
 
 <script>
-  // Visitor tracking — skip admin and landing pages
+  // Bezoekersanalyse — alleen na expliciete toestemming (AVG-compliant)
   (function () {
     const path = window.location.pathname;
     if (path.startsWith('/admin') || path.startsWith('/lp/')) return;
 
-    // Session ID (tab-scoped via sessionStorage)
-    let sessionId = sessionStorage.getItem('mb_session_id');
-    if (!sessionId) {
+    const STORAGE_KEY = 'mb_cookie_consent';
+
+    function getConsentValue(): string | null {
       try {
-        sessionId = crypto.randomUUID();
-      } catch {
-        sessionId = Date.now().toString(36) + Math.random().toString(36).slice(2);
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        try {
+          const parsed = JSON.parse(raw);
+          return parsed?.value ?? null;
+        } catch {
+          return raw; // legacy: 'accepted' of 'declined'
+        }
+      } catch { return null; }
+    }
+
+    function startTracking() {
+      // Session ID pas aanmaken na toestemming (tab-scoped via sessionStorage)
+      let sessionId = sessionStorage.getItem('mb_session_id');
+      if (!sessionId) {
+        try {
+          sessionId = crypto.randomUUID();
+        } catch {
+          sessionId = Date.now().toString(36) + Math.random().toString(36).slice(2);
+        }
+        sessionStorage.setItem('mb_session_id', sessionId);
       }
-      sessionStorage.setItem('mb_session_id', sessionId);
-    }
 
-    function sendEvent(eventType: string, metadata?: Record<string, string>) {
-      fetch('/api/track', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          session_id: sessionId,
-          page_path: window.location.pathname,
-          page_title: document.title,
-          referrer: document.referrer || null,
-          event_type: eventType,
-          metadata: metadata || {},
-        }),
-        keepalive: true,
-      }).catch(() => {});
-    }
+      function sendEvent(eventType: string, metadata?: Record<string, string>) {
+        fetch('/api/track', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: sessionId,
+            page_path: window.location.pathname,
+            page_title: document.title,
+            referrer: document.referrer || null,
+            event_type: eventType,
+            metadata: metadata || {},
+          }),
+          keepalive: true,
+        }).catch(() => {});
+      }
 
-    // Pageview
-    document.addEventListener('DOMContentLoaded', () => {
+      // Pageview
       sendEvent('pageview');
+
+      // CTA click tracking
+      document.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        const el = target.closest('a, button') as HTMLElement | null;
+        if (!el) return;
+
+        const href = (el as HTMLAnchorElement).href || '';
+        const isCta =
+          el.hasAttribute('data-track') ||
+          href.includes('/afspraak-maken') ||
+          href.includes('savviihq.com') ||
+          el.classList.contains('btn-premium') ||
+          el.classList.contains('btn-gold') ||
+          el.classList.contains('btn-blush');
+
+        if (isCta) {
+          const label = el.textContent?.trim().slice(0, 100) || '';
+          const hrefVal = href ? new URL(href).pathname + new URL(href).search : '';
+          sendEvent('cta_click', { href: hrefVal, label, element: el.tagName.toLowerCase() });
+        }
+      }, { passive: true });
+
+      // Form tracking
+      const trackedFormStarts = new Set<HTMLFormElement>();
+      document.addEventListener('focusin', (e) => {
+        const form = (e.target as HTMLElement).closest('form') as HTMLFormElement | null;
+        if (!form || trackedFormStarts.has(form)) return;
+        trackedFormStarts.add(form);
+        sendEvent('form_start', { form_action: form.action || '' });
+      }, { passive: true });
+
+      document.addEventListener('submit', (e) => {
+        const form = e.target as HTMLFormElement;
+        sendEvent('form_submit', { form_action: form.action || '' });
+      }, { passive: true });
+    }
+
+    // Start tracking alleen als toestemming al eerder gegeven is
+    if (getConsentValue() === 'accepted') {
+      document.addEventListener('DOMContentLoaded', startTracking);
+    }
+
+    // Start tracking zodra gebruiker toestemming geeft via de cookie-banner
+    window.addEventListener('cookieConsentAccepted', () => {
+      startTracking();
     });
-
-    // CTA click tracking
-    document.addEventListener('click', (e) => {
-      const target = e.target as HTMLElement;
-      const el = target.closest('a, button') as HTMLElement | null;
-      if (!el) return;
-
-      const href = (el as HTMLAnchorElement).href || '';
-      const isCta =
-        el.hasAttribute('data-track') ||
-        href.includes('/afspraak-maken') ||
-        href.includes('savviihq.com') ||
-        el.classList.contains('btn-premium') ||
-        el.classList.contains('btn-gold') ||
-        el.classList.contains('btn-blush');
-
-      if (isCta) {
-        const label = el.textContent?.trim().slice(0, 100) || '';
-        const hrefVal = href ? new URL(href).pathname + new URL(href).search : '';
-        sendEvent('cta_click', { href: hrefVal, label, element: el.tagName.toLowerCase() });
-      }
-    }, { passive: true });
-
-    // Form tracking
-    const trackedFormStarts = new Set<HTMLFormElement>();
-    document.addEventListener('focusin', (e) => {
-      const form = (e.target as HTMLElement).closest('form') as HTMLFormElement | null;
-      if (!form || trackedFormStarts.has(form)) return;
-      trackedFormStarts.add(form);
-      sendEvent('form_start', { form_action: form.action || '' });
-    }, { passive: true });
-
-    document.addEventListener('submit', (e) => {
-      const form = e.target as HTMLFormElement;
-      sendEvent('form_submit', { form_action: form.action || '' });
-    }, { passive: true });
   })();
 </script>
 

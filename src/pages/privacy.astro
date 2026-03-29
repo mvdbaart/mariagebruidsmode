@@ -1,48 +1,217 @@
 ---
 import Layout from '../layouts/Layout.astro';
+const lastUpdated = '29 maart 2026';
 ---
 
-<Layout title="Privacyverklaring">
-  <section class="pt-32 pb-24 bg-primary/10 font-light">
-    <div class="container mx-auto px-6 max-w-4xl">
-      <h1 class="text-4xl md:text-5xl font-serif text-accent mb-12 italic">Privacyverklaring</h1>
-      
-      <div class="prose prose-accent text-accent/80 space-y-12 leading-relaxed">
-        <section>
-          <h2 class="text-xl font-medium tracking-widest uppercase text-accent mb-4">Inleiding</h2>
-          <p>Mariage Bruidsmode hecht groot belang aan de bescherming van uw persoonsgegevens. In deze privacyverklaring leggen wij uit hoe wij omgaan met de persoonlijke informatie die u ons verstrekt.</p>
-        </section>
+<Layout title="Privacyverklaring | Mariage Bruidsmode">
 
-        <section>
-          <h2 class="text-xl font-medium tracking-widest uppercase text-accent mb-4">Welke gegevens verzamelen wij?</h2>
-          <p>Wanneer u een afspraak bij ons boekt of contact met ons opneemt, verzamelen wij de volgende gegevens:</p>
-          <ul class="list-disc pl-6 space-y-2">
-            <li>Naam</li>
-            <li>E-mailadres</li>
-            <li>Telefoonnummer</li>
-            <li>Informatie over uw huwelijk (datum, voorkeuren)</li>
-          </ul>
-        </section>
-
-        <section>
-          <h2 class="text-xl font-medium tracking-widest uppercase text-accent mb-4">Waarom gebruiken wij deze gegevens?</h2>
-          <p>Wij gebruiken uw gegevens uitsluitend voor het inplannen van uw afspraak, het verstrekken van persoonlijk advies en het afhandelen van uw aanvragen.</p>
-        </section>
-
-        <section>
-          <h2 class="text-xl font-medium tracking-widest uppercase text-accent mb-4">Beveiliging</h2>
-          <p>Wij nemen passende technische en organisatorische maatregelen om uw persoonsgegevens te beveiligen tegen verlies of onrechtmatig gebruik. Uw gegevens worden opgeslagen in een beveiligde database via Supabase.</p>
-        </section>
-
-        <section>
-          <h2 class="text-xl font-medium tracking-widest uppercase text-accent mb-4">Uw Rechten</h2>
-          <p>U heeft op elk moment het recht om uw gegevens in te zien, te corrigeren of te laten verwijderen. Neem hiervoor contact op via info@mariagebruidsmode.nl.</p>
-        </section>
-      </div>
-
-      <div class="mt-20 pt-8 border-t border-secondary/10 text-xs text-accent/40 uppercase tracking-widest">
-        Laatst bijgewerkt: 13 maart 2026
-      </div>
+  <section class="pt-40 pb-20 bg-ivory">
+    <div class="container mx-auto px-6 text-center max-w-3xl">
+      <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-6">Juridisch</p>
+      <h1 class="font-display text-charcoal leading-tight mb-6" style="font-size: clamp(36px, 6vw, 60px); font-weight: 300;">
+        Privacy<em class="italic font-light text-taupe">verklaring</em>
+      </h1>
+      <p class="text-taupe font-light leading-relaxed max-w-xl mx-auto">
+        Mariage Bruidsmode hecht groot belang aan de bescherming van uw persoonsgegevens. In deze verklaring leggen wij uit welke gegevens wij verwerken, waarom en welke rechten u heeft.
+      </p>
     </div>
   </section>
+
+  <section class="py-20 bg-white">
+    <div class="container mx-auto px-6 max-w-3xl space-y-12">
+
+      <!-- 1. Verwerkingsverantwoordelijke -->
+      <div>
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-3">Artikel 13 AVG — lid 1a</p>
+        <h2 class="font-display text-charcoal text-2xl mb-4">Verwerkings<em class="italic font-light text-taupe">verantwoordelijke</em></h2>
+        <p class="text-taupe font-light text-sm leading-relaxed mb-4">
+          De verwerkingsverantwoordelijke in de zin van de Algemene Verordening Gegevensbescherming (AVG) is:
+        </p>
+        <div class="border border-champagne bg-ivory/40 p-6 text-sm text-taupe font-light space-y-1">
+          <p class="font-medium text-charcoal">Mariage Bruidsmode</p>
+          <p>Langstraat 128</p>
+          <p>5664 GK Geldrop</p>
+          <p>Nederland</p>
+          <p class="pt-2">
+            <a href="mailto:info@mariagebruidsmode.nl" class="text-blush-deep hover:underline">info@mariagebruidsmode.nl</a>
+          </p>
+          <p>+31 (0)40 286 36 73</p>
+        </div>
+      </div>
+
+      <div class="w-full h-px bg-champagne"></div>
+
+      <!-- 2. Welke gegevens -->
+      <div>
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-3">Artikel 13 AVG — lid 1d / lid 2a</p>
+        <h2 class="font-display text-charcoal text-2xl mb-4">Welke gegevens <em class="italic font-light text-taupe">verwerken wij?</em></h2>
+
+        <div class="space-y-6">
+          <!-- Afspraakgegevens -->
+          <div class="border border-champagne bg-ivory/40 p-6">
+            <div class="flex items-center gap-3 mb-3">
+              <h3 class="font-display text-charcoal text-lg">Afspraak- en contactgegevens</h3>
+            </div>
+            <p class="text-taupe font-light text-sm leading-relaxed mb-3">
+              Wanneer u een afspraak boekt of contact met ons opneemt, verwerken wij:
+            </p>
+            <ul class="space-y-1 text-taupe font-light text-sm">
+              <li class="flex gap-2"><span class="text-blush-deep">•</span> Naam</li>
+              <li class="flex gap-2"><span class="text-blush-deep">•</span> E-mailadres</li>
+              <li class="flex gap-2"><span class="text-blush-deep">•</span> Telefoonnummer</li>
+              <li class="flex gap-2"><span class="text-blush-deep">•</span> Informatie over uw huwelijk (trouwdatum, stijlvoorkeuren)</li>
+            </ul>
+            <div class="mt-4 pt-4 border-t border-champagne/60 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+              <div>
+                <p class="text-[9px] tracking-[0.2em] uppercase text-blush-deep mb-1">Rechtsgrond</p>
+                <p class="text-taupe font-light">Uitvoering overeenkomst (Art. 6(1)(b) AVG)</p>
+              </div>
+              <div>
+                <p class="text-[9px] tracking-[0.2em] uppercase text-blush-deep mb-1">Bewaartermijn</p>
+                <p class="text-taupe font-light">2 jaar na laatste contact</p>
+              </div>
+              <div>
+                <p class="text-[9px] tracking-[0.2em] uppercase text-blush-deep mb-1">Doel</p>
+                <p class="text-taupe font-light">Afspraakinplanning &amp; persoonlijk advies</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Websiteanalyse -->
+          <div class="border border-champagne bg-ivory/40 p-6">
+            <div class="flex items-center gap-3 mb-3">
+              <h3 class="font-display text-charcoal text-lg">Websiteanalyse</h3>
+              <span class="text-[9px] tracking-[0.15em] uppercase px-2 py-0.5 font-body bg-champagne text-taupe">Alleen met toestemming</span>
+            </div>
+            <p class="text-taupe font-light text-sm leading-relaxed mb-3">
+              Met uw toestemming verwerken wij anonieme sessiegegevens:
+            </p>
+            <ul class="space-y-1 text-taupe font-light text-sm">
+              <li class="flex gap-2"><span class="text-blush-deep">•</span> Anonieme sessie-ID (willekeurig gegenereerd, niet gekoppeld aan een persoon)</li>
+              <li class="flex gap-2"><span class="text-blush-deep">•</span> Bezochte pagina's en paginatitels</li>
+              <li class="flex gap-2"><span class="text-blush-deep">•</span> Verwijzende website (referrer)</li>
+              <li class="flex gap-2"><span class="text-blush-deep">•</span> Geklikte knoppen (zonder persoonlijke informatie)</li>
+            </ul>
+            <div class="mt-4 pt-4 border-t border-champagne/60 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+              <div>
+                <p class="text-[9px] tracking-[0.2em] uppercase text-blush-deep mb-1">Rechtsgrond</p>
+                <p class="text-taupe font-light">Toestemming (Art. 6(1)(a) AVG)</p>
+              </div>
+              <div>
+                <p class="text-[9px] tracking-[0.2em] uppercase text-blush-deep mb-1">Bewaartermijn</p>
+                <p class="text-taupe font-light">13 maanden</p>
+              </div>
+              <div>
+                <p class="text-[9px] tracking-[0.2em] uppercase text-blush-deep mb-1">Doel</p>
+                <p class="text-taupe font-light">Websiteverbetering</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="w-full h-px bg-champagne"></div>
+
+      <!-- 3. Beveiliging -->
+      <div>
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-3">Beveiliging</p>
+        <h2 class="font-display text-charcoal text-2xl mb-4">Hoe beveiligen <em class="italic font-light text-taupe">wij uw gegevens?</em></h2>
+        <p class="text-taupe font-light text-sm leading-relaxed">
+          Wij nemen passende technische en organisatorische maatregelen om uw persoonsgegevens te beveiligen. Uw gegevens worden versleuteld opgeslagen in een beveiligde database. Toegang is beperkt tot geautoriseerd personeel.
+        </p>
+      </div>
+
+      <div class="w-full h-px bg-champagne"></div>
+
+      <!-- 4. Verwerkers -->
+      <div>
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-3">Artikel 13 AVG — lid 1e</p>
+        <h2 class="font-display text-charcoal text-2xl mb-4">Verwerkers &amp; <em class="italic font-light text-taupe">doorgifte</em></h2>
+        <p class="text-taupe font-light text-sm leading-relaxed mb-4">
+          Wij maken gebruik van de volgende verwerker waarmee wij een verwerkersovereenkomst hebben gesloten:
+        </p>
+        <div class="border border-champagne bg-ivory/40 p-6 text-sm">
+          <p class="font-medium text-charcoal mb-1">Supabase Inc.</p>
+          <p class="text-taupe font-light text-xs leading-relaxed">
+            Databaseopslag en authenticatie. Supabase is gevestigd in de Verenigde Staten. Gegevensoverdracht naar de VS vindt plaats op basis van de door de Europese Commissie goedgekeurde Standaard Contractuele Bepalingen (Standard Contractual Clauses — SCCs). Supabase biedt een EU-hostingoptie; wij maken gebruik van servers gevestigd in de Europese Unie waar mogelijk.
+          </p>
+        </div>
+        <p class="text-taupe font-light text-sm leading-relaxed mt-4">
+          Uw gegevens worden <strong>niet</strong> verkocht of gedeeld met derden voor reclamedoeleinden.
+        </p>
+      </div>
+
+      <div class="w-full h-px bg-champagne"></div>
+
+      <!-- 5. Uw rechten -->
+      <div>
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-3">Artikel 13 AVG — lid 2b t/m 2e</p>
+        <h2 class="font-display text-charcoal text-2xl mb-4">Uw <em class="italic font-light text-taupe">rechten</em></h2>
+        <p class="text-taupe font-light text-sm leading-relaxed mb-6">
+          Op grond van de AVG heeft u de volgende rechten met betrekking tot uw persoonsgegevens:
+        </p>
+        <div class="space-y-3">
+          {[
+            { art: 'Art. 15', recht: 'Recht op inzage', omschrijving: 'U kunt opvragen welke persoonsgegevens wij van u verwerken.' },
+            { art: 'Art. 16', recht: 'Recht op rectificatie', omschrijving: 'U kunt onjuiste of onvolledige gegevens laten corrigeren.' },
+            { art: 'Art. 17', recht: 'Recht op verwijdering', omschrijving: 'U kunt verzoeken uw gegevens te verwijderen ("recht op vergetelheid").' },
+            { art: 'Art. 18', recht: 'Recht op beperking', omschrijving: 'U kunt verzoeken de verwerking van uw gegevens te beperken.' },
+            { art: 'Art. 20', recht: 'Recht op overdraagbaarheid', omschrijving: 'U kunt uw gegevens in een gestructureerd, veelgebruikt formaat ontvangen.' },
+            { art: 'Art. 21', recht: 'Recht op bezwaar', omschrijving: 'U kunt bezwaar maken tegen de verwerking op grond van gerechtvaardigd belang.' },
+            { art: 'Art. 7(3)', recht: 'Recht om toestemming in te trekken', omschrijving: 'U kunt uw toestemming voor analytische cookies te allen tijde intrekken via onze cookieverklaring.' },
+          ].map(({ art, recht, omschrijving }) => (
+            <div class="flex gap-4 border border-champagne/60 p-4">
+              <span class="text-[9px] tracking-[0.1em] uppercase text-blush-deep font-body whitespace-nowrap pt-0.5 min-w-[52px]">{art}</span>
+              <div>
+                <p class="text-sm font-medium text-charcoal mb-0.5">{recht}</p>
+                <p class="text-xs text-taupe font-light leading-relaxed">{omschrijving}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        <p class="text-taupe font-light text-sm leading-relaxed mt-6">
+          U kunt uw rechten uitoefenen door contact op te nemen via <a href="mailto:info@mariagebruidsmode.nl" class="text-blush-deep hover:underline">info@mariagebruidsmode.nl</a>. Wij reageren binnen 30 dagen op uw verzoek.
+        </p>
+      </div>
+
+      <div class="w-full h-px bg-champagne"></div>
+
+      <!-- 6. Klachtrecht -->
+      <div>
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-3">Artikel 13 AVG — lid 2d</p>
+        <h2 class="font-display text-charcoal text-2xl mb-4">Klacht <em class="italic font-light text-taupe">indienen</em></h2>
+        <p class="text-taupe font-light text-sm leading-relaxed">
+          Als u van mening bent dat wij uw persoonsgegevens niet op de juiste manier verwerken, kunt u een klacht indienen bij de toezichthoudende autoriteit:
+        </p>
+        <div class="border border-champagne bg-ivory/40 p-6 mt-4 text-sm">
+          <p class="font-medium text-charcoal mb-1">Autoriteit Persoonsgegevens</p>
+          <p class="text-taupe font-light text-xs leading-relaxed">
+            Postbus 93374, 2509 AJ Den Haag<br />
+            <a href="https://www.autoriteitpersoonsgegevens.nl" target="_blank" rel="noopener noreferrer" class="text-blush-deep hover:underline">www.autoriteitpersoonsgegevens.nl</a>
+          </p>
+        </div>
+      </div>
+
+      <div class="w-full h-px bg-champagne"></div>
+
+      <!-- 7. Cookies -->
+      <div>
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-3">Cookies</p>
+        <h2 class="font-display text-charcoal text-2xl mb-4">Gebruik van <em class="italic font-light text-taupe">cookies</em></h2>
+        <p class="text-taupe font-light text-sm leading-relaxed">
+          Voor meer informatie over de cookies die wij gebruiken, de rechtsgrond per cookie en hoe u uw cookie-instellingen kunt beheren, verwijzen wij naar onze{' '}
+          <a href="/cookieverklaring" class="text-blush-deep hover:underline">cookieverklaring</a>.
+        </p>
+      </div>
+
+      <div class="w-full h-px bg-champagne"></div>
+
+      <!-- Footer -->
+      <div class="pt-2">
+        <p class="text-taupe/50 font-light text-xs">Laatste update: {lastUpdated}</p>
+      </div>
+
+    </div>
+  </section>
+
 </Layout>

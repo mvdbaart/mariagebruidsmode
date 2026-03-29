@@ -1,6 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-const year = new Date().getFullYear();
+const lastUpdated = '29 maart 2026';
 ---
 
 <Layout title="Cookieverklaring | Mariage Bruidsmode">
@@ -12,7 +12,7 @@ const year = new Date().getFullYear();
         Cookie<em class="italic font-light text-taupe">verklaring</em>
       </h1>
       <p class="text-taupe font-light leading-relaxed max-w-xl mx-auto">
-        Mariage Bruidsmode gebruikt cookies om de website goed te laten functioneren en inzicht te krijgen in het gebruik.
+        Mariage Bruidsmode gebruikt cookies om de website goed te laten functioneren en — alleen met uw toestemming — inzicht te krijgen in het gebruik.
       </p>
     </div>
   </section>
@@ -20,52 +20,161 @@ const year = new Date().getFullYear();
   <section class="py-20 bg-white">
     <div class="container mx-auto px-6 max-w-3xl space-y-12">
 
+      <!-- Wat zijn cookies -->
       <div>
         <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-3">Wat zijn cookies?</p>
         <h2 class="font-display text-charcoal text-2xl mb-4">Cookies <em class="italic font-light text-taupe">uitgelegd</em></h2>
         <p class="text-taupe font-light text-sm leading-relaxed">
-          Cookies zijn kleine tekstbestanden die bij een bezoek aan onze website op uw apparaat worden opgeslagen. Ze helpen ons de website goed te laten werken en te verbeteren op basis van uw gebruik.
+          Cookies zijn kleine bestanden die bij een bezoek aan onze website op uw apparaat worden opgeslagen. Naast traditionele cookies gebruiken wij ook vergelijkbare technieken zoals <em>localStorage</em> en <em>sessionStorage</em> in uw browser. Onder de ePrivacy Richtlijn en de AVG vallen al deze technieken onder dezelfde regels voor toestemming.
         </p>
       </div>
 
       <div class="w-full h-px bg-champagne"></div>
 
+      <!-- Rechtsgrond -->
+      <div>
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-3">Rechtsgrond</p>
+        <h2 class="font-display text-charcoal text-2xl mb-4">Waarom <em class="italic font-light text-taupe">mogen wij dit?</em></h2>
+        <p class="text-taupe font-light text-sm leading-relaxed mb-4">
+          Wij plaatsen cookies op twee grondslagen:
+        </p>
+        <ul class="space-y-2 text-taupe font-light text-sm leading-relaxed">
+          <li class="flex gap-3"><span class="text-blush-deep mt-0.5">•</span><span><strong class="font-medium text-charcoal">Gerechtvaardigd belang (Art. 6(1)(f) AVG)</strong> — Functionele cookies die strikt noodzakelijk zijn voor de werking van de website (o.a. cookie-voorkeur opslaan, verlanglijst).</span></li>
+          <li class="flex gap-3"><span class="text-blush-deep mt-0.5">•</span><span><strong class="font-medium text-charcoal">Toestemming (Art. 6(1)(a) AVG)</strong> — Analytische cookies voor websitestatistieken. Wij plaatsen deze <strong>alleen</strong> nadat u via de cookiebanner toestemming heeft gegeven. U kunt uw toestemming te allen tijde intrekken.</span></li>
+        </ul>
+      </div>
+
+      <div class="w-full h-px bg-champagne"></div>
+
+      <!-- Soorten cookies -->
       <div>
         <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-3">Soorten cookies</p>
         <h2 class="font-display text-charcoal text-2xl mb-4">Welke cookies <em class="italic font-light text-taupe">gebruiken wij?</em></h2>
         <div class="space-y-6">
-          {[
-            {
-              naam: 'Functionele cookies',
-              vereist: true,
-              beschrijving: 'Deze cookies zijn noodzakelijk voor de werking van de website. Ze onthouden bijvoorbeeld uw cookie-instellingen, uw verlanglijst en of u bent ingelogd. Zonder deze cookies werkt de website niet goed.',
-            },
-            {
-              naam: 'Analytische cookies',
-              vereist: false,
-              beschrijving: 'We gebruiken anonieme sessie-tracking om te begrijpen hoe bezoekers onze website gebruiken. De gegevens zijn niet herleidbaar tot individuen en worden niet gedeeld met derden.',
-            },
-          ].map(({ naam, vereist, beschrijving }) => (
-            <div class="border border-champagne bg-ivory/40 p-6">
-              <div class="flex items-center gap-3 mb-3">
-                <h3 class="font-display text-charcoal text-lg">{naam}</h3>
-                <span class={`text-[9px] tracking-[0.2em] uppercase px-2 py-0.5 font-body ${vereist ? 'bg-blush-deep/10 text-blush-deep' : 'bg-champagne text-taupe'}`}>
-                  {vereist ? 'Vereist' : 'Optioneel'}
-                </span>
-              </div>
-              <p class="text-taupe font-light text-sm leading-relaxed">{beschrijving}</p>
+          <div class="border border-champagne bg-ivory/40 p-6">
+            <div class="flex items-center gap-3 mb-3">
+              <h3 class="font-display text-charcoal text-lg">Functionele cookies</h3>
+              <span class="text-[9px] tracking-[0.2em] uppercase px-2 py-0.5 font-body bg-blush-deep/10 text-blush-deep">Vereist</span>
             </div>
-          ))}
+            <p class="text-taupe font-light text-sm leading-relaxed">
+              Deze cookies zijn noodzakelijk voor de werking van de website. Ze onthouden uw cookie-instellingen, uw verlanglijst en of u bent ingelogd als beheerder. Zonder deze cookies werkt de website niet correct. Voor deze cookies is geen toestemming vereist (ePrivacy Richtlijn Art. 5(3) uitzondering voor technisch noodzakelijke opslag).
+            </p>
+          </div>
+          <div class="border border-champagne bg-ivory/40 p-6">
+            <div class="flex items-center gap-3 mb-3">
+              <h3 class="font-display text-charcoal text-lg">Analytische cookies</h3>
+              <span class="text-[9px] tracking-[0.2em] uppercase px-2 py-0.5 font-body bg-champagne text-taupe">Toestemming vereist</span>
+            </div>
+            <p class="text-taupe font-light text-sm leading-relaxed">
+              Met uw toestemming gebruiken wij anonieme sessie-tracking om te begrijpen hoe bezoekers onze website gebruiken. Wij registreren welke pagina's worden bezocht en op welke knoppen wordt geklikt. Er worden <strong>geen persoonsgegevens</strong> opgeslagen; de gegevens zijn niet herleidbaar tot individuen en worden niet gedeeld met derden.
+            </p>
+          </div>
         </div>
       </div>
 
       <div class="w-full h-px bg-champagne"></div>
 
+      <!-- Cookietabel -->
+      <div>
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-3">Overzicht</p>
+        <h2 class="font-display text-charcoal text-2xl mb-4">Specifieke <em class="italic font-light text-taupe">cookies &amp; opslag</em></h2>
+        <p class="text-taupe font-light text-sm leading-relaxed mb-6">
+          Hieronder vindt u een volledig overzicht van alle cookies en lokale opslag die wij gebruiken:
+        </p>
+
+        <div class="overflow-x-auto -mx-6 px-6">
+          <table class="w-full text-xs font-light border-collapse min-w-[600px]">
+            <thead>
+              <tr class="border-b border-champagne">
+                <th class="text-left py-3 pr-4 text-[9px] tracking-[0.2em] uppercase text-blush-deep font-body font-normal">Naam</th>
+                <th class="text-left py-3 pr-4 text-[9px] tracking-[0.2em] uppercase text-blush-deep font-body font-normal">Doel</th>
+                <th class="text-left py-3 pr-4 text-[9px] tracking-[0.2em] uppercase text-blush-deep font-body font-normal">Opslag</th>
+                <th class="text-left py-3 pr-4 text-[9px] tracking-[0.2em] uppercase text-blush-deep font-body font-normal">Bewaartermijn</th>
+                <th class="text-left py-3 text-[9px] tracking-[0.2em] uppercase text-blush-deep font-body font-normal">Categorie</th>
+              </tr>
+            </thead>
+            <tbody class="text-taupe">
+              {[
+                {
+                  naam: 'mb_cookie_consent',
+                  doel: 'Uw cookievoorkeur (toestemming of weigering) inclusief tijdstip vastleggen',
+                  opslag: 'localStorage',
+                  duur: 'Permanent (tot verwijdering)',
+                  categorie: 'Functioneel',
+                  vereist: true,
+                },
+                {
+                  naam: 'mb_session_id',
+                  doel: 'Anonieme sessie-ID voor websiteanalyse — wordt pas aangemaakt na uw toestemming',
+                  opslag: 'sessionStorage',
+                  duur: 'Browsertabblad (sessie)',
+                  categorie: 'Analytisch',
+                  vereist: false,
+                },
+                {
+                  naam: 'mb_wishlist',
+                  doel: 'Uw verlanglijst met trouwjurken en accessoires onthouden',
+                  opslag: 'localStorage',
+                  duur: 'Permanent (tot verwijdering)',
+                  categorie: 'Functioneel',
+                  vereist: true,
+                },
+                {
+                  naam: 'sb-access-token',
+                  doel: 'Authenticatie van de websitebeheerder (alleen intern gebruik)',
+                  opslag: 'httpOnly Cookie',
+                  duur: 'Sessie',
+                  categorie: 'Functioneel',
+                  vereist: true,
+                },
+                {
+                  naam: 'sb-refresh-token',
+                  doel: 'Vernieuwen van de beheerderssessie (alleen intern gebruik)',
+                  opslag: 'httpOnly Cookie',
+                  duur: '30 dagen',
+                  categorie: 'Functioneel',
+                  vereist: true,
+                },
+              ].map(({ naam, doel, opslag, duur, categorie, vereist }) => (
+                <tr class="border-b border-champagne/50">
+                  <td class="py-3 pr-4 font-mono text-[10px] text-charcoal align-top">{naam}</td>
+                  <td class="py-3 pr-4 leading-relaxed align-top">{doel}</td>
+                  <td class="py-3 pr-4 align-top">{opslag}</td>
+                  <td class="py-3 pr-4 align-top">{duur}</td>
+                  <td class="py-3 align-top">
+                    <span class={`text-[9px] tracking-[0.15em] uppercase px-2 py-0.5 font-body whitespace-nowrap ${vereist ? 'bg-blush-deep/10 text-blush-deep' : 'bg-champagne text-taupe'}`}>
+                      {categorie}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="w-full h-px bg-champagne"></div>
+
+      <!-- Derde partijen -->
+      <div>
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-3">Derde partijen</p>
+        <h2 class="font-display text-charcoal text-2xl mb-4">Externe <em class="italic font-light text-taupe">diensten</em></h2>
+        <p class="text-taupe font-light text-sm leading-relaxed">
+          Wij delen geen gegevens uit cookies met derden voor reclamedoeleinden. Onze website laadt geen externe trackingscripts (geen Google Analytics, geen Facebook Pixel, geen andere advertentienetwerken). Lettertypen worden lokaal geserveerd — er vindt geen verbinding plaats met externe lettertypeservers zoals fonts.googleapis.com.
+        </p>
+        <p class="text-taupe font-light text-sm leading-relaxed mt-3">
+          Analytische gegevens worden opgeslagen in onze eigen database via Supabase (verwerker). Zie onze <a href="/privacy" class="text-blush-deep hover:underline">privacyverklaring</a> voor meer informatie over verwerkers.
+        </p>
+      </div>
+
+      <div class="w-full h-px bg-champagne"></div>
+
+      <!-- Beheer -->
       <div>
         <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-3">Beheer</p>
         <h2 class="font-display text-charcoal text-2xl mb-4">Uw <em class="italic font-light text-taupe">voorkeuren</em></h2>
         <p class="text-taupe font-light text-sm leading-relaxed mb-4">
-          U kunt uw cookie-voorkeur op elk moment wijzigen door op de knop hieronder te klikken. U kunt cookies ook verwijderen via de instellingen van uw browser.
+          U kunt uw cookie-voorkeur op elk moment wijzigen door op de knop hieronder te klikken. Uw huidige keuze wordt dan gewist en de cookiebanner verschijnt opnieuw. U kunt cookies en lokale opslag ook handmatig verwijderen via de instellingen van uw browser.
         </p>
         <button
           id="reset-cookie-consent"
@@ -77,14 +186,18 @@ const year = new Date().getFullYear();
 
       <div class="w-full h-px bg-champagne"></div>
 
+      <!-- Contact -->
       <div>
         <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-3">Contact</p>
         <h2 class="font-display text-charcoal text-2xl mb-4">Vragen over <em class="italic font-light text-taupe">cookies?</em></h2>
         <p class="text-taupe font-light text-sm leading-relaxed">
           Heeft u vragen over onze cookieverklaring? Neem contact op via{' '}
-          <a href="mailto:bruidsmode@mariagebruidsmode.nl" class="text-blush-deep hover:underline">bruidsmode@mariagebruidsmode.nl</a>.
+          <a href="mailto:info@mariagebruidsmode.nl" class="text-blush-deep hover:underline">info@mariagebruidsmode.nl</a>.
         </p>
-        <p class="text-taupe/50 font-light text-xs mt-4">Laatste update: {year}</p>
+        <p class="text-taupe font-light text-sm leading-relaxed mt-3">
+          Voor klachten over de verwerking van uw persoonsgegevens kunt u terecht bij de <a href="https://www.autoriteitpersoonsgegevens.nl" target="_blank" rel="noopener noreferrer" class="text-blush-deep hover:underline">Autoriteit Persoonsgegevens</a>.
+        </p>
+        <p class="text-taupe/50 font-light text-xs mt-6">Laatste update: {lastUpdated}</p>
       </div>
 
     </div>
