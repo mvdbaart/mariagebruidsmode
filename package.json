@@ -39,6 +39,9 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
+    "@fontsource/cormorant-garamond": "^5.2.11",
+    "@fontsource/jost": "^5.2.8",
+    "@fontsource/playball": "^5.2.8",
     "@types/uuid": "^10.0.0"
   }
 }
