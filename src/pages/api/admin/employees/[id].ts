@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getAdminAuthFromCookies, getServiceRoleClient } from '../../../../lib/serverAuth';
+import { normalizeSpecialisms, parseSortOrder } from '../../../../lib/employees';
 
 export const PUT: APIRoute = async ({ params, request, cookies }) => {
   const adminAuth = await getAdminAuthFromCookies(cookies);
@@ -14,10 +15,18 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
 
   try {
     const body = await request.json();
-    const allowed = ['first_name', 'last_name', 'email', 'role', 'bio', 'contract_hours', 'hourly_rate', 'is_active'];
     const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
+    const allowed = ['first_name', 'last_name', 'email', 'role', 'bio', 'contract_hours', 'hourly_rate', 'is_active', 'sort_order'];
     for (const key of allowed) {
       if (key in body) update[key] = body[key];
+    }
+
+    if ('specialisms' in body) {
+      update.specialisms = normalizeSpecialisms(body.specialisms);
+    }
+
+    if ('sort_order' in body) {
+      update.sort_order = parseSortOrder(body.sort_order);
     }
 
     const supabase = getServiceRoleClient();

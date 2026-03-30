@@ -14,7 +14,27 @@
       "Bash(grep:*)",
       "Bash(find /c/Users/Maarten/Documents/vms/mariagebruidsmode.nl -name *employee* -o -name *shift* -o -name *planner*)",
       "Skill(update-config)",
-      "Skill(supabase)"
+      "Skill(supabase)",
+      "Bash(node --env-file=.env.local -e \":*)",
+      "Bash(DRY_RUN=1 node --env-file=.env.local scripts/import_wp_products.js)",
+      "Bash(DRY_RUN=1 SLUG=white-one-tsubaki node --env-file=.env.local scripts/import_wp_products.js)",
+      "Bash(curl -s \"https://www.mariagebruidsmode.nl/online-bruidsmode/white-one-trouwjurk-tsubaki/\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://www.mariagebruidsmode.nl/online-bruidsmode/enzoani-trouwjurk-naya/\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://www.mariagebruidsmode.nl/online-bruidsmode/enzoani-naya/\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://www.mariagebruidsmode.nl/online-bruidsmode/dama-couture-trouwjurk-venus/\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://www.mariagebruidsmode.nl/online-bruidsmode/ladybird-trouwjurk-estel/\")",
+      "Bash(node --env-file=.env.local scripts/import_wp_products.js)",
+      "Bash(npm install:*)",
+      "Bash(grep -o 'woocommerce-Price-amount[^\"\"\"\"]*\"\"\"\"[^>]*>.\\\\{0,200\\\\}')",
+      "Bash(curl -s \"https://www.mariagebruidsmode.nl/online-bruidsmode/randy-fenoli-trouwjurk-goldie/\")",
+      "Bash(curl -s \"https://www.mariagebruidsmode.nl/online-bruidsmode/bianco-evento-trouwjurk-olena/\")",
+      "Bash(curl -s \"https://www.mariagebruidsmode.nl/bruidsmode/trouwpakken/\")",
+      "Bash(curl -s \"https://www.mariagebruidsmode.nl/online-bruidsmode/immediate-trouwpak-26103-02/\")",
+      "Bash(sed 's/<[^>]*>//g')",
+      "Bash(node:*)",
+      "Skill(front-end-design)",
+      "WebFetch(domain:www.google.com)",
+      "Bash(find /c/Users/Maarten/Documents/vms/mariagebruidsmode.nl/supabase -type f -name *.sql)"
     ]
   }
 }

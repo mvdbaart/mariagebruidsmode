@@ -19,6 +19,7 @@ const { data: dressProducts } = await supabase
 
 const dressFallbackImage = '/images/jurkvormen/a-lijn.png';
 const collectionsForFilter = (collections ?? []).map(({ id, title, slug }) => ({ id, title, slug }));
+const initialCategories = Astro.url.searchParams.getAll('categorie').map((value) => value.trim()).filter(Boolean);
 ---
 
 <Layout title="Trouwjurken | Mariage Bruidsmode">
@@ -48,6 +49,7 @@ const collectionsForFilter = (collections ?? []).map(({ id, title, slug }) => ({
     products={dressProducts ?? []}
     collections={collectionsForFilter}
     fallbackImage={dressFallbackImage}
+    initialCategories={initialCategories}
   />
 
   <section class="py-24 bg-charcoal text-center">

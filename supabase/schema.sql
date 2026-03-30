@@ -73,6 +73,32 @@ CREATE TABLE IF NOT EXISTS appointments (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Employees
+CREATE TABLE IF NOT EXISTS employees (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  first_name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
+  email TEXT,
+  role TEXT,
+  bio TEXT,
+  specialisms TEXT[] NOT NULL DEFAULT '{}',
+  profile_photo_url TEXT,
+  contract_hours NUMERIC(5,2) NOT NULL DEFAULT 0,
+  hourly_rate NUMERIC(10,2),
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE employees ENABLE ROW LEVEL SECURITY;
+
+CREATE INDEX IF NOT EXISTS employees_active_sort_idx
+  ON employees (is_active, sort_order, first_name);
+
+CREATE POLICY "Public read active employees" ON employees
+  FOR SELECT USING (is_active = true);
+
 -- Basic RLS Policies (Read-only for public, Admin for write)
 CREATE POLICY "Enable read access for all users" ON collections FOR SELECT USING (true);
 CREATE POLICY "Enable read access for all users" ON products FOR SELECT USING (true);

@@ -19,16 +19,18 @@
     "images:dresses:map:dry": "node scripts/map_dress_images_to_products.js",
     "images:dresses:map:apply": "node scripts/map_dress_images_to_products.js --apply",
     "catalog:dresses:dry": "node scripts/import_dress_catalog_from_folders.js",
-    "catalog:dresses:apply": "node scripts/import_dress_catalog_from_folders.js --apply"
+    "catalog:dresses:apply": "node scripts/import_dress_catalog_from_folders.js --apply",
+    "attributes:dresses:image:dry": "node scripts/classify_dress_attributes_from_images.js --dry-run",
+    "attributes:dresses:image:apply": "node scripts/classify_dress_attributes_from_images.js --apply"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.8",
-    "@astrojs/react": "^5.0.0",
-    "@astrojs/sitemap": "^3.7.1",
-    "@astrojs/vercel": "^10.0.0",
+    "@astrojs/react": "^5.0.2",
+    "@astrojs/sitemap": "^3.7.2",
+    "@astrojs/vercel": "^10.0.3",
     "@supabase/supabase-js": "^2.99.1",
     "@tailwindcss/vite": "^4.2.1",
-    "astro": "^6.0.4",
+    "astro": "^6.1.1",
     "lucide-react": "^0.577.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",

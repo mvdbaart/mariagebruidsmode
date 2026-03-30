@@ -16,6 +16,7 @@ const supabase = getServiceRoleClient();
 const { data: employees } = await supabase
   .from('employees')
   .select('*')
+  .order('sort_order', { ascending: true, nullsFirst: true })
   .order('first_name', { ascending: true });
 
 interface Employee {
@@ -25,9 +26,11 @@ interface Employee {
   role?: string;
   email?: string;
   bio?: string;
+  specialisms?: string[];
   profile_photo_url?: string;
   contract_hours: number;
   hourly_rate?: number;
+  sort_order?: number;
   is_active: boolean;
 }
 ---
@@ -77,6 +80,16 @@ interface Employee {
 
             {emp.bio && (
               <p class="text-xs text-accent/60 mb-4 line-clamp-2 italic">{emp.bio}</p>
+            )}
+
+            {emp.specialisms && emp.specialisms.length > 0 && (
+              <div class="flex flex-wrap gap-2 mb-4">
+                {emp.specialisms.map((specialism) => (
+                  <span class="inline-flex items-center rounded-full border border-secondary/20 bg-secondary/5 px-2.5 py-1 text-[9px] uppercase tracking-widest text-secondary">
+                    {specialism}
+                  </span>
+                ))}
+              </div>
             )}
 
             <div class="space-y-2 mb-6">
@@ -145,6 +158,10 @@ interface Employee {
             <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Bio</label>
             <textarea name="bio" rows="3" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none resize-none" placeholder="Korte beschrijving..."></textarea>
           </div>
+          <div>
+            <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Specialismes</label>
+            <textarea name="specialisms" rows="3" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none resize-none" placeholder="Eén specialisme per regel of komma-gescheiden"></textarea>
+          </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Contracturen p/w</label>
@@ -156,6 +173,10 @@ interface Employee {
                 <input type="number" name="hourly_rate" step="0.01" min="0" placeholder="0.00" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
               </div>
             )}
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Volgorde</label>
+            <input type="number" name="sort_order" value="0" step="1" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
           </div>
           <div class="flex items-center gap-2">
             <input type="checkbox" name="is_active" id="add-is-active" checked class="accent-secondary" />
@@ -210,6 +231,10 @@ interface Employee {
             <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Bio</label>
             <textarea id="edit-bio" name="bio" rows="3" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none resize-none"></textarea>
           </div>
+          <div>
+            <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Specialismes</label>
+            <textarea id="edit-specialisms" name="specialisms" rows="3" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none resize-none" placeholder="Eén specialisme per regel of komma-gescheiden"></textarea>
+          </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Contracturen p/w</label>
@@ -221,6 +246,10 @@ interface Employee {
                 <input type="number" id="edit-hourly-rate" name="hourly_rate" step="0.01" min="0" placeholder="0.00" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
               </div>
             )}
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Volgorde</label>
+            <input type="number" id="edit-sort-order" name="sort_order" step="1" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
           </div>
           <div class="flex items-center gap-2">
             <input type="checkbox" id="edit-is-active" name="is_active" class="accent-secondary" />
@@ -252,8 +281,10 @@ interface Employee {
       email: formData.get('email') || null,
       role: formData.get('role') || null,
       bio: formData.get('bio') || null,
+      specialisms: formData.get('specialisms'),
       contract_hours: Number(formData.get('contract_hours')) || 0,
       hourly_rate: formData.get('hourly_rate') ? Number(formData.get('hourly_rate')) : null,
+      sort_order: Number(formData.get('sort_order')) || 0,
       is_active: formData.get('is_active') === 'on',
     };
 
@@ -286,7 +317,9 @@ interface Employee {
     document.getElementById('edit-email').value = emp.email || '';
     document.getElementById('edit-role').value = emp.role || '';
     document.getElementById('edit-bio').value = emp.bio || '';
+    document.getElementById('edit-specialisms').value = Array.isArray(emp.specialisms) ? emp.specialisms.join('\n') : '';
     document.getElementById('edit-contract-hours').value = emp.contract_hours ?? 0;
+    document.getElementById('edit-sort-order').value = emp.sort_order ?? 0;
     document.getElementById('edit-is-active').checked = emp.is_active !== false;
 
     if (canSeeRate) {
@@ -331,8 +364,10 @@ interface Employee {
       email: formData.get('email') || null,
       role: formData.get('role') || null,
       bio: formData.get('bio') || null,
+      specialisms: formData.get('specialisms'),
       contract_hours: Number(formData.get('contract_hours')) || 0,
       hourly_rate: formData.get('hourly_rate') ? Number(formData.get('hourly_rate')) : null,
+      sort_order: Number(formData.get('sort_order')) || 0,
       is_active: formData.get('is_active') === 'on',
     };
 

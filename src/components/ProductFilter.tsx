@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef, useId } from 'react';
 
 const WISHLIST_KEY = 'mb_wishlist';
 
@@ -66,6 +66,8 @@ interface Props {
   collections: Collection[];
   fallbackImage: string;
   mode?: 'dress' | 'suit';
+  initialPasvorm?: string[];
+  initialCategories?: string[];
 }
 
 
@@ -80,8 +82,16 @@ function CheckItem({
   onChange: () => void;
   count?: number;
 }) {
+  const inputId = useId();
   return (
-    <label className="flex items-center justify-between gap-3 cursor-pointer group py-1.5">
+    <label htmlFor={inputId} className="flex items-center justify-between gap-3 cursor-pointer group py-1.5">
+      <input
+        id={inputId}
+        type="checkbox"
+        checked={checked}
+        onChange={onChange}
+        className="sr-only"
+      />
       <span className="flex items-center gap-3">
         <span
           className={`w-4 h-4 border flex-shrink-0 flex items-center justify-center transition-colors ${
@@ -134,20 +144,29 @@ function SidebarSection({ title, children }: { title: string; children: React.Re
   );
 }
 
-export default function ProductFilter({ products, collections, fallbackImage, mode = 'dress' }: Props) {
+export default function ProductFilter({ products, collections, fallbackImage, mode = 'dress', initialPasvorm = [], initialCategories = [] }: Props) {
   const isSuit = mode === 'suit';
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [search, setSearch] = useState('');
   const [wishlist, setWishlist] = useState<Set<string>>(new Set());
-  const [activePasvorm, setActivePasvorm]     = useState<Set<string>>(new Set());
+  const [activePasvorm, setActivePasvorm]     = useState<Set<string>>(() => new Set(initialPasvorm));
   const [activeHals, setActiveHals]           = useState<Set<string>>(new Set());
   const [activeMouw, setActiveMouw]           = useState<Set<string>>(new Set());
   const [activeMat, setActiveMat]             = useState<Set<string>>(new Set());
-  const [activeCateg, setActiveCateg]         = useState<Set<string>>(new Set());
+  const [activeCateg, setActiveCateg]         = useState<Set<string>>(() => new Set(initialCategories));
   const [activeBrands, setActiveBrands]       = useState<Set<string>>(new Set());
   const [activeCollection, setActiveCollection] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => { setWishlist(loadWishlist()); }, []);
+
+  useEffect(() => {
+    const input = searchInputRef.current;
+    if (!input) return;
+
+    // Keep browser restore/autofill from reintroducing an old search term after hydrate.
+    if (input.value !== '') input.value = '';
+  }, []);
 
   const toggleWishlist = useCallback((prod: Product) => {
     const img = prod.images?.[0] ?? fallbackImage;
@@ -365,9 +384,16 @@ export default function ProductFilter({ products, collections, fallbackImage, mo
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
               <input
-                type="search"
+                ref={searchInputRef}
+                type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck={false}
+                name="mb-product-search"
+                inputMode="search"
                 placeholder="Zoek op naam of merk…"
                 className="w-full pl-10 pr-4 py-3 bg-white border border-champagne text-charcoal text-sm font-body placeholder:text-taupe/60 focus:outline-none focus:border-taupe transition-colors"
               />

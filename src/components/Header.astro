@@ -325,4 +325,27 @@ const logoUrl = settings?.logo_url ?? null;
     updateOffset();
     new ResizeObserver(updateOffset).observe(announcementBar);
   }
+
+  const styleLinks = [
+    { label: 'A-Line', href: '/trouwjurken/a-lijn' },
+    { label: 'Ball Gown', href: '/trouwjurken/prinses' },
+    { label: 'Mermaid', href: '/trouwjurken/zeemeermin' },
+    { label: 'Boho', href: '/trouwjurken?categorie=bohemian' },
+    { label: 'Outlet', href: '/outlet' },
+  ];
+
+  const styleRow = header?.querySelector('.hidden.lg\\:block .flex.items-center.justify-center.gap-16');
+  if (styleRow) {
+    Array.from(styleRow.children).forEach((node, index) => {
+      const link = styleLinks[index];
+      if (!link || node.tagName === 'A') return;
+
+      const anchor = document.createElement('a');
+      anchor.href = link.href;
+      anchor.setAttribute('aria-label', link.label);
+      anchor.className = node.className;
+      anchor.innerHTML = node.innerHTML;
+      node.replaceWith(anchor);
+    });
+  }
 </script>

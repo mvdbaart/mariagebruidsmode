@@ -9,6 +9,7 @@ const [
   { data: latestWeddings },
   { data: latestPosts },
   { data: settings },
+  { data: employees },
 ] = await Promise.all([
   supabase.from('products').select('id, name, slug, brand, images, collections(title, type)').order('created_at', { ascending: false }).limit(8),
   supabase.from('hero_slides').select('*').eq('is_active', true).order('sort_order', { ascending: true }),
@@ -16,6 +17,12 @@ const [
   supabase.from('real_weddings').select('id, slug, bride_name, groom_name, cover_image').order('wedding_date', { ascending: false }).limit(3),
   supabase.from('blog_posts').select('id, slug, title, excerpt, cover_image, published_at').order('published_at', { ascending: false }).limit(3),
   supabase.from('site_settings').select('homepage').eq('id', 'current').single(),
+  supabase
+    .from('employees')
+    .select('id, first_name, last_name, role, bio, profile_photo_url, specialisms, sort_order')
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true, nullsFirst: true })
+    .order('first_name', { ascending: true }),
 ]);
 
 if (heroSlidesError) {
@@ -27,28 +34,49 @@ const hp = (settings?.homepage ?? {}) as Record<string, string>;
 // Fallback hero: pick a suit product image
 const heroFallbackImage = '/wp-content/uploads/2023/07/Home-Hero-img.jpg';
 
+const collectionCards = [
+  {
+    href: '/boho',
+    title: 'Boho Style',
+    image: '/images/jurkvormen/a-lijn.png',
+  },
+  {
+    href: '/modern',
+    title: 'Modern Style',
+    image: '/images/jurkvormen/a-lijn-1.png',
+  },
+  {
+    href: '/collectie',
+    title: 'Collectie',
+    image: '/images/jurkvormen/a-lijn-silhouet.png',
+  },
+  {
+    href: '/a-line',
+    title: 'A-Line Collection',
+    image: '/images/jurkvormen/photoshop-silhouet2.png',
+  },
+];
+
 const featuredWeddingCard = {
   slug: featuredWedding?.slug ?? '',
   bride_name: featuredWedding?.bride_name ?? 'Mariage',
   groom_name: featuredWedding?.groom_name ?? 'Bruidsmode',
-  cover_image: featuredWedding?.cover_image ?? '/images/team/TKF_9432-scaled-scaled.jpg',
+  cover_image: featuredWedding?.cover_image ?? '/images/jurkvormen/a-lijn-1.png',
 };
 
 const galleryFallbacks = [
-  '/images/team/TKF_9016-scaled.jpg',
-  '/images/team/TKF_9043-scaled.jpg',
-  '/images/team/TKF_8994-scaled.jpg',
   '/images/jurkvormen/a-lijn.png',
-  '/images/team/TKF_9208-scaled-scaled.jpg',
-  '/images/team/TKF_9276-scaled-scaled.jpg',
-  '/images/team/TKF_9054-1-scaled-scaled.jpg',
-  '/images/team/TKF_8818-scaled.jpg',
+  '/images/jurkvormen/a-lijn-1.png',
+  '/images/jurkvormen/a-lijn-silhouet.png',
+  '/images/jurkvormen/photoshop-silhouet2.png',
+  '/wp-content/uploads/2023/07/Home-Hero-img.jpg',
+  '/images/logo/Social-Media-profielfoto.jpg',
 ];
 
 const blogFallbacks = [
-  '/images/team/TKF_9597-scaled-scaled.jpg',
-  '/images/team/TKF_9303-scaled-scaled.jpg',
-  '/images/team/TKF_9055-1-scaled-e1704372521721.jpg',
+  '/images/jurkvormen/a-lijn.png',
+  '/images/jurkvormen/a-lijn-1.png',
+  '/images/jurkvormen/photoshop-silhouet2.png',
 ];
 
 const galleryImages = (latestProducts ?? [])
@@ -71,6 +99,16 @@ const activeSlides = (heroSlides ?? []).filter((slide) =>
   typeof slide.image_url === 'string' && slide.image_url.trim().length > 0
 );
 const hasSlider = activeSlides.length > 0;
+const featuredEmployees = ((employees ?? []) as Array<{
+  id: string;
+  first_name: string;
+  last_name: string;
+  role?: string;
+  bio?: string;
+  profile_photo_url?: string;
+  specialisms?: string[];
+  sort_order?: number;
+}>).slice(0, 2);
 ---
 
 <Layout title="Home">
@@ -122,9 +160,9 @@ const hasSlider = activeSlides.length > 0;
         <!-- Boho Style (Large Left) -->
         <div class="md:col-span-4 h-full">
           <a href="/boho" class="block group relative h-full overflow-hidden">
-            <img src="/images/team/TKF_9016-scaled.jpg" alt="Boho Style" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+            <img src={collectionCards[0].image} alt={collectionCards[0].title} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
             <div class="absolute bottom-8 left-0 right-0 text-center">
-              <span class="text-white font-display text-2xl drop-shadow-md">Boho Style</span>
+              <span class="text-white font-display text-2xl drop-shadow-md">{collectionCards[0].title}</span>
             </div>
           </a>
         </div>
@@ -134,16 +172,16 @@ const hasSlider = activeSlides.length > 0;
           <!-- Modern Style (Top) -->
           <div class="flex-1">
             <a href="/modern" class="block group relative h-full overflow-hidden">
-              <img src="/images/team/TKF_9043-scaled.jpg" alt="Modern Style" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <img src={collectionCards[1].image} alt={collectionCards[1].title} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div class="absolute bottom-8 left-0 right-0 text-center">
-                <span class="text-white font-display text-2xl drop-shadow-md">Modern Style</span>
+                <span class="text-white font-display text-2xl drop-shadow-md">{collectionCards[1].title}</span>
               </div>
             </a>
           </div>
           <!-- Wide Bottom -->
           <div class="h-[30%]">
             <a href="/collectie" class="block group relative h-full overflow-hidden">
-              <img src="/images/team/TKF_8994-scaled.jpg" alt="Collectie" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <img src={collectionCards[2].image} alt={collectionCards[2].title} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
             </a>
           </div>
         </div>
@@ -153,16 +191,16 @@ const hasSlider = activeSlides.length > 0;
           <!-- A-Line (Top) -->
           <div class="h-[60%]">
             <a href="/a-line" class="block group relative h-full overflow-hidden">
-              <img src="/images/team/TKF_9208-scaled-scaled.jpg" alt="A-Line Collection" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <img src={collectionCards[3].image} alt={collectionCards[3].title} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div class="absolute bottom-8 left-0 right-0 text-center">
-                <span class="text-white font-display text-2xl drop-shadow-md">A-Line Collection</span>
+                <span class="text-white font-display text-2xl drop-shadow-md">{collectionCards[3].title}</span>
               </div>
             </a>
           </div>
           <!-- Smaller Bottom -->
           <div class="flex-1">
             <a href="/collectie" class="block group relative h-full overflow-hidden">
-              <img src="/images/team/TKF_9276-scaled-scaled.jpg" alt="Collectie" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <img src="/images/jurkvormen/a-lijn.png" alt="Collectie" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
             </a>
           </div>
         </div>
@@ -274,9 +312,9 @@ const hasSlider = activeSlides.length > 0;
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         {[
-          { title: 'Real Weddings & Stories of Inspiration', img: '/images/team/TKF_9597-scaled-scaled.jpg' },
-          { title: 'Designing - Summer Trends', img: '/images/team/TKF_9303-scaled-scaled.jpg' },
-          { title: 'Intermixing the Experience: Visit us in our boutique', img: '/images/team/TKF_9055-1-scaled-e1704372521721.jpg' }
+          { title: 'Real Weddings & Stories of Inspiration', img: '/images/jurkvormen/a-lijn.png' },
+          { title: 'Designing - Summer Trends', img: '/images/jurkvormen/a-lijn-1.png' },
+          { title: 'Intermixing the Experience: Visit us in our boutique', img: '/images/jurkvormen/photoshop-silhouet2.png' }
         ].map(item => (
           <div class="group cursor-pointer">
             <div class="aspect-square rounded-[32px] overflow-hidden mb-6 shadow-soft group-hover:shadow-card transition-all duration-500">
@@ -300,19 +338,66 @@ const hasSlider = activeSlides.length > 0;
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
         {[
-          { name: 'Sanne', quote: 'Ik zou Mariage iedereen aanraden. De aandacht en de service is van ongekende klasse.', img: '/images/team/Sanne.jpg' },
-          { name: 'Bruid Barbara', quote: 'De passie voor bruidsmode straalt ervan af bij alle medewerkers van Mariage.', img: '/images/team/Barbara.jpg' },
-          { name: 'Hester', quote: 'Ik voelde me ontzettend welkom en heb hier mijn droomjurk gevonden!', img: '/images/team/Hester.jpg' }
+          { name: 'Sanne', quote: 'Ik zou Mariage iedereen aanraden. De aandacht en de service is van ongekende klasse.', img: '/images/jurkvormen/a-lijn.png' },
+          { name: 'Bruid Barbara', quote: 'De passie voor bruidsmode straalt ervan af bij alle medewerkers van Mariage.', img: '/images/jurkvormen/a-lijn-1.png' },
+          { name: 'Hester', quote: 'Ik voelde me ontzettend welkom en heb hier mijn droomjurk gevonden!', img: '/images/jurkvormen/photoshop-silhouet2.png' }
         ].map(exp => (
           <div class="flex flex-col items-center">
             <div class="w-32 h-32 rounded-full overflow-hidden mb-8 shadow-md border-4 border-white">
-              <img src={galleryFallbacks[4]} alt={exp.name} class="w-full h-full object-cover" />
+              <img src={exp.img} alt={exp.name} class="w-full h-full object-cover" />
             </div>
             <p class="text-charcoal/80 font-body font-light text-sm leading-relaxed italic mb-4">"{exp.quote}"</p>
             <span class="text-[10px] tracking-widest uppercase font-body text-taupe">{exp.name}</span>
           </div>
         ))}
       </div>
+    </div>
+  </section>
+
+  <!-- Ons Team -->
+  <section class="py-24 bg-ivory reveal-fade-up">
+    <div class="container mx-auto px-6 max-w-6xl">
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+        <div>
+          <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">Ons Team</p>
+          <h2 class="font-display text-4xl md:text-5xl text-charcoal">De mensen achter <em class="italic font-light text-taupe">Mariage</em></h2>
+        </div>
+        <a href="/het-team" class="text-[10px] tracking-[0.3em] uppercase text-charcoal border-b border-charcoal/20 pb-1 hover:text-blush-deep hover:border-blush-deep transition-all self-start">Bekijk het volledige team</a>
+      </div>
+
+      {featuredEmployees.length > 0 ? (
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {featuredEmployees.map((employee) => (
+            <article class="bg-white/80 border border-champagne rounded-[28px] p-6 md:p-8 shadow-soft">
+              <div class="flex items-start gap-5">
+                <div class="w-24 h-24 rounded-full overflow-hidden bg-champagne/30 flex items-center justify-center flex-shrink-0">
+                  {employee.profile_photo_url
+                    ? <img src={employee.profile_photo_url} alt={`${employee.first_name} ${employee.last_name}`} class="w-full h-full object-cover" loading="lazy" />
+                    : <span class="text-2xl font-display text-charcoal/40">{employee.first_name.charAt(0)}{employee.last_name.charAt(0)}</span>}
+                </div>
+                <div class="min-w-0">
+                  <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">{employee.role || 'Teamlid'}</p>
+                  <h3 class="font-display text-2xl text-charcoal mb-3">{employee.first_name} {employee.last_name}</h3>
+                  {employee.bio && <p class="text-sm leading-relaxed text-taupe mb-4">{employee.bio}</p>}
+                  {employee.specialisms && employee.specialisms.length > 0 && (
+                    <div class="flex flex-wrap gap-2">
+                      {employee.specialisms.map((specialism) => (
+                        <span class="inline-flex items-center rounded-full border border-blush-deep/15 bg-blush-deep/5 px-3 py-1 text-[9px] uppercase tracking-[0.18em] text-blush-deep">
+                          {specialism}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div class="rounded-[28px] border border-dashed border-champagne bg-white/60 p-10 text-center text-taupe">
+          Er zijn nog geen actieve medewerkers ingesteld.
+        </div>
+      )}
     </div>
   </section>
 

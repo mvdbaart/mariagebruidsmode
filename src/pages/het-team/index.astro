@@ -1,34 +1,27 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import { supabase } from '../../lib/supabase';
 
-const teamImages = [
-  "TKF_8811-scaled.jpg", "TKF_8818-scaled.jpg", "TKF_8994-scaled.jpg", "TKF_9004-scaled.jpg",
-  "TKF_9016-scaled.jpg", "TKF_9043-scaled.jpg", "TKF_9054-1-scaled-scaled.jpg", "TKF_9055-1-scaled-e1704372521721.jpg",
-  "TKF_9055-scaled-e1704372195953.jpg", "TKF_9055-scaled-e1704372242248.jpg", "TKF_9069-scaled-e1704371934815.jpg", "TKF_9080-scaled.jpg",
-  "TKF_9092-scaled.jpg", "TKF_9208-scaled-scaled.jpg", "TKF_9250-scaled-scaled.jpg", "TKF_9276-scaled-scaled.jpg",
-  "TKF_9303-scaled-scaled.jpg", "TKF_9331-scaled-scaled.jpg", "TKF_9422-scaled.jpg", "TKF_9432-scaled-scaled.jpg",
-  "TKF_9452-scaled-e1704364640971.jpg", "TKF_9488-scaled-e1704364582984.jpg", "TKF_9528-scaled.jpg", "TKF_9597-scaled-scaled.jpg",
-  "TKF_9637-scaled.jpg"
-];
+const { data: employees } = await supabase
+  .from('employees')
+  .select('id, first_name, last_name, role, bio, profile_photo_url, specialisms, sort_order')
+  .eq('is_active', true)
+  .order('sort_order', { ascending: true, nullsFirst: true })
+  .order('first_name', { ascending: true });
 
-const expertises = [
-  {
-    titel: 'Bruidsstyling',
-    beschrijving: 'Onze stylistes begeleiden je met een persoonlijk advies van begin tot eind. Ze kennen elke jurk in de collectie van binnen en buiten en weten precies wat bij jou past.',
-  },
-  {
-    titel: 'Trouwpakken',
-    beschrijving: 'Ons gespecialiseerde team voor herenmode helpt de bruidegom de perfecte look samen te stellen. Van klassiek tot modern — altijd met aandacht voor detail en pasvorm.',
-  },
-  {
-    titel: 'Atelier & Aanpassingen',
-    beschrijving: 'Onze ervaren coupeuses zorgen voor een perfecte pasvorm. Van kleine aanpassingen tot uitgebreide maatwerk — alles wordt met zorg uitgevoerd in ons eigen atelier.',
-  },
-];
+const activeEmployees = (employees ?? []) as Array<{
+  id: string;
+  first_name: string;
+  last_name: string;
+  role?: string;
+  bio?: string;
+  profile_photo_url?: string;
+  specialisms?: string[];
+  sort_order?: number;
+}>;
 ---
 
 <Layout title="Het Team | Mariage Bruidsmode">
-
   <!-- Hero -->
   <section class="pt-40 pb-24 bg-ivory">
     <div class="container mx-auto px-6">
@@ -40,56 +33,105 @@ const expertises = [
           </h1>
           <div class="space-y-4 font-light text-taupe leading-relaxed max-w-lg">
             <p>
-              Achter Mariage Bruidsmode staat een team van gepassioneerde professionals die elke dag met liefde voor het vak werken. Van ervaren stylistes tot vakkundige coupeuses.
+              Achter Mariage Bruidsmode staat een team van professionals dat elke dag werkt aan een persoonlijke en zorgvuldige ervaring.
             </p>
             <p>
-              Samen zorgen zij ervoor dat jouw bezoek aan onze winkel een onvergetelijke ervaring wordt — persoonlijk, warm en professioneel.
+              Van styling en verkoop tot atelier en aanpassingen: iedereen draagt bij aan het vinden van de perfecte jurk en de beste pasvorm.
             </p>
           </div>
         </div>
         <div class="relative">
-          <div class="aspect-[4/5] overflow-hidden shadow-soft grayscale hover:grayscale-0 transition-all duration-700">
-            <img
-              src="/images/team/TKF_9080-scaled.jpg"
-              alt="Mariage Team"
-              class="w-full h-full object-cover scale-105 hover:scale-100 transition-transform duration-1000"
-            />
+          <div class="aspect-[4/5] overflow-hidden shadow-soft grayscale hover:grayscale-0 transition-all duration-700 bg-white">
+            {activeEmployees[0]?.profile_photo_url ? (
+              <img
+                src={activeEmployees[0].profile_photo_url}
+                alt={`${activeEmployees[0].first_name} ${activeEmployees[0].last_name}`}
+                class="w-full h-full object-cover scale-105 hover:scale-100 transition-transform duration-1000"
+                loading="eager"
+              />
+            ) : (
+              <img
+                src="/images/jurkvormen/a-lijn.png"
+                alt="Mariage Team"
+                class="w-full h-full object-cover scale-105 hover:scale-100 transition-transform duration-1000"
+                loading="eager"
+              />
+            )}
           </div>
           <div class="absolute -bottom-10 -left-10 bg-charcoal p-10 hidden md:block shadow-2xl">
-            <p class="text-warm-white font-display italic text-2xl">Passie &<br/>Vakmanschap</p>
+            <p class="text-warm-white font-display italic text-2xl">Passie &amp;<br/>Vakmanschap</p>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Teamfoto's grid -->
+  <!-- Team grid -->
   <section class="py-32 bg-white">
     <div class="container mx-auto px-6">
       <div class="text-center mb-20">
         <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">Ons Team</p>
         <h2 class="font-display text-charcoal text-4xl mb-6">Ontmoet onze <em class="italic font-light text-taupe">mensen</em></h2>
         <p class="text-taupe max-w-2xl mx-auto font-light leading-relaxed">
-          Onze stylistes en coupeuses staan elke dag voor je klaar om jouw droom werkelijkheid te maken. Vakmanschap en passie staan bij ons centraal.
+          Onze specialisten werken met aandacht, ervaring en oog voor detail. Hieronder zie je wie er actief voor je klaarstaan.
         </p>
       </div>
-      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-8">
-        {teamImages.map((img) => (
-          <div class="group">
-            <div class="aspect-[3/4] overflow-hidden bg-ivory mb-4 shadow-soft grayscale group-hover:grayscale-0 transition-all duration-500">
-              <img
-                src={`/images/team/${img}`}
-                alt="Mariage Team Member"
-                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                loading="lazy"
-              />
-            </div>
-            <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <p class="text-[10px] tracking-widest uppercase text-charcoal font-medium">Mariage Specialiste</p>
-            </div>
-          </div>
-        ))}
-      </div>
+
+      {activeEmployees.length > 0 ? (
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
+          {activeEmployees.map((employee) => (
+            <article class="group bg-ivory border border-champagne/60 rounded-[28px] p-6 shadow-soft hover:shadow-card transition-all duration-300">
+              <div class="aspect-[4/5] overflow-hidden bg-white mb-5 rounded-[22px]">
+                {employee.profile_photo_url ? (
+                  <img
+                    src={employee.profile_photo_url}
+                    alt={`${employee.first_name} ${employee.last_name}`}
+                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div class="w-full h-full flex items-center justify-center bg-champagne/20">
+                    <span class="text-4xl font-display text-charcoal/35">
+                      {employee.first_name.charAt(0)}{employee.last_name.charAt(0)}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div class="space-y-4">
+                <div>
+                  <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">
+                    {employee.role || 'Teamlid'}
+                  </p>
+                  <h3 class="font-display text-2xl text-charcoal">
+                    {employee.first_name} {employee.last_name}
+                  </h3>
+                </div>
+
+                {employee.bio && (
+                  <p class="text-taupe font-light leading-relaxed text-sm">
+                    {employee.bio}
+                  </p>
+                )}
+
+                {employee.specialisms && employee.specialisms.length > 0 && (
+                  <div class="flex flex-wrap gap-2">
+                    {employee.specialisms.map((specialism) => (
+                      <span class="inline-flex items-center rounded-full border border-blush-deep/15 bg-blush-deep/5 px-3 py-1 text-[9px] uppercase tracking-[0.18em] text-blush-deep">
+                        {specialism}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div class="text-center py-20 bg-ivory rounded-[28px] border border-dashed border-champagne">
+          <p class="text-taupe font-light">Er zijn nog geen actieve medewerkers ingesteld.</p>
+        </div>
+      )}
     </div>
   </section>
 
@@ -101,13 +143,27 @@ const expertises = [
         <h2 class="font-display text-charcoal text-4xl mb-4">Wat wij voor jou <em class="italic font-light text-taupe">doen</em></h2>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-16 max-w-5xl mx-auto text-center">
-        {expertises.map(({ titel, beschrijving }) => (
-          <div class="space-y-6">
-            <div class="w-px h-12 bg-blush mx-auto"></div>
-            <h3 class="font-display text-charcoal text-2xl">{titel}</h3>
-            <p class="text-taupe font-light text-sm leading-relaxed">{beschrijving}</p>
-          </div>
-        ))}
+        <div class="space-y-6">
+          <div class="w-px h-12 bg-blush mx-auto"></div>
+          <h3 class="font-display text-charcoal text-2xl">Bruidsstyling</h3>
+          <p class="text-taupe font-light text-sm leading-relaxed">
+            Persoonlijk advies bij het vinden van de stijl, pasvorm en details die bij jou passen.
+          </p>
+        </div>
+        <div class="space-y-6">
+          <div class="w-px h-12 bg-blush mx-auto"></div>
+          <h3 class="font-display text-charcoal text-2xl">Trouwpakken</h3>
+          <p class="text-taupe font-light text-sm leading-relaxed">
+            Begeleiding voor bruidegoms en gasten die zoeken naar een verzorgde en eigentijdse look.
+          </p>
+        </div>
+        <div class="space-y-6">
+          <div class="w-px h-12 bg-blush mx-auto"></div>
+          <h3 class="font-display text-charcoal text-2xl">Atelier &amp; Aanpassingen</h3>
+          <p class="text-taupe font-light text-sm leading-relaxed">
+            Zorgvuldige aanpassingen voor een perfecte pasvorm en een afwerking die klopt tot in detail.
+          </p>
+        </div>
       </div>
     </div>
   </section>
@@ -123,5 +179,4 @@ const expertises = [
       <a href="https://nlmariage-kremen.savviihq.com/online-agenda/" target="_blank" rel="noopener" class="btn-gold">Afspraak maken</a>
     </div>
   </section>
-
 </Layout>

@@ -1,0 +1,1705 @@
+product_id,slug,decision,reason,payload_keys
+a412e1f7-a567-461a-8464-1c70d6b69252,white-one-tsubaki,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/White One/model-tsubaki/white-one-trouwjurk-tsubaki_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+7e1eedd1-7fa1-49ea-b28a-e943b94e1fe1,white-one-oleiro,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/White One/model-oleiro/trouwjurk-outlet-white-one-oleiro_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+03c9e7b5-7875-4dce-ad70-42a68fcaf551,white-one-ojeda,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/White One/model-ojeda/trouwjurk-white-one-ojeda_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+227df499-b24d-41c2-8b21-67dfcda9eacf,white-one-maitai,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/White One/model-maitai/white-one-trouwjurk-maitai_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+cb56e9a8-f5b1-495f-9aa3-cb33fcb41b03,white-one-gentian,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/White One/model-gentian/trouwjurk-outlet-white-one-gentian_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+210af40a-f344-4b3d-abd3-9505af3b9c51,stella-york-sy8163,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Stella York/model-sy8163/stella-york-trouwjurk-sy8163_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+09d231cf-e602-4999-b9e2-6c5032dd1d08,stella-york-sy8162,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Stella York/model-sy8162/trouwjurk-stella-york-sy8162_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+53ab1209-41e5-435a-8924-b348acd3eefa,stella-york-sy8126,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Stella York/model-sy8126/trouwjurk-stella-york-sy8126_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+0944dff2-484f-4c65-95b9-16db397ceb99,stella-york-sy8122,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Stella York/model-sy8122/stella-york-trouwjurk-sy8122_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+080154a1-455e-4cdb-b00c-a43ccdff795f,stella-york-sy8110,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Stella York/model-sy8110/stella-york-trouwjurk-sy8110_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+7729ec4f-d429-4636-8755-6fbbd9806494,stella-york-sy8105,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Stella York/model-sy8105/stella-york-trouwjurk-sy8105_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+f8144387-f6ef-476a-9683-c39efd7af370,stella-york-sy8084,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Stella York/model-sy8084/stella-york-trouwjurk-sy8084_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+ead8f9ae-e871-417a-bbb3-10860ad93927,stella-york-split,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Stella York/model-split/stella-york-trouwjurk-sy8157-zonder-split_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+b092f34a-e5bd-446f-b695-bfb302cf2cfc,stella-york-8036,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Stella York/model-8036/stella-york-trouwjurk-8036_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+a9c09f4a-2f54-449b-9f17-5b3fed20a450,stella-york-8027,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Stella York/model-8027/stella-york-trouwjurk-8027_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+f42e3c2f-0e19-4f95-aaf6-1d3cfd0af98f,stella-york-7965,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Stella York/model-7965/stella-york-trouwjurk-7965_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+7bf83706-2abf-4e07-acd3-2cacfb52b1a8,stella-york-7928,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Stella York/model-7928/stella-york-trouwjurk-7928_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+269b817c-5519-4d54-9a25-68a8740b53f5,stella-york-7675,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Stella York/model-7675/trouwjurk-stella-york-7675_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+04f6ec1a-8ba1-4207-a8c2-ffa4ffa87077,stella-york-7653,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Stella York/model-7653/trouwjurk-stella-york-7653_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+8b8dce0e-137a-4f92-8dc2-a45a852805d1,stella-york-7650,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Stella York/model-7650/trouwjurk-stella-york-7650_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+b88a2f3b-c564-4a14-9124-e8ee5c4243c2,stella-york-7609,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Stella York/model-7609/trouwjurk-stella-york-7609_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+37255456-55fe-47df-a554-17ba20e578f7,stella-york-7568,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Stella York/model-7568/trouwjurk-stella-york-7568_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+cdc9fbbb-8d04-4073-af3b-4c6915a5a8f3,stella-york-7529,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Stella York/model-7529/trouwjurk-stella-york-7529_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+c9a0c368-a22a-4243-aa7a-17778f95cd68,stella-york-7420,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Stella York/model-7420/trouwjurk-stella-york-7420_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+aade679c-c11e-4eae-99c5-e341dc48a9d2,stella-york-7117,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Stella York/model-7117/stella-york-trouwjurk-7117_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+797f4bd3-f01b-43ab-8afa-72bbd0729427,stella-york-2,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Stella York/model-2/stella-york-trouwjurk-8036-2_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+258880c1-b82e-4774-afac-4e5f03e33547,st-patrick-willy,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/St. Patrick/model-willy/st-patrick-trouwjurk-willy_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+15afa989-5276-4fe8-9c5e-f499511f1a29,st-patrick-simmer,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/St. Patrick/model-simmer/st-patrick-trouwjurk-simmer_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+428ba26b-8378-45d6-bc29-9aa3f7f9571a,st-patrick-santia,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/St. Patrick/model-santia/st-patrick-trouwjurk-santia_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+16dd7a6a-ecd8-442d-b2fe-8ccd56c67cda,st-patrick-renne,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/St. Patrick/model-renne/st-patrick-trouwjurk-renne_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+d5915d04-51fa-43f0-8ee4-41f0c7c624eb,st-patrick-odessa,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/St. Patrick/model-odessa/st-patrick-trouwjurk-odessa_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+65310f36-374d-40c6-8feb-0b38d2f17db5,st-patrick-mediva,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/St. Patrick/model-mediva/st-patrick-trouwjurk-mediva_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+1e5483ed-af94-47df-9df6-3ec7404987ed,st-patrick-magica,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/St. Patrick/model-magica/st-patrick-trouwjurk-magica_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+af771cc7-d030-4517-8468-1dbbbe7a1686,st-patrick-inno,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/St. Patrick/model-inno/st-patrick-trouwjurk-inno_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+e18075d3-6eca-4f53-afa2-6800b18ac63b,st-patrick-chatty,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/St. Patrick/model-chatty/st-patrick-trouwjurk-chatty_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+ffc438e4-bf4a-4293-98ee-9512522bbfe7,rosa-clara-dalila,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Rosa Clara/model-dalila/trouwjurk-outlet-rosa-clara-dalila_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+73f15433-9d53-4999-9b2d-7ec5b6d9e136,ronald-joyce-wedella,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Ronald Joyce/model-wedella/trouwjurk-ronald-joyce-18464-wedella_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+72256fde-6834-49ae-b8a6-44d00784b10b,randy-fenoli-luxe,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Randy Fenoli/model-luxe/randy-fenoli-trouwjurk-gentry-luxe_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+a1552467-9b97-44bb-89cf-16b38be273aa,randy-fenoli-ida,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Randy Fenoli/model-ida/randy-fenoli-trouwjurk-ida_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+b8c052c2-790a-484e-87f9-548d4a1cad68,randy-fenoli-goddess,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Randy Fenoli/model-goddess/randy-fenoli-trouwjurk-goddess_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+f51891c2-a11a-4618-bd07-9465161e7000,randy-fenoli-giselle,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Randy Fenoli/model-giselle/randy-fenoli-trouwjurk-giselle_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+9b7b3932-25cc-48d9-b477-dea267e26b7f,randy-fenoli-foster,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Randy Fenoli/model-foster/trouwjurk-randy-fenoli-foster_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+4b8d0851-83a3-486a-b92a-93bbe5228049,randy-fenoli-fleetwood,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Randy Fenoli/model-fleetwood/trouwjurk-randy-fenoli-fleetwood_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+21b228d9-b7da-4210-b4e9-80fb2d1f7b35,randy-fenoli-faith,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Randy Fenoli/model-faith/trouwjurk-randy-fenoli-faith_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+350ce8fa-b049-4c53-9f23-61f7ec2a8b58,randy-fenoli-dominique,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Randy Fenoli/model-dominique/trouwjurk-randy-fenoli-dominique_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+00279279-66cf-46de-8ae5-3de7b78c9167,randy-fenoli-dimitira,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Randy Fenoli/model-dimitira/trouwjurk-randy-fenoli-dimitira_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+a7fa490e-06b8-49f5-852d-f8f9a8ac99ff,randy-fenoli-dani,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Randy Fenoli/model-dani/trouwjurk-randy-fenoli-dani_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+0dcaca41-f105-4f01-831a-3695f8eb9663,private-label-by-mariage-trouwjurk,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Private Label by Mariage/model-trouwjurk/private-label-by-mariage-trouwjurk_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+0cdad691-1bff-4c79-8283-1f203317d1a2,orea-sposa-l965,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Orea Sposa/model-l965/trouwjurk-outlet-orea-sposa-l965_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+553e3257-aef0-4973-ab4c-792f90de2c79,orea-sposa-l918,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Orea Sposa/model-l918/trouwjurk-outlet-orea-sposa-l918_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+7f2bc5d6-5535-4d32-81cb-fa272c1825e4,orea-sposa-l917,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Orea Sposa/model-l917/trouwjurk-outlet-orea-sposa-l917_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+d668afa4-19c1-4810-a271-9703d2e10664,oksana-mukha-tilly,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/OKSANA MUKHA/model-tilly/oksana-mukha-trouwjurk-tilly_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+4ffe7ad1-eef7-44e6-b4fe-e84b9cce9c01,oksana-mukha-paige,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/OKSANA MUKHA/model-paige/oksana-muhka-trouwjurk-paige_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+1157b95e-4352-4858-af3a-4a635f9541e8,oksana-mukha-molly,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/OKSANA MUKHA/model-molly/oksana-mukha-trouwjurk-molly_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+46a954db-1c13-494b-9502-5c471c60e21b,oksana-mukha-manuela,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/OKSANA MUKHA/model-manuela/oksana-mukha-trouwjurk-manuela_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+a5d08e3d-0a35-4b59-ac6a-7599530e9761,oksana-mukha-heidi,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/OKSANA MUKHA/model-heidi/oksana-mukha-trouwjurk-heidi_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+b19a18da-6d47-458f-ad24-d11d8b023851,oksana-mukha-darcia,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/OKSANA MUKHA/model-darcia/oksana-mukha-trouwjurk-darcia_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+c67ecb3e-f63f-4e03-a390-bea83ba4663c,oksana-mukha-caroline,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/OKSANA MUKHA/model-caroline/oksana-mukha-trouwjurk-caroline_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+b29a738c-1270-4846-818b-1d571c713cbd,oksana-mukha-ayah,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/OKSANA MUKHA/model-ayah/oksana-mukha-trouwjurk-ayah_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+325bcb4b-b6e9-4a40-bfd8-052e48b96bde,morilee-69928b,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Morilee/model-69928b/morilee-trouwjurk-69928b_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+b50615db-749b-47ef-9098-8be0e81b7282,morilee-69926,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Morilee/model-69926/morilee-trouwjurk-69926_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+55dcea2b-f28a-4598-90e4-d111ee97bed6,morilee-52027,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Morilee/model-52027/morilee-trouwjurk-52027_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+adcb6f5a-bca9-460d-ae23-13a312122005,morilee-3423,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Morilee/model-3423/morilee-trouwjurk-3423_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+45282c99-cbba-478d-b523-9e5100ef7231,morilee-2608,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Morilee/model-2608/morilee-trouwjurk-2608_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+dbd82f27-0c5b-42f3-a25c-0dad8facbf49,morilee-18772,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Morilee/model-18772/morilee-trouwjurk-18772_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+adffda97-908a-4068-8795-71bffdbad861,monica-loretti-8357,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Monica Loretti/model-8357/monica-loretti-trouwjurk-volle-bruid-8357_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+2188637c-0699-4f23-9886-2b6ded3aa53a,monica-loretti-8293,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Monica Loretti/model-8293/trouwjurk-monica-loretti-8293_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+26c50a30-af26-4335-9e0b-92e1dde17807,monica-loretti-8291,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Monica Loretti/model-8291/trouwjurk-monica-loretti-8291_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+301bca69-97ad-43fa-a3c1-f8defb447cfd,monica-loretti-8282,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Monica Loretti/model-8282/trouwjurk-monica-loretti-8282_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+adb28b23-787a-4080-aab1-74ff68fcf580,monica-loretti-8270,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Monica Loretti/model-8270/trouwjurk-monica-loretti-8270_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+38ed038e-0530-4b21-8dcb-d3a77ce9e7fa,monica-loretti-8244,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Monica Loretti/model-8244/trouwjurk-monica-loretti-8244_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+5911a1d4-f483-4833-99f8-4e6f5e97f83a,monica-loretti-8239,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Monica Loretti/model-8239/trouwjurk-monica-loretti-8239_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+4e57b14f-6f4b-45c3-8049-56e5e48b17d9,monica-loretti-8219,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Monica Loretti/model-8219/trouwjurk-monica-loretti-8219_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+f4d8253d-86fa-472e-a074-ac4d76672181,monica-loretti-8216,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Monica Loretti/model-8216/trouwjurk-monica-loretti-8216_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+cb92e1c0-b19d-42f0-8351-d2f2b39cfcee,monica-loretti-8198,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Monica Loretti/model-8198/trouwjurk-monica-loretti-8198_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+ccbc2e00-fddd-4a85-83a7-aecfce95d653,monica-loretti-8140,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Monica Loretti/model-8140/trouwjurk-monica-loretti-8140_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+a18eb5f5-6ade-4a65-96d5-923da6f42c93,monica-loretti-8138,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Monica Loretti/model-8138/trouwjurk-monica-loretti-8138_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+f4063e1c-d759-435d-a46b-177ebd7ddc54,monica-loretti-8134,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Monica Loretti/model-8134/trouwjurk-monica-loretti-8134_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+74e7b274-9a45-400f-af88-99f64fd51f7e,monica-loretti-8126,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Monica Loretti/model-8126/trouwjurk-monica-loretti-8126_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+c61adc00-c053-4205-bbc6-0318142d5de2,monica-loretti-8122,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Monica Loretti/model-8122/trouwjurk-monica-loretti-8122_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+ea2c013d-dab8-4053-89cd-bfa33068a0d5,modeca-couture-ziva,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Modeca Couture/model-ziva/trouwjurk-modeca-couture-ziva_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+6b608784-6583-4208-af6a-448785de5a88,modeca-couture-zino,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Modeca Couture/model-zino/modeca-couture-trouwjurk-zino_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+b4d5d583-f093-4293-b9d1-caf352c07a76,modeca-sally,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Modeca/model-sally/trouwjurk-modeca-sally_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+f13edcfc-17fe-4905-8e43-208da7011f20,modeca-noon,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Modeca/model-noon/trouwjurk-modeca-noon_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+ba68a6e7-db7a-4b82-8ed9-7d05ea2de282,modeca-derin,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Modeca/model-derin/modeca-trouwjurk-derin_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+93af44b8-62b0-4f3f-a1f5-2f55b37a4210,modeca-denise,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Modeca/model-denise/modeca-trouwjurk-denise_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+7a691ddb-9f75-4b37-97f5-1477d0cc7661,modeca-dembee,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Modeca/model-dembee/modeca-trouwjurk-dembee_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+daff5ace-23d4-4c27-87a0-b992c3b76e37,modeca-darling,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Modeca/model-darling/modeca-trouwjurk-darling_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+72ea183e-a69e-4bf1-9971-e376f53bb913,modeca-daisy,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Modeca/model-daisy/modeca-trouwjurk-daisy_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+b710e7d0-67e4-47b1-a4ec-b236a06b0503,modeca-awesta,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Modeca/model-awesta/trouwjurk-modeca-awesta_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+ead728d6-4af5-4c1b-a872-01216c948128,modeca-avenah,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Modeca/model-avenah/trouwjurk-modeca-avenah_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+042b8009-3ab1-4647-b402-04ec771d4cf5,modeca-aura,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Modeca/model-aura/trouwjurk-modeca-aura_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+2c2bc717-eb0d-49a2-b8a8-5a9d413fd9d0,modeca-asja,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Modeca/model-asja/trouwjurk-modeca-asja_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+8d8f8f81-7e36-496e-8779-19674fda48f8,modeca-anika,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Modeca/model-anika/trouwjurk-modeca-anika_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+14a7607a-7487-4177-a831-e0a03e90a208,modeca-alaska,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Modeca/model-alaska/trouwjurk-modeca-alaska_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+18e2a4ee-5ab2-4b8c-afe8-2ba84adc032b,modeca-acacia,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Modeca/model-acacia/trouwjurk-modeca-acacia_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+12d4ebbb-3ff6-4a1e-b8da-096d0b8d61b5,love-by-enzoani-everly,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Love by Enzoani/model-everly/love-by-enzoani-trouwjurk-everly_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+a9b750a4-06e4-4001-a94f-9d0b8b0d5908,love-by-enzoani-elsa,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Love by Enzoani/model-elsa/love-by-enzoani-elsa_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+cb5bd6f3-61a9-4ea2-acaa-cab830221e9c,love-by-enzoani-dixie,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Love by Enzoani/model-dixie/love-by-enzoani-trouwjurk-dixie_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+28a92c97-d1db-44ec-9e2c-f7753e72b93a,love-by-enzoani-denver,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Love by Enzoani/model-denver/love-by-enzoani-trouwjurk-denver_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+64b5d2c8-6a92-463f-af12-67bb8a360c00,love-by-enzoani-denise,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Love by Enzoani/model-denise/love-by-enzoani-trouwjurk-denise_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+dc150c9e-bb72-42d9-bcff-dd44066a50df,love-by-enzoani-dallas,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Love by Enzoani/model-dallas/love-by-enzoani-trouwjurk-dallas_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+49a74d00-3ddc-4a84-831a-34be749ee935,love-by-enzoani-amina,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Love by Enzoani/model-amina/love-by-enzoani-trouwjurk-amina_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+15a32d01-a6cc-4d2b-b11e-7b90001e989f,libelle-bridal-jip,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Libelle Bridal/model-jip/trouwjurk-libelle-bridal-jip_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+7ca3b57e-11c1-4350-8ad6-8236f1b1eb3d,libelle-bridal-hiba,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Libelle Bridal/model-hiba/trouwjurk-libelle-bridal-hiba_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+c3d4a261-bdbe-4678-987e-2f210e606f55,le-papillon-modeca-sharon,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Le Papillon Modeca/model-sharon/le-papillon-modeca-sharon_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+31da831f-0101-496b-9f04-c159e3671e50,le-papillon-modeca-elmas,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Le Papillon Modeca/model-elmas/le-papillon-modeca-trouwjurk-elmas_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+5f52d2db-92de-4568-a5bb-35f91ad8c4ff,le-papillon-modeca-eliana,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Le Papillon Modeca/model-eliana/le-papillon-modeca-trouwjurk-eliana_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+bbbeea58-9a1f-484c-bac3-8e364e136109,le-papillon-modeca-bluelle,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Le Papillon Modeca/model-bluelle/trouwjurk-le-papillon-modeca-bluelle_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+97fe5a6a-bc61-473f-8c06-db6373eeb7fb,le-papillon-modeca-belen,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Le Papillon Modeca/model-belen/trouwjurk-le-papillon-modeca-belen_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+d5129592-0485-405b-81f1-26378a7f3fbc,le-papillon-modeca-baska,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Le Papillon Modeca/model-baska/trouwjurk-le-papillon-modeca-baska_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+d4e15fac-24a6-400e-9591-5e65a571151d,ladybird-nisa,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Ladybird/model-nisa/ladybird-trouwjurk-nisa_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+5f4878f5-c297-40e7-bc8c-1923e8b884e9,ladybird-mei,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Ladybird/model-mei/ladybird-trouwjurk-mei_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+624ed132-7a58-4218-8efe-374dd0298ac3,ladybird-luella,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Ladybird/model-luella/trouwjurk-ladybird-luella_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+36a4192e-4f25-49d9-b37d-f387042c627f,ladybird-liber,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Ladybird/model-liber/trouwjurk-ladybird-liber_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+ef9e3af7-6cb8-4124-b632-4ec23862656f,ladybird-josephina,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Ladybird/model-josephina/ladybird-trouwjurk-josephina_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+8afb8e3a-0c0e-462f-9ab4-4d79e389c556,ladybird-jacinta,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Ladybird/model-jacinta/trouwjurk-ladybird-jacinta_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+74962b27-3f0c-4d66-8133-805600402c9b,ladybird-illusia,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Ladybird/model-illusia/ladybird-trouwjurk-illusia_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+f2eac988-1f1f-44ba-a397-ad629a8bdb7f,ladybird-galatia,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Ladybird/model-galatia/trouwjurk-ladybird-galatia_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+1ef6d8a7-8088-4bf5-843f-0f328f71f555,ladybird-fritha,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Ladybird/model-fritha/ladybird-trouwjurk-fritha_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+fb40c5dc-36cb-46ce-8c23-85fe4d50d441,ladybird-estel,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Ladybird/model-estel/trouwjurk-volle-bruid-ladybird-estel_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+1dbbed1e-63eb-40d2-9d21-8b3c9de12cc3,ladybird-clarisa,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Ladybird/model-clarisa/trouwjurk-ladybird-clarisa_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+3e3d8b95-0c99-4636-9bbe-540b08d83651,ladybird-chara,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Ladybird/model-chara/trouwjurk-ladybird-chara_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+7ce043db-f708-4aaa-aeb5-6cbc348f0e3a,ladybird-ashly,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Ladybird/model-ashly/ladybird-trouwjurk-ashly_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+c089a909-6731-4a14-9b8b-25a612ea5ff0,ladybird-annabell,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Ladybird/model-annabell/ladybird-trouwjurk-annabell_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+a460c06b-e09c-4e54-bcdf-4b9686ea77d6,ladybird-alzena,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Ladybird/model-alzena/trouwjurk-ladybird-alzena_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+c0d2f0d5-506f-4f20-81a3-eb498ee57a47,ladybird-522031,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Ladybird/model-522031/zwangerschapsjurk-ladybird-522031_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+eade4b7a-cfdc-48ff-aa0b-c618bfe47066,ladybird-317162,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Ladybird/model-317162/trouwjurk-outlet-ladybird-317162_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+9e8fea50-e028-4fc2-885e-3ebbff30e7f0,kenneth-winston-1706,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Kenneth Winston/model-1706/trouwjurk-kenneth-winston-1706_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+5aa75402-06e0-4a9d-9160-179b0a1f4891,jarice-sunshine,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Jarice/model-sunshine/trouwjurk-jarice-style-sunshine_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+51f3c6f1-2e99-4e24-a084-b2ff237b718a,jarice-sarah,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Jarice/model-sarah/trouwjurk-outlet-jarice-style-sarah_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+1423b174-b9c2-473f-bd53-7f564d3e8876,jarice-elenor,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Jarice/model-elenor/trouwjurk-jarice-elenor_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+f00aa819-b12a-48c3-819f-ceb017311efd,jarice-13,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Jarice/model-13/trouwjurk-jarice-art22-13_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+4734eb59-6211-49de-8f6c-c11bf00d41ed,gbs-herve-paris-lyra,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/GBS Herve Paris/model-lyra/gbs-herve-paris-trouwjurk-lyra_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+cbc17117-4e6b-40c7-9e61-6c62f1e87971,gbs-herve-paris-lumen,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/GBS Herve Paris/model-lumen/gbs-herve-paris-trouwjurk-lumen_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+bd58284d-6765-4ae2-891f-324a2c0fe969,gbs-herve-paris-lotus,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/GBS Herve Paris/model-lotus/gbs-herve-trouwjurk-lotus_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+e73911e7-cb00-48c0-91d6-399a53c78b17,gbs-herve-paris-lior,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/GBS Herve Paris/model-lior/gbs-herve-paris-trouwjurk-lior_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+0a102af0-787c-4ee2-afa4-b5eb397fb0ff,gbs-herve-paris-lewis,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/GBS Herve Paris/model-lewis/gbs-herve-paris-trouwjurk-lewis_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+ab16a6f8-0a3f-4919-bf9b-d544de22839b,gbs-herve-paris-caylee,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/GBS Herve Paris/model-caylee/trouwjurk-gbs-herve-paris-caylee_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+8e6a7951-35b2-49a0-b8a7-af8cf921c72d,gbs-herve-paris-carter,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/GBS Herve Paris/model-carter/trouwjurk-gbs-herve-paris-carter_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+e1c58073-fad7-4e8c-ac45-835885c12911,gbs-herve-paris-brunela,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/GBS Herve Paris/model-brunela/gbs-herve-paris-trouwjurk-brunela_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+874bfeca-93b2-4143-bf83-c552d750dadf,gbs-herve-paris-bibian,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/GBS Herve Paris/model-bibian/trouwjurk-gbs-herve-paris-bibian_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+dbe34117-936f-4e36-819b-94b9dc17bdf3,etoile-by-enzoani-whitley,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Etoile by Enzoani/model-whitley/trouwjurk-etoile-by-enzoani-whitley_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+207bdcdc-d01d-4eee-b3b5-146807048b69,etoile-by-enzoani-reilly,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Etoile by Enzoani/model-reilly/trouwjurk-etoile-by-enzoani-reilly_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+79851fc3-6f78-43be-9107-4c69c8f87232,etoile-by-enzoani-guinevere,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Etoile by Enzoani/model-guinevere/trouwjurk-etoile-by-enzoani-guinevere_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+faec1fed-2e50-4675-a854-13f17295604a,etoile-by-enzoani-erin,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Etoile by Enzoani/model-erin/etoile-trouwjurk-erin_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+58a4da42-29cb-48b2-8f77-8b95096c949b,etoile-by-enzoani-cheyenne,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Etoile by Enzoani/model-cheyenne/trouwjurk-etoile-cheyenne_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+cb49715c-8dce-4d66-af71-08d2cd3f56e1,enzoani-silvia,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Enzoani/model-silvia/trouwjurk-enzoani-silvia_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+5bb6e48d-8c3b-46b9-80a7-c6882dd0b187,enzoani-naya,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Enzoani/model-naya/trouwjurk-enzoani-naya_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+65b7fcb7-5dad-4676-b005-0caa31169a19,elysee-by-enzoani-laurent,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Elysee by Enzoani/model-laurent/trouwjurk-elysee-by-enzoani-laurent_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+dbfdb45b-b869-467d-8c1b-c01e6e6f8800,elysee-by-enzoani-harlow,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Elysee by Enzoani/model-harlow/trouwjurk-elysee-by-enzoani-harlow_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+c1fab573-12c1-4ff6-98d4-40b478646f7a,elysee-by-enzoani-fia,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Elysee by Enzoani/model-fia/elysee-by-enzoani-trouwjurk-fia_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+47ca04f9-9505-4142-ba2f-f6c9d3d4bb14,elysee-by-enzoani-fae,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Elysee by Enzoani/model-fae/elysee-by-enzoani-trouwjurk-fae_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+5b4cbc8d-f7e0-4243-b87a-5d2c699b23b2,destination-romance-dr397,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Destination Romance/model-dr397/destination-romance-trouwjurk-dr397_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+df4150df-ec4c-4b69-9512-754a8290df75,destination-romance-398,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Destination Romance/model-398/destination-romance-trouwjurk-dr-398_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+4ecb4e82-5b76-4c6b-a6ba-5b2dcd7226bf,demetrios-platinum-469,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Demetrios Platinum/model-469/trouwjurk-demetrios-platinum-469_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+77150a05-11d5-4c8c-9b6f-f4ae2e487bee,demetrios-dp527,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Demetrios/model-dp527/demetrios-trouwjurk-dp527_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+7ab0969c-d867-41ce-9531-a85b8dbc4ac7,demetrios-200147,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Demetrios/model-200147/trouwjurk-demetrios-200147_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+07c7289a-f246-459d-b615-7fb8f5db49aa,demetrios-1550,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Demetrios/model-1550/demetrios-trouwjurk-1550_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+0865ed60-64b1-4216-b5dd-02bad0813681,demetrios-1545,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Demetrios/model-1545/demetrios-trouwjurk-1545_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+33c21934-ce6a-4f5c-b608-e0eb8aa19848,demetrios-1536,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Demetrios/model-1536/demetrios-trouwjurk-1536_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+2aab1c93-9584-4d22-85d7-c4306ad2a303,demetrios-1532,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Demetrios/model-1532/demetrios-trouwjurk-1532_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+bbb170c8-3918-40c9-bdad-f1f7f0295b12,demetrios-1521,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Demetrios/model-1521/demetrios-trouwjurk-1521_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+818d21d1-d276-46a9-b2d1-0c7b522944e1,demetrios-1296,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Demetrios/model-1296/demetrios-trouwjurk-1296_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+c609355f-531b-4f40-9249-10901df20582,demetrios-1263,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Demetrios/model-1263/demetrios-trouwjurk-1263_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+de8ec618-c098-487b-9285-17b4f9a17da2,demetrios-1255,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Demetrios/model-1255/trouwjurk-demetrios-1255_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+e0ee88cf-1613-40c1-8691-d7968e66cb82,demetrios-1236,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Demetrios/model-1236/trouwjurk-demetrios-1236_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+bcaafb8a-89b9-4fd2-90e7-e20424393113,demetrios-1207,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Demetrios/model-1207/trouwjurk-demetrios-1207_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+e68fe2bf-ba12-472b-bbe9-e499daba53f4,dany-tabet-perla,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Dany Tabet/model-perla/dany-tabet-trouwjurk-perla_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+480628a4-0ee1-43ba-a39e-e5602d55084c,dany-tabet-meghan,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Dany Tabet/model-meghan/dany-tabet-trouwjurk-meghan_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+66f06ac3-f14e-406d-b10c-df17ce3e8c8b,dany-tabet-kara,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Dany Tabet/model-kara/dany-tabet-trouwjurk-kara_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+512db3b9-0482-4b0c-bce4-403b67a080d1,dany-tabet-helena,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Dany Tabet/model-helena/dany-tabet-trouwjurk-helena_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+5786bf31-63a0-4b95-9a5b-d94717b4a856,dany-tabet-flora,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Dany Tabet/model-flora/dany-tabet-trouwjurk-flora_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+47a93897-7b79-4c0f-8791-bc7389946d22,dany-tabet-celia,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Dany Tabet/model-celia/dany-tabet-trouwjurk-celia_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+88c27450-1a11-4077-a91a-7c9386dd6785,dany-tabet-cassel,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Dany Tabet/model-cassel/dany-tabet-trouwjurk-cassel_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+eb95ec6d-186a-4bc4-9bd5-5eec59687c85,dany-tabet-ava,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Dany Tabet/model-ava/dany-tabet-trouwjurk-ava_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+46d58343-7e7f-45f5-b684-d8b78a1db17d,dany-tabet-ariel,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Dany Tabet/model-ariel/dany-tabet-trouwjurk-ariel_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+3c70b69c-327f-4f70-98a9-8dd621640a01,daniela-di-marino-6419,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Daniela di Marino/model-6419/trouwjurk-daniela-di-marino-6419_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+321b4651-611e-4bbd-a131-99c2c12e8910,daniela-di-marino-6415,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Daniela di Marino/model-6415/trouwjurk-daniela-di-marino-6415_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+f1b990ca-e1ff-46b9-8bd5-8e36322eb051,daniela-di-marino-6407,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Daniela di Marino/model-6407/trouwjurk-daniela-di-marino-6407_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+05607eaa-8316-4962-b27a-c5f2fd2ca9ef,daniela-di-marino-6395,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Daniela di Marino/model-6395/trouwjurk-daniela-di-marino-6395_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+bcd36286-3e11-4f77-8e51-764f72ec5c5f,daniela-di-marino-6385,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Daniela di Marino/model-6385/trouwjurk-daniela-di-marino-6385_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+e9926361-12c5-4462-b591-02ba888b7ab6,daniela-di-marino-6372,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Daniela di Marino/model-6372/trouwjurk-daniela-di-marino-6372_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+4de0236e-4319-4465-b2a4-72e06ff6b3cb,daniela-di-marino-6365,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Daniela di Marino/model-6365/trouwjurk-daniela-di-marino-6365_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+6d2b867c-7cf5-484e-a2f1-274d8652ac6c,daniela-di-marino-6355,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Daniela di Marino/model-6355/trouwjurk-daniela-di-marino-6355_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+5ecbb3a5-3b69-4448-a839-0bf224e2b64f,daniela-di-marino-6354,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Daniela di Marino/model-6354/trouwjurk-daniela-di-marino-6354_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+26707296-28f1-4f4f-aeaa-8ebe2dae462d,daniela-di-marino-6342,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Daniela di Marino/model-6342/trouwjurk-daniela-di-marino-6342_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+63a0ed46-e8b0-4cd9-a206-29ea30c63f89,daniela-di-marino-6317,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Daniela di Marino/model-6317/trouwjurk-daniela-di-marino-6317_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+e2c7d29b-096e-436c-87a4-60bf46f5b4e2,cosmobella-8250,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Cosmobella/model-8250/cosmobella-trouwjurk-8250_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+0433cdbe-9baf-40c3-80ca-075c48c96e55,cosmobella-8208,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Cosmobella/model-8208/cosmobella-trouwjurk-8208_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+ff65f5b5-86de-413c-b449-582427447f00,cosmobella-7955,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Cosmobella/model-7955/trouwjurk-outlet-cosmobella-7955_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+e03eeb87-8d6a-4c61-ad7a-5d560c60ac0f,blue-by-enzoani-samantha,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Blue by Enzoani/model-samantha/blue-by-enzoani-trouwjurk-samantha_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+9495c354-c05f-4bc7-8d34-ca3cedc7dc79,blue-by-enzoani-sage,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Blue by Enzoani/model-sage/blue-by-enzoani-trouwjurk-sage_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+241f3982-a31d-4196-a1b8-7f8cc13b37b9,blue-by-enzoani-petal,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Blue by Enzoani/model-petal/blue-by-enzoani-trouwjurk-petal_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+19890e4d-5ad7-434e-a1f8-0553ac908994,blue-by-enzoani-paula,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Blue by Enzoani/model-paula/blue-by-enzoani-trouwjurk-paula_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+f5d22eb1-b2a0-4b9a-934e-b7d35454af75,blue-by-enzoani-ollie,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Blue by Enzoani/model-ollie/trouwjurk-blue-by-enzoani-ollie_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+5a613f74-7caa-4e95-aa95-0f560b4b4d91,blue-by-enzoani-katie,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Blue by Enzoani/model-katie/trouwjurk-outlet-blue-by-enzoani-katie_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+7a6b4b4f-2793-4781-aa61-10e3afbee60d,blue-by-enzoani-enzoani,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Blue by Enzoani/model-enzoani/trouwjurk-outlet-joy-blue-by-enzoani_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+5d12721b-d4e0-4194-a86a-38dcf53f309d,bianco-evento-vermax,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Bianco Evento/model-vermax/bianco-evento-trouwjurk-vermax_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+884bfd88-3f9a-41e7-8f10-275b91532d9e,bianco-evento-olena,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Bianco Evento/model-olena/bianco-evento-trouwjurk-olena_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+315f878f-ef5d-4158-965f-a420f04691ed,bianco-evento-kerena,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Bianco Evento/model-kerena/bianco-evento-trouwjurk-kerena_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+587af0bb-81ab-47d2-8952-58a1f4df41db,atelier-by-monica-loretti-2,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Atelier by Monica Loretti/model-2/trouwjurk-atelier-by-monica-loretti-3516-2_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+d3eb5b46-f9f6-43aa-bb27-790e2f33cf7d,etoile-erin,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Etoile by Enzoani/model-erin/etoile-trouwjurk-erin_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+3431d951-1dcf-40f1-8b33-de8956873eba,oksana-mukha-willow,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/OKSANA MUKHA/model-willow/oksana-mukha-trouwjurk-willow_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+82122d4e-b179-4b4c-8c80-f785021252e3,randy-fenoli-goldie,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Randy Fenoli/model-goldie/randy-fenoli-trouwjurk-goldie_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+5e2608a8-f8a2-4671-84af-b83da8e308c5,dama-avalon,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Dama/model-avalon/dama-trouwjurk-avalon_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+7feba17a-5a64-46c0-bc90-6fb3db5302e1,dama-venus,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://images.unsplash.com/photo-1559571016-0d394741dce4?w=800&q=80. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+1046f83c-b5dd-4efe-9487-b7e60eb14e7a,enzoani-samantha,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Blue by Enzoani/model-samantha/blue-by-enzoani-trouwjurk-samantha_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+fb8a4a8b-4829-4e89-b401-a6b6dbe58b58,modeca-horacia,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Modeca/model-horacia/modeca-trouwjurk-horacia_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+e1f63ca5-ce93-42dd-a8e2-7d278fd1be53,randy-fenoli-jacqueline-luxe,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Randy Fenoli/model-luxe/randy-fenoli-trouwjurk-gentry-luxe_1.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+0642b48b-5a28-4629-bd1e-fe4008059478,demetrios-1507,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Demetrios/model-1507/demetrios-trouwjurk-1507_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+5ea5df81-6b81-44d4-a446-a16e080dc7e6,modeca-dusty,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Modeca/model-dusty/modeca-trouwjurk-dusty_2.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",
+8da53b50-81f9-4235-bd69-e8c9f7f6bd09,enzoani-petal,failed,"OpenAI error 400: {
+  ""error"": {
+    ""message"": ""Error while downloading https://www.mariagebruidsmode.nl/images/bruid/Blue by Enzoani/model-petal/blue-by-enzoani-trouwjurk-petal_0.webp. Upstream status code: 404."",
+    ""type"": ""invalid_request_error"",
+    ""param"": ""url"",
+    ""code"": ""invalid_value""
+  }
+}",

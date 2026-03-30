@@ -100,12 +100,13 @@ const collectionsForFilter = (collections ?? []).map(({ id, title, slug }) => ({
 
   <!-- Filter + producten -->
   {(filteredProducts ?? []).length > 0 ? (
-    <ProductFilter
-      client:load
-      products={filteredProducts ?? []}
-      collections={collectionsForFilter}
-      fallbackImage={dressFallbackImage}
-    />
+  <ProductFilter
+    client:load
+    products={filteredProducts ?? []}
+    collections={collectionsForFilter}
+    fallbackImage={dressFallbackImage}
+    initialPasvorm={[pasvorm]}
+  />
   ) : (
     <section class="py-32 text-center bg-white">
       <div class="container mx-auto px-6 max-w-xl">
