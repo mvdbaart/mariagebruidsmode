@@ -34,7 +34,11 @@
       "Bash(node:*)",
       "Skill(front-end-design)",
       "WebFetch(domain:www.google.com)",
-      "Bash(find /c/Users/Maarten/Documents/vms/mariagebruidsmode.nl/supabase -type f -name *.sql)"
+      "Bash(find /c/Users/Maarten/Documents/vms/mariagebruidsmode.nl/supabase -type f -name *.sql)",
+      "mcp__supabase__list_migrations",
+      "mcp__supabase__apply_migration",
+      "mcp__supabase__execute_sql",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(d.get\\('dependencies',{}\\)\\); print\\(d.get\\('devDependencies',{}\\)\\)\")"
     ]
   }
 }
