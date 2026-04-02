@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { getAdminAuthFromCookies } from '../../lib/serverAuth';
 import { PRODUCT_QUALITIES } from '../../lib/productQualities';
 import { labelFor, PASVORM, HALS, MOUW, MATERIALEN, KLEUREN } from '../../lib/productAttributes';
+import { normalizeImageList, normalizeImageUrl } from '../../lib/imageUrls';
 
 export const prerender = false;
 
@@ -35,7 +36,8 @@ const backLabel = isGroom ? 'Trouwpakken' : 'Trouwjurken';
 const dressFallbackImage = '/images/jurkvormen/a-lijn.png';
 const suitFallbackImage = '/images/team/TKF_9016-scaled.jpg';
 const primaryFallbackImage = isGroom ? suitFallbackImage : dressFallbackImage;
-const productImages = product.images && product.images.length > 0 ? product.images : [primaryFallbackImage];
+const productImages = normalizeImageList(product.images, primaryFallbackImage);
+const mainImageSrc = normalizeImageUrl(productImages[0], primaryFallbackImage);
 const rawFeatures = Array.isArray(product.features) ? product.features : [];
 const productQualities = PRODUCT_QUALITIES.filter((q) =>
   Array.isArray(product.qualities) && product.qualities.includes(q.id)
@@ -99,7 +101,7 @@ const productSpecs = rawFeatures
               <button id="open-lightbox" class="block w-full h-full cursor-zoom-in" aria-label="Afbeelding vergroten">
                 <img
                   id="main-product-image"
-                  src={productImages[0]}
+                  src={mainImageSrc}
                   alt={product.name}
                   onerror={`this.onerror=null;this.src='${primaryFallbackImage}'`}
                   class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103"
@@ -402,7 +404,7 @@ const productSpecs = rawFeatures
   >
     <div class="hidden md:flex items-center gap-4">
       <div class="w-12 h-16 bg-linen overflow-hidden rounded-sm">
-        <img src={productImages[0]} alt={product.name} class="w-full h-full object-cover" />
+        <img src={mainImageSrc} alt={product.name} class="w-full h-full object-cover" />
       </div>
       <div>
         <p class="text-[9px] tracking-widest uppercase text-blush-deep font-body">{product.brand}</p>

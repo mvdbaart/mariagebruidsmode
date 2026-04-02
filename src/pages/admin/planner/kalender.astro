@@ -28,7 +28,9 @@ const nextWeek = new Date(firstDayOfWeek);
 nextWeek.setDate(nextWeek.getDate() + 7);
 
 const supabase = getServiceRoleClient();
-const { data: employees } = await supabase.from('employees').select('id, first_name, last_name').eq('is_active', true);
+const { data: employees } = await supabase.from('employees').select('id, first_name, last_name, contract_schedule').eq('is_active', true);
+
+const DAY_KEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const;
 const { data: shifts } = await supabase
   .from('shifts')
   .select('*')
@@ -94,8 +96,15 @@ const dayNames = ['Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zat
                   dayStr <= a.end_date
                 );
                 
+                const contractDay = (emp as any).contract_schedule?.[DAY_KEYS[weekDates.indexOf(date)]];
+                const isContractDay = contractDay?.active === true;
                 return (
-                  <div class="p-2 min-h-[100px] border-r border-accent/10 last:border-0 relative group/cell">
+                  <div class:list={["p-2 min-h-[100px] border-r border-accent/10 last:border-0 relative group/cell", isContractDay && !dayShifts?.length && !dayAbsences?.length ? 'bg-blush/5' : '']}>
+                    {isContractDay && !dayShifts?.length && !dayAbsences?.length && (
+                      <div class="absolute inset-x-2 top-2 text-[8px] uppercase tracking-widest text-blush-deep/50 font-medium">
+                        {contractDay.start && contractDay.end ? `${contractDay.start}–${contractDay.end}` : 'Contract'}
+                      </div>
+                    )}
                     {dayAbsences?.map(a => (
                       <div class="mb-1 p-2 bg-blue-50 border-l-2 border-blue-400 rounded text-[10px] text-blue-600 font-bold shadow-sm">
                         {a.type === 'sick' ? 'ZIEK' : 'VERLOF'}
@@ -106,7 +115,7 @@ const dayNames = ['Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zat
                         {s.start_time.slice(0, 5)} - {s.end_time.slice(0, 5)}
                       </div>
                     ))}
-                    <button 
+                    <button
                         class="add-shift-btn absolute bottom-2 right-2 p-1 bg-accent text-white rounded-full opacity-0 group-hover/cell:opacity-100 transition-opacity hover:bg-secondary"
                         data-emp-id={emp.id}
                         data-date={dayStr}
@@ -122,7 +131,11 @@ const dayNames = ['Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zat
         </div>
       </div>
       
-      <div class="mt-8 flex justify-end gap-4">
+      <div class="mt-8 flex justify-end gap-6">
+          <div class="flex items-center gap-2 text-[10px] uppercase tracking-widest text-accent/40">
+              <span class="w-3 h-3 bg-blush/20 rounded"></span>
+              Contract (geen dienst)
+          </div>
           <div class="flex items-center gap-2 text-[10px] uppercase tracking-widest text-accent/40">
               <span class="w-3 h-3 bg-secondary/20 border-l-2 border-secondary rounded"></span>
               Ingepland

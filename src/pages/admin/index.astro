@@ -52,9 +52,8 @@ const stats = [
   { label: 'Klanten', value: customerCount ?? 0, href: '/admin/klanten', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>` },
   { label: 'Inspiratie', value: weddingCount ?? 0, href: '/admin/inspiratie', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 2H8C4.69 2 2 4.69 2 8v8c0 3.31 2.69 6 6 6h8c3.31 0 6-2.69 6-6V8c0-3.31-2.69-6-6-6Z"/><path d="M12 18s4.5-3.5 4.5-5.5a4.5 4.5 0 0 0-9 0C7.5 14.5 12 18 12 18Z"/></svg>` },
   { label: 'Blog', value: blogCount ?? 0, href: '/admin/blog', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M8 7h6"/><path d="M8 11h8"/><path d="M8 15h6"/></svg>` },
-  { label: 'Formulieren', value: formCount ?? 0, href: '/admin/formulieren', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>` }, // Placeholder icon
-  { label: 'Leveranciers', value: supplierCount ?? 0, href: '/admin/leveranciers', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 11V7a5 5 0 0 1 10 0v4"/><path d="M12 18v4"/><path d="M2 11h20v4a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5v-4z"/></svg>` },
-  { label: 'Medewerkers', value: pendingTaskCount ?? 0, href: '/admin/planner/medewerkers', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>` },
+  { label: 'Leveranciers', value: supplierCount ?? 0, href: '/admin/leveranciers', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>` },
+  { label: 'Open Taken', value: pendingTaskCount ?? 0, href: '/admin/klanten', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>` },
 ];
 
 const todayFormatted = new Date().toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -66,249 +65,227 @@ const appStatusColor: { [key: string]: string } = { pending: 'bg-amber-100 text-
 ---
 
 <AdminLayout title="Dashboard">
-  <div class="pb-24 bg-ivory min-h-screen">
-    <div class="container mx-auto px-6 pt-8">
-      <div class="flex items-center justify-between mb-8">
-        <h1 class="font-display font-normal text-charcoal text-4xl italic">Mariage <span class="font-signature text-blush-deep text-5xl lowercase px-2">Control</span></h1>
-      </div>
+  <div class="min-h-screen bg-ivory pb-16">
+    <div class="max-w-7xl mx-auto px-6 py-8">
 
-      <!-- General Dashboard Search -->
-      <div class="sticky top-0 z-30 bg-ivory/90 backdrop-blur-md py-4 mb-4">
-        <div class="relative max-w-2xl mx-auto shadow-sm">
-          <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-taupe/40">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          </span>
-          <input 
-            type="text" 
-            id="dashboardSearch" 
-            placeholder="Doorzoek het dashboard (producten, afspraken, taken...)" 
-            class="block w-full pl-12 pr-4 py-4 border border-champagne rounded-full bg-white text-base font-body shadow-soft focus:outline-none focus:ring-2 focus:ring-blush-deep/20 focus:border-blush-deep transition-all"
-          />
+      <!-- Page header -->
+      <div class="flex items-start justify-between mb-8">
+        <div>
+          <p class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body mb-1 capitalize">{todayFormatted}</p>
+          <h1 class="admin-heading text-3xl text-charcoal">Overzicht</h1>
         </div>
+        <a href="/admin/afspraken/nieuw" class="btn-premium text-[10px]">+ Nieuwe Afspraak</a>
       </div>
 
-      <!-- Daily summary -->
-      <div class="bg-white border border-champagne shadow-soft px-8 py-5 mb-8 flex flex-wrap items-center gap-x-8 gap-y-3 rounded-2xl">
-        <p class="text-xs tracking-[0.2em] uppercase font-body text-taupe capitalize">{todayFormatted}</p>
-        <div class="h-4 w-px bg-champagne hidden sm:block"></div>
-        <a href="/admin/afspraken" class="flex items-center gap-2 group">
-          <span class="text-xl font-display text-charcoal group-hover:text-blush-deep transition-colors">{todayAppointmentCount ?? 0}</span>
-          <span class="text-[10px] tracking-[0.15em] uppercase font-body text-taupe-light">afspraken vandaag</span>
+      <!-- Top row: featured dark card + 3 alert metrics -->
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-5 mb-5">
+
+        <!-- Featured: Today's appointments -->
+        <div class="lg:col-span-1 bg-charcoal rounded-2xl p-6 flex flex-col justify-between min-h-[180px]">
+          <div>
+            <p class="text-[9px] uppercase tracking-[0.25em] text-white/40 font-body mb-3">Vandaag</p>
+            <p class="font-display text-white text-5xl leading-none mb-1">{todayAppointmentCount ?? 0}</p>
+            <p class="text-xs text-white/50 font-body">afspraken ingepland</p>
+          </div>
+          <a href="/admin/afspraken" class="mt-6 inline-flex items-center gap-2 text-[10px] uppercase tracking-widest text-blush-deep hover:text-white transition-colors font-body">
+            Bekijken
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+        </div>
+
+        <!-- Metric: Verlate taken -->
+        <a href="/admin/klanten" class="bg-white border border-champagne rounded-2xl p-6 flex flex-col justify-between hover:shadow-card transition-all duration-200 group">
+          <div class="flex items-start justify-between">
+            <p class="text-[9px] uppercase tracking-[0.25em] text-taupe font-body">Verlate Taken</p>
+            <span class:list={["w-2 h-2 rounded-full shrink-0 mt-0.5", (overdueTaskCount ?? 0) > 0 ? 'bg-red-400' : 'bg-green-400']}></span>
+          </div>
+          <p class:list={["font-display text-4xl mt-3", (overdueTaskCount ?? 0) > 0 ? 'text-red-500' : 'text-charcoal']}>{overdueTaskCount ?? 0}</p>
+          <p class="text-[10px] text-taupe font-body mt-1 group-hover:text-blush-deep transition-colors">Klantentaken te laat →</p>
         </a>
-        <div class="h-4 w-px bg-champagne hidden sm:block"></div>
-        <a href="/admin/klanten" class="flex items-center gap-2 group">
-          <span class:list={['text-xl font-display transition-colors', (overdueTaskCount ?? 0) > 0 ? 'text-red-500' : 'text-charcoal group-hover:text-blush-deep']}>{overdueTaskCount ?? 0}</span>
-          <span class="text-[10px] tracking-[0.15em] uppercase font-body text-taupe-light">verlate taken</span>
+
+        <!-- Metric: Verlate leveringen -->
+        <a href="/admin/bestellingen" class="bg-white border border-champagne rounded-2xl p-6 flex flex-col justify-between hover:shadow-card transition-all duration-200 group">
+          <div class="flex items-start justify-between">
+            <p class="text-[9px] uppercase tracking-[0.25em] text-taupe font-body">Verlate Leveringen</p>
+            <span class:list={["w-2 h-2 rounded-full shrink-0 mt-0.5", (overdueOrderCount ?? 0) > 0 ? 'bg-amber-400' : 'bg-green-400']}></span>
+          </div>
+          <p class:list={["font-display text-4xl mt-3", (overdueOrderCount ?? 0) > 0 ? 'text-amber-600' : 'text-charcoal']}>{overdueOrderCount ?? 0}</p>
+          <p class="text-[10px] text-taupe font-body mt-1 group-hover:text-blush-deep transition-colors">Bestellingen achterstallig →</p>
         </a>
-        <div class="h-4 w-px bg-champagne hidden sm:block"></div>
-        <a href="/admin/bestellingen" class="flex items-center gap-2 group">
-          <span class:list={['text-xl font-display transition-colors', (overdueOrderCount ?? 0) > 0 ? 'text-red-500' : 'text-charcoal group-hover:text-blush-deep']}>{overdueOrderCount ?? 0}</span>
-          <span class="text-[10px] tracking-[0.15em] uppercase font-body text-taupe-light">verlate leveringen</span>
-        </a>
-        <div class="h-4 w-px bg-champagne hidden sm:block"></div>
-        <a href="/admin/klanten" class="flex items-center gap-2 group">
-          <span class:list={['text-xl font-display transition-colors', (pendingTaskCount ?? 0) > 0 ? 'text-amber-600' : 'text-charcoal group-hover:text-blush-deep']}>{pendingTaskCount ?? 0}</span>
-          <span class="text-[10px] tracking-[0.15em] uppercase font-body text-taupe-light">open taken totaal</span>
+
+        <!-- Metric: Open taken totaal -->
+        <a href="/admin/klanten" class="bg-white border border-champagne rounded-2xl p-6 flex flex-col justify-between hover:shadow-card transition-all duration-200 group">
+          <div class="flex items-start justify-between">
+            <p class="text-[9px] uppercase tracking-[0.25em] text-taupe font-body">Open Taken</p>
+            <span class:list={["w-2 h-2 rounded-full shrink-0 mt-0.5", (pendingTaskCount ?? 0) > 0 ? 'bg-amber-300' : 'bg-green-400']}></span>
+          </div>
+          <p class:list={["font-display text-4xl mt-3", (pendingTaskCount ?? 0) > 0 ? 'text-amber-600' : 'text-charcoal']}>{pendingTaskCount ?? 0}</p>
+          <p class="text-[10px] text-taupe font-body mt-1 group-hover:text-blush-deep transition-colors">Totaal openstaand →</p>
         </a>
       </div>
 
-      <!-- Main Tile Grid -->
-      <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-16">
+      <!-- Stats strip -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 mb-8">
         {stats.map(stat => (
-          <a href={stat.href} class="dashboard-tile bg-white border border-champagne p-8 shadow-soft hover:shadow-card transition-all duration-300 hover:-translate-y-1 group rounded-3xl flex flex-col items-center text-center relative overflow-hidden h-full">
-            <div class="mb-5 p-4 bg-linen rounded-2xl text-taupe group-hover:bg-blush-deep group-hover:text-white transition-all duration-300" set:html={stat.icon} />
-            <p class="text-4xl font-display text-charcoal mb-1">{stat.value}</p>
-            <p class="text-[10px] tracking-[0.2em] uppercase text-taupe-light font-body font-medium">{stat.label}</p>
-            
-            <div class="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blush-deep"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-            </div>
+          <a href={stat.href} class="dashboard-tile bg-white border border-champagne rounded-xl p-4 hover:shadow-soft hover:border-blush-deep/30 transition-all duration-200 group flex flex-col items-center text-center">
+            <div class="mb-2 text-taupe/50 group-hover:text-blush-deep transition-colors" set:html={stat.icon} />
+            <p class="font-display text-charcoal text-2xl leading-none mb-0.5">{stat.value}</p>
+            <p class="text-[8px] tracking-[0.15em] uppercase text-taupe font-body">{stat.label}</p>
           </a>
         ))}
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-10">
-        <!-- Openstaande Taken -->
-        <div class="bg-white p-8 border border-champagne shadow-soft rounded-2xl">
-          <div class="flex items-center justify-between mb-8 pb-4 border-b border-champagne">
-            <h2 class="font-display text-charcoal text-xl italic">Openstaande Taken</h2>
-            <span class="text-[10px] tracking-widest uppercase font-body text-taupe">{pendingTaskCount ?? 0} open</span>
-          </div>
-          <div class="space-y-4">
-            {pendingTasks?.map((task) => (
-              <div class="flex items-start gap-3">
-                <div class="w-1.5 h-1.5 rounded-full bg-blush-deep mt-2 shrink-0"></div>
-                <div class="min-w-0">
-                  <p class="text-sm font-body font-medium text-charcoal truncate">{task.title}</p>
-                  <div class="flex items-center gap-2">
-                    {task.customers && (
-                      <a href={`/admin/klanten/${task.customers.id}`} class="text-xs font-body text-blush-deep hover:underline">
-                        {task.customers.first_name} {task.customers.last_name}
-                      </a>
-                    )}
-                    {task.due_date && (
-                      <span class={`text-xs font-body ${task.due_date < today ? 'text-red-500' : 'text-taupe'}`}>
-                        {new Date(task.due_date).toLocaleDateString('nl-NL')}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-            {!pendingTasks?.length && <p class="text-sm font-body text-taupe-light italic">Geen openstaande taken.</p>}
-          </div>
-        </div>
+      <!-- Main grid: appointments + side panels -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
 
-        <!-- Verwachte Leveringen -->
-        <div class="bg-white p-8 border border-champagne shadow-soft rounded-2xl">
-          <div class="flex items-center justify-between mb-8 pb-4 border-b border-champagne">
-            <h2 class="font-display text-charcoal text-xl italic">Verwachte Leveringen</h2>
-            <a href="/admin/bestellingen" class="text-[10px] tracking-widest uppercase text-blush-deep hover:underline font-body">Alle bekijken</a>
+        <!-- Appointments table (2/3 width) -->
+        <div class="lg:col-span-2 bg-white border border-champagne rounded-2xl overflow-hidden">
+          <div class="flex items-center justify-between px-6 py-4 border-b border-champagne">
+            <h2 class="admin-heading text-charcoal text-base">Aankomende Afspraken</h2>
+            <a href="/admin/afspraken" class="text-[10px] uppercase tracking-widest text-blush-deep hover:underline font-body">Alle bekijken</a>
           </div>
-          <div class="space-y-4">
-            {upcomingOrders?.map((order) => {
-              const isOverdue = order.expected_delivery_date && order.expected_delivery_date < today;
-              return (
-                <div class="flex items-start justify-between">
-                  <div class="min-w-0">
-                    <p class="text-sm font-body font-medium text-charcoal truncate">{order.product_description}</p>
-                    <div class="flex items-center gap-2">
-                      {order.customers && (
-                        <a href={`/admin/klanten/${order.customers.id}`} class="text-xs font-body text-blush-deep hover:underline">
-                          {order.customers.first_name} {order.customers.last_name}
-                        </a>
-                      )}
-                      {order.suppliers && <span class="text-xs font-body text-taupe">· {order.suppliers.name}</span>}
+
+          {recentAppointments?.length ? (
+            <div class="divide-y divide-champagne">
+              {recentAppointments.slice(0, 8).map(app => {
+                const isToday = app.preferred_date === today;
+                return (
+                  <div class:list={["flex items-center gap-4 px-6 py-3.5 hover:bg-ivory/60 transition-colors", isToday && 'bg-blush/5']}>
+                    <div class="shrink-0 text-center w-10">
+                      <p class="text-[9px] uppercase tracking-widest text-taupe font-body leading-none">
+                        {isToday ? 'Vandaag' : new Date(app.preferred_date + 'T00:00:00').toLocaleDateString('nl-NL', { weekday: 'short' })}
+                      </p>
+                      <p class="font-display text-charcoal text-lg leading-tight">
+                        {new Date(app.preferred_date + 'T00:00:00').getDate()}
+                      </p>
                     </div>
-                  </div>
-                  {order.expected_delivery_date && (
-                    <p class={`text-xs font-body shrink-0 ml-3 ${isOverdue ? 'text-red-500 font-medium' : 'text-taupe'}`}>
-                      {new Date(order.expected_delivery_date).toLocaleDateString('nl-NL')}
-                    </p>
-                  )}
-                </div>
-              );
-            })}
-            {!upcomingOrders?.length && <p class="text-sm font-body text-taupe-light italic">Geen verwachte leveringen.</p>}
-          </div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <!-- Medewerkers -->
-        <div class="bg-white p-8 border border-champagne shadow-soft rounded-2xl">
-          <div class="flex items-center justify-between mb-8 pb-4 border-b border-champagne">
-            <h2 class="font-display text-charcoal text-xl italic">Medewerkers</h2>
-            <a href="/admin/afspraken" class="text-[10px] tracking-widest uppercase text-blush-deep hover:underline font-body">Alle bekijken</a>
-          </div>
-          <div class="space-y-6">
-            <!-- Vandaag -->
-            <div>
-              <p class="text-[9px] tracking-[0.3em] uppercase text-taupe font-body mb-3">Vandaag</p>
-              {todayApps.length === 0 && <p class="text-sm font-body text-taupe-light italic">Geen afspraken vandaag.</p>}
-              <div class="space-y-2">
-                {todayApps.map(app => (
-                  <div class={`flex items-center gap-3 px-3 py-2.5 rounded-sm ${app.appointment_type === 'vip' ? 'bg-gold/10' : 'bg-blush/10'}`}>
-                    <span class="text-sm font-body font-medium text-charcoal tabular-nums w-14 shrink-0">
-                      {app.start_time ? app.start_time.slice(0, 5) : '—'}
-                    </span>
-                    <span class="text-sm font-body text-charcoal flex-1 truncate">{app.full_name}</span>
-                    <span class={`text-[9px] uppercase tracking-wider font-body px-1.5 py-0.5 shrink-0 ${app.appointment_type === 'vip' ? 'bg-gold/20 text-charcoal' : 'bg-champagne text-taupe'}`}>
-                      {appTypeLabel[app.appointment_type] ?? 'Standaard'}
-                    </span>
-                    <span class={`text-[9px] uppercase tracking-wider font-body px-1.5 py-0.5 rounded-sm shrink-0 ${appStatusColor[app.status] ?? appStatusColor.pending}`}>
-                      {app.status === 'pending' ? 'Afwachting' : app.status === 'confirmed' ? 'Bevestigd' : app.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <!-- Aankomend -->
-            {upcomingApps.length > 0 && (
-              <div>
-                <p class="text-[9px] tracking-[0.3em] uppercase text-taupe font-body mb-3">Aankomend</p>
-                <div class="space-y-3">
-                  {upcomingApps.map(app => (
-                    <div class="flex items-center gap-3">
-                      <span class="text-xs font-body text-taupe w-24 shrink-0">
-                        {new Date(app.preferred_date + 'T00:00:00').toLocaleDateString('nl-NL', { weekday: 'short', day: 'numeric', month: 'short' })}
-                      </span>
-                      {app.start_time && <span class="text-xs font-body text-taupe-light tabular-nums w-10 shrink-0">{app.start_time.slice(0, 5)}</span>}
-                      <span class="text-sm font-body text-charcoal flex-1 truncate">{app.full_name}</span>
-                      <span class={`text-[9px] uppercase tracking-wider font-body px-1.5 py-0.5 shrink-0 ${app.appointment_type === 'vip' ? 'bg-gold/20 text-charcoal' : 'bg-champagne text-taupe'}`}>
+                    <div class="w-px h-8 bg-champagne shrink-0"></div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-body font-medium text-charcoal truncate">{app.full_name}</p>
+                      <div class="flex items-center gap-2">
+                        {app.start_time && <span class="text-xs font-body text-taupe tabular-nums">{app.start_time.slice(0, 5)}</span>}
+                        {app.employees && <span class="text-xs text-taupe font-body">· {(app.employees as any).first_name}</span>}
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                      <span class={`text-[9px] uppercase tracking-wider font-body px-2 py-0.5 rounded-full ${app.appointment_type === 'vip' ? 'bg-gold/20 text-charcoal' : 'bg-champagne text-taupe'}`}>
                         {appTypeLabel[app.appointment_type] ?? 'Standaard'}
                       </span>
+                      <span class={`text-[9px] uppercase tracking-wider font-body px-2 py-0.5 rounded-full ${appStatusColor[app.status] ?? appStatusColor.pending}`}>
+                        {app.status === 'pending' ? 'Afwachting' : app.status === 'confirmed' ? 'Bevestigd' : app.status}
+                      </span>
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            {!recentAppointments?.length && <p class="text-sm font-body text-taupe-light italic">Geen aankomende afspraken.</p>}
-          </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div class="px-6 py-12 text-center">
+              <p class="text-sm font-body text-taupe italic">Geen aankomende afspraken.</p>
+            </div>
+          )}
         </div>
 
-        <!-- Recent Products -->
-        <div class="bg-white p-8 border border-champagne shadow-soft rounded-2xl">
-          <div class="flex items-center justify-between mb-8 pb-4 border-b border-champagne">
-            <h2 class="font-display text-charcoal text-xl italic">Nieuwste Producten</h2>
-            <a href="/admin/producten" class="text-[10px] tracking-widest uppercase text-blush-deep hover:underline font-body">Alle bekijken</a>
-          </div>
-          <div class="space-y-5">
-            {recentProducts?.map((prod) => (
-              <div class="flex items-center gap-4">
-                <a href={`/admin/product/${prod.id}/edit`} class="w-12 h-12 bg-linen overflow-hidden shrink-0 block hover:ring-1 hover:ring-blush-deep transition-all">
-                  {prod.images?.[0] && <img src={prod.images[0]} alt={prod.name} onerror="this.onerror=null;this.src='/images/jurkvormen/a-lijn.png'" class="w-full h-full object-cover" />}
-                  {!prod.images?.[0] && <div class="w-full h-full flex items-center justify-center bg-linen text-[8px] text-taupe-light">N.v.t.</div>}
-                </a>
-                <div class="min-w-0">
-                  <p class="text-sm font-body font-medium text-charcoal truncate">{prod.name}</p>
-                  <p class="text-xs font-body text-taupe-light">{prod.collections?.title} — {prod.brand}</p>
+        <!-- Side panels: tasks + orders (1/3 width) -->
+        <div class="flex flex-col gap-6">
+
+          <!-- Open taken -->
+          <div class="bg-white border border-champagne rounded-2xl flex-1">
+            <div class="flex items-center justify-between px-5 py-4 border-b border-champagne">
+              <h2 class="admin-heading text-charcoal text-sm">Openstaande Taken</h2>
+              <span class="text-[9px] tracking-widest uppercase font-body text-taupe bg-linen px-2 py-0.5 rounded-full">{pendingTaskCount ?? 0}</span>
+            </div>
+            <div class="p-5 space-y-3">
+              {pendingTasks?.map((task) => (
+                <div class="flex items-start gap-2.5">
+                  <span class:list={["w-1.5 h-1.5 rounded-full shrink-0 mt-1.5", task.due_date && task.due_date < today ? 'bg-red-400' : 'bg-blush-deep']}></span>
+                  <div class="min-w-0 flex-1">
+                    <p class="text-xs font-body font-medium text-charcoal truncate">{task.title}</p>
+                    <div class="flex items-center gap-1.5">
+                      {task.customers && (
+                        <a href={`/admin/klanten/${task.customers.id}`} class="text-[10px] font-body text-blush-deep hover:underline">
+                          {task.customers.first_name} {task.customers.last_name}
+                        </a>
+                      )}
+                      {task.due_date && (
+                        <span class={`text-[10px] font-body ${task.due_date < today ? 'text-red-500' : 'text-taupe'}`}>
+                          · {new Date(task.due_date).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                <a href={`/admin/product/${prod.id}/edit`} class="ml-auto text-[10px] uppercase tracking-wider font-body text-blush-deep hover:underline shrink-0">Bewerk</a>
-              </div>
-            ))}
-            {!recentProducts?.length && <p class="text-sm font-body text-taupe-light italic">Geen producten gevonden.</p>}
+              ))}
+              {!pendingTasks?.length && <p class="text-xs font-body text-taupe italic">Geen openstaande taken.</p>}
+            </div>
+          </div>
+
+          <!-- Verwachte leveringen -->
+          <div class="bg-white border border-champagne rounded-2xl flex-1">
+            <div class="flex items-center justify-between px-5 py-4 border-b border-champagne">
+              <h2 class="admin-heading text-charcoal text-sm">Leveringen</h2>
+              <a href="/admin/bestellingen" class="text-[9px] tracking-widest uppercase text-blush-deep hover:underline font-body">Bekijken</a>
+            </div>
+            <div class="p-5 space-y-3">
+              {upcomingOrders?.map((order) => {
+                const isOverdue = order.expected_delivery_date && order.expected_delivery_date < today;
+                return (
+                  <div class="flex items-start gap-2.5">
+                    <span class:list={["w-1.5 h-1.5 rounded-full shrink-0 mt-1.5", isOverdue ? 'bg-amber-400' : 'bg-green-400']}></span>
+                    <div class="min-w-0 flex-1">
+                      <p class="text-xs font-body font-medium text-charcoal truncate">{order.product_description}</p>
+                      <div class="flex items-center gap-1.5">
+                        {order.customers && (
+                          <a href={`/admin/klanten/${order.customers.id}`} class="text-[10px] font-body text-blush-deep hover:underline">
+                            {order.customers.first_name} {order.customers.last_name}
+                          </a>
+                        )}
+                        {order.expected_delivery_date && (
+                          <span class={`text-[10px] font-body ${isOverdue ? 'text-red-500 font-medium' : 'text-taupe'}`}>
+                            · {new Date(order.expected_delivery_date).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              {!upcomingOrders?.length && <p class="text-xs font-body text-taupe italic">Geen verwachte leveringen.</p>}
+            </div>
           </div>
         </div>
       </div>
+
+      <!-- Recent products -->
+      <div class="bg-white border border-champagne rounded-2xl overflow-hidden">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-champagne">
+          <h2 class="admin-heading text-charcoal text-base">Nieuwste Producten</h2>
+          <a href="/admin/producten" class="text-[10px] uppercase tracking-widest text-blush-deep hover:underline font-body">Alle bekijken</a>
+        </div>
+        <div class="divide-y divide-champagne">
+          {recentProducts?.map((prod) => (
+            <div class="flex items-center gap-4 px-6 py-3 hover:bg-ivory/60 transition-colors">
+              <a href={`/admin/product/${prod.id}/edit`} class="w-10 h-10 bg-linen rounded-lg overflow-hidden shrink-0 block hover:ring-1 hover:ring-blush-deep transition-all">
+                {prod.images?.[0]
+                  ? <img src={prod.images[0]} alt={prod.name} onerror="this.onerror=null;this.src='/images/jurkvormen/a-lijn.png'" class="w-full h-full object-cover" />
+                  : <div class="w-full h-full flex items-center justify-center text-[8px] text-taupe/40">—</div>
+                }
+              </a>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-body font-medium text-charcoal truncate">{prod.name}</p>
+                <p class="text-xs font-body text-taupe truncate">{prod.collections?.title}{prod.brand ? ` — ${prod.brand}` : ''}</p>
+              </div>
+              <a href={`/admin/product/${prod.id}/edit`} class="text-[10px] uppercase tracking-wider font-body text-blush-deep hover:underline shrink-0">Bewerk</a>
+            </div>
+          ))}
+          {!recentProducts?.length && (
+            <div class="px-6 py-8 text-center">
+              <p class="text-sm font-body text-taupe italic">Geen producten gevonden.</p>
+            </div>
+          )}
+        </div>
+      </div>
+
     </div>
   </div>
 </AdminLayout>
-
-<script>
-  const searchInput = document.getElementById('dashboardSearch') as HTMLInputElement;
-  
-  // Elements to filter
-  const searchableElements = '.dashboard-tile, .bg-white.p-8, .space-y-4 > div, .space-y-5 > div, .flex.items-start.justify-between, .space-y-2 > div';
-  const sectionContainers = document.querySelectorAll('.bg-white.p-8, .grid.grid-cols-2.lg\\:grid-cols-3');
-
-  searchInput?.addEventListener('input', () => {
-    const query = searchInput.value.toLowerCase().trim();
-
-    if (!query) {
-      document.querySelectorAll('.hidden').forEach(el => {
-        if (el.closest('.container')) el.classList.remove('hidden');
-      });
-      return;
-    }
-
-    const allItems = document.querySelectorAll(searchableElements);
-    allItems.forEach(el => {
-      const text = el.textContent?.toLowerCase() || '';
-      if (text.includes(query)) {
-        el.classList.remove('hidden');
-      } else {
-        el.classList.add('hidden');
-      }
-    });
-
-    sectionContainers.forEach(section => {
-      const visibleChildren = section.querySelectorAll(`${searchableElements}:not(.hidden)`);
-      if (visibleChildren.length === 0) {
-        section.classList.add('hidden');
-      } else {
-        section.classList.remove('hidden');
-      }
-    });
-  });
-</script>

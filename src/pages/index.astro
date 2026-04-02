@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { supabase } from '../lib/supabase';
+import { normalizeHomepageSettings, type HomepageSectionId } from '../lib/homepageSections';
 
 const [
   { data: latestProducts },
@@ -19,9 +20,10 @@ const [
   supabase.from('site_settings').select('homepage').eq('id', 'current').single(),
   supabase
     .from('employees')
-    .select('id, first_name, last_name, role, bio, profile_photo_url, specialisms, sort_order')
+    .select('id, first_name, last_name, role, bio, profile_photo_url, specialisms, sort_order, show_on_team, team_sort_order')
     .eq('is_active', true)
-    .order('sort_order', { ascending: true, nullsFirst: true })
+    .eq('show_on_team', true)
+    .order('team_sort_order', { ascending: true, nullsFirst: true })
     .order('first_name', { ascending: true }),
 ]);
 
@@ -29,7 +31,28 @@ if (heroSlidesError) {
   console.warn(`[homepage] hero_slides query failed: ${heroSlidesError.message}`);
 }
 
-const hp = (settings?.homepage ?? {}) as Record<string, string>;
+const hp = normalizeHomepageSettings(settings?.homepage ?? {});
+const parseBooleanSetting = (value: unknown, fallback: boolean) => {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (normalized === 'true') return true;
+    if (normalized === 'false') return false;
+  }
+  return fallback;
+};
+const parseIntSetting = (value: unknown, fallback: number, min: number, max: number) => {
+  const parsed = Number.parseInt(String(value ?? ''), 10);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.min(max, Math.max(min, parsed));
+};
+const sectionContent = hp.sections_content;
+const sectionOrderMap = hp.sections_order.reduce((acc, sectionId, index) => {
+  acc[sectionId] = index;
+  return acc;
+}, {} as Record<HomepageSectionId, number>);
+const isSectionVisible = (sectionId: HomepageSectionId) => hp.sections_visibility[sectionId] !== false;
+const sectionStyle = (sectionId: HomepageSectionId) => `order:${sectionOrderMap[sectionId] ?? 999};`;
 
 // Fallback hero: pick a suit product image
 const heroFallbackImage = '/wp-content/uploads/2023/07/Home-Hero-img.jpg';
@@ -37,12 +60,12 @@ const heroFallbackImage = '/wp-content/uploads/2023/07/Home-Hero-img.jpg';
 const collectionCards = [
   {
     href: '/boho',
-    title: 'Boho Style',
+    title: 'Boho Stijl',
     image: '/images/jurkvormen/a-lijn.png',
   },
   {
     href: '/modern',
-    title: 'Modern Style',
+    title: 'Moderne Stijl',
     image: '/images/jurkvormen/a-lijn-1.png',
   },
   {
@@ -52,10 +75,18 @@ const collectionCards = [
   },
   {
     href: '/a-line',
-    title: 'A-Line Collection',
+    title: 'A-Line Collectie',
     image: '/images/jurkvormen/photoshop-silhouet2.png',
   },
 ];
+
+const styleChips = [
+  { label: String(sectionContent.style_chips.chip1_label), href: String(sectionContent.style_chips.chip1_url) },
+  { label: String(sectionContent.style_chips.chip2_label), href: String(sectionContent.style_chips.chip2_url) },
+  { label: String(sectionContent.style_chips.chip3_label), href: String(sectionContent.style_chips.chip3_url) },
+  { label: String(sectionContent.style_chips.chip4_label), href: String(sectionContent.style_chips.chip4_url) },
+  { label: String(sectionContent.style_chips.chip5_label), href: String(sectionContent.style_chips.chip5_url) },
+].filter((chip) => chip.label.trim().length > 0 && chip.href.trim().length > 0);
 
 const featuredWeddingCard = {
   slug: featuredWedding?.slug ?? '',
@@ -94,11 +125,42 @@ const galleryImages = (latestProducts ?? [])
 const galleryItems = galleryImages.length
   ? galleryImages
   : galleryFallbacks.slice(0, 6).map((src, i) => ({ src, alt: `Galerij foto ${i + 1}`, href: '/trouwjurken' }));
+const maxGridItems = parseIntSetting(sectionContent.product_grid.max_items, 6, 3, 12);
 
 const activeSlides = (heroSlides ?? []).filter((slide) =>
   typeof slide.image_url === 'string' && slide.image_url.trim().length > 0
 );
 const hasSlider = activeSlides.length > 0;
+const heroAutoplayMs = parseIntSetting(sectionContent.hero.autoplay_ms, 5000, 2000, 15000);
+const heroTransitionMs = parseIntSetting(sectionContent.hero.transition_ms, 700, 250, 2000);
+const heroShowArrows = parseBooleanSetting(sectionContent.hero.show_arrows, true);
+const heroShowDots = parseBooleanSetting(sectionContent.hero.show_dots, true);
+const heroPauseOnHover = parseBooleanSetting(sectionContent.hero.pause_on_hover, true);
+const heroFallbackSlide = {
+  id: 'fallback',
+  image_url: heroFallbackImage,
+  eyebrow: String(sectionContent.hero.eyebrow),
+  title: String(sectionContent.hero.title),
+  subtitle: String(sectionContent.hero.subtitle),
+  button1_text: String(sectionContent.hero.button1_text),
+  button1_url: String(sectionContent.hero.button1_url),
+  button2_text: String(sectionContent.hero.button2_text),
+  button2_url: String(sectionContent.hero.button2_url),
+  text_align: 'center',
+  overlay_opacity: 45,
+};
+const slidesForHero = hasSlider
+  ? activeSlides.map((slide) => ({
+      ...heroFallbackSlide,
+      ...slide,
+      overlay_opacity: typeof slide.overlay_opacity === 'number' ? slide.overlay_opacity : heroFallbackSlide.overlay_opacity,
+    }))
+  : [heroFallbackSlide];
+const heroAlignClasses = (align?: string) => {
+  if (align === 'left') return 'items-start text-left';
+  if (align === 'right') return 'items-end text-right';
+  return 'items-center text-center';
+};
 const featuredEmployees = ((employees ?? []) as Array<{
   id: string;
   first_name: string;
@@ -108,98 +170,141 @@ const featuredEmployees = ((employees ?? []) as Array<{
   profile_photo_url?: string;
   specialisms?: string[];
   sort_order?: number;
+  show_on_team?: boolean;
+  team_sort_order?: number;
 }>).slice(0, 2);
 ---
 
 <Layout title="Home">
+  <div class="flex flex-col">
 
   <!-- ===== HERO ===== -->
-  <section class="relative w-full h-[85vh] flex items-center justify-center overflow-hidden bg-ivory">
-    <div class="absolute inset-0 z-0">
-      <img 
-        src={heroFallbackImage} 
-        alt="Find Your Perfect Moment" 
-        class="w-full h-full object-cover animate-zoom opacity-80"
-        loading="eager"
-      />
-      <div class="absolute inset-0 bg-gradient-to-b from-charcoal/20 via-transparent to-ivory"></div>
+  <section id="hero-slider" class={`relative w-full min-h-[74vh] md:min-h-[82vh] flex items-center justify-center overflow-hidden bg-ivory${isSectionVisible('hero') ? '' : ' hidden'}`} style={sectionStyle('hero')} data-autoplay-ms={String(heroAutoplayMs)} data-transition-ms={String(heroTransitionMs)} data-pause-on-hover={heroPauseOnHover ? 'true' : 'false'}>
+    <div id="hero-track" class="absolute inset-0 z-0 flex h-full" style={`transform: translateX(0px); transition: transform ${heroTransitionMs}ms ease;`}>
+      {slidesForHero.map((slide, index) => (
+        <article class="relative h-full w-full shrink-0">
+          <img
+            src={slide.image_url || heroFallbackImage}
+            alt={slide.title || `Hero slide ${index + 1}`}
+            class="w-full h-full object-cover animate-zoom opacity-90"
+            loading={index === 0 ? 'eager' : 'lazy'}
+          />
+          <div class="absolute inset-0 bg-charcoal" style={`opacity:${Math.min(80, Math.max(0, Number(slide.overlay_opacity ?? 40))) / 100};`}></div>
+          <div class="absolute inset-0 bg-gradient-to-b from-charcoal/20 via-transparent to-ivory/30"></div>
+          <div class={`absolute inset-0 z-10 flex justify-center px-4 sm:px-6 ${heroAlignClasses(slide.text_align)}`}>
+            <div class="w-full max-w-4xl py-16 md:py-24 flex flex-col justify-center">
+              {slide.eyebrow && <p class="romance-kicker text-white/90 mb-4">{slide.eyebrow}</p>}
+              {slide.title && <h1 class="font-display text-white leading-[1.06] mb-5 drop-shadow-sm" style="font-size: clamp(34px, 9vw, 82px); font-weight: 300;">{slide.title}</h1>}
+              {slide.subtitle && <p class="max-w-xl md:max-w-2xl text-sm md:text-base text-white/90 leading-relaxed mb-7 md:mb-8">{slide.subtitle}</p>}
+              <div class="flex flex-col sm:flex-row items-center gap-3 md:gap-4">
+                {slide.button1_text && slide.button1_url && (
+                  <a href={slide.button1_url} class="btn-blush w-full sm:w-auto px-8 md:px-10 py-4">{slide.button1_text}</a>
+                )}
+                {slide.button2_text && slide.button2_url && (
+                  <a href={slide.button2_url} class="btn-gold w-full sm:w-auto border-white text-white hover:border-white hover:bg-white hover:text-charcoal px-8 md:px-10 py-4">{slide.button2_text}</a>
+                )}
+              </div>
+            </div>
+          </div>
+        </article>
+      ))}
     </div>
-    
-    <div class="relative z-10 text-center px-6 max-w-4xl">
-      <h1 class="font-display text-charcoal leading-tight mb-8" style="font-size: clamp(42px, 8vw, 84px); font-weight: 300;">
-        Find Your <em class="font-normal italic text-taupe">Perfect</em> Moment
-      </h1>
-      <a href="/afspraak-maken" class="inline-block bg-blush-deep text-white px-12 py-4 text-[12px] tracking-[0.3em] uppercase hover:bg-opacity-90 transition-all shadow-xl">
-        MAAK AFSPRAAK
-      </a>
-    </div>
+
+    {heroShowArrows && slidesForHero.length > 1 && (
+      <>
+        <button id="hero-prev" aria-label="Vorige slide" class="absolute left-3 md:left-6 z-20 h-10 w-10 md:h-12 md:w-12 rounded-full border border-white/60 bg-charcoal/25 text-white hover:bg-charcoal/45 transition-colors">
+          <span aria-hidden="true">‹</span>
+        </button>
+        <button id="hero-next" aria-label="Volgende slide" class="absolute right-3 md:right-6 z-20 h-10 w-10 md:h-12 md:w-12 rounded-full border border-white/60 bg-charcoal/25 text-white hover:bg-charcoal/45 transition-colors">
+          <span aria-hidden="true">›</span>
+        </button>
+      </>
+    )}
+
+    {heroShowDots && slidesForHero.length > 1 && (
+      <div class="absolute bottom-5 md:bottom-8 z-20 left-1/2 -translate-x-1/2 flex gap-2">
+        {slidesForHero.map((_, index) => (
+          <button
+            class={`hero-dot h-2.5 w-2.5 rounded-full transition-colors ${index === 0 ? 'bg-white' : 'bg-white/40'}`}
+            aria-label={`Ga naar slide ${index + 1}`}
+            data-index={String(index)}
+          />
+        ))}
+      </div>
+    )}
   </section>
 
   <!-- Shop by Style (Mobile only) -->
-  <section class="lg:hidden bg-[#FAF9F6] py-8 border-b border-champagne overflow-x-auto no-scrollbar">
-    <div class="flex items-center gap-10 px-8 min-w-max">
-      {['A-Line', 'Bell Gown', 'Mermaid', 'Boho', 'Outlet'].map(style => (
-        <div class="flex flex-col items-center gap-2">
+  <section class={`lg:hidden bg-[#FAF9F6] py-5 border-b border-champagne overflow-x-auto no-scrollbar${isSectionVisible('style_chips') ? '' : ' hidden'}`} style={sectionStyle('style_chips')}>
+    <div class="flex items-center gap-7 px-5 min-w-max">
+      {styleChips.map((style) => (
+        <a href={style.href} class="flex flex-col items-center gap-2 group">
           <div class="w-10 h-10 flex items-center justify-center text-charcoal/30">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" class="w-full h-full"><path d="M12 4L4 20H20L12 4Z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" class="w-full h-full group-hover:text-blush-deep transition-colors"><path d="M12 4L4 20H20L12 4Z"/></svg>
           </div>
-          <span class="text-[9px] tracking-widest uppercase font-body text-charcoal/60">{style}</span>
-        </div>
+          <span class="text-[9px] tracking-widest uppercase font-body text-charcoal/60 group-hover:text-blush-deep transition-colors">{style.label}</span>
+        </a>
       ))}
     </div>
   </section>
 
   <!-- The Collections Grid -->
-  <section class="py-24 bg-white reveal-fade-up">
-    <div class="container mx-auto px-6 max-w-7xl">
-      <h2 class="font-display text-4xl md:text-5xl text-charcoal text-center mb-16">
-        The <em class="font-normal italic text-taupe">Collections</em>
+  <section class={`romance-section bg-gradient-to-b from-white to-ivory/40 reveal-fade-up${isSectionVisible('collections') ? '' : ' hidden'}`} style={sectionStyle('collections')}>
+    <div class="container mx-auto px-4 sm:px-6 max-w-7xl">
+      <h2 class="romance-heading text-center mb-4">
+        {String(sectionContent.collections.heading)}
       </h2>
+      <p class="romance-copy text-center max-w-2xl mx-auto mb-14">
+        {String(sectionContent.collections.subheading)}
+      </p>
       
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-6 md:h-[1000px]">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 md:h-[1000px]">
         <!-- Boho Style (Large Left) -->
         <div class="md:col-span-4 h-full">
-          <a href="/boho" class="block group relative h-full overflow-hidden">
+          <a href="/boho" class="block group relative h-full overflow-hidden aspect-[4/5] md:aspect-auto">
             <img src={collectionCards[0].image} alt={collectionCards[0].title} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-            <div class="absolute bottom-8 left-0 right-0 text-center">
+            <div class="romance-image-overlay"></div>
+            <div class="absolute bottom-8 left-0 right-0 text-center px-4">
               <span class="text-white font-display text-2xl drop-shadow-md">{collectionCards[0].title}</span>
             </div>
           </a>
         </div>
         
         <!-- Center Column -->
-        <div class="md:col-span-4 flex flex-col gap-6 h-full">
+        <div class="md:col-span-4 flex flex-col gap-4 md:gap-6 h-full">
           <!-- Modern Style (Top) -->
           <div class="flex-1">
             <a href="/modern" class="block group relative h-full overflow-hidden">
               <img src={collectionCards[1].image} alt={collectionCards[1].title} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-              <div class="absolute bottom-8 left-0 right-0 text-center">
+              <div class="romance-image-overlay"></div>
+              <div class="absolute bottom-8 left-0 right-0 text-center px-4">
                 <span class="text-white font-display text-2xl drop-shadow-md">{collectionCards[1].title}</span>
               </div>
             </a>
           </div>
           <!-- Wide Bottom -->
-          <div class="h-[30%]">
-            <a href="/collectie" class="block group relative h-full overflow-hidden">
+          <div class="md:h-[30%]">
+            <a href="/collectie" class="block group relative h-full overflow-hidden aspect-[4/5] md:aspect-auto">
               <img src={collectionCards[2].image} alt={collectionCards[2].title} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
             </a>
           </div>
         </div>
         
         <!-- Right Column -->
-        <div class="md:col-span-4 flex flex-col gap-6 h-full">
+        <div class="md:col-span-4 flex flex-col gap-4 md:gap-6 h-full">
           <!-- A-Line (Top) -->
-          <div class="h-[60%]">
-            <a href="/a-line" class="block group relative h-full overflow-hidden">
+          <div class="md:h-[60%]">
+            <a href="/a-line" class="block group relative h-full overflow-hidden aspect-[4/5] md:aspect-auto">
               <img src={collectionCards[3].image} alt={collectionCards[3].title} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-              <div class="absolute bottom-8 left-0 right-0 text-center">
+              <div class="romance-image-overlay"></div>
+              <div class="absolute bottom-8 left-0 right-0 text-center px-4">
                 <span class="text-white font-display text-2xl drop-shadow-md">{collectionCards[3].title}</span>
               </div>
             </a>
           </div>
           <!-- Smaller Bottom -->
           <div class="flex-1">
-            <a href="/collectie" class="block group relative h-full overflow-hidden">
+            <a href="/collectie" class="block group relative h-full overflow-hidden aspect-[4/5] md:aspect-auto">
               <img src="/images/jurkvormen/a-lijn.png" alt="Collectie" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
             </a>
           </div>
@@ -209,16 +314,16 @@ const featuredEmployees = ((employees ?? []) as Array<{
   </section>
 
   <!-- Product Grid -->
-  <section class="pb-16 bg-white">
+  <section class={`pb-14 md:pb-16 bg-white${isSectionVisible('product_grid') ? '' : ' hidden'}`} style={sectionStyle('product_grid')}>
     <div class="container mx-auto px-4 lg:px-8 max-w-[1400px]">
-      <div class="grid grid-cols-2 md:grid-cols-3 gap-1 md:gap-4">
-        {galleryItems.slice(0, 6).map((item, index) => (
-          <div class="flex flex-col mb-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-4">
+        {galleryItems.slice(0, maxGridItems).map((item, index) => (
+          <article class="flex flex-col mb-4 romance-panel p-2 md:p-3">
             <a href={item.href} class="block relative overflow-hidden aspect-[3/4] group mb-3">
               <img src={item.src!} alt={item.alt} class={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${index % 3 === 0 ? 'animate-pan-right' : index % 3 === 1 ? 'animate-pan-left' : 'animate-zoom'}`} loading="lazy" />
-              <div class="absolute inset-0 bg-black/20 flex flex-col justify-end items-center pb-8 opacity-90 transition-opacity">
-                <span class="text-white font-display text-2xl mb-1">{item.alt.split(' ')[0] || 'Merk'}</span>
-                <span class="text-white/80 text-[10px] uppercase tracking-widest border-t border-white/40 pt-1 px-4">{item.alt}</span>
+              <div class="absolute inset-0 bg-gradient-to-t from-charcoal/70 via-charcoal/20 to-transparent flex flex-col justify-end items-center pb-7 opacity-95 transition-opacity">
+                <span class="text-white font-display text-xl mb-1 text-center px-3">{item.alt.split(' ')[0] || 'Merk'}</span>
+                <span class="text-white/85 text-[10px] uppercase tracking-widest border-t border-white/40 pt-1 px-4 text-center">{item.alt}</span>
               </div>
             </a>
             <div class="flex items-start justify-between px-1">
@@ -231,47 +336,47 @@ const featuredEmployees = ((employees ?? []) as Array<{
               <a href={item.href} class="text-xs text-gray-500 font-light hover:text-black">Bekijk merk &nbsp;›</a>
             </div>
             <p class="text-[11px] text-gray-400 font-light mt-3 px-1 leading-relaxed">
-              Prachtige trouwjurk uit de nieuwste collectie. Vind vergelijkbare stijlen in de winkel.
+              {String(sectionContent.product_grid.description)}
             </p>
-          </div>
+          </article>
         ))}
       </div>
     </div>
   </section>
 
   <!-- Real Bride & Stories (Asymmetric & Premium) -->
-  <section class="py-32 bg-white relative overflow-hidden reveal-fade-up">
-    <div class="container mx-auto px-6 relative z-10">
-      <div class="flex flex-col md:flex-row items-end justify-between mb-16 gap-8">
+  <section class={`py-20 md:py-32 bg-white relative overflow-hidden reveal-fade-up${isSectionVisible('stories') ? '' : ' hidden'}`} style={sectionStyle('stories')}>
+    <div class="container mx-auto px-4 sm:px-6 relative z-10">
+      <div class="flex flex-col md:flex-row items-start md:items-end justify-between mb-12 md:mb-16 gap-6 md:gap-8">
         <div class="max-w-2xl text-left">
-          <p class="font-signature text-blush-deep text-4xl mb-4 lowercase opacity-80">Love stories</p>
-          <h2 class="font-display text-5xl md:text-7xl text-charcoal leading-[0.9] italic">
-            Real <span class="font-normal not-italic text-taupe opacity-30">Brides</span>
+          <p class="font-signature text-blush-deep text-3xl md:text-4xl mb-3 md:mb-4 lowercase opacity-80">{String(sectionContent.stories.eyebrow)}</p>
+          <h2 class="font-display text-4xl md:text-7xl text-charcoal leading-[0.95] md:leading-[0.9] italic">
+            {String(sectionContent.stories.heading)}
           </h2>
         </div>
         <p class="text-[10px] tracking-[0.25em] uppercase text-taupe font-body max-w-xs md:text-right leading-relaxed mb-1">
-          Laat je inspireren door de prachtige verhalen en unieke stijlen van onze Mariage bruiden.
+          {String(sectionContent.stories.description)}
         </p>
       </div>
 
       <!-- Asymmetric Story Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-6 h-[900px] md:h-[600px]">
-        <div class="md:col-span-5 relative group overflow-hidden bg-ivory">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 h-auto md:h-[600px]">
+        <div class="md:col-span-5 relative group overflow-hidden bg-ivory aspect-[4/5] md:aspect-auto">
           <img src="https://images.unsplash.com/photo-1546193430-c2d20544977a?auto=format&fit=crop&q=80&w=800" alt="Real Bride" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
           <div class="absolute inset-0 bg-charcoal/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-10">
             <p class="font-signature text-white text-3xl mb-3 lowercase line-clamp-2 italic">"De jurk van mijn dromen, het voelde als een sprookje."</p>
             <p class="text-white/80 text-[10px] tracking-[0.3em] uppercase font-body border-t border-white/20 pt-3 inline-block">Emma & Marc</p>
           </div>
         </div>
-        <div class="md:col-span-3 grid grid-rows-2 gap-6">
-          <div class="relative group overflow-hidden">
+        <div class="md:col-span-3 grid grid-rows-2 gap-4 md:gap-6">
+          <div class="relative group overflow-hidden aspect-[4/5] md:aspect-auto">
             <img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=600" alt="Wedding detail" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
           </div>
-          <div class="relative group overflow-hidden">
+          <div class="relative group overflow-hidden aspect-[4/5] md:aspect-auto">
             <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=600" alt="Ceremony" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
           </div>
         </div>
-        <div class="md:col-span-4 relative group overflow-hidden bg-ivory">
+        <div class="md:col-span-4 relative group overflow-hidden bg-ivory aspect-[4/5] md:aspect-auto">
           <img src="https://images.unsplash.com/photo-1522673607200-1648832cee98?auto=format&fit=crop&q=80&w=800" alt="Bride portrait" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
           <div class="absolute inset-x-0 bottom-0 p-8 bg-gradient-to-t from-charcoal/60 to-transparent">
              <span class="block font-signature text-white text-4xl opacity-90 lowercase mb-1">Inspiratie</span>
@@ -280,41 +385,41 @@ const featuredEmployees = ((employees ?? []) as Array<{
         </div>
       </div>
       
-      <div class="mt-16 flex flex-col sm:flex-row gap-6 justify-center items-center">
-        <a href="/inspiratie" class="inline-block border-b border-charcoal/20 pb-1 text-[10px] tracking-[0.3em] uppercase text-charcoal hover:text-blush-deep hover:border-blush-deep transition-all">Bekijk alle verhalen</a>
-        <a href="/reviews" class="inline-block border-b border-charcoal/20 pb-1 text-[10px] tracking-[0.3em] uppercase text-charcoal hover:text-blush-deep hover:border-blush-deep transition-all">Lees ervaringen</a>
+      <div class="mt-12 md:mt-16 flex flex-col sm:flex-row gap-5 md:gap-6 justify-center items-center">
+        <a href={String(sectionContent.stories.cta1_url)} class="inline-block border-b border-charcoal/20 pb-1 text-[10px] tracking-[0.3em] uppercase text-charcoal hover:text-blush-deep hover:border-blush-deep transition-all">{String(sectionContent.stories.cta1_text)}</a>
+        <a href={String(sectionContent.stories.cta2_url)} class="inline-block border-b border-charcoal/20 pb-1 text-[10px] tracking-[0.3em] uppercase text-charcoal hover:text-blush-deep hover:border-blush-deep transition-all">{String(sectionContent.stories.cta2_text)}</a>
       </div>
     </div>
   </section>
 
   <!-- Style Finder Mini-CTA -->
-  <section class="py-24 bg-ivory reveal-fade-up">
-    <div class="container mx-auto px-6 text-center max-w-4xl">
-      <p class="font-signature text-blush-deep text-3xl mb-4 lowercase">Find your match</p>
-      <h2 class="font-display text-4xl md:text-5xl text-charcoal mb-8 italic">Ontdek jouw <span class="not-italic text-taupe/40 underline decoration-champagne underline-offset-8">stijl-profiel</span></h2>
-      <p class="text-sm font-body text-charcoal/60 max-w-xl mx-auto mb-12 leading-relaxed font-light">
-        Niet zeker welk silhouet bij je past? Onze interactieve Style Finder helpt je in een paar stappen naar de perfecte selectie jurken voor jouw grote dag.
+  <section class={`py-20 md:py-24 bg-ivory reveal-fade-up${isSectionVisible('style_finder') ? '' : ' hidden'}`} style={sectionStyle('style_finder')}>
+    <div class="container mx-auto px-4 sm:px-6 text-center max-w-4xl">
+      <p class="font-signature text-blush-deep text-3xl mb-4 lowercase">{String(sectionContent.style_finder.eyebrow)}</p>
+      <h2 class="font-display text-4xl md:text-5xl text-charcoal mb-8 italic">{String(sectionContent.style_finder.heading)}</h2>
+      <p class="romance-copy max-w-xl mx-auto mb-12">
+        {String(sectionContent.style_finder.body)}
       </p>
-      <a href="/stijlquiz" class="btn-blush px-16 py-4 inline-flex items-center gap-4">
-        START STYLE FINDER
+      <a href={String(sectionContent.style_finder.cta_url)} class="btn-blush w-full sm:w-auto px-10 md:px-16 py-4 inline-flex items-center justify-center gap-4">
+        {String(sectionContent.style_finder.cta_text)}
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
       </a>
     </div>
   </section>
 
   <!-- Style Guide -->
-  <section class="py-24 bg-white">
-    <div class="container mx-auto px-6 max-w-6xl text-center">
-      <div class="mb-16">
-        <span class="font-signature text-2xl text-blush-deep block mb-[-8px] lowercase opacity-60">mariage selection</span>
-        <h2 class="font-display text-4xl text-charcoal uppercase tracking-wider">Style Guide</h2>
+  <section class={`py-20 md:py-24 bg-white${isSectionVisible('style_guide') ? '' : ' hidden'}`} style={sectionStyle('style_guide')}>
+    <div class="container mx-auto px-4 sm:px-6 max-w-6xl text-center">
+      <div class="mb-12 md:mb-16">
+        <span class="font-signature text-2xl text-blush-deep block mb-[-8px] lowercase opacity-60">{String(sectionContent.style_guide.eyebrow)}</span>
+        <h2 class="font-display text-4xl text-charcoal uppercase tracking-wider">{String(sectionContent.style_guide.heading)}</h2>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
         {[
-          { title: 'Real Weddings & Stories of Inspiration', img: '/images/jurkvormen/a-lijn.png' },
-          { title: 'Designing - Summer Trends', img: '/images/jurkvormen/a-lijn-1.png' },
-          { title: 'Intermixing the Experience: Visit us in our boutique', img: '/images/jurkvormen/photoshop-silhouet2.png' }
+          { title: String(sectionContent.style_guide.card1_title), img: '/images/jurkvormen/a-lijn.png' },
+          { title: String(sectionContent.style_guide.card2_title), img: '/images/jurkvormen/a-lijn-1.png' },
+          { title: String(sectionContent.style_guide.card3_title), img: '/images/jurkvormen/photoshop-silhouet2.png' }
         ].map(item => (
           <div class="group cursor-pointer">
             <div class="aspect-square rounded-[32px] overflow-hidden mb-6 shadow-soft group-hover:shadow-card transition-all duration-500">
@@ -329,14 +434,14 @@ const featuredEmployees = ((employees ?? []) as Array<{
   </section>
 
   <!-- The Mariage Experience -->
-  <section class="py-24 bg-white reveal-fade-up">
-    <div class="container mx-auto px-6 max-w-6xl text-center">
-      <div class="mb-16">
-        <span class="font-signature text-2xl text-blush-deep block mb-[-8px] lowercase opacity-60">the</span>
-        <h2 class="font-display text-4xl text-charcoal">Mariage Experience</h2>
+  <section class={`py-20 md:py-24 bg-white reveal-fade-up${isSectionVisible('experience') ? '' : ' hidden'}`} style={sectionStyle('experience')}>
+    <div class="container mx-auto px-4 sm:px-6 max-w-6xl text-center">
+      <div class="mb-12 md:mb-16">
+        <span class="font-signature text-2xl text-blush-deep block mb-[-8px] lowercase opacity-60">{String(sectionContent.experience.eyebrow)}</span>
+        <h2 class="font-display text-4xl text-charcoal">{String(sectionContent.experience.heading)}</h2>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
         {[
           { name: 'Sanne', quote: 'Ik zou Mariage iedereen aanraden. De aandacht en de service is van ongekende klasse.', img: '/images/jurkvormen/a-lijn.png' },
           { name: 'Bruid Barbara', quote: 'De passie voor bruidsmode straalt ervan af bij alle medewerkers van Mariage.', img: '/images/jurkvormen/a-lijn-1.png' },
@@ -355,14 +460,14 @@ const featuredEmployees = ((employees ?? []) as Array<{
   </section>
 
   <!-- Ons Team -->
-  <section class="py-24 bg-ivory reveal-fade-up">
-    <div class="container mx-auto px-6 max-w-6xl">
-      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+  <section class={`py-20 md:py-24 bg-ivory reveal-fade-up${isSectionVisible('team') ? '' : ' hidden'}`} style={sectionStyle('team')}>
+    <div class="container mx-auto px-4 sm:px-6 max-w-6xl">
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-5 md:gap-6 mb-10 md:mb-12">
         <div>
-          <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">Ons Team</p>
-          <h2 class="font-display text-4xl md:text-5xl text-charcoal">De mensen achter <em class="italic font-light text-taupe">Mariage</em></h2>
+          <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">{String(sectionContent.team.eyebrow)}</p>
+          <h2 class="font-display text-4xl md:text-5xl text-charcoal">{String(sectionContent.team.heading)}</h2>
         </div>
-        <a href="/het-team" class="text-[10px] tracking-[0.3em] uppercase text-charcoal border-b border-charcoal/20 pb-1 hover:text-blush-deep hover:border-blush-deep transition-all self-start">Bekijk het volledige team</a>
+        <a href={String(sectionContent.team.cta_url)} class="text-[10px] tracking-[0.3em] uppercase text-charcoal border-b border-charcoal/20 pb-1 hover:text-blush-deep hover:border-blush-deep transition-all self-start">{String(sectionContent.team.cta_text)}</a>
       </div>
 
       {featuredEmployees.length > 0 ? (
@@ -401,29 +506,39 @@ const featuredEmployees = ((employees ?? []) as Array<{
     </div>
   </section>
 
-  <!-- Schedule Your Fitting -->
-  <section class="py-32 bg-white text-center">
-    <div class="container mx-auto px-6 max-w-3xl border-t border-champagne pt-24">
+  <!-- Plan Je Pasafspraak -->
+  <section class={`py-20 md:py-32 bg-white text-center${isSectionVisible('appointment_cta') ? '' : ' hidden'}`} style={sectionStyle('appointment_cta')}>
+    <div class="container mx-auto px-4 sm:px-6 max-w-3xl border-t border-champagne pt-16 md:pt-24">
       <span class="font-signature text-3xl text-blush-deep block mb-[-10px] lowercase opacity-60">the</span>
-      <h2 class="font-display text-5xl text-charcoal mb-8">Schedule Your Fitting</h2>
-      <p class="font-body text-charcoal/60 font-light mb-12 leading-relaxed">
-        Let us lead the choir of your soul, so that we can find providing only our love and our service, personally giving you the look you truly wish for.
+      <h2 class="font-display text-5xl text-charcoal mb-8">{String(sectionContent.appointment_cta.heading)}</h2>
+      <p class="romance-copy mb-12">
+        {String(sectionContent.appointment_cta.body)}
       </p>
-      <a href="/afspraak-maken" class="btn-blush px-16 py-4">AFSPRAAK PLANNEN</a>
+      <a href={String(sectionContent.appointment_cta.cta_url)} class="btn-blush w-full sm:w-auto px-10 md:px-16 py-4">{String(sectionContent.appointment_cta.cta_text)}</a>
     </div>
   </section>
+  </div>
 </Layout>
 
 <script>
   // ===== HERO SLIDER =====
   const track = document.getElementById('hero-track') as HTMLElement | null;
-  const slider = document.getElementById('hero-slider');
+  const slider = document.getElementById('hero-slider') as HTMLElement | null;
   const dots = document.querySelectorAll<HTMLButtonElement>('.hero-dot');
-  const total = dots.length;
+  const total = track?.children.length ?? 0;
 
   if (track && total > 0) {
+    const autoplayMsRaw = Number.parseInt(slider?.dataset.autoplayMs ?? '', 10);
+    const transitionMsRaw = Number.parseInt(slider?.dataset.transitionMs ?? '', 10);
+    const autoplayMs = Number.isFinite(autoplayMsRaw) ? autoplayMsRaw : 5000;
+    const transitionMs = Number.isFinite(transitionMsRaw) ? transitionMsRaw : 700;
+    const pauseOnHover = slider?.dataset.pauseOnHover === 'true';
+
     let current = 0;
-    let timer: ReturnType<typeof setInterval>;
+    let timer: ReturnType<typeof setInterval> | null = null;
+    let isHoverPaused = false;
+
+    track.style.transition = `transform ${transitionMs}ms ease`;
 
     // Use pixel offsets so % is not relative to track's own (= N×slide) width
     function slideWidth() {
@@ -433,10 +548,12 @@ const featuredEmployees = ((employees ?? []) as Array<{
     function goTo(index: number) {
       current = ((index % total) + total) % total;
       track!.style.transform = `translateX(${-current * slideWidth()}px)`;
-      dots.forEach((d, i) => {
-        d.classList.toggle('bg-white', i === current);
-        d.classList.toggle('bg-white/40', i !== current);
-      });
+      if (dots.length > 0) {
+        dots.forEach((d, i) => {
+          d.classList.toggle('bg-white', i === current);
+          d.classList.toggle('bg-white/40', i !== current);
+        });
+      }
     }
 
     // Re-snap on resize (no transition flash)
@@ -447,8 +564,12 @@ const featuredEmployees = ((employees ?? []) as Array<{
     }, { passive: true });
 
     function startTimer() {
-      clearInterval(timer);
-      if (total > 1) timer = setInterval(() => goTo(current + 1), 5000);
+      if (timer) clearInterval(timer);
+      if (total > 1) {
+        timer = setInterval(() => {
+          if (!isHoverPaused) goTo(current + 1);
+        }, autoplayMs);
+      }
     }
 
     document.getElementById('hero-prev')?.addEventListener('click', () => { goTo(current - 1); startTimer(); });
@@ -466,6 +587,11 @@ const featuredEmployees = ((employees ?? []) as Array<{
       const diff = touchStartX - e.changedTouches[0].clientX;
       if (Math.abs(diff) > 50) { goTo(current + (diff > 0 ? 1 : -1)); startTimer(); }
     }, { passive: true });
+
+    if (pauseOnHover && slider) {
+      slider.addEventListener('mouseenter', () => { isHoverPaused = true; });
+      slider.addEventListener('mouseleave', () => { isHoverPaused = false; });
+    }
 
     startTimer();
   }

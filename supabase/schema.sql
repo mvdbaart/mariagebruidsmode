@@ -83,6 +83,8 @@ CREATE TABLE IF NOT EXISTS employees (
   bio TEXT,
   specialisms TEXT[] NOT NULL DEFAULT '{}',
   profile_photo_url TEXT,
+  show_on_team BOOLEAN NOT NULL DEFAULT false,
+  team_sort_order INTEGER NOT NULL DEFAULT 0,
   contract_hours NUMERIC(5,2) NOT NULL DEFAULT 0,
   hourly_rate NUMERIC(10,2),
   sort_order INTEGER NOT NULL DEFAULT 0,
@@ -91,10 +93,19 @@ CREATE TABLE IF NOT EXISTS employees (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+ALTER TABLE IF EXISTS employees
+  ADD COLUMN IF NOT EXISTS show_on_team BOOLEAN NOT NULL DEFAULT false;
+
+ALTER TABLE IF EXISTS employees
+  ADD COLUMN IF NOT EXISTS team_sort_order INTEGER NOT NULL DEFAULT 0;
+
 ALTER TABLE employees ENABLE ROW LEVEL SECURITY;
 
 CREATE INDEX IF NOT EXISTS employees_active_sort_idx
   ON employees (is_active, sort_order, first_name);
+
+CREATE INDEX IF NOT EXISTS employees_team_visible_sort_idx
+  ON employees (is_active, show_on_team, team_sort_order, first_name);
 
 CREATE POLICY "Public read active employees" ON employees
   FOR SELECT USING (is_active = true);

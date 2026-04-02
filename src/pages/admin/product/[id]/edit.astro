@@ -3,6 +3,7 @@ import AdminLayout from '../../../../layouts/AdminLayout.astro';
 import { supabase } from '../../../../lib/supabase';
 import { PRODUCT_QUALITIES } from '../../../../lib/productQualities';
 import { PASVORM, HALS, MOUW, MATERIALEN, KLEUREN, MATEN, CATEGORIEEN } from '../../../../lib/productAttributes';
+import { normalizeImageUrl } from '../../../../lib/imageUrls';
 
 const { id } = Astro.params;
 
@@ -22,12 +23,13 @@ const { data: collections } = await supabase
   .order('title', { ascending: true });
 
 const previewFallbackImage = '/images/jurkvormen/a-lijn.png';
-
-function encodeImagePath(url: string | null | undefined): string {
-  if (!url) return previewFallbackImage;
-  if (/^https?:\/\//.test(url)) return url;
-  return url.split('/').map((s) => encodeURIComponent(s)).join('/');
-}
+const productImageList = Array.isArray(product.images) ? product.images : [];
+const normalizedProductImages = productImageList.map((img: string) =>
+  normalizeImageUrl(img, previewFallbackImage)
+);
+const initialPreviewImage = normalizedProductImages.length
+  ? normalizedProductImages[0]
+  : previewFallbackImage;
 
 const productMaterielen: string[] = Array.isArray(product.materialen)  ? product.materialen  : [];
 const productKleuren:    string[] = Array.isArray(product.kleur)        ? product.kleur        : [];
@@ -257,34 +259,96 @@ const productFeatures:   string[] = Array.isArray(product.features)     ? produc
 
             <!-- Gallery -->
             <div id="file-gallery" class="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-2">
-              <!-- Filled by renderGallery() -->
+              {normalizedProductImages.map((img: string, index: number) => (
+                <div class="border border-champagne bg-white overflow-hidden">
+                  <div class="relative aspect-[3/4] bg-linen overflow-hidden">
+                    <img
+                      src={img}
+                      alt={`Product afbeelding ${index + 1}`}
+                      class="w-full h-full object-cover"
+                      onerror={`this.onerror=null;this.src='${previewFallbackImage}'`}
+                    />
+                    {index === 0 && (
+                      <div class="absolute top-2 left-2 bg-charcoal text-white text-[8px] uppercase tracking-[0.15em] font-body px-2 py-1 z-10">
+                        Hoofdafbeelding
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
+            <p id="gallery-error" class="hidden text-[11px] text-red-600 font-body"></p>
             
             <p class="text-[10px] text-accent/50 uppercase tracking-wider italic">De eerste afbeelding in de rij wordt gebruikt als preview image.</p>
           </div>
 
-          <script define:vars={{ initialImages: product.images }}>
+          <script define:vars={{ initialImages: normalizedProductImages, fallbackSrc: previewFallbackImage }}>
             const dropZone = document.getElementById('drop-zone');
             const fileInput = document.getElementById('file-input');
             const gallery = document.getElementById('file-gallery');
             const statusDiv = document.getElementById('upload-status');
             const progressBar = document.getElementById('progress-bar');
             const progressText = document.getElementById('upload-progress');
-            const fallbackSrc = '/images/jurkvormen/a-lijn.png';
+            const galleryError = document.getElementById('gallery-error');
 
             // Encode spaces/special chars in local paths so the browser resolves them correctly.
             // Leave absolute http(s) URLs untouched (Supabase storage etc.).
             function toSrc(url) {
               if (!url) return fallbackSrc;
               if (/^https?:\/\//.test(url)) return url;
-              return url.split('/').map((seg) => encodeURIComponent(seg)).join('/');
+              const raw = String(url).trim();
+              const cutAt = raw.search(/[?#]/);
+              const pathPart = cutAt === -1 ? raw : raw.slice(0, cutAt);
+              const suffix = cutAt === -1 ? '' : raw.slice(cutAt);
+              const encodedPath = pathPart.split('/').map((seg, i) => {
+                if (seg === '' && i === 0) return '';
+                try {
+                  return encodeURIComponent(decodeURIComponent(seg));
+                } catch {
+                  return encodeURIComponent(seg);
+                }
+              }).join('/');
+              return `${encodedPath}${suffix}`;
             }
 
-            let files = Array.isArray(initialImages) ? [...initialImages] : [];
+            let files = Array.isArray(initialImages) && initialImages.length
+              ? initialImages.map((url) => toSrc(url))
+              : [fallbackSrc];
+            let dragIndex = -1;
+            let touchDragIndex = -1;
+            let touchDropIndex = -1;
+
+            function moveItem(fromIndex, toIndex) {
+              if (!Number.isInteger(fromIndex) || !Number.isInteger(toIndex)) return false;
+              if (fromIndex < 0 || toIndex < 0 || fromIndex >= files.length || toIndex >= files.length) return false;
+              if (fromIndex === toIndex) return false;
+              const [moved] = files.splice(fromIndex, 1);
+              files.splice(toIndex, 0, moved);
+              return true;
+            }
+
+            function clearDropMarkers() {
+              if (!gallery) return;
+              gallery.querySelectorAll('[data-media-index]').forEach((el) => {
+                el.classList.remove('ring-2', 'ring-secondary', 'ring-offset-2');
+              });
+            }
+
+            function getMediaIndexFromPoint(x, y) {
+              const el = document.elementFromPoint(x, y);
+              const mediaItem = el?.closest?.('[data-media-index]');
+              if (!mediaItem) return -1;
+              const value = Number(mediaItem.getAttribute('data-media-index'));
+              return Number.isInteger(value) ? value : -1;
+            }
 
             function renderGallery() {
               if (!gallery) return;
               gallery.innerHTML = '';
+              if (galleryError) {
+                galleryError.classList.add('hidden');
+                galleryError.textContent = '';
+              }
 
               if (files.length === 0) {
                 gallery.innerHTML = '<p class="col-span-full text-[11px] text-taupe italic font-body py-4">Nog geen afbeeldingen toegevoegd.</p>';
@@ -298,6 +362,39 @@ const productFeatures:   string[] = Array.isArray(product.features)     ? produc
 
                 const item = document.createElement('div');
                 item.className = 'border border-champagne bg-white overflow-hidden';
+                item.dataset.mediaIndex = String(index);
+                item.draggable = true;
+                item.addEventListener('dragstart', (event) => {
+                  const target = event.target;
+                  if (!(target instanceof Element) || !target.closest('.drag-handle')) {
+                    event.preventDefault();
+                    return;
+                  }
+                  dragIndex = index;
+                  item.classList.add('opacity-60');
+                  if (event.dataTransfer) {
+                    event.dataTransfer.effectAllowed = 'move';
+                    event.dataTransfer.setData('text/plain', String(index));
+                  }
+                });
+                item.addEventListener('dragover', (event) => {
+                  event.preventDefault();
+                  if (dragIndex === -1 || dragIndex === index) return;
+                  clearDropMarkers();
+                  item.classList.add('ring-2', 'ring-secondary', 'ring-offset-2');
+                });
+                item.addEventListener('drop', (event) => {
+                  event.preventDefault();
+                  const changed = moveItem(dragIndex, index);
+                  dragIndex = -1;
+                  clearDropMarkers();
+                  if (changed) renderGallery();
+                });
+                item.addEventListener('dragend', () => {
+                  dragIndex = -1;
+                  item.classList.remove('opacity-60');
+                  clearDropMarkers();
+                });
 
                 // Thumbnail
                 const thumb = document.createElement('div');
@@ -345,6 +442,42 @@ const productFeatures:   string[] = Array.isArray(product.features)     ? produc
                 const btnGroup = document.createElement('div');
                 btnGroup.className = 'flex items-center gap-1';
 
+                const dragHandle = document.createElement('button');
+                dragHandle.type = 'button';
+                dragHandle.title = 'Sleep om te verplaatsen';
+                dragHandle.setAttribute('aria-label', 'Sleep om te verplaatsen');
+                dragHandle.className = 'drag-handle p-1.5 border border-champagne text-taupe hover:border-charcoal hover:text-charcoal transition-colors cursor-grab active:cursor-grabbing';
+                dragHandle.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4h.01M10 10h.01M10 16h.01M14 4h.01M14 10h.01M14 16h.01"/></svg>`;
+                dragHandle.addEventListener('touchstart', () => {
+                  touchDragIndex = index;
+                  touchDropIndex = index;
+                }, { passive: true });
+                dragHandle.addEventListener('touchmove', (event) => {
+                  if (touchDragIndex === -1) return;
+                  const touch = event.touches[0];
+                  if (!touch) return;
+                  const hoverIndex = getMediaIndexFromPoint(touch.clientX, touch.clientY);
+                  if (hoverIndex !== -1 && hoverIndex !== touchDropIndex) {
+                    touchDropIndex = hoverIndex;
+                    clearDropMarkers();
+                    const target = gallery?.querySelector(`[data-media-index="${hoverIndex}"]`);
+                    target?.classList.add('ring-2', 'ring-secondary', 'ring-offset-2');
+                  }
+                  event.preventDefault();
+                }, { passive: false });
+                dragHandle.addEventListener('touchend', () => {
+                  const changed = moveItem(touchDragIndex, touchDropIndex);
+                  touchDragIndex = -1;
+                  touchDropIndex = -1;
+                  clearDropMarkers();
+                  if (changed) renderGallery();
+                }, { passive: true });
+                dragHandle.addEventListener('touchcancel', () => {
+                  touchDragIndex = -1;
+                  touchDropIndex = -1;
+                  clearDropMarkers();
+                }, { passive: true });
+
                 const upBtn = document.createElement('button');
                 upBtn.type = 'button';
                 upBtn.title = 'Omhoog';
@@ -382,6 +515,7 @@ const productFeatures:   string[] = Array.isArray(product.features)     ? produc
                   renderGallery();
                 });
 
+                btnGroup.appendChild(dragHandle);
                 btnGroup.appendChild(upBtn);
                 btnGroup.appendChild(downBtn);
                 btnGroup.appendChild(removeBtn);
@@ -412,10 +546,14 @@ const productFeatures:   string[] = Array.isArray(product.features)     ? produc
                   });
                   const result = await response.json();
                   if (result.url) {
-                    files.push(result.url);
+                    files.push(toSrc(result.url));
                   }
                 } catch (err) {
                   console.error('Upload failed:', err);
+                  if (galleryError) {
+                    galleryError.textContent = 'Uploaden mislukt voor een of meer bestanden.';
+                    galleryError.classList.remove('hidden');
+                  }
                 }
 
                 uploaded++;
@@ -458,7 +596,7 @@ const productFeatures:   string[] = Array.isArray(product.features)     ? produc
               fileInput.value = ''; // Reset
             });
 
-            (window as any).getCurrentImages = () => files;
+            (window as any).getCurrentImages = () => [...files];
             renderGallery();
           </script>
 
@@ -476,7 +614,7 @@ const productFeatures:   string[] = Array.isArray(product.features)     ? produc
             <div class="aspect-[3/4] bg-primary/5 border-b border-secondary/10">
               <img
                 id="preview-image"
-                src={encodeImagePath(product.images?.[0])}
+                src={initialPreviewImage}
                 alt={product.name}
                 class="w-full h-full object-cover"
                 onerror={`this.onerror=null;this.src='${previewFallbackImage}'`}
@@ -516,6 +654,24 @@ const productFeatures:   string[] = Array.isArray(product.features)     ? produc
   const previewTags = document.getElementById('preview-tags');
   const previewFallback = '/images/jurkvormen/a-lijn.png';
 
+  function normalizePreviewSrc(url: string) {
+    if (!url) return previewFallback;
+    if (/^https?:\/\//.test(url)) return url;
+    const raw = String(url).trim();
+    const cutAt = raw.search(/[?#]/);
+    const pathPart = cutAt === -1 ? raw : raw.slice(0, cutAt);
+    const suffix = cutAt === -1 ? '' : raw.slice(cutAt);
+    const encodedPath = pathPart.split('/').map((seg, i) => {
+      if (seg === '' && i === 0) return '';
+      try {
+        return encodeURIComponent(decodeURIComponent(seg));
+      } catch {
+        return encodeURIComponent(seg);
+      }
+    }).join('/');
+    return `${encodedPath}${suffix}` || previewFallback;
+  }
+
   function parseFeatures(raw: string) {
     return raw.split(',').map((s) => s.trim()).filter(Boolean);
   }
@@ -545,9 +701,10 @@ const productFeatures:   string[] = Array.isArray(product.features)     ? produc
     const price = String(data.get('price_range') ?? '').trim();
     const description = String(data.get('description') ?? '').trim();
     const images: string[] = (window as any).getCurrentImages?.() ?? [];
-    if (previewImage && Array.isArray(images) && images.length > 0) {
-      const url = images[0];
-      previewImage.src = /^https?:\/\//.test(url) ? url : url.split('/').map((s) => encodeURIComponent(s)).join('/');
+    if (previewImage) {
+      previewImage.src = Array.isArray(images) && images.length > 0
+        ? normalizePreviewSrc(images[0])
+        : previewFallback;
     }
     if (previewName) previewName.textContent = name || 'Naam ontbreekt';
     if (previewBrand) previewBrand.textContent = brand || 'Merk';

@@ -4,9 +4,10 @@ import { supabase } from '../../lib/supabase';
 
 const { data: employees } = await supabase
   .from('employees')
-  .select('id, first_name, last_name, role, bio, profile_photo_url, specialisms, sort_order')
+  .select('id, first_name, last_name, role, bio, profile_photo_url, specialisms, sort_order, show_on_team, team_sort_order')
   .eq('is_active', true)
-  .order('sort_order', { ascending: true, nullsFirst: true })
+  .eq('show_on_team', true)
+  .order('team_sort_order', { ascending: true, nullsFirst: true })
   .order('first_name', { ascending: true });
 
 const activeEmployees = (employees ?? []) as Array<{
@@ -18,6 +19,8 @@ const activeEmployees = (employees ?? []) as Array<{
   profile_photo_url?: string;
   specialisms?: string[];
   sort_order?: number;
+  show_on_team?: boolean;
+  team_sort_order?: number;
 }>;
 ---
 

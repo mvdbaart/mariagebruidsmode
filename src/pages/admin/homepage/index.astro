@@ -2,6 +2,7 @@
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { getServiceRoleClient } from '../../../lib/serverAuth';
 import { createClient } from '@supabase/supabase-js';
+import { HOMEPAGE_SECTION_DEFINITIONS, HOMEPAGE_SECTION_IDS, normalizeHomepageSettings } from '../../../lib/homepageSections';
 
 const supabase = getServiceRoleClient();
 const [
@@ -12,7 +13,11 @@ const [
   supabase.from('site_settings').select('homepage').eq('id', 'current').single(),
 ]);
 
-const hp = (settings?.homepage ?? {}) as Record<string, string>;
+const hp = normalizeHomepageSettings(settings?.homepage ?? {});
+const sectionDefs = HOMEPAGE_SECTION_DEFINITIONS;
+const orderedSectionDefs = hp.sections_order
+  .map((id) => sectionDefs.find((section) => section.id === id))
+  .filter(Boolean);
 
 let sliderPublicReadBlocked = false;
 let sliderHealthMessage = '';
@@ -148,54 +153,85 @@ if (!publicSupabaseUrl || !publicSupabaseAnonKey) {
         )}
       </section>
 
-      <!-- ===== PAGINA TEKSTEN ===== -->
+      <!-- ===== HOMEPAGE SECTIES ===== -->
       <section>
-        <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium mb-6">Sectieteksten</h2>
+        <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium mb-6">Homepage Secties</h2>
         <form id="hp-settings-form" class="space-y-8">
-          <div class="bg-white border border-champagne p-8 shadow-soft space-y-6">
-            <h3 class="text-[10px] uppercase tracking-[0.2em] text-taupe font-body border-b border-champagne pb-3">Real Brides &amp; Grooms</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Eyebrow tekst</label>
-                <input type="text" name="brides_eyebrow" value={hp.brides_eyebrow ?? 'Liefde vieren'}
-                  class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
-              </div>
-              <div>
-                <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Heading</label>
-                <input type="text" name="brides_heading" value={hp.brides_heading ?? 'Real Brides & Grooms'}
-                  class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
-              </div>
-              <div>
-                <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Knop tekst</label>
-                <input type="text" name="brides_btn1_text" value={hp.brides_btn1_text ?? 'Bekijk verhalen'}
-                  class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
-              </div>
-              <div>
-                <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Knop URL</label>
-                <input type="text" name="brides_btn1_url" value={hp.brides_btn1_url ?? '/inspiratie'}
-                  class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
-              </div>
-              <div class="md:col-span-2">
-                <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Uitgelicht citaat</label>
-                <input type="text" name="brides_quote" value={hp.brides_quote ?? 'We voelden ons helemaal onszelf en we vonden elkaar adembenemend prachtig!'}
-                  class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
-              </div>
+          <div class="bg-white border border-champagne p-8 shadow-soft">
+            <div class="flex items-center justify-between gap-4 mb-4">
+              <h3 class="text-[10px] uppercase tracking-[0.2em] text-taupe font-body">Sectievolgorde & zichtbaarheid</h3>
+              <p class="text-xs text-taupe font-body">Sleep secties om de homepage-volgorde te wijzigen.</p>
             </div>
-          </div>
-
-          <div class="bg-white border border-champagne p-8 shadow-soft space-y-6">
-            <h3 class="text-[10px] uppercase tracking-[0.2em] text-taupe font-body border-b border-champagne pb-3">Blog</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Eyebrow tekst</label>
-                <input type="text" name="blog_eyebrow" value={hp.blog_eyebrow ?? 'Tips & inspiratie'}
-                  class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
-              </div>
-              <div>
-                <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Heading</label>
-                <input type="text" name="blog_heading" value={hp.blog_heading ?? 'Mariage blog'}
-                  class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors" />
-              </div>
+            <input type="hidden" id="hp-sections-order" value={JSON.stringify(hp.sections_order)} />
+            <div id="hp-sections-list" class="space-y-4">
+              {orderedSectionDefs.map((section) => (
+                <article
+                  class="border border-champagne bg-ivory/30 p-5 space-y-4 cursor-move section-editor-card"
+                  data-section-id={section.id}
+                  draggable="true"
+                >
+                  <div class="flex items-start justify-between gap-4">
+                    <div class="min-w-0">
+                      <p class="text-[10px] tracking-[0.2em] uppercase text-blush-deep font-body mb-1">Sectie</p>
+                      <h4 class="font-body text-charcoal text-base">{section.label}</h4>
+                      <p class="text-xs text-taupe font-body mt-1">{section.description}</p>
+                    </div>
+                    <label class="inline-flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase text-taupe font-body shrink-0">
+                      <input
+                        type="checkbox"
+                        class="accent-blush-deep"
+                        data-visibility-toggle={section.id}
+                        checked={Boolean(hp.sections_visibility[section.id])}
+                      />
+                      Zichtbaar
+                    </label>
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {section.fields.map((field) => {
+                      const value = hp.sections_content[section.id]?.[field.key];
+                      const commonClass = 'w-full border border-champagne bg-white px-3 py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors';
+                      return (
+                        <div class={field.type === 'textarea' ? 'md:col-span-2' : ''}>
+                          <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">{field.label}</label>
+                          {field.type === 'textarea' ? (
+                            <textarea
+                              rows={3}
+                              class={commonClass}
+                              data-setting-field="true"
+                              data-section-id={section.id}
+                              data-field-key={field.key}
+                              data-field-type={field.type}
+                            >{String(value ?? '')}</textarea>
+                          ) : field.type === 'boolean' ? (
+                            <select
+                              class={commonClass}
+                              data-setting-field="true"
+                              data-section-id={section.id}
+                              data-field-key={field.key}
+                              data-field-type={field.type}
+                            >
+                              <option value="true" selected={Boolean(value) === true}>Aan</option>
+                              <option value="false" selected={Boolean(value) === false}>Uit</option>
+                            </select>
+                          ) : (
+                            <input
+                              type={field.type === 'number' ? 'number' : 'text'}
+                              min={field.type === 'number' ? field.min : undefined}
+                              max={field.type === 'number' ? field.max : undefined}
+                              value={String(value ?? '')}
+                              class={commonClass}
+                              data-setting-field="true"
+                              data-section-id={section.id}
+                              data-field-key={field.key}
+                              data-field-type={field.type}
+                            />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </article>
+              ))}
             </div>
           </div>
 
@@ -480,17 +516,98 @@ const form = document.getElementById('hp-settings-form') as HTMLFormElement;
 const saveBtn = document.getElementById('hp-save-btn') as HTMLButtonElement;
 const errorEl = document.getElementById('hp-error')!;
 const successEl = document.getElementById('hp-success')!;
+const sectionsList = document.getElementById('hp-sections-list') as HTMLElement | null;
+const sectionsOrderInput = document.getElementById('hp-sections-order') as HTMLInputElement | null;
+
+const syncSectionsOrder = () => {
+  if (!sectionsList || !sectionsOrderInput) return [];
+  const order = Array.from(sectionsList.querySelectorAll<HTMLElement>('.section-editor-card'))
+    .map((card) => card.dataset.sectionId)
+    .filter((id): id is string => Boolean(id));
+  sectionsOrderInput.value = JSON.stringify(order);
+  return order;
+};
+
+if (sectionsList) {
+  let draggedCard: HTMLElement | null = null;
+
+  sectionsList.addEventListener('dragstart', (event) => {
+    const target = (event.target as HTMLElement).closest<HTMLElement>('.section-editor-card');
+    if (!target) return;
+    draggedCard = target;
+    target.classList.add('opacity-60');
+    event.dataTransfer?.setData('text/plain', target.dataset.sectionId ?? '');
+    if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move';
+  });
+
+  sectionsList.addEventListener('dragend', () => {
+    if (draggedCard) draggedCard.classList.remove('opacity-60');
+    draggedCard = null;
+    syncSectionsOrder();
+  });
+
+  sectionsList.addEventListener('dragover', (event) => {
+    event.preventDefault();
+    if (!draggedCard) return;
+    const target = (event.target as HTMLElement).closest<HTMLElement>('.section-editor-card');
+    if (!target || target === draggedCard) return;
+    const bounds = target.getBoundingClientRect();
+    const shouldInsertBefore = event.clientY < bounds.top + bounds.height / 2;
+    if (shouldInsertBefore) {
+      sectionsList.insertBefore(draggedCard, target);
+    } else {
+      sectionsList.insertBefore(draggedCard, target.nextElementSibling);
+    }
+  });
+
+  syncSectionsOrder();
+}
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   errorEl.classList.add('hidden');
   successEl.classList.add('hidden');
-  saveBtn.textContent = 'Bezig…';
+  saveBtn.textContent = 'Bezig...';
   saveBtn.disabled = true;
 
-  const fd = new FormData(form);
-  const homepage: Record<string, string> = {};
-  for (const [k, v] of fd.entries()) homepage[k] = v as string;
+  const order = syncSectionsOrder();
+  const visibility: Record<string, boolean> = {};
+  document.querySelectorAll<HTMLInputElement>('input[data-visibility-toggle]').forEach((input) => {
+    const sectionId = input.dataset.visibilityToggle;
+    if (!sectionId) return;
+    visibility[sectionId] = input.checked;
+  });
+
+  const content: Record<string, Record<string, string | number | boolean>> = {};
+  document.querySelectorAll<HTMLElement>('[data-setting-field="true"]').forEach((fieldEl) => {
+    const sectionId = fieldEl.dataset.sectionId;
+    const fieldKey = fieldEl.dataset.fieldKey;
+    const fieldType = fieldEl.dataset.fieldType;
+    if (!sectionId || !fieldKey || !fieldType) return;
+
+    if (!content[sectionId]) content[sectionId] = {};
+
+    let value: string | number | boolean = '';
+    if (fieldType === 'boolean') {
+      value = (fieldEl as HTMLSelectElement).value === 'true';
+    } else if (fieldType === 'number') {
+      const raw = Number.parseInt((fieldEl as HTMLInputElement).value, 10);
+      value = Number.isFinite(raw) ? raw : 0;
+    } else if (
+      fieldEl instanceof HTMLInputElement ||
+      fieldEl instanceof HTMLTextAreaElement ||
+      fieldEl instanceof HTMLSelectElement
+    ) {
+      value = fieldEl.value;
+    }
+    content[sectionId][fieldKey] = value;
+  });
+
+  const homepage = {
+    sections_order: order,
+    sections_visibility: visibility,
+    sections_content: content,
+  };
 
   try {
     const res = await fetch('/api/admin/settings', {

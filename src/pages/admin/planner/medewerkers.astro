@@ -19,6 +19,20 @@ const { data: employees } = await supabase
   .order('sort_order', { ascending: true, nullsFirst: true })
   .order('first_name', { ascending: true });
 
+interface ScheduleDay {
+  active: boolean;
+  start?: string;
+  end?: string;
+}
+interface ContractSchedule {
+  mon?: ScheduleDay;
+  tue?: ScheduleDay;
+  wed?: ScheduleDay;
+  thu?: ScheduleDay;
+  fri?: ScheduleDay;
+  sat?: ScheduleDay;
+  sun?: ScheduleDay;
+}
 interface Employee {
   id: string;
   first_name: string;
@@ -31,91 +45,139 @@ interface Employee {
   contract_hours: number;
   hourly_rate?: number;
   sort_order?: number;
+  show_on_team?: boolean;
+  team_sort_order?: number;
   is_active: boolean;
+  contract_schedule?: ContractSchedule;
 }
+
+const SCHEDULE_DAYS = [
+  { key: 'mon', label: 'Maandag' },
+  { key: 'tue', label: 'Dinsdag' },
+  { key: 'wed', label: 'Woensdag' },
+  { key: 'thu', label: 'Donderdag' },
+  { key: 'fri', label: 'Vrijdag' },
+  { key: 'sat', label: 'Zaterdag' },
+  { key: 'sun', label: 'Zondag' },
+] as const;
+
+const inputClass = "w-full bg-white border border-champagne px-3 py-2 text-sm text-charcoal focus:border-blush-deep focus:ring-1 focus:ring-blush-deep/20 transition-colors outline-none rounded-lg";
+const labelClass = "block text-xs uppercase tracking-[0.15em] text-taupe font-medium mb-1";
 ---
 
-<AdminLayout title="Medewerkers - Admin">
-  <div class="min-h-screen bg-ivory py-8 px-4">
+<AdminLayout title="Medewerkers">
+  <div class="min-h-screen py-8 px-6">
     <div class="max-w-6xl mx-auto">
+
+      <!-- Page header -->
       <div class="flex items-center justify-between mb-8">
-        <div class="flex items-center gap-4">
-          <a href="/admin" class="text-[10px] uppercase tracking-widest text-accent/60 hover:text-accent transition-colors flex items-center gap-2">
+        <div>
+          <a href="/admin" class="text-[10px] uppercase tracking-widest text-taupe hover:text-charcoal transition-colors flex items-center gap-1.5 mb-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
             Dashboard
           </a>
-          <h1 class="text-3xl font-serif text-accent">Planning & Personeel</h1>
+          <h1 class="admin-heading text-3xl text-charcoal">Planning & Personeel</h1>
         </div>
-        <button id="add-employee-btn" class="px-6 py-2 bg-secondary text-white text-[10px] uppercase tracking-widest rounded hover:bg-accent transition-all">
-          Medewerker Toevoegen
+        <button id="add-employee-btn" class="btn-premium">
+          + Medewerker Toevoegen
         </button>
       </div>
 
-      <div class="flex gap-8 mb-12 border-b border-accent/10">
-        <a href="/admin/planner/medewerkers" class="pb-4 text-[10px] uppercase tracking-widest font-bold border-b-2 border-secondary text-secondary">Medewerkers</a>
-        <a href="/admin/planner/kalender" class="pb-4 text-[10px] uppercase tracking-widest text-accent/40 hover:text-accent transition-colors">Weekrooster</a>
-        <a href="/admin/planner/uren" class="pb-4 text-[10px] uppercase tracking-widest text-accent/40 hover:text-accent transition-colors">Urenregistratie</a>
-        <a href="/admin/planner/verlof" class="pb-4 text-[10px] uppercase tracking-widest text-accent/40 hover:text-accent transition-colors">Verlof & Ziekte</a>
+      <!-- Tab navigatie -->
+      <div class="flex gap-6 mb-10 border-b border-champagne">
+        <a href="/admin/planner/medewerkers" class="pb-3 text-[10px] uppercase tracking-[0.2em] border-b-2 border-blush-deep text-blush-deep font-medium -mb-px">Medewerkers</a>
+        <a href="/admin/planner/kalender" class="pb-3 text-[10px] uppercase tracking-[0.2em] text-taupe hover:text-charcoal transition-colors">Weekrooster</a>
+        <a href="/admin/planner/uren" class="pb-3 text-[10px] uppercase tracking-[0.2em] text-taupe hover:text-charcoal transition-colors">Urenregistratie</a>
+        <a href="/admin/planner/verlof" class="pb-3 text-[10px] uppercase tracking-[0.2em] text-taupe hover:text-charcoal transition-colors">Verlof & Ziekte</a>
       </div>
 
+      <!-- Medewerker kaarten -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {(employees as Employee[] | null)?.map((emp) => (
-          <div class="bg-white/50 backdrop-blur-sm border border-accent/10 p-6 rounded-lg shadow-sm hover:shadow-md transition-all group">
-            <div class="flex justify-between items-start mb-4">
+          <div class="bg-white border border-champagne shadow-soft rounded-2xl p-6 flex flex-col">
+
+            <!-- Kaart header -->
+            <div class="flex items-start justify-between mb-4">
               <div class="flex items-center gap-3">
-                <!-- Avatar -->
-                <div class="w-12 h-12 rounded-full overflow-hidden bg-accent/10 flex items-center justify-center flex-shrink-0">
+                <div class="w-12 h-12 rounded-full overflow-hidden bg-linen flex items-center justify-center shrink-0">
                   {emp.profile_photo_url
                     ? <img src={emp.profile_photo_url} alt={`${emp.first_name} ${emp.last_name}`} onerror="this.onerror=null;this.src='/images/logo/Social-Media-profielfoto.jpg'" class="w-full h-full object-cover" />
-                    : <span class="text-sm font-serif text-accent/60">{emp.first_name.charAt(0)}{emp.last_name.charAt(0)}</span>
+                    : <span class="text-sm font-display text-taupe">{emp.first_name.charAt(0)}{emp.last_name.charAt(0)}</span>
                   }
                 </div>
                 <div>
-                  <h3 class="text-lg font-serif text-accent leading-tight">{emp.first_name} {emp.last_name}</h3>
-                  <p class="text-[10px] uppercase tracking-widest text-secondary font-medium">{emp.role || 'Geen functie'}</p>
+                  <h3 class="font-display text-charcoal text-lg leading-tight">{emp.first_name} {emp.last_name}</h3>
+                  <p class="ds-eyebrow mt-0.5">{emp.role || 'Geen functie'}</p>
                 </div>
               </div>
-              <span class={`w-2 h-2 rounded-full flex-shrink-0 mt-1 ${emp.is_active ? 'bg-green-400' : 'bg-red-400'}`}></span>
+              <span class={`text-[9px] uppercase tracking-[0.12em] px-2.5 py-1 rounded-full font-medium shrink-0 ml-2 ${emp.is_active ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-500'}`}>
+                {emp.is_active ? 'Actief' : 'Inactief'}
+              </span>
             </div>
 
+            <!-- Bio -->
             {emp.bio && (
-              <p class="text-xs text-accent/60 mb-4 line-clamp-2 italic">{emp.bio}</p>
+              <p class="text-xs text-taupe italic mb-4 line-clamp-2">{emp.bio}</p>
             )}
 
+            <!-- Specialisme tags -->
             {emp.specialisms && emp.specialisms.length > 0 && (
-              <div class="flex flex-wrap gap-2 mb-4">
+              <div class="flex flex-wrap gap-1.5 mb-4">
                 {emp.specialisms.map((specialism) => (
-                  <span class="inline-flex items-center rounded-full border border-secondary/20 bg-secondary/5 px-2.5 py-1 text-[9px] uppercase tracking-widest text-secondary">
+                  <span class="text-[9px] uppercase tracking-[0.12em] px-2.5 py-1 bg-linen text-taupe border border-champagne rounded-full">
                     {specialism}
                   </span>
                 ))}
               </div>
             )}
 
-            <div class="space-y-2 mb-6">
-              <div class="flex items-center gap-2 text-xs text-accent/60">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                {emp.email || 'Geen e-mail'}
+            <!-- Details -->
+            <div class="space-y-1.5 text-xs text-taupe flex-1 mb-5">
+              <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0 text-blush-deep" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                <span class="truncate">{emp.email || 'Geen e-mail'}</span>
               </div>
-              <div class="flex items-center gap-2 text-xs text-accent/60">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                {emp.contract_hours} uur p/w
+              <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0 text-blush-deep" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <span>{emp.contract_hours} uur p/w</span>
+              </div>
+              {/* Contractrooster samenvatting */}
+              {emp.contract_schedule && Object.values(emp.contract_schedule).some((d: any) => d?.active) && (
+                <div class="flex items-start gap-2 pt-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0 text-blush-deep mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                  <div class="flex flex-wrap gap-1">
+                    {SCHEDULE_DAYS.filter(d => (emp.contract_schedule as any)?.[d.key]?.active).map(d => {
+                      const day = (emp.contract_schedule as any)[d.key];
+                      return (
+                        <span class="inline-flex items-center gap-1 text-[9px] bg-linen border border-champagne rounded px-1.5 py-0.5 font-medium text-charcoal">
+                          <span class="text-blush-deep">{d.label.slice(0, 2)}</span>
+                          {day.start && day.end && <span class="text-taupe">{day.start}–{day.end}</span>}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+              <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0 text-blush-deep" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                <span>{emp.show_on_team ? `Zichtbaar op Ons Team (#${emp.team_sort_order ?? 0})` : 'Niet zichtbaar op Ons Team'}</span>
               </div>
               {canSeeRate && emp.hourly_rate != null && (
-                <div class="flex items-center gap-2 text-xs text-accent/60">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                  €{Number(emp.hourly_rate).toFixed(2)} p/u
+                <div class="flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0 text-blush-deep" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  <span>€{Number(emp.hourly_rate).toFixed(2)} p/u</span>
                 </div>
               )}
             </div>
 
-            <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <!-- Acties — altijd zichtbaar -->
+            <div class="flex gap-2 pt-4 border-t border-champagne">
               <button
-                class="flex-1 py-1.5 border border-accent/10 text-[10px] uppercase tracking-widest text-accent hover:bg-accent hover:text-white transition-all rounded edit-btn"
+                class="flex-1 py-2 text-[10px] uppercase tracking-[0.15em] font-medium text-charcoal border border-champagne rounded-lg hover:bg-charcoal hover:text-ivory hover:border-charcoal transition-all edit-btn"
                 data-employee={JSON.stringify(emp)}
               >Bewerken</button>
               <button
-                class="py-1.5 px-3 border border-red-200 text-[10px] uppercase tracking-widest text-red-400 hover:bg-red-400 hover:text-white transition-all rounded delete-btn"
+                class="py-2 px-3 text-[10px] text-red-400 border border-red-200 rounded-lg hover:bg-red-500 hover:text-white hover:border-red-500 transition-all delete-btn"
                 data-id={emp.id}
                 data-name={`${emp.first_name} ${emp.last_name}`}
               >✕</button>
@@ -124,86 +186,146 @@ interface Employee {
         ))}
       </div>
 
+      <!-- Leeg-state -->
       {(!employees || employees.length === 0) && (
-        <div class="text-center py-20 bg-white/30 rounded-lg border border-dashed border-accent/20">
-          <p class="text-accent/60 font-serif italic">Nog geen medewerkers toegevoegd.</p>
+        <div class="text-center py-20 bg-white border border-dashed border-champagne rounded-2xl">
+          <p class="font-display italic text-taupe">Nog geen medewerkers toegevoegd.</p>
         </div>
       )}
     </div>
 
-    <!-- Add Employee Modal -->
-    <div id="add-modal" class="fixed inset-0 bg-accent/40 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-      <div class="bg-primary w-full max-w-lg p-8 rounded-lg shadow-xl border border-accent/10 max-h-[90vh] overflow-y-auto">
-        <h2 class="text-2xl font-serif text-accent mb-6">Nieuwe Medewerker</h2>
+    <!-- ── Add Employee Modal ─────────────────────────────────── -->
+    <div id="add-modal" class="fixed inset-0 bg-charcoal/40 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+      <div class="bg-white border border-champagne shadow-card rounded-2xl w-full max-w-lg p-8 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="font-display text-charcoal text-2xl italic">Nieuwe Medewerker</h2>
+          <button type="button" id="close-add-modal" class="text-taupe hover:text-charcoal transition-colors" aria-label="Sluiten">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
         <form id="add-employee-form" class="space-y-4">
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Voornaam *</label>
-              <input type="text" name="first_name" required class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
+              <label class={labelClass}>Voornaam *</label>
+              <input type="text" name="first_name" required class={inputClass} />
             </div>
             <div>
-              <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Achternaam *</label>
-              <input type="text" name="last_name" required class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
+              <label class={labelClass}>Achternaam *</label>
+              <input type="text" name="last_name" required class={inputClass} />
             </div>
           </div>
           <div>
-            <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">E-mail</label>
-            <input type="email" name="email" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
+            <label class={labelClass}>E-mail</label>
+            <input type="email" name="email" class={inputClass} />
           </div>
           <div>
-            <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Rol / Functie</label>
-            <input type="text" name="role" placeholder="bijv. Verkoopadviseur" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
+            <label class={labelClass}>Rol / Functie</label>
+            <input type="text" name="role" placeholder="bijv. Verkoopadviseur" class={inputClass} />
           </div>
           <div>
-            <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Bio</label>
-            <textarea name="bio" rows="3" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none resize-none" placeholder="Korte beschrijving..."></textarea>
+            <label class={labelClass}>Bio</label>
+            <textarea name="bio" rows="3" class={`${inputClass} resize-none`} placeholder="Korte beschrijving..."></textarea>
           </div>
           <div>
-            <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Specialismes</label>
-            <textarea name="specialisms" rows="3" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none resize-none" placeholder="Eén specialisme per regel of komma-gescheiden"></textarea>
+            <label class={labelClass}>Specialismes</label>
+            <textarea name="specialisms" rows="3" class={`${inputClass} resize-none`} placeholder="Eén specialisme per regel of komma-gescheiden"></textarea>
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Contracturen p/w</label>
-              <input type="number" name="contract_hours" value="40" step="0.5" min="0" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
+              <label class={labelClass}>Contracturen p/w</label>
+              <input type="number" name="contract_hours" value="40" step="0.5" min="0" class={inputClass} />
             </div>
             {canSeeRate && (
               <div>
-                <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Uurtarief (€)</label>
-                <input type="number" name="hourly_rate" step="0.01" min="0" placeholder="0.00" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
+                <label class={labelClass}>Uurtarief (€)</label>
+                <input type="number" name="hourly_rate" step="0.01" min="0" placeholder="0.00" class={inputClass} />
               </div>
             )}
           </div>
-          <div>
-            <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Volgorde</label>
-            <input type="number" name="sort_order" value="0" step="1" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class={labelClass}>Volgorde</label>
+              <input type="number" name="sort_order" value="0" step="1" class={inputClass} />
+            </div>
+            <div>
+              <label class={labelClass}>Team volgorde</label>
+              <input type="number" name="team_sort_order" value="0" step="1" class={inputClass} />
+            </div>
           </div>
-          <div class="flex items-center gap-2">
-            <input type="checkbox" name="is_active" id="add-is-active" checked class="accent-secondary" />
-            <label for="add-is-active" class="text-[10px] uppercase tracking-widest text-accent/60">Actief</label>
+          <!-- Contractrooster -->
+          <div class="pt-2">
+            <label class={labelClass}>Contractrooster</label>
+            <div class="space-y-1.5 mt-2 p-4 bg-linen border border-champagne rounded-xl">
+              {SCHEDULE_DAYS.map(({ key, label }) => (
+                <div class="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id={`add-sched-${key}-active`}
+                    name={`sched_${key}_active`}
+                    class="w-4 h-4 accent-blush-deep sched-toggle"
+                    data-prefix={`add-sched-${key}`}
+                  />
+                  <span class="text-xs font-medium text-charcoal w-24 shrink-0">{label}</span>
+                  <input
+                    type="time"
+                    id={`add-sched-${key}-start`}
+                    name={`sched_${key}_start`}
+                    value="09:00"
+                    disabled
+                    class="w-24 bg-white border border-champagne px-2 py-1 text-xs text-charcoal focus:border-blush-deep outline-none rounded-lg disabled:opacity-30 disabled:cursor-not-allowed"
+                  />
+                  <span class="text-taupe text-xs">–</span>
+                  <input
+                    type="time"
+                    id={`add-sched-${key}-end`}
+                    name={`sched_${key}_end`}
+                    value="17:00"
+                    disabled
+                    class="w-24 bg-white border border-champagne px-2 py-1 text-xs text-charcoal focus:border-blush-deep outline-none rounded-lg disabled:opacity-30 disabled:cursor-not-allowed"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
-          <div class="flex gap-4 mt-8">
-            <button type="button" id="close-add-modal" class="flex-1 py-3 text-[10px] uppercase tracking-widest text-accent/60 hover:text-accent transition-colors">Annuleren</button>
-            <button type="submit" class="flex-1 bg-accent text-white px-8 py-3 text-[10px] uppercase tracking-widest hover:bg-secondary transition-all rounded">Opslaan</button>
+
+          <div class="flex flex-col gap-3 pt-2">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input type="checkbox" name="is_active" id="add-is-active" checked class="w-4 h-4 accent-blush-deep" />
+              <span class="text-sm text-charcoal">Actief</span>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input type="checkbox" name="show_on_team" id="add-show-on-team" class="w-4 h-4 accent-blush-deep" />
+              <span class="text-sm text-charcoal">Tonen op Ons Team</span>
+            </label>
+          </div>
+          <div class="flex gap-3 pt-4 border-t border-champagne mt-6">
+            <button type="button" id="close-add-modal-2" class="btn-gold flex-1 justify-center">Annuleren</button>
+            <button type="submit" class="btn-premium flex-1 justify-center">Opslaan</button>
           </div>
         </form>
       </div>
     </div>
 
-    <!-- Edit Employee Modal -->
-    <div id="edit-modal" class="fixed inset-0 bg-accent/40 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-      <div class="bg-primary w-full max-w-lg p-8 rounded-lg shadow-xl border border-accent/10 max-h-[90vh] overflow-y-auto">
-        <h2 class="text-2xl font-serif text-accent mb-6">Medewerker Bewerken</h2>
+    <!-- ── Edit Employee Modal ────────────────────────────────── -->
+    <div id="edit-modal" class="fixed inset-0 bg-charcoal/40 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+      <div class="bg-white border border-champagne shadow-card rounded-2xl w-full max-w-lg p-8 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="font-display text-charcoal text-2xl italic">Medewerker Bewerken</h2>
+          <button type="button" id="close-edit-modal" class="text-taupe hover:text-charcoal transition-colors" aria-label="Sluiten">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
 
-        <!-- Photo section -->
-        <div class="mb-6 flex items-center gap-4">
-          <div id="edit-avatar" class="w-16 h-16 rounded-full overflow-hidden bg-accent/10 flex items-center justify-center flex-shrink-0">
-            <span id="edit-avatar-initials" class="text-base font-serif text-accent/60"></span>
+        <!-- Foto sectie -->
+        <div class="mb-6 flex items-center gap-4 p-4 bg-linen border border-champagne rounded-xl">
+          <div id="edit-avatar" class="w-16 h-16 rounded-full overflow-hidden bg-champagne flex items-center justify-center shrink-0">
+            <span id="edit-avatar-initials" class="text-base font-display text-taupe"></span>
           </div>
-          <div class="flex-1">
-            <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Profielfoto</label>
-            <input type="file" id="edit-photo-input" accept="image/jpeg,image/png,image/webp,image/avif" class="w-full text-xs text-accent/60 file:mr-3 file:py-1 file:px-3 file:border file:border-accent/10 file:text-[9px] file:uppercase file:tracking-widest file:bg-white file:text-accent hover:file:bg-accent/5 transition-all" />
-            <button type="button" id="edit-photo-delete" class="mt-1 text-[9px] uppercase tracking-widest text-red-400 hover:text-red-600 transition-colors hidden">Foto verwijderen</button>
+          <div class="flex-1 min-w-0">
+            <label class={labelClass}>Profielfoto</label>
+            <input type="file" id="edit-photo-input" accept="image/jpeg,image/png,image/webp,image/avif"
+              class="w-full text-xs text-taupe file:mr-3 file:py-1.5 file:px-3 file:border file:border-champagne file:rounded-md file:text-[9px] file:uppercase file:tracking-widest file:bg-white file:text-charcoal hover:file:bg-linen transition-all" />
+            <button type="button" id="edit-photo-delete" class="mt-1.5 text-[9px] uppercase tracking-widest text-red-400 hover:text-red-600 transition-colors hidden">Foto verwijderen</button>
           </div>
         </div>
 
@@ -211,53 +333,101 @@ interface Employee {
           <input type="hidden" id="edit-id" name="id" />
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Voornaam *</label>
-              <input type="text" id="edit-first-name" name="first_name" required class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
+              <label class={labelClass}>Voornaam *</label>
+              <input type="text" id="edit-first-name" name="first_name" required class={inputClass} />
             </div>
             <div>
-              <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Achternaam *</label>
-              <input type="text" id="edit-last-name" name="last_name" required class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
+              <label class={labelClass}>Achternaam *</label>
+              <input type="text" id="edit-last-name" name="last_name" required class={inputClass} />
             </div>
           </div>
           <div>
-            <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">E-mail</label>
-            <input type="email" id="edit-email" name="email" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
+            <label class={labelClass}>E-mail</label>
+            <input type="email" id="edit-email" name="email" class={inputClass} />
           </div>
           <div>
-            <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Rol / Functie</label>
-            <input type="text" id="edit-role" name="role" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
+            <label class={labelClass}>Rol / Functie</label>
+            <input type="text" id="edit-role" name="role" class={inputClass} />
           </div>
           <div>
-            <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Bio</label>
-            <textarea id="edit-bio" name="bio" rows="3" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none resize-none"></textarea>
+            <label class={labelClass}>Bio</label>
+            <textarea id="edit-bio" name="bio" rows="3" class={`${inputClass} resize-none`}></textarea>
           </div>
           <div>
-            <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Specialismes</label>
-            <textarea id="edit-specialisms" name="specialisms" rows="3" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none resize-none" placeholder="Eén specialisme per regel of komma-gescheiden"></textarea>
+            <label class={labelClass}>Specialismes</label>
+            <textarea id="edit-specialisms" name="specialisms" rows="3" class={`${inputClass} resize-none`} placeholder="Eén specialisme per regel of komma-gescheiden"></textarea>
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Contracturen p/w</label>
-              <input type="number" id="edit-contract-hours" name="contract_hours" step="0.5" min="0" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
+              <label class={labelClass}>Contracturen p/w</label>
+              <input type="number" id="edit-contract-hours" name="contract_hours" step="0.5" min="0" class={inputClass} />
             </div>
             {canSeeRate && (
               <div id="hourly-rate-field">
-                <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Uurtarief (€)</label>
-                <input type="number" id="edit-hourly-rate" name="hourly_rate" step="0.01" min="0" placeholder="0.00" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
+                <label class={labelClass}>Uurtarief (€)</label>
+                <input type="number" id="edit-hourly-rate" name="hourly_rate" step="0.01" min="0" placeholder="0.00" class={inputClass} />
               </div>
             )}
           </div>
-          <div>
-            <label class="block text-[10px] uppercase tracking-widest text-accent/60 mb-1">Volgorde</label>
-            <input type="number" id="edit-sort-order" name="sort_order" step="1" class="w-full bg-white border border-accent/10 px-3 py-2 text-sm focus:border-secondary transition-colors outline-none" />
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class={labelClass}>Volgorde</label>
+              <input type="number" id="edit-sort-order" name="sort_order" step="1" class={inputClass} />
+            </div>
+            <div>
+              <label class={labelClass}>Team volgorde</label>
+              <input type="number" id="edit-team-sort-order" name="team_sort_order" step="1" class={inputClass} />
+            </div>
           </div>
-          <div class="flex items-center gap-2">
-            <input type="checkbox" id="edit-is-active" name="is_active" class="accent-secondary" />
-            <label for="edit-is-active" class="text-[10px] uppercase tracking-widest text-accent/60">Actief</label>
+          <!-- Contractrooster -->
+          <div class="pt-2">
+            <label class={labelClass}>Contractrooster</label>
+            <div class="space-y-1.5 mt-2 p-4 bg-linen border border-champagne rounded-xl">
+              {SCHEDULE_DAYS.map(({ key, label }) => (
+                <div class="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id={`edit-sched-${key}-active`}
+                    name={`sched_${key}_active`}
+                    class="w-4 h-4 accent-blush-deep sched-toggle"
+                    data-prefix={`edit-sched-${key}`}
+                  />
+                  <span class="text-xs font-medium text-charcoal w-24 shrink-0">{label}</span>
+                  <input
+                    type="time"
+                    id={`edit-sched-${key}-start`}
+                    name={`sched_${key}_start`}
+                    value="09:00"
+                    disabled
+                    class="w-24 bg-white border border-champagne px-2 py-1 text-xs text-charcoal focus:border-blush-deep outline-none rounded-lg disabled:opacity-30 disabled:cursor-not-allowed"
+                  />
+                  <span class="text-taupe text-xs">–</span>
+                  <input
+                    type="time"
+                    id={`edit-sched-${key}-end`}
+                    name={`sched_${key}_end`}
+                    value="17:00"
+                    disabled
+                    class="w-24 bg-white border border-champagne px-2 py-1 text-xs text-charcoal focus:border-blush-deep outline-none rounded-lg disabled:opacity-30 disabled:cursor-not-allowed"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
-          <div class="flex gap-4 mt-8">
-            <button type="button" id="close-edit-modal" class="flex-1 py-3 text-[10px] uppercase tracking-widest text-accent/60 hover:text-accent transition-colors">Annuleren</button>
-            <button type="submit" class="flex-1 bg-accent text-white px-8 py-3 text-[10px] uppercase tracking-widest hover:bg-secondary transition-all rounded">Opslaan</button>
+
+          <div class="flex flex-col gap-3 pt-2">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input type="checkbox" id="edit-is-active" name="is_active" class="w-4 h-4 accent-blush-deep" />
+              <span class="text-sm text-charcoal">Actief</span>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input type="checkbox" id="edit-show-on-team" name="show_on_team" class="w-4 h-4 accent-blush-deep" />
+              <span class="text-sm text-charcoal">Tonen op Ons Team</span>
+            </label>
+          </div>
+          <div class="flex gap-3 pt-4 border-t border-champagne mt-6">
+            <button type="button" id="close-edit-modal-2" class="btn-gold flex-1 justify-center">Annuleren</button>
+            <button type="submit" class="btn-premium flex-1 justify-center">Opslaan</button>
           </div>
         </form>
       </div>
@@ -266,10 +436,55 @@ interface Employee {
 </AdminLayout>
 
 <script define:vars={{ canSeeRate }}>
+  const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+
+  // ─── Schedule toggle (enable/disable time inputs) ────────────
+  document.querySelectorAll('.sched-toggle').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const prefix = cb.getAttribute('data-prefix');
+      const startInput = document.getElementById(`${prefix}-start`);
+      const endInput = document.getElementById(`${prefix}-end`);
+      if (startInput) startInput.disabled = !cb.checked;
+      if (endInput) endInput.disabled = !cb.checked;
+    });
+  });
+
+  function buildSchedule(formData) {
+    const schedule = {};
+    for (const day of DAYS) {
+      const active = formData.get(`sched_${day}_active`) === 'on';
+      schedule[day] = {
+        active,
+        start: active ? (formData.get(`sched_${day}_start`) || '09:00') : null,
+        end: active ? (formData.get(`sched_${day}_end`) || '17:00') : null,
+      };
+    }
+    return schedule;
+  }
+
+  function fillScheduleInputs(prefix, schedule) {
+    for (const day of DAYS) {
+      const dayData = (schedule || {})[day] || {};
+      const cb = document.getElementById(`${prefix}-sched-${day}-active`);
+      const startInput = document.getElementById(`${prefix}-sched-${day}-start`);
+      const endInput = document.getElementById(`${prefix}-sched-${day}-end`);
+      if (cb) cb.checked = dayData.active || false;
+      if (startInput) {
+        startInput.value = dayData.start || '09:00';
+        startInput.disabled = !dayData.active;
+      }
+      if (endInput) {
+        endInput.value = dayData.end || '17:00';
+        endInput.disabled = !dayData.active;
+      }
+    }
+  }
+
   // ─── Add modal ───────────────────────────────────────────────
   const addModal = document.getElementById('add-modal');
   document.getElementById('add-employee-btn')?.addEventListener('click', () => addModal?.classList.remove('hidden'));
   document.getElementById('close-add-modal')?.addEventListener('click', () => addModal?.classList.add('hidden'));
+  document.getElementById('close-add-modal-2')?.addEventListener('click', () => addModal?.classList.add('hidden'));
 
   document.getElementById('add-employee-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -285,7 +500,10 @@ interface Employee {
       contract_hours: Number(formData.get('contract_hours')) || 0,
       hourly_rate: formData.get('hourly_rate') ? Number(formData.get('hourly_rate')) : null,
       sort_order: Number(formData.get('sort_order')) || 0,
+      team_sort_order: Number(formData.get('team_sort_order')) || 0,
       is_active: formData.get('is_active') === 'on',
+      show_on_team: formData.get('show_on_team') === 'on',
+      contract_schedule: buildSchedule(formData),
     };
 
     try {
@@ -320,7 +538,10 @@ interface Employee {
     document.getElementById('edit-specialisms').value = Array.isArray(emp.specialisms) ? emp.specialisms.join('\n') : '';
     document.getElementById('edit-contract-hours').value = emp.contract_hours ?? 0;
     document.getElementById('edit-sort-order').value = emp.sort_order ?? 0;
+    document.getElementById('edit-team-sort-order').value = emp.team_sort_order ?? 0;
     document.getElementById('edit-is-active').checked = emp.is_active !== false;
+    document.getElementById('edit-show-on-team').checked = emp.show_on_team === true;
+    fillScheduleInputs('edit', emp.contract_schedule || {});
 
     if (canSeeRate) {
       const rateInput = document.getElementById('edit-hourly-rate');
@@ -344,6 +565,7 @@ interface Employee {
   }
 
   document.getElementById('close-edit-modal')?.addEventListener('click', () => editModal?.classList.add('hidden'));
+  document.getElementById('close-edit-modal-2')?.addEventListener('click', () => editModal?.classList.add('hidden'));
 
   document.querySelectorAll('.edit-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -368,7 +590,10 @@ interface Employee {
       contract_hours: Number(formData.get('contract_hours')) || 0,
       hourly_rate: formData.get('hourly_rate') ? Number(formData.get('hourly_rate')) : null,
       sort_order: Number(formData.get('sort_order')) || 0,
+      team_sort_order: Number(formData.get('team_sort_order')) || 0,
       is_active: formData.get('is_active') === 'on',
+      show_on_team: formData.get('show_on_team') === 'on',
+      contract_schedule: buildSchedule(formData),
     };
 
     try {

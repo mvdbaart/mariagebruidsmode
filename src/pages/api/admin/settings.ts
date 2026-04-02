@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getAdminAuthFromCookies, getServiceRoleClient } from '../../../lib/serverAuth';
+import { normalizeHomepageSettings } from '../../../lib/homepageSections';
 
 export const GET: APIRoute = async ({ cookies }) => {
   const adminAuth = await getAdminAuthFromCookies(cookies);
@@ -31,6 +32,11 @@ export const PUT: APIRoute = async ({ request, cookies }) => {
   try {
     const body = await request.json();
     const supabase = getServiceRoleClient();
+    const { data: currentSettings } = await supabase
+      .from('site_settings')
+      .select('homepage')
+      .eq('id', 'current')
+      .single();
     
     const updatePayload: Record<string, unknown> = { updated_at: new Date().toISOString() };
     if (body.colors !== undefined) updatePayload.colors = body.colors;
@@ -38,7 +44,16 @@ export const PUT: APIRoute = async ({ request, cookies }) => {
     if (body.ui_styles !== undefined) updatePayload.ui_styles = body.ui_styles;
     if (body.site_metadata !== undefined) updatePayload.site_metadata = body.site_metadata;
     if (body.contact_info !== undefined) updatePayload.contact_info = body.contact_info;
-    if (body.homepage !== undefined) updatePayload.homepage = body.homepage;
+    if (body.homepage !== undefined) {
+      const currentHomepage = (currentSettings?.homepage ?? {}) as Record<string, unknown>;
+      const incomingHomepage = (body.homepage && typeof body.homepage === 'object')
+        ? (body.homepage as Record<string, unknown>)
+        : {};
+      updatePayload.homepage = normalizeHomepageSettings({
+        ...currentHomepage,
+        ...incomingHomepage,
+      });
+    }
 
     const { data, error } = await supabase
       .from('site_settings')
