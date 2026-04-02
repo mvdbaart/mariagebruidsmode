@@ -1,0 +1,70 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import CheckoutForm from '../../components/CheckoutForm';
+import { getServiceRoleClient } from '../../lib/serverAuth';
+
+const { slug } = Astro.params;
+
+const supabase = getServiceRoleClient();
+const { data: product, error } = await supabase
+  .from('products')
+  .select('id, name, brand, price, maten, images, in_stock, collections(title)')
+  .eq('slug', slug!)
+  .single();
+
+if (error || !product) {
+  return Astro.redirect('/404');
+}
+
+if (!product.in_stock || !product.price) {
+  return Astro.redirect(`/product/${slug}`);
+}
+
+const stripePublishableKey = import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY;
+---
+
+<Layout
+  title={`Bestellen — ${product.name} | Mariage Bruidsmode`}
+  description={`Bestel ${product.name} veilig online bij Mariage Bruidsmode.`}
+>
+  <main class="min-h-screen bg-ivory py-16 px-4">
+    <div class="max-w-2xl mx-auto">
+      <!-- Breadcrumb -->
+      <nav class="mb-8 text-sm text-taupe">
+        <a href="/trouwjurken" class="hover:text-gold transition-colors">Collectie</a>
+        <span class="mx-2">/</span>
+        <a href={`/product/${slug}`} class="hover:text-gold transition-colors">{product.name}</a>
+        <span class="mx-2">/</span>
+        <span class="text-charcoal">Bestellen</span>
+      </nav>
+
+      <div class="text-center mb-10">
+        <p class="ds-eyebrow mb-2">Veilig online bestellen</p>
+        <h1 class="font-display text-3xl md:text-4xl text-charcoal">{product.name}</h1>
+        {product.brand && <p class="text-taupe mt-1">{product.brand}</p>}
+      </div>
+
+      <CheckoutForm
+        client:load
+        product={{
+          id: product.id,
+          name: product.name,
+          brand: product.brand,
+          price: product.price,
+          maten: product.maten,
+          images: product.images,
+        }}
+        stripePublishableKey={stripePublishableKey}
+      />
+
+      <div class="mt-10 pt-8 border-t border-linen text-center">
+        <p class="text-xs text-taupe max-w-sm mx-auto leading-relaxed">
+          Heeft u vragen? Neem contact op via{' '}
+          <a href="tel:+31402864052" class="text-gold hover:underline">040 286 40 52</a>{' '}
+          of maak een{' '}
+          <a href="/afspraak-maken" class="text-gold hover:underline">pasafspraak</a>.
+        </p>
+      </div>
+    </div>
+  </main>
+</Layout>

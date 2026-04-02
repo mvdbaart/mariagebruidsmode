@@ -44,6 +44,7 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
       hals:        body.hals        ? String(body.hals).trim()        : null,
       mouw:        body.mouw        ? String(body.mouw).trim()        : null,
       sale_price:  body.sale_price  ? String(body.sale_price).trim()  : null,
+      price:       body.price != null && !isNaN(Number(body.price)) ? Number(body.price) : null,
       in_stock:    typeof body.in_stock === 'boolean' ? body.in_stock : true,
       materialen:  Array.isArray(body.materialen)  ? body.materialen  : [],
       kleur:       Array.isArray(body.kleur)        ? body.kleur       : [],

@@ -89,6 +89,12 @@ const productFeatures:   string[] = Array.isArray(product.features)     ? produc
               <input type="text" name="sale_price" value={product.sale_price ?? ''} class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent" placeholder="€ 995 (leeg = geen aanbieding)" />
             </div>
 
+            <div class="space-y-2">
+              <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Online verkoopprijs (Stripe)</label>
+              <input type="number" name="price" min="0" step="0.01" value={product.price ?? ''} class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent" placeholder="995.00 (leeg = niet online te bestellen)" />
+              <p class="text-[10px] text-accent/50">Vul dit in om directe online bestelling via Stripe te activeren.</p>
+            </div>
+
             <div class="space-y-2 flex items-center gap-4 pt-2">
               <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Op voorraad</label>
               <label class="relative inline-flex items-center cursor-pointer">
@@ -641,6 +647,7 @@ const productFeatures:   string[] = Array.isArray(product.features)     ? produc
         hals: hals || null,
         mouw: mouw || null,
         sale_price: sale_price || null,
+        price: formData.get('price') ? parseFloat(String(formData.get('price'))) : null,
         in_stock,
         materialen, kleur, maten, categorieen,
       }),

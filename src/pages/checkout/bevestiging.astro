@@ -1,0 +1,62 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+// Stripe redirects here with ?payment_intent=pi_...&payment_intent_client_secret=...&redirect_status=succeeded
+const redirectStatus = Astro.url.searchParams.get('redirect_status');
+const paymentIntentId = Astro.url.searchParams.get('payment_intent');
+
+const succeeded = redirectStatus === 'succeeded';
+---
+
+<Layout
+  title="Bestelling bevestigd — Mariage Bruidsmode"
+  description="Uw bestelling is ontvangen. Bedankt voor uw aankoop bij Mariage Bruidsmode."
+>
+  <main class="min-h-screen bg-ivory flex items-center justify-center py-20 px-4">
+    <div class="max-w-lg w-full text-center">
+      {succeeded ? (
+        <>
+          <div class="w-16 h-16 rounded-full bg-green-50 border border-green-200 flex items-center justify-center mx-auto mb-6">
+            <svg class="w-8 h-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <p class="ds-eyebrow mb-3">Betaling geslaagd</p>
+          <h1 class="font-display text-3xl md:text-4xl text-charcoal mb-4">
+            Bedankt voor uw bestelling
+          </h1>
+          <p class="text-taupe leading-relaxed mb-2">
+            U ontvangt een bevestiging op het opgegeven e-mailadres. Wij nemen zo spoedig mogelijk contact met u op voor de verdere afhandeling.
+          </p>
+          {paymentIntentId && (
+            <p class="text-xs text-taupe/70 mt-2 mb-8">Referentie: {paymentIntentId}</p>
+          )}
+        </>
+      ) : (
+        <>
+          <div class="w-16 h-16 rounded-full bg-red-50 border border-red-200 flex items-center justify-center mx-auto mb-6">
+            <svg class="w-8 h-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+          <p class="ds-eyebrow mb-3">Betaling mislukt</p>
+          <h1 class="font-display text-3xl text-charcoal mb-4">
+            Er is iets misgegaan
+          </h1>
+          <p class="text-taupe leading-relaxed mb-8">
+            Uw betaling is niet verwerkt. Probeer het opnieuw of neem contact met ons op.
+          </p>
+        </>
+      )}
+
+      <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <a href="/trouwjurken" class="btn-gold px-8 py-3 rounded-lg text-sm">
+          Bekijk collectie
+        </a>
+        <a href="/afspraak-maken" class="btn-blush px-8 py-3 rounded-lg text-sm">
+          Pasafspraak maken
+        </a>
+      </div>
+    </div>
+  </main>
+</Layout>

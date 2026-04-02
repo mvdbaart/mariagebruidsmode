@@ -25,6 +25,7 @@ const [
   { count: todayAppointmentCount },
   { count: overdueTaskCount },
   { count: overdueOrderCount },
+  { count: onlineOrderCount },
 ] = await Promise.all([
   supabase.from('products').select('*', { count: 'exact', head: true }),
   supabase.from('collections').select('*', { count: 'exact', head: true }),
@@ -43,6 +44,7 @@ const [
   supabase.from('appointments').select('*', { count: 'exact', head: true }).eq('preferred_date', today),
   supabase.from('customer_tasks').select('*', { count: 'exact', head: true }).is('completed_at', null).lt('due_date', today),
   supabase.from('orders').select('*', { count: 'exact', head: true }).in('status', ['besteld', 'verwacht']).lt('expected_delivery_date', today),
+  supabase.from('customer_orders').select('*', { count: 'exact', head: true }).eq('status', 'betaald'),
 ]);
 
 const stats = [
@@ -55,6 +57,7 @@ const stats = [
   { label: 'Formulieren', value: formCount ?? 0, href: '/admin/formulieren', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>` }, // Placeholder icon
   { label: 'Leveranciers', value: supplierCount ?? 0, href: '/admin/leveranciers', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 11V7a5 5 0 0 1 10 0v4"/><path d="M12 18v4"/><path d="M2 11h20v4a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5v-4z"/></svg>` },
   { label: 'Medewerkers', value: pendingTaskCount ?? 0, href: '/admin/planner/medewerkers', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>` },
+  { label: 'Online bestellingen', value: onlineOrderCount ?? 0, href: '/admin/online-bestellingen', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" x2="21" y1="6" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>` },
 ];
 
 const todayFormatted = new Date().toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' });

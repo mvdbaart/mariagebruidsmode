@@ -270,12 +270,19 @@ const productSpecs = rawFeatures
 
           <!-- CTA buttons -->
           <div class="flex flex-col sm:flex-row gap-4 mb-4">
-            <a href="/afspraak-maken" class="btn-premium flex-1 justify-center py-4">
+            {product.price && product.in_stock && (
+              <a href={`/checkout/${product.slug}`} class="btn-premium flex-1 justify-center py-4">
+                Direct bestellen
+              </a>
+            )}
+            <a href="/afspraak-maken" class={`${product.price && product.in_stock ? 'btn-gold' : 'btn-premium'} flex-1 justify-center py-4`}>
               Pasafspraak maken
             </a>
-            <a href="tel:+31402863673" class="btn-gold flex-1 justify-center py-4">
-              Bel ons
-            </a>
+            {(!product.price || !product.in_stock) && (
+              <a href="tel:+31402863673" class="btn-gold flex-1 justify-center py-4">
+                Bel ons
+              </a>
+            )}
           </div>
 
           <!-- Wishlist button -->
@@ -411,6 +418,9 @@ const productSpecs = rawFeatures
     </div>
     <div class="flex items-center gap-4 w-full md:w-auto">
       <a href="tel:+31402863673" class="hidden sm:flex btn-gold px-8 py-3 text-[10px]">BEL ONS</a>
+      {product.price && product.in_stock && (
+        <a href={`/checkout/${product.slug}`} class="hidden sm:flex btn-premium px-8 py-3 text-[10px]">BESTELLEN</a>
+      )}
       <a href="/afspraak-maken" class="flex-1 md:flex-none btn-blush px-12 py-3 text-[10px]">AFSPRAAK PLANNEN</a>
     </div>
   </div>
