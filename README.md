@@ -44,3 +44,12 @@ All commands are run from the root of the project, from a terminal:
 ## 👀 Want to learn more?
 
 Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+
+## Virtual try-on
+
+The product detail pages now include a virtual try-on flow that uses `gpt-image-1.5` on the server side.
+
+- Add `OPENAI_API_KEY` to `.env.local`
+- Visitors upload a JPG, PNG, or WebP photo
+- The selected product image is used as outfit reference when available
+- Generated previews are returned to the browser and are not stored permanently

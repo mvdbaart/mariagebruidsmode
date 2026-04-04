@@ -5,6 +5,7 @@ import { getAdminAuthFromCookies } from '../../lib/serverAuth';
 import { PRODUCT_QUALITIES } from '../../lib/productQualities';
 import { labelFor, PASVORM, HALS, MOUW, MATERIALEN, KLEUREN } from '../../lib/productAttributes';
 import { normalizeImageList, normalizeImageUrl } from '../../lib/imageUrls';
+import VirtualTryOn from '../../components/VirtualTryOn';
 
 export const prerender = false;
 
@@ -279,6 +280,16 @@ const productSpecs = rawFeatures
               Bel ons
             </a>
           </div>
+
+          <VirtualTryOn
+            client:load
+            productSlug={product.slug}
+            productName={product.name}
+            productImage={mainImageSrc}
+            productType={isGroom ? 'suit' : 'dress'}
+            collectionName={product.collections?.title}
+            brand={product.brand}
+          />
 
           <!-- Wishlist button -->
           <button
