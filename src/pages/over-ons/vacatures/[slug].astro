@@ -1,0 +1,109 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { supabase } from '../../../lib/supabase';
+
+const { slug } = Astro.params;
+
+const { data: vacancy } = await supabase
+  .from('vacancies')
+  .select('*')
+  .eq('slug', slug)
+  .eq('is_active', true)
+  .single();
+
+if (!vacancy) {
+  return Astro.redirect('/404');
+}
+
+const employmentLabels: Record<string, string> = {
+  full_time: 'Fulltime',
+  part_time: 'Parttime',
+  temporary: 'Tijdelijk',
+  internship: 'Stage',
+  freelance: 'Freelance',
+};
+
+const formatHours = (min?: number | null, max?: number | null) => {
+  if (min == null && max == null) return '';
+  if (min != null && max != null && min !== max) return `${min}-${max} uur`;
+  const value = min ?? max ?? 0;
+  return `${value} uur`;
+};
+
+const buildApplyHref = () => {
+  if (vacancy.application_url?.trim()) return vacancy.application_url.trim();
+  const subject = encodeURIComponent(`Sollicitatie: ${vacancy.title}`);
+  return vacancy.application_email?.trim()
+    ? `mailto:${vacancy.application_email.trim()}?subject=${subject}`
+    : `mailto:bruidsmode@mariagebruidsmode.nl?subject=${subject}`;
+};
+---
+
+<Layout title={`${vacancy.title} | Vacatures`}>
+  <section class="pt-40 pb-20 bg-ivory">
+    <div class="container mx-auto px-6 max-w-5xl">
+      <nav class="flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-8 flex-wrap">
+        <a href="/" class="hover:text-charcoal transition-colors">Home</a>
+        <span class="text-champagne">›</span>
+        <a href="/over-ons/vacatures/" class="hover:text-charcoal transition-colors">Vacatures</a>
+        <span class="text-champagne">›</span>
+        <span class="text-blush-deep">{vacancy.title}</span>
+      </nav>
+
+      <div class="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-10 lg:gap-16 items-start">
+        <div>
+          <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-5">
+            {vacancy.department || 'Vacature'}
+          </p>
+          <h1 class="font-display text-charcoal leading-[0.98] mb-6" style="font-size: clamp(42px, 6vw, 76px);">
+            {vacancy.title}
+          </h1>
+          <div class="flex flex-wrap gap-2 mb-8 text-[9px] uppercase tracking-[0.18em]">
+            {vacancy.employment_type && (
+              <span class="inline-flex items-center rounded-full border border-blush-deep/15 bg-white px-3 py-1 text-taupe">
+                {employmentLabels[vacancy.employment_type] ?? vacancy.employment_type}
+              </span>
+            )}
+            {vacancy.location && (
+              <span class="inline-flex items-center rounded-full border border-blush-deep/15 bg-white px-3 py-1 text-taupe">
+                {vacancy.location}
+              </span>
+            )}
+            {formatHours(vacancy.hours_min, vacancy.hours_max) && (
+              <span class="inline-flex items-center rounded-full border border-blush-deep/15 bg-white px-3 py-1 text-taupe">
+                {formatHours(vacancy.hours_min, vacancy.hours_max)}
+              </span>
+            )}
+          </div>
+
+          {vacancy.summary && <p class="text-taupe font-light text-lg leading-relaxed mb-8 max-w-3xl">{vacancy.summary}</p>}
+          {vacancy.description && <p class="text-taupe font-light leading-relaxed whitespace-pre-line">{vacancy.description}</p>}
+        </div>
+
+        <aside class="bg-white border border-champagne rounded-[28px] p-6 md:p-8 shadow-soft">
+          <p class="text-[10px] tracking-[0.35em] uppercase text-blush-deep font-body mb-4">Solliciteren</p>
+          <h2 class="font-display text-charcoal text-3xl mb-4">Interesse in deze <em class="italic font-light text-taupe">functie?</em></h2>
+          <p class="text-taupe font-light leading-relaxed mb-8">
+            Solliciteer direct of neem contact met ons op via e-mail. We reageren zo snel mogelijk.
+          </p>
+
+          <div class="space-y-3">
+            <a href={buildApplyHref()} class="btn-blush w-full justify-center px-8 py-4">
+              {vacancy.cta_label || 'Solliciteer direct'}
+            </a>
+            <a href="/over-ons/vacatures/" class="btn-gold w-full justify-center px-8 py-4">
+              Terug naar overzicht
+            </a>
+          </div>
+
+          {(vacancy.application_email || vacancy.application_url) && (
+            <div class="mt-8 pt-6 border-t border-champagne text-sm text-taupe font-light space-y-2">
+              {vacancy.application_email && <p>E-mail: {vacancy.application_email}</p>}
+              {vacancy.application_url && <p>Solliciteren via link: {vacancy.application_url}</p>}
+            </div>
+          )}
+        </aside>
+      </div>
+    </div>
+  </section>
+</Layout>

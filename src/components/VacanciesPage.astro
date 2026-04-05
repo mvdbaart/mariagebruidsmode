@@ -33,13 +33,7 @@ const formatHours = (min?: number | null, max?: number | null) => {
   return `${value} uur`;
 };
 
-const buildApplyHref = (vacancy: Vacancy) => {
-  if (vacancy.application_url?.trim()) return vacancy.application_url.trim();
-  const subject = encodeURIComponent(`Sollicitatie: ${vacancy.title}`);
-  return vacancy.application_email?.trim()
-    ? `mailto:${vacancy.application_email.trim()}?subject=${subject}`
-    : `mailto:bruidsmode@mariagebruidsmode.nl?subject=${subject}`;
-};
+const buildDetailHref = (vacancy: Vacancy) => `/over-ons/vacatures/${vacancy.slug}`;
 ---
 
 <section class="pt-40 pb-24 bg-ivory">
@@ -70,7 +64,11 @@ const buildApplyHref = (vacancy: Vacancy) => {
                 <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-3">
                   {vacancy.department || 'Vacature'}
                 </p>
-                <h3 class="font-display text-charcoal text-3xl leading-tight mb-3">{vacancy.title}</h3>
+                <h3 class="font-display text-charcoal text-3xl leading-tight mb-3">
+                  <a href={buildDetailHref(vacancy)} class="hover:text-blush-deep transition-colors">
+                    {vacancy.title}
+                  </a>
+                </h3>
                 <div class="flex flex-wrap gap-2 text-[9px] uppercase tracking-[0.18em]">
                   {vacancy.employment_type && (
                     <span class="inline-flex items-center rounded-full border border-blush-deep/15 bg-white px-3 py-1 text-taupe">
@@ -92,14 +90,14 @@ const buildApplyHref = (vacancy: Vacancy) => {
             </div>
 
             {vacancy.summary && <p class="text-taupe font-light leading-relaxed text-sm">{vacancy.summary}</p>}
-            {vacancy.description && <p class="text-taupe font-light leading-relaxed text-sm whitespace-pre-line">{vacancy.description}</p>}
+            {vacancy.description && <p class="text-taupe font-light leading-relaxed text-sm line-clamp-4">{vacancy.description}</p>}
 
             <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between pt-2 border-t border-champagne">
               <p class="text-[10px] uppercase tracking-[0.22em] text-taupe font-body">
-                {vacancy.cta_label || 'Solliciteer direct'}
+                {vacancy.cta_label || 'Bekijk vacature'}
               </p>
-              <a href={buildApplyHref(vacancy)} class="btn-blush px-6 py-3 text-[10px] text-center">
-                Solliciteer
+              <a href={buildDetailHref(vacancy)} class="btn-blush px-6 py-3 text-[10px] text-center">
+                Bekijk vacature
               </a>
             </div>
           </article>
