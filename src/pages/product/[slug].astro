@@ -97,7 +97,7 @@ const productSpecs = rawFeatures
           )}
 
           <!-- Main image -->
-          <div class="flex-1 aspect-[3/4] bg-linen relative overflow-hidden group shadow-card">
+          <div id="product-main-media" class="flex-1 bg-linen relative overflow-hidden group shadow-card" style="--product-aspect: 3 / 4; aspect-ratio: var(--product-aspect);">
             {productImages?.[0] ? (
               <button id="open-lightbox" class="block w-full h-full cursor-zoom-in" aria-label="Afbeelding vergroten">
                 <img
@@ -105,7 +105,7 @@ const productSpecs = rawFeatures
                   src={mainImageSrc}
                   alt={product.name}
                   onerror={`this.onerror=null;this.src='${primaryFallbackImage}'`}
-                  class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103"
+                  class="w-full h-full object-contain bg-ivory"
                   loading="eager"
                 />
               </button>
@@ -432,7 +432,17 @@ const productSpecs = rawFeatures
 <script>
   // Thumbnail image switcher
   const thumbBtns = document.querySelectorAll<HTMLButtonElement>('.thumb-btn');
+  const mainMedia = document.getElementById('product-main-media') as HTMLDivElement | null;
   const mainImg = document.getElementById('main-product-image') as HTMLImageElement | null;
+
+  function syncMainMediaAspect(imageEl: HTMLImageElement | null) {
+    if (!mainMedia || !imageEl) return;
+    const width = imageEl.naturalWidth;
+    const height = imageEl.naturalHeight;
+    if (width > 0 && height > 0) {
+      mainMedia.style.setProperty('--product-aspect', `${width} / ${height}`);
+    }
+  }
 
   // Collect all image srcs for lightbox navigation
   const allImages: string[] = [];
@@ -462,6 +472,11 @@ const productSpecs = rawFeatures
   // Smooth opacity transition on main image
   if (mainImg) {
     mainImg.style.transition = 'opacity 0.18s ease';
+    if (mainImg.complete) {
+      syncMainMediaAspect(mainImg);
+    } else {
+      mainImg.addEventListener('load', () => syncMainMediaAspect(mainImg));
+    }
   }
 
   // Lightbox
@@ -717,4 +732,3 @@ const productSpecs = rawFeatures
     transform: none;
   }
 </style>
-
