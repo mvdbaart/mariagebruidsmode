@@ -16,7 +16,7 @@ const supabase = getServiceRoleClient();
 const { data: employees } = await supabase
   .from('employees')
   .select('*')
-  .order('sort_order', { ascending: true, nullsFirst: true })
+  .order('team_sort_order', { ascending: true, nullsFirst: true })
   .order('first_name', { ascending: true });
 
 interface ScheduleDay {
@@ -83,6 +83,10 @@ const labelClass = "block text-xs uppercase tracking-[0.15em] text-taupe font-me
         </button>
       </div>
 
+      <div class="mb-6 rounded-2xl border border-champagne bg-ivory px-4 py-3 text-sm text-taupe">
+        Sleep de kaarten om de volgorde op <span class="text-charcoal font-medium">Ons Team</span> en de homepage te bepalen.
+      </div>
+
       <!-- Tab navigatie -->
       <div class="flex gap-6 mb-10 border-b border-champagne">
         <a href="/admin/planner/medewerkers" class="pb-3 text-[10px] uppercase tracking-[0.2em] border-b-2 border-blush-deep text-blush-deep font-medium -mb-px">Medewerkers</a>
@@ -92,12 +96,24 @@ const labelClass = "block text-xs uppercase tracking-[0.15em] text-taupe font-me
       </div>
 
       <!-- Medewerker kaarten -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-employee-grid>
         {(employees as Employee[] | null)?.map((emp) => (
-          <div class="bg-white border border-champagne shadow-soft rounded-2xl p-6 flex flex-col">
+          <div class="bg-white border border-champagne shadow-soft rounded-2xl p-6 flex flex-col relative" draggable="true" data-employee-card data-employee-id={emp.id}>
+
+            <button
+              type="button"
+              class="drag-handle absolute top-4 right-4 inline-flex items-center gap-2 rounded-full border border-champagne bg-white px-3 py-1 text-[9px] uppercase tracking-[0.2em] text-taupe hover:text-charcoal hover:border-charcoal transition-colors cursor-grab active:cursor-grabbing"
+              aria-label={`Sleep ${emp.first_name} ${emp.last_name} om de volgorde te wijzigen`}
+              data-drag-handle
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M9 5h.01M15 5h.01M9 12h.01M15 12h.01M9 19h.01M15 19h.01" />
+              </svg>
+              Sleep
+            </button>
 
             <!-- Kaart header -->
-            <div class="flex items-start justify-between mb-4">
+            <div class="flex items-start justify-between mb-4 pr-16">
               <div class="flex items-center gap-3">
                 <div class="w-12 h-12 rounded-full overflow-hidden bg-linen flex items-center justify-center shrink-0">
                   {emp.profile_photo_url
@@ -481,6 +497,105 @@ const labelClass = "block text-xs uppercase tracking-[0.15em] text-taupe font-me
   }
 
   // ─── Add modal ───────────────────────────────────────────────
+  const employeeGrid = document.querySelector('[data-employee-grid]');
+  const employeeCards = Array.from(document.querySelectorAll('[data-employee-card]'));
+  let draggedEmployeeCard = null;
+  let employeeReorderDirty = false;
+  let employeeReorderSaving = false;
+
+  function currentEmployeeOrder() {
+    return Array.from(document.querySelectorAll('[data-employee-card]'))
+      .map((card) => card.dataset.employeeId || '')
+      .filter(Boolean);
+  }
+
+  async function persistEmployeeOrder() {
+    if (employeeReorderSaving) return;
+    const employee_ids = currentEmployeeOrder();
+    if (employee_ids.length === 0) return;
+
+    employeeReorderSaving = true;
+    try {
+      const resp = await fetch('/api/admin/employees/reorder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ employee_ids }),
+      });
+
+      if (resp.ok) {
+        window.location.reload();
+        return;
+      }
+
+      const err = await resp.json().catch(() => ({ error: 'Volgorde opslaan mislukt' }));
+      alert('Fout: ' + (err.error || 'Volgorde opslaan mislukt'));
+      window.location.reload();
+    } catch {
+      alert('Er is een fout opgetreden.');
+      window.location.reload();
+    } finally {
+      employeeReorderSaving = false;
+    }
+  }
+
+  function setDraggedState(card, active) {
+    card.classList.toggle('opacity-60', active);
+    card.classList.toggle('scale-[0.98]', active);
+  }
+
+  function reorderCard(targetCard, clientY) {
+    if (!draggedEmployeeCard || !employeeGrid || targetCard === draggedEmployeeCard) return;
+
+    const rect = targetCard.getBoundingClientRect();
+    const insertBefore = clientY < rect.top + rect.height / 2;
+    const destination = insertBefore ? targetCard : targetCard.nextElementSibling;
+
+    if (destination !== draggedEmployeeCard) {
+      employeeGrid.insertBefore(draggedEmployeeCard, destination);
+      employeeReorderDirty = true;
+    }
+  }
+
+  function bindEmployeeCard(card) {
+    card.addEventListener('dragstart', (event) => {
+      const target = event.target;
+      if (!(target instanceof Element) || !target.closest('[data-drag-handle]')) {
+        event.preventDefault();
+        return;
+      }
+
+      draggedEmployeeCard = card;
+      employeeReorderDirty = false;
+      setDraggedState(card, true);
+
+      if (event.dataTransfer) {
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/plain', card.dataset.employeeId || '');
+      }
+    });
+
+    card.addEventListener('dragover', (event) => {
+      if (!draggedEmployeeCard) return;
+      event.preventDefault();
+      reorderCard(card, event.clientY);
+    });
+
+    card.addEventListener('dragenter', (event) => {
+      if (!draggedEmployeeCard) return;
+      event.preventDefault();
+    });
+
+    card.addEventListener('dragend', () => {
+      setDraggedState(card, false);
+      const shouldPersist = employeeReorderDirty;
+      draggedEmployeeCard = null;
+      employeeReorderDirty = false;
+      if (shouldPersist) void persistEmployeeOrder();
+    });
+  }
+
+  employeeCards.forEach(bindEmployeeCard);
+
   const addModal = document.getElementById('add-modal');
   document.getElementById('add-employee-btn')?.addEventListener('click', () => addModal?.classList.remove('hidden'));
   document.getElementById('close-add-modal')?.addEventListener('click', () => addModal?.classList.add('hidden'));

@@ -13,7 +13,7 @@ export const GET: APIRoute = async ({ cookies }) => {
     const { data, error } = await supabase
       .from('employees')
       .select('*')
-      .order('sort_order', { ascending: true, nullsFirst: true })
+      .order('team_sort_order', { ascending: true, nullsFirst: true })
       .order('first_name', { ascending: true });
 
     if (error) throw error;
