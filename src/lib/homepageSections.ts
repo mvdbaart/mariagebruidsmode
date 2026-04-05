@@ -1,7 +1,15 @@
+import {
+  getDefaultHomepageCategorySliderItems,
+  normalizeHomepageCategorySliderItems,
+  type HomepageCategorySliderItem,
+} from './homepageCategorySlider.ts';
+
 export const HOMEPAGE_SECTION_IDS = [
   'hero',
+  'category_slider',
   'style_chips',
   'collections',
+  'mens_brands',
   'product_grid',
   'stories',
   'style_finder',
@@ -13,6 +21,20 @@ export const HOMEPAGE_SECTION_IDS = [
 
 export type HomepageSectionId = (typeof HOMEPAGE_SECTION_IDS)[number];
 type FieldType = 'text' | 'textarea' | 'url' | 'number' | 'boolean';
+type PromoBannerTheme = 'charcoal' | 'blush' | 'champagne' | 'ivory';
+
+export type PromoBannerSettingsNormalized = {
+  enabled: boolean;
+  theme: PromoBannerTheme;
+  messages: string[];
+  rotation_ms: number;
+  transition_ms: number;
+  pause_on_hover: boolean;
+  dismissible: boolean;
+  remember_dismissal: boolean;
+  link_url: string;
+  open_in_new_tab: boolean;
+};
 
 export type HomepageSectionDefinition = {
   id: HomepageSectionId;
@@ -27,13 +49,15 @@ export type HomepageSettingsNormalized = {
   sections_order: HomepageSectionId[];
   sections_visibility: Record<HomepageSectionId, boolean>;
   sections_content: HomepageSectionsContent;
+  promo_banner: PromoBannerSettingsNormalized;
+  category_slider_items: HomepageCategorySliderItem[];
 } & Record<string, unknown>;
 
 export const HOMEPAGE_SECTION_DEFINITIONS: HomepageSectionDefinition[] = [
   {
     id: 'hero',
     label: 'Hero',
-    description: 'Bovenste slider en primaire call-to-actions.',
+    description: 'Bovenste introductie met virtueel pashokje en primaire call-to-actions.',
     fields: [
       { key: 'eyebrow', label: 'Eyebrow', type: 'text' },
       { key: 'title', label: 'Titel', type: 'text' },
@@ -48,6 +72,12 @@ export const HOMEPAGE_SECTION_DEFINITIONS: HomepageSectionDefinition[] = [
       { key: 'show_dots', label: 'Dots tonen', type: 'boolean' },
       { key: 'pause_on_hover', label: 'Pauzeren bij hover', type: 'boolean' },
     ],
+  },
+  {
+    id: 'category_slider',
+    label: 'Categorie Slider',
+    description: 'Carousel met 12 jurkenstijlen onder de hero.',
+    fields: [],
   },
   {
     id: 'style_chips',
@@ -74,6 +104,12 @@ export const HOMEPAGE_SECTION_DEFINITIONS: HomepageSectionDefinition[] = [
       { key: 'heading', label: 'Heading', type: 'text' },
       { key: 'subheading', label: 'Subheading', type: 'textarea' },
     ],
+  },
+  {
+    id: 'mens_brands',
+    label: 'Herenmodemerken',
+    description: 'Overzicht met herenmodemerken in dezelfde kaartstijl.',
+    fields: [],
   },
   {
     id: 'product_grid',
@@ -160,8 +196,10 @@ export const HOMEPAGE_DEFAULTS: HomepageSettingsNormalized = {
   sections_order: [...HOMEPAGE_SECTION_IDS],
   sections_visibility: {
     hero: true,
+    category_slider: true,
     style_chips: true,
     collections: true,
+    mens_brands: true,
     product_grid: true,
     stories: true,
     style_finder: true,
@@ -170,21 +208,39 @@ export const HOMEPAGE_DEFAULTS: HomepageSettingsNormalized = {
     team: true,
     appointment_cta: true,
   },
+  promo_banner: {
+    enabled: true,
+    theme: 'charcoal',
+    messages: [
+      '🌸 Lenteactie | Accessoirecheque t.w.v. € 150,- bij elke aankoop',
+      '🥂 Prosecco bij ontvangst | Plan jouw droomafspraak',
+      '✨ Nieuwe collecties 2026 | Bekijk onze trouwjurken en pakken',
+    ],
+    rotation_ms: 4000,
+    transition_ms: 450,
+    pause_on_hover: true,
+    dismissible: true,
+    remember_dismissal: true,
+    link_url: '',
+    open_in_new_tab: false,
+  },
+  category_slider_items: getDefaultHomepageCategorySliderItems(),
   sections_content: {
     hero: {
-      eyebrow: 'Mariage Bruidsmode',
-      title: 'Vind jouw droomjurk',
-      subtitle: 'Ontdek onze romantische collectie en krijg persoonlijk stijladvies in een rustige boutique-ervaring.',
-      button1_text: 'Afspraak maken',
-      button1_url: '/afspraak-maken',
-      button2_text: 'Bekijk collectie',
-      button2_url: '/trouwjurken',
+      eyebrow: 'Virtueel pashokje',
+      title: 'Zie direct hoe jouw droomjurk je staat',
+      subtitle: 'Kies je favoriete stijl of merk, kies je favoriete jurk, upload een geschikte foto van jezelf en bekijk meteen hoe het jou staat. Een volledig virtuele passessie voordat je bij ons in de bruidszaak komt.',
+      button1_text: 'Start virtuele passessie',
+      button1_url: '/trouwjurken',
+      button2_text: 'Plan pasafspraak',
+      button2_url: '/afspraak-maken',
       autoplay_ms: 5000,
       transition_ms: 700,
       show_arrows: true,
       show_dots: true,
       pause_on_hover: true,
     },
+    category_slider: {},
     style_chips: {
       chip1_label: 'A-Line',
       chip1_url: '/trouwjurken/a-lijn',
@@ -201,6 +257,7 @@ export const HOMEPAGE_DEFAULTS: HomepageSettingsNormalized = {
       heading: 'Onze collecties',
       subheading: 'Kies jouw silhouet of stijl en ga direct naar de jurken die het beste bij je passen.',
     },
+    mens_brands: {},
     product_grid: {
       description: 'Prachtige trouwjurk uit de nieuwste collectie. Vind vergelijkbare stijlen in de winkel.',
       max_items: 6,
@@ -275,6 +332,8 @@ export const normalizeHomepageSettings = (input: unknown): HomepageSettingsNorma
   const source = (input && typeof input === 'object' ? input : {}) as Record<string, unknown>;
 
   const passthrough: Record<string, unknown> = { ...source };
+  delete passthrough.promo_banner;
+  delete passthrough.category_slider_items;
   delete passthrough.sections_order;
   delete passthrough.sections_visibility;
   delete passthrough.sections_content;
@@ -320,8 +379,43 @@ export const normalizeHomepageSettings = (input: unknown): HomepageSettingsNorma
     }
   }
 
+  const rawBanner = (source.promo_banner && typeof source.promo_banner === 'object'
+    ? source.promo_banner
+    : {}) as Record<string, unknown>;
+  const bannerDefaults = cloneDefaults().promo_banner;
+  const allowedThemes: PromoBannerTheme[] = ['charcoal', 'blush', 'champagne', 'ivory'];
+  const rawMessages = rawBanner.messages;
+  const messageLines = Array.isArray(rawMessages)
+    ? rawMessages.map((line) => String(line))
+    : typeof rawMessages === 'string'
+      ? rawMessages.split(/\r?\n/)
+      : [];
+  const cleanedMessages = messageLines.map((line) => line.trim()).filter(Boolean);
+
+  const rawTheme = String(rawBanner.theme ?? bannerDefaults.theme).toLowerCase();
+  const normalizedTheme: PromoBannerTheme = allowedThemes.includes(rawTheme as PromoBannerTheme)
+    ? (rawTheme as PromoBannerTheme)
+    : bannerDefaults.theme;
+
+  const normalizedBanner: PromoBannerSettingsNormalized = {
+    enabled: toBoolean(rawBanner.enabled, bannerDefaults.enabled),
+    theme: normalizedTheme,
+    messages: cleanedMessages.length > 0 ? cleanedMessages : [...bannerDefaults.messages],
+    rotation_ms: toNumber(rawBanner.rotation_ms, bannerDefaults.rotation_ms, 2000, 20000),
+    transition_ms: toNumber(rawBanner.transition_ms, bannerDefaults.transition_ms, 250, 2000),
+    pause_on_hover: toBoolean(rawBanner.pause_on_hover, bannerDefaults.pause_on_hover),
+    dismissible: toBoolean(rawBanner.dismissible, bannerDefaults.dismissible),
+    remember_dismissal: toBoolean(rawBanner.remember_dismissal, bannerDefaults.remember_dismissal),
+    link_url: typeof rawBanner.link_url === 'string' ? rawBanner.link_url.trim() : String(bannerDefaults.link_url),
+    open_in_new_tab: toBoolean(rawBanner.open_in_new_tab, bannerDefaults.open_in_new_tab),
+  };
+
+  const normalizedCategorySliderItems = normalizeHomepageCategorySliderItems(source.category_slider_items);
+
   return {
     ...passthrough,
+    promo_banner: normalizedBanner,
+    category_slider_items: normalizedCategorySliderItems,
     sections_order: dedupOrder,
     sections_visibility: visibility,
     sections_content: content,

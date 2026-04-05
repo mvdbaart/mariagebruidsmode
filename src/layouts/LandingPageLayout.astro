@@ -33,9 +33,6 @@ const meta = settings?.site_metadata || {};
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href={`https://fonts.googleapis.com/css2?family=${typography.heading_font?.replace(/ /g, '+')}:wght@${typography.heading_weight}&family=${typography.body_font?.replace(/ /g, '+')}:wght@${typography.body_weight}&display=swap`} rel="stylesheet">
     <title>{title} | {meta.title || 'Mariage Bruidsmode'}</title>
     {description && <meta name="description" content={description} />}
     <meta name="robots" content="noindex" />
@@ -69,7 +66,7 @@ const meta = settings?.site_metadata || {};
         --color-charcoal-dynamic: var(--colorCharcoal);
         --color-cream-dynamic: var(--colorCream);
         --color-blush-deep-dynamic: var(--colorBlushDeep);
-        --font-heading-dynamic: var(--fontHeading);
+        --font-heading-dynamic: 'Cormorant Garamond', Georgia, serif;
         --font-body-dynamic: var(--fontBody);
         --base-font-size-dynamic: var(--baseSize);
         --heading-weight-dynamic: var(--headingWeight);

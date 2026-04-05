@@ -1,11 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Sacramento&display=swap');
 @import "tailwindcss";
 
 /* =====================================================
-   Lokale fonts — GDPR-compliant (geen verbinding met
-   fonts.googleapis.com of fonts.gstatic.com)
+   Lokale body/signature fonts plus Google heading font
    ===================================================== */
 
-/* Cormorant Garamond — display/heading font */
+/* Cormorant Garamond — legacy display font */
 @font-face {
   font-family: 'Cormorant Garamond';
   src: url('/fonts/cormorant-garamond-300-normal.woff2') format('woff2');
@@ -93,7 +93,7 @@
   --color-taupe: #5E534D;
   --color-gold: #C9A96E;
   
-  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-display: 'Sacramento', cursive;
   --font-body: 'Jost', sans-serif;
   --font-serif: var(--font-display);
 
@@ -367,6 +367,37 @@ h1, h2, h3, h4, h5, h6 {
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+.category-slider-track-wrap {
+  overflow: hidden;
+}
+
+.category-slider-track {
+  display: flex;
+  align-items: stretch;
+  width: max-content;
+  gap: 1rem;
+  animation: category-carousel 64s linear infinite;
+}
+
+.category-slider-track:hover {
+  animation-play-state: paused;
+}
+
+.category-slider-card {
+  display: block;
+  width: clamp(150px, 15.5vw, 240px);
+  flex: 0 0 auto;
+}
+
+@keyframes category-carousel {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-50% - 0.5rem));
+  }
 }
 
 /* =====================================================

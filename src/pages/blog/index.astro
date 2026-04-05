@@ -40,12 +40,12 @@ const blogFallbackImage = '/images/team/TKF_9597-scaled-scaled.jpg';
       <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
         {posts?.map((post) => (
           <article class="group relative flex flex-col items-start space-y-6">
-            <div class="aspect-[16/9] overflow-hidden w-full bg-accent/5">
+            <div class="aspect-[16/9] overflow-hidden w-full bg-ivory p-2">
               <img
                 src={post.cover_image || blogFallbackImage}
                 alt={post.title}
                 onerror={`this.onerror=null;this.src='${blogFallbackImage}'`}
-                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                class="w-full h-full object-contain transition-transform duration-700"
                 loading="lazy"
               />
             </div>

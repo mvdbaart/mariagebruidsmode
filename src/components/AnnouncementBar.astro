@@ -1,51 +1,200 @@
 ---
-const messages = [
-  "🌸 Lenteactie | Accessoirecheque t.w.v. € 150,- bij elke aankoop",
-  "🥂 Prosecco bij ontvangst | Plan jouw droomafspraak",
-  "✨ Nieuwe collecties 2026 | Bekijk onze trouwjurken en pakken",
-];
+import type { PromoBannerSettingsNormalized } from '../lib/homepageSections';
+
+interface Props {
+  banner?: PromoBannerSettingsNormalized;
+}
+
+const banner = Astro.props.banner;
+const shouldRender = Boolean(banner?.enabled && banner.messages.length > 0);
+
+const themeClasses: Record<PromoBannerSettingsNormalized['theme'], string> = {
+  charcoal: 'bg-charcoal text-warm-white',
+  blush: 'bg-blush-deep text-white',
+  champagne: 'bg-champagne text-charcoal',
+  ivory: 'bg-ivory text-charcoal border-b border-champagne',
+};
+
+const closeClasses: Record<PromoBannerSettingsNormalized['theme'], string> = {
+  charcoal: 'text-warm-white/60 hover:text-warm-white',
+  blush: 'text-white/70 hover:text-white',
+  champagne: 'text-charcoal/50 hover:text-charcoal',
+  ivory: 'text-charcoal/50 hover:text-charcoal',
+};
+
+const messageClasses = 'announcement-message text-[10px] font-body tracking-[0.16em] uppercase transition-opacity ease-in-out';
+const transitionMs = `${banner?.transition_ms ?? 450}ms`;
+const messageStyle = `transition-duration: ${transitionMs};`;
+const initialMessage = banner?.messages[0] ?? '';
+const bannerHeightScript = `document.documentElement.style.setProperty('--announcement-height', '0px');`;
+const clientScript = banner
+  ? `(() => {
+      const bar = document.getElementById('announcement-bar');
+      const messageEl = bar?.querySelector('[data-announcement-message]');
+      const closeBtn = document.getElementById('close-announcement');
+      if (!bar || !messageEl) {
+        document.documentElement.style.setProperty('--announcement-height', '0px');
+        return;
+      }
+
+      const messages = (bar.dataset.announcementMessages || '').split('||__ANN__||').map((item) => item.trim()).filter(Boolean);
+      const rotationMs = Number(bar.dataset.announcementRotationMs || '4000');
+      const transitionMs = Number(bar.dataset.announcementTransitionMs || '450');
+      const pauseOnHover = bar.dataset.announcementPauseOnHover === 'true';
+      const rememberDismissal = bar.dataset.announcementRememberDismissal === 'true';
+      const linkUrl = bar.dataset.announcementLinkUrl || '';
+      const openInNewTab = bar.dataset.announcementOpenInNewTab === 'true';
+      const theme = bar.dataset.announcementTheme || 'charcoal';
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const rotationEnabled = messages.length > 1 && !reducedMotion && rotationMs >= 2000;
+      const keySource = JSON.stringify({ messages, rotationMs, theme, linkUrl, openInNewTab });
+      let hash = 0;
+      for (let i = 0; i < keySource.length; i += 1) {
+        hash = ((hash << 5) - hash) + keySource.charCodeAt(i);
+        hash |= 0;
+      }
+      const storageKey = 'promo-banner:' + Math.abs(hash).toString(36);
+      let index = 0;
+      let timer = null;
+
+      const setAnnouncementHeight = () => {
+        document.documentElement.style.setProperty('--announcement-height', Math.ceil(bar.getBoundingClientRect().height) + 'px');
+      };
+
+      const renderMessage = (nextIndex) => {
+        const nextMessage = messages[nextIndex];
+        if (!nextMessage) return;
+        messageEl.classList.add('opacity-0');
+        window.setTimeout(() => {
+          messageEl.textContent = nextMessage;
+          if (linkUrl) {
+            const link = messageEl.closest('a');
+            if (link) {
+              link.href = linkUrl;
+              if (openInNewTab) {
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+              } else {
+                link.removeAttribute('target');
+                link.removeAttribute('rel');
+              }
+            }
+          }
+          messageEl.classList.remove('opacity-0');
+          setAnnouncementHeight();
+        }, transitionMs);
+      };
+
+      const stopRotation = () => {
+        if (timer) {
+          window.clearInterval(timer);
+          timer = null;
+        }
+      };
+
+      const startRotation = () => {
+        if (!rotationEnabled || timer) return;
+        timer = window.setInterval(() => {
+          index = (index + 1) % messages.length;
+          renderMessage(index);
+        }, Math.max(rotationMs, transitionMs + 200));
+      };
+
+      if (rememberDismissal && localStorage.getItem(storageKey) === '1') {
+        bar.remove();
+        document.documentElement.style.setProperty('--announcement-height', '0px');
+        return;
+      }
+
+      messageEl.textContent = messages[index] || '';
+      setAnnouncementHeight();
+
+      if (pauseOnHover && rotationEnabled) {
+        bar.addEventListener('mouseenter', stopRotation);
+        bar.addEventListener('mouseleave', startRotation);
+      }
+
+      if (rotationEnabled) {
+        startRotation();
+      }
+
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+          if (rememberDismissal) {
+            localStorage.setItem(storageKey, '1');
+          }
+          stopRotation();
+          bar.remove();
+          document.documentElement.style.setProperty('--announcement-height', '0px');
+        });
+      }
+
+      if ('ResizeObserver' in window) {
+        const observer = new ResizeObserver(() => setAnnouncementHeight());
+        observer.observe(bar);
+      } else {
+        window.addEventListener('resize', setAnnouncementHeight, { passive: true });
+      }
+    })();`
+  : bannerHeightScript;
 ---
 
-<div id="announcement-bar" class="relative bg-charcoal text-warm-white text-center py-2 px-10 overflow-hidden">
-  {messages.map((msg, i) => (
-    <p
-      class={`announcement-msg text-[10px] font-body tracking-[0.16em] uppercase transition-opacity duration-500 ${i === 0 ? 'opacity-100' : 'opacity-0 absolute inset-0 flex items-center justify-center'}`}
-      aria-hidden={i !== 0 ? "true" : undefined}
+<div
+  id="announcement-bar"
+  class={`fixed top-0 left-0 right-0 z-60 overflow-hidden ${shouldRender ? themeClasses[banner!.theme] : 'hidden'}`}
+  data-announcement-messages={banner?.messages.join('||__ANN__||') ?? ''}
+  data-announcement-rotation-ms={String(banner?.rotation_ms ?? 4000)}
+  data-announcement-transition-ms={String(banner?.transition_ms ?? 450)}
+  data-announcement-pause-on-hover={banner?.pause_on_hover ? 'true' : 'false'}
+  data-announcement-dismissible={banner?.dismissible ? 'true' : 'false'}
+  data-announcement-remember-dismissal={banner?.remember_dismissal ? 'true' : 'false'}
+  data-announcement-link-url={banner?.link_url ?? ''}
+  data-announcement-open-in-new-tab={banner?.open_in_new_tab ? 'true' : 'false'}
+  data-announcement-theme={banner?.theme ?? 'charcoal'}
+>
+  <div class="relative flex items-center justify-center px-10 py-2 min-h-[2.25rem]">
+    {banner?.link_url ? (
+      <a
+        href={banner.link_url}
+        target={banner.open_in_new_tab ? '_blank' : undefined}
+        rel={banner.open_in_new_tab ? 'noopener noreferrer' : undefined}
+        class="inline-flex items-center justify-center"
+      >
+        <span
+          data-announcement-message
+          class={messageClasses}
+          style={messageStyle}
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          {initialMessage}
+        </span>
+      </a>
+    ) : (
+      <span
+        data-announcement-message
+        class={messageClasses}
+        style={messageStyle}
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        {initialMessage}
+      </span>
+    )}
+  </div>
+
+  {banner?.dismissible && (
+    <button
+      id="close-announcement"
+      aria-label="Sluit promotiebanner"
+      class={`absolute right-3 top-1/2 -translate-y-1/2 transition-colors ${closeClasses[banner.theme]}`}
     >
-      {msg}
-    </p>
-  ))}
-  <button
-    id="close-announcement"
-    aria-label="Sluitmededeling"
-    class="absolute right-3 top-1/2 -translate-y-1/2 text-warm-white/60 hover:text-warm-white transition-colors"
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <line x1="18" y1="6" x2="6" y2="18"></line>
-      <line x1="6" y1="6" x2="18" y2="18"></line>
-    </svg>
-  </button>
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  )}
 </div>
 
-<script>
-  const bar = document.getElementById('announcement-bar');
-  const msgs = document.querySelectorAll<HTMLElement>('.announcement-msg');
-  const closeBtn = document.getElementById('close-announcement');
-  let current = 0;
-
-  // Rotate messages
-  if (msgs.length > 1) {
-    setInterval(() => {
-      msgs[current].classList.add('opacity-0');
-      msgs[current].setAttribute('aria-hidden', 'true');
-      current = (current + 1) % msgs.length;
-      msgs[current].classList.remove('opacity-0');
-      msgs[current].removeAttribute('aria-hidden');
-    }, 4000);
-  }
-
-  // Dismiss bar
-  closeBtn?.addEventListener('click', () => {
-    bar?.remove();
-  });
-</script>
+<script set:html={clientScript}></script>

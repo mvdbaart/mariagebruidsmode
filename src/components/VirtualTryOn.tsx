@@ -185,11 +185,11 @@ export default function VirtualTryOn({
 
             {previewUrl && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="border border-champagne bg-ivory/30 overflow-hidden">
-                  <img src={previewUrl} alt="Jouw geüploade foto" className="w-full h-72 object-cover" />
+                <div className="border border-champagne bg-ivory overflow-hidden p-2">
+                  <img src={previewUrl} alt="Jouw geüploade foto" className="w-full h-72 object-contain" />
                 </div>
-                <div className="border border-champagne bg-ivory/30 overflow-hidden">
-                  <img src={productImage} alt={productName} className="w-full h-72 object-cover" />
+                <div className="border border-champagne bg-ivory overflow-hidden p-2">
+                  <img src={productImage} alt={productName} className="w-full h-72 object-contain" />
                 </div>
               </div>
             )}
@@ -232,7 +232,7 @@ export default function VirtualTryOn({
               <img
                 src={resultUrl}
                 alt={`AI try-on preview van ${productName}`}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain bg-ivory"
               />
             ) : (
               <div className="p-8 text-center max-w-sm">

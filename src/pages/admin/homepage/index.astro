@@ -2,7 +2,8 @@
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { getServiceRoleClient } from '../../../lib/serverAuth';
 import { createClient } from '@supabase/supabase-js';
-import { HOMEPAGE_SECTION_DEFINITIONS, HOMEPAGE_SECTION_IDS, normalizeHomepageSettings } from '../../../lib/homepageSections';
+import { HOMEPAGE_SECTION_DEFINITIONS, normalizeHomepageSettings } from '../../../lib/homepageSections';
+import { normalizeHomepageCategorySliderItems } from '../../../lib/homepageCategorySlider';
 
 const supabase = getServiceRoleClient();
 const [
@@ -14,6 +15,7 @@ const [
 ]);
 
 const hp = normalizeHomepageSettings(settings?.homepage ?? {});
+const categorySliderItems = normalizeHomepageCategorySliderItems(hp.category_slider_items);
 const sectionDefs = HOMEPAGE_SECTION_DEFINITIONS;
 const orderedSectionDefs = hp.sections_order
   .map((id) => sectionDefs.find((section) => section.id === id))
@@ -61,6 +63,240 @@ if (!publicSupabaseUrl || !publicSupabaseAnonKey) {
           Homepage <em class="font-normal italic text-taupe">Beheer</em>
         </h1>
       </div>
+
+      <section id="promo-banner" class="mb-14">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium">Top promo banner</h2>
+            <p class="text-xs text-taupe font-body mt-1">
+              Beheer de banner bovenaan de site, inclusief rotatie, sluiten en linkgedrag.
+            </p>
+          </div>
+          <span class="text-[10px] font-body text-taupe">
+            {hp.promo_banner.enabled && hp.promo_banner.messages.length > 0 ? 'Actief' : 'Uitgeschakeld'}
+          </span>
+        </div>
+
+        <div class="bg-white border border-champagne p-8 shadow-soft">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {[
+              { key: 'enabled', label: 'Banner actief', type: 'boolean', value: hp.promo_banner.enabled },
+              { key: 'rotation_ms', label: 'Rotatie interval (ms)', type: 'number', value: hp.promo_banner.rotation_ms, min: 2000, max: 20000 },
+              { key: 'transition_ms', label: 'Overgang (ms)', type: 'number', value: hp.promo_banner.transition_ms, min: 250, max: 2000 },
+              { key: 'pause_on_hover', label: 'Pauzeren bij hover', type: 'boolean', value: hp.promo_banner.pause_on_hover },
+              { key: 'dismissible', label: 'Sluitbaar', type: 'boolean', value: hp.promo_banner.dismissible },
+              { key: 'remember_dismissal', label: 'Sluiting onthouden', type: 'boolean', value: hp.promo_banner.remember_dismissal },
+              { key: 'open_in_new_tab', label: 'Link in nieuw tabblad', type: 'boolean', value: hp.promo_banner.open_in_new_tab },
+            ].map((field) => {
+              const commonClass = 'w-full border border-champagne bg-white px-3 py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors';
+              return (
+                <div class={field.key === 'enabled' ? '' : ''}>
+                  <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">{field.label}</label>
+                  {field.type === 'boolean' ? (
+                    <select
+                      class={commonClass}
+                      data-setting-field="true"
+                      data-section-id="promo_banner"
+                      data-field-key={field.key}
+                      data-field-type={field.type}
+                    >
+                      <option value="true" selected={Boolean(field.value) === true}>Aan</option>
+                      <option value="false" selected={Boolean(field.value) === false}>Uit</option>
+                    </select>
+                  ) : field.type === 'number' ? (
+                    <input
+                      type="number"
+                      min={field.min}
+                      max={field.max}
+                      value={String(field.value)}
+                      class={commonClass}
+                      data-setting-field="true"
+                      data-section-id="promo_banner"
+                      data-field-key={field.key}
+                      data-field-type={field.type}
+                    />
+                  ) : (
+                    <input
+                      type="text"
+                      value={String(field.value)}
+                      class={commonClass}
+                      data-setting-field="true"
+                      data-section-id="promo_banner"
+                      data-field-key={field.key}
+                      data-field-type={field.type}
+                    />
+                  )}
+                </div>
+              );
+            })}
+
+            <div class="md:col-span-2">
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Thema</label>
+              <select
+                class="w-full border border-champagne bg-white px-3 py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors"
+                data-setting-field="true"
+                data-section-id="promo_banner"
+                data-field-key="theme"
+                data-field-type="text"
+              >
+                <option value="charcoal" selected={hp.promo_banner.theme === 'charcoal'}>Charcoal</option>
+                <option value="blush" selected={hp.promo_banner.theme === 'blush'}>Blush</option>
+                <option value="champagne" selected={hp.promo_banner.theme === 'champagne'}>Champagne</option>
+                <option value="ivory" selected={hp.promo_banner.theme === 'ivory'}>Ivory</option>
+              </select>
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Berichten, één per regel</label>
+              <textarea
+                rows={4}
+                class="w-full border border-champagne bg-white px-3 py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors"
+                placeholder="Kort promotiebericht 1&#10;Promotiebericht 2&#10;Nog een boodschap"
+                data-setting-field="true"
+                data-section-id="promo_banner"
+                data-field-key="messages"
+                data-field-type="textarea"
+              >{hp.promo_banner.messages.join('\n')}</textarea>
+              <p class="text-xs text-taupe font-body mt-2">
+                Voeg meerdere regels toe om berichten om beurten te tonen. De weergave roteert per bericht zonder overlap.
+              </p>
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Link URL</label>
+              <input
+                type="url"
+                value={hp.promo_banner.link_url}
+                placeholder="/afspraak-maken"
+                class="w-full border border-champagne bg-white px-3 py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors"
+                data-setting-field="true"
+                data-section-id="promo_banner"
+                data-field-key="link_url"
+                data-field-type="url"
+              />
+            </div>
+
+            <div class="md:col-span-2 mt-4">
+              <div class="flex items-center justify-between gap-4 mb-3">
+                <div>
+                  <p class="text-[10px] tracking-[0.2em] uppercase text-taupe font-body">Live preview</p>
+                  <p class="text-xs text-taupe font-body mt-1">Deze preview gebruikt dezelfde banneropties als de siteheader.</p>
+                </div>
+                <span class="text-[10px] font-body text-taupe" id="promo-preview-status">
+                  {hp.promo_banner.enabled ? 'Zichtbaar' : 'Verborgen'}
+                </span>
+              </div>
+
+              <div id="promo-banner-preview" class="border border-champagne shadow-soft overflow-hidden">
+                <div class="flex items-center justify-center px-10 py-2 min-h-[2.25rem] bg-charcoal text-warm-white relative">
+                  <a id="promo-preview-link" href={hp.promo_banner.link_url || '#'} class="inline-flex items-center justify-center">
+                    <span id="promo-preview-message" class="text-[10px] font-body tracking-[0.16em] uppercase transition-opacity duration-500 ease-in-out">
+                      {hp.promo_banner.messages[0] || 'Voorbeeld promotiebericht'}
+                    </span>
+                  </a>
+                  {hp.promo_banner.dismissible && (
+                    <button
+                      type="button"
+                      aria-label="Preview sluiten"
+                      class="absolute right-3 top-1/2 -translate-y-1/2 text-warm-white/60 hover:text-warm-white transition-colors"
+                      id="promo-preview-close"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </button>
+                  )}
+                </div>
+                <div class="bg-white px-4 py-3 border-t border-champagne grid grid-cols-2 md:grid-cols-4 gap-3 text-[10px] tracking-[0.15em] uppercase font-body text-taupe">
+                  <div><span class="block text-charcoal/60">Thema</span><span id="promo-preview-theme" class="text-charcoal">Charcoal</span></div>
+                  <div><span class="block text-charcoal/60">Berichten</span><span id="promo-preview-count" class="text-charcoal">{hp.promo_banner.messages.length}</span></div>
+                  <div><span class="block text-charcoal/60">Rotatie</span><span id="promo-preview-rotation" class="text-charcoal">{hp.promo_banner.rotation_ms} ms</span></div>
+                  <div><span class="block text-charcoal/60">Overgang</span><span id="promo-preview-transition" class="text-charcoal">{hp.promo_banner.transition_ms} ms</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mb-14">
+        <div class="flex items-center justify-between mb-6 gap-4">
+          <div>
+            <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium">Categorie Slider</h2>
+            <p class="text-xs text-taupe font-body mt-2">
+              Beheer de 12 vaste stijlcategorieën die onder de hero op de homepage verschijnen.
+            </p>
+          </div>
+          <button type="button" id="category-slider-save-btn" class="btn-premium text-[10px]">Categorieën opslaan</button>
+        </div>
+
+        <div id="category-slider-error" class="hidden bg-red-50 border border-red-200 px-4 py-3 text-sm font-body text-red-700 mb-4"></div>
+        <div id="category-slider-success" class="hidden bg-green-50 border border-green-200 px-4 py-3 text-sm font-body text-green-700 mb-4">Categorie slider opgeslagen.</div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {categorySliderItems.map((item, index) => (
+            <article class="bg-white border border-champagne p-4 shadow-soft space-y-4" data-category-item data-item-id={item.id}>
+              <div class="aspect-[4/5] bg-linen overflow-hidden">
+                <img
+                  src={item.image_url}
+                  alt={item.label}
+                  class="w-full h-full object-cover"
+                  data-preview-image
+                  onerror="this.onerror=null;this.src='/images/jurkvormen/a-lijn.png';"
+                />
+              </div>
+              <div class="space-y-3">
+                <div>
+                  <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Naam</label>
+                  <input
+                    type="text"
+                    class="w-full border border-champagne bg-white px-3 py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors"
+                    value={item.label}
+                    data-field="label"
+                  />
+                </div>
+                <div>
+                  <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Link</label>
+                  <input
+                    type="text"
+                    class="w-full border border-champagne bg-white px-3 py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors"
+                    value={item.href}
+                    data-field="href"
+                  />
+                </div>
+                <div>
+                  <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Afbeelding URL</label>
+                  <input
+                    type="text"
+                    class="w-full border border-champagne bg-white px-3 py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors"
+                    value={item.image_url}
+                    data-field="image_url"
+                  />
+                </div>
+                <div class="flex gap-2">
+                  <input type="file" accept="image/jpeg,image/png,image/webp,image/avif" class="hidden" data-file-input />
+                  <button
+                    type="button"
+                    class="border border-champagne px-3 py-2 text-[10px] tracking-widest uppercase font-body text-taupe hover:text-charcoal hover:border-charcoal transition-colors"
+                    data-upload-btn
+                  >
+                    Upload / Vervang
+                  </button>
+                  <button
+                    type="button"
+                    class="border border-red-200 px-3 py-2 text-[10px] tracking-widest uppercase font-body text-red-500 hover:text-red-700 transition-colors"
+                    data-clear-btn
+                  >
+                    Verwijder foto
+                  </button>
+                </div>
+              </div>
+              <p class="text-[10px] tracking-[0.2em] uppercase text-champagne font-body">Item {index + 1} van 12</p>
+            </article>
+          ))}
+        </div>
+      </section>
       
       {sliderPublicReadBlocked && (
         <div class="mb-8 border border-amber-300 bg-amber-50 px-4 py-3">
@@ -518,6 +754,31 @@ const errorEl = document.getElementById('hp-error')!;
 const successEl = document.getElementById('hp-success')!;
 const sectionsList = document.getElementById('hp-sections-list') as HTMLElement | null;
 const sectionsOrderInput = document.getElementById('hp-sections-order') as HTMLInputElement | null;
+const promoPreviewBar = document.getElementById('promo-banner-preview') as HTMLElement | null;
+const promoPreviewMessage = document.getElementById('promo-preview-message') as HTMLElement | null;
+const promoPreviewLink = document.getElementById('promo-preview-link') as HTMLAnchorElement | null;
+const promoPreviewStatus = document.getElementById('promo-preview-status') as HTMLElement | null;
+const promoPreviewTheme = document.getElementById('promo-preview-theme') as HTMLElement | null;
+const promoPreviewCount = document.getElementById('promo-preview-count') as HTMLElement | null;
+const promoPreviewRotation = document.getElementById('promo-preview-rotation') as HTMLElement | null;
+const promoPreviewTransition = document.getElementById('promo-preview-transition') as HTMLElement | null;
+const promoPreviewClose = document.getElementById('promo-preview-close') as HTMLButtonElement | null;
+const promoBannerFields = document.querySelectorAll<HTMLElement>('[data-section-id="promo_banner"][data-setting-field="true"]');
+const categorySliderSaveBtn = document.getElementById('category-slider-save-btn') as HTMLButtonElement | null;
+const categorySliderError = document.getElementById('category-slider-error') as HTMLElement | null;
+const categorySliderSuccess = document.getElementById('category-slider-success') as HTMLElement | null;
+const categorySliderCards = Array.from(document.querySelectorAll<HTMLElement>('[data-category-item]'));
+
+const promoBannerThemes: Record<string, { bar: string; close: string; status: string }> = {
+  charcoal: { bar: 'bg-charcoal text-warm-white', close: 'text-warm-white/60 hover:text-warm-white', status: 'text-warm-white/70' },
+  blush: { bar: 'bg-blush-deep text-white', close: 'text-white/70 hover:text-white', status: 'text-white/80' },
+  champagne: { bar: 'bg-champagne text-charcoal', close: 'text-charcoal/50 hover:text-charcoal', status: 'text-charcoal/70' },
+  ivory: { bar: 'bg-ivory text-charcoal border-b border-champagne', close: 'text-charcoal/50 hover:text-charcoal', status: 'text-charcoal/70' },
+};
+
+let promoPreviewTimer: number | null = null;
+let promoPreviewIndex = 0;
+let categorySliderSaveInFlight = false;
 
 const syncSectionsOrder = () => {
   if (!sectionsList || !sectionsOrderInput) return [];
@@ -562,6 +823,216 @@ if (sectionsList) {
 
   syncSectionsOrder();
 }
+
+function stopPromoPreviewRotation() {
+  if (promoPreviewTimer !== null) {
+    window.clearInterval(promoPreviewTimer);
+    promoPreviewTimer = null;
+  }
+}
+
+function readPromoBannerSettings() {
+  const getField = (key: string) =>
+    document.querySelector<HTMLElement>(`[data-section-id="promo_banner"][data-field-key="${key}"]`);
+  const toBool = (key: string) => {
+    const el = getField(key) as HTMLSelectElement | null;
+    return el ? el.value === 'true' : false;
+  };
+  const toNum = (key: string, fallback: number) => {
+    const el = getField(key) as HTMLInputElement | null;
+    const raw = Number.parseInt(el?.value ?? '', 10);
+    return Number.isFinite(raw) ? raw : fallback;
+  };
+  const toText = (key: string, fallback = '') => {
+    const el = getField(key) as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null;
+    return (el?.value ?? fallback).toString();
+  };
+  const messages = toText('messages')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  return {
+    enabled: toBool('enabled'),
+    theme: toText('theme', 'charcoal'),
+    messages,
+    rotation_ms: toNum('rotation_ms', 4000),
+    transition_ms: toNum('transition_ms', 450),
+    pause_on_hover: toBool('pause_on_hover'),
+    dismissible: toBool('dismissible'),
+    remember_dismissal: toBool('remember_dismissal'),
+    link_url: toText('link_url').trim(),
+    open_in_new_tab: toBool('open_in_new_tab'),
+  };
+}
+
+function setPromoPreviewTheme(theme: string) {
+  if (!promoPreviewBar || !promoPreviewClose || !promoPreviewStatus) return;
+  const classes = promoBannerThemes[theme] ?? promoBannerThemes.charcoal;
+  promoPreviewBar.className = `border border-champagne shadow-soft overflow-hidden ${classes.bar}`;
+  promoPreviewClose.className = `absolute right-3 top-1/2 -translate-y-1/2 transition-colors ${classes.close}`;
+  promoPreviewStatus.className = `text-[10px] font-body ${classes.status}`;
+  if (promoPreviewTheme) promoPreviewTheme.textContent = theme.charAt(0).toUpperCase() + theme.slice(1);
+}
+
+function renderPromoPreviewMessage(text: string) {
+  if (!promoPreviewMessage) return;
+  promoPreviewMessage.classList.add('opacity-0');
+  window.setTimeout(() => {
+    promoPreviewMessage.textContent = text || 'Voorbeeld promotiebericht';
+    promoPreviewMessage.classList.remove('opacity-0');
+  }, 250);
+}
+
+function updatePromoPreview() {
+  if (!promoPreviewBar || !promoPreviewMessage || !promoPreviewLink || !promoPreviewStatus) return;
+  const settings = readPromoBannerSettings();
+  const theme = promoBannerThemes[settings.theme] ? settings.theme : 'charcoal';
+  const themeClasses = promoBannerThemes[theme];
+  const message = settings.messages[0] ?? 'Voorbeeld promotiebericht';
+
+  stopPromoPreviewRotation();
+  promoPreviewIndex = 0;
+
+  setPromoPreviewTheme(theme);
+  promoPreviewBar.className = `border border-champagne shadow-soft overflow-hidden ${themeClasses.bar}`;
+  promoPreviewStatus.textContent = settings.enabled && settings.messages.length > 0 ? 'Zichtbaar' : 'Verborgen';
+  promoPreviewBar.style.opacity = settings.enabled ? '1' : '0.45';
+  promoPreviewBar.style.pointerEvents = settings.enabled ? 'auto' : 'none';
+  promoPreviewMessage.style.transitionDuration = `${settings.transition_ms}ms`;
+  promoPreviewLink.href = settings.link_url || '#';
+  if (settings.link_url) {
+    promoPreviewLink.target = settings.open_in_new_tab ? '_blank' : '_self';
+    promoPreviewLink.rel = settings.open_in_new_tab ? 'noopener noreferrer' : '';
+  } else {
+    promoPreviewLink.removeAttribute('target');
+    promoPreviewLink.removeAttribute('rel');
+  }
+
+  if (promoPreviewCount) promoPreviewCount.textContent = String(settings.messages.length);
+  if (promoPreviewRotation) promoPreviewRotation.textContent = `${settings.rotation_ms} ms`;
+  if (promoPreviewTransition) promoPreviewTransition.textContent = `${settings.transition_ms} ms`;
+  if (promoPreviewClose) promoPreviewClose.hidden = !settings.dismissible;
+
+  renderPromoPreviewMessage(message);
+
+  if (settings.enabled && settings.messages.length > 1) {
+    promoPreviewTimer = window.setInterval(() => {
+      promoPreviewIndex = (promoPreviewIndex + 1) % settings.messages.length;
+      renderPromoPreviewMessage(settings.messages[promoPreviewIndex] ?? '');
+    }, Math.max(settings.rotation_ms, settings.transition_ms + 200));
+  }
+}
+
+const collectCategorySliderItems = () =>
+  categorySliderCards.map((card) => {
+    const id = card.dataset.itemId ?? '';
+    const getField = (name: string) => card.querySelector<HTMLInputElement>(`[data-field="${name}"]`)?.value?.trim() ?? '';
+    return {
+      id,
+      label: getField('label'),
+      href: getField('href'),
+      image_url: getField('image_url'),
+    };
+  });
+
+const setCategorySliderPreviewImage = (card: HTMLElement, url: string) => {
+  const preview = card.querySelector<HTMLImageElement>('[data-preview-image]');
+  if (!preview) return;
+  preview.src = url.trim() || '/images/jurkvormen/a-lijn.png';
+};
+
+const bindCategorySliderCard = (card: HTMLElement) => {
+  const fileInput = card.querySelector<HTMLInputElement>('[data-file-input]');
+  const uploadBtn = card.querySelector<HTMLButtonElement>('[data-upload-btn]');
+  const clearBtn = card.querySelector<HTMLButtonElement>('[data-clear-btn]');
+  const imageInput = card.querySelector<HTMLInputElement>('[data-field="image_url"]');
+
+  imageInput?.addEventListener('input', () => {
+    setCategorySliderPreviewImage(card, imageInput.value);
+  });
+
+  uploadBtn?.addEventListener('click', () => fileInput?.click());
+
+  fileInput?.addEventListener('change', async () => {
+    const selected = fileInput.files?.[0];
+    if (!selected || !imageInput || !uploadBtn) return;
+
+    categorySliderError?.classList.add('hidden');
+    categorySliderSuccess?.classList.add('hidden');
+    uploadBtn.disabled = true;
+    uploadBtn.textContent = 'Uploaden...';
+
+    try {
+      const compressed = await compressToWebP(selected, 1600);
+      const fd = new FormData();
+      fd.append('file', compressed);
+      fd.append('bucket', 'settings');
+
+      const response = await fetch('/api/admin/upload', { method: 'POST', body: fd });
+      const json = await response.json().catch(() => ({}));
+      if (!response.ok || !json.url) {
+        throw new Error(json.error ?? 'Upload mislukt');
+      }
+
+      imageInput.value = json.url;
+      setCategorySliderPreviewImage(card, json.url);
+    } catch (error) {
+      if (categorySliderError) {
+        categorySliderError.textContent = `Upload fout: ${error instanceof Error ? error.message : 'Onbekende fout'}`;
+        categorySliderError.classList.remove('hidden');
+      }
+    } finally {
+      uploadBtn.disabled = false;
+      uploadBtn.textContent = 'Upload / Vervang';
+      fileInput.value = '';
+    }
+  });
+
+  clearBtn?.addEventListener('click', () => {
+    if (imageInput) imageInput.value = '';
+    setCategorySliderPreviewImage(card, '');
+  });
+};
+
+categorySliderCards.forEach(bindCategorySliderCard);
+
+categorySliderSaveBtn?.addEventListener('click', async () => {
+  if (categorySliderSaveInFlight) return;
+  categorySliderSaveInFlight = true;
+  categorySliderError?.classList.add('hidden');
+  categorySliderSuccess?.classList.add('hidden');
+  categorySliderSaveBtn.disabled = true;
+  categorySliderSaveBtn.textContent = 'Bezig...';
+
+  try {
+    const response = await fetch('/api/admin/settings', {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        homepage: {
+          category_slider_items: collectCategorySliderItems(),
+        },
+      }),
+    });
+    const json = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(json.error ?? 'Opslaan mislukt');
+    }
+
+    categorySliderSuccess?.classList.remove('hidden');
+  } catch (error) {
+    if (categorySliderError) {
+      categorySliderError.textContent = `Fout: ${error instanceof Error ? error.message : 'Onbekend'}`;
+      categorySliderError.classList.remove('hidden');
+    }
+  } finally {
+    categorySliderSaveInFlight = false;
+    categorySliderSaveBtn.disabled = false;
+    categorySliderSaveBtn.textContent = 'Categorieën opslaan';
+  }
+});
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -630,4 +1101,18 @@ form.addEventListener('submit', async (e) => {
     saveBtn.disabled = false;
   }
 });
+
+promoBannerFields.forEach((field) => {
+  field.addEventListener('input', updatePromoPreview);
+  field.addEventListener('change', updatePromoPreview);
+});
+
+promoPreviewClose?.addEventListener('click', () => {
+  promoPreviewBar?.classList.add('opacity-0');
+  window.setTimeout(() => {
+    if (promoPreviewBar) promoPreviewBar.classList.remove('opacity-0');
+  }, 250);
+});
+
+updatePromoPreview();
 </script>

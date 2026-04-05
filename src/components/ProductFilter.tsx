@@ -68,6 +68,7 @@ interface Props {
   mode?: 'dress' | 'suit';
   initialPasvorm?: string[];
   initialCategories?: string[];
+  initialBrands?: string[];
 }
 
 
@@ -144,7 +145,7 @@ function SidebarSection({ title, children }: { title: string; children: React.Re
   );
 }
 
-export default function ProductFilter({ products, collections, fallbackImage, mode = 'dress', initialPasvorm = [], initialCategories = [] }: Props) {
+export default function ProductFilter({ products, collections, fallbackImage, mode = 'dress', initialPasvorm = [], initialCategories = [], initialBrands = [] }: Props) {
   const isSuit = mode === 'suit';
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [search, setSearch] = useState('');
@@ -154,7 +155,7 @@ export default function ProductFilter({ products, collections, fallbackImage, mo
   const [activeMouw, setActiveMouw]           = useState<Set<string>>(new Set());
   const [activeMat, setActiveMat]             = useState<Set<string>>(new Set());
   const [activeCateg, setActiveCateg]         = useState<Set<string>>(() => new Set(initialCategories));
-  const [activeBrands, setActiveBrands]       = useState<Set<string>>(new Set());
+  const [activeBrands, setActiveBrands]       = useState<Set<string>>(() => new Set(initialBrands));
   const [activeCollection, setActiveCollection] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -427,14 +428,14 @@ export default function ProductFilter({ products, collections, fallbackImage, mo
                       </svg>
                     </button>
                     <a href={`/product/${prod.slug}`} className="block relative aspect-[3/4] overflow-hidden">
-                      <div className="w-full h-full bg-linen relative overflow-hidden">
+                      <div className="w-full h-full bg-ivory relative overflow-hidden p-2">
                         <img
                           src={displayImg}
                           alt={prod.name}
                           onError={(e) => {
                             (e.currentTarget as HTMLImageElement).src = fallbackImage;
                           }}
-                          className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${animClass}`}
+                          className={`w-full h-full object-contain transition-transform duration-700 ${animClass}`}
                           loading="lazy"
                         />
 

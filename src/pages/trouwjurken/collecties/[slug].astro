@@ -43,12 +43,12 @@ const dressFallbackImage = '/images/jurkvormen/a-lijn.png';
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
         {collection.products?.map((product: any) => (
           <div class="group relative">
-            <div class="aspect-[3/4] overflow-hidden bg-primary mb-6 relative">
+            <div class="aspect-[3/4] overflow-hidden bg-ivory mb-6 relative p-2">
               <img
                 src={product.images?.[0] || dressFallbackImage}
                 alt={product.name}
                 onerror={`this.onerror=null;this.src='${dressFallbackImage}'`}
-                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                class="w-full h-full object-contain transition-transform duration-700"
                 loading="lazy"
               />
               <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500"></div>

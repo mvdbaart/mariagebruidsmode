@@ -6,6 +6,7 @@ import AnnouncementBar from '../components/AnnouncementBar.astro';
 import MobileTabBar from '../components/MobileTabBar.astro';
 import CookieBanner from '../components/CookieBanner.astro';
 import { getSiteSettings } from '../lib/settings';
+import { normalizeHomepageSettings } from '../lib/homepageSections';
 
 interface Props {
   title: string;
@@ -20,6 +21,9 @@ const siteUrl = import.meta.env.SITE || 'https://www.mariagebruidsmode.nl';
 const canonicalUrl = canonical || new URL(Astro.url.pathname, siteUrl).href;
 
 const settings = await getSiteSettings(Astro);
+const homepage = normalizeHomepageSettings(settings?.homepage ?? {});
+const initialAnnouncementHeight = homepage.promo_banner.enabled && homepage.promo_banner.messages.length > 0 ? '36px' : '0px';
+const announcementHeightScript = `document.documentElement.style.setProperty('--announcement-height', ${JSON.stringify(initialAnnouncementHeight)});`;
 
 const colors = settings?.colors || {};
 const typography = settings?.typography || {};
@@ -109,7 +113,7 @@ const orgJsonLd = {
         --color-cream-dynamic: var(--colorCream);
         --color-blush-deep-dynamic: var(--colorBlushDeep);
         
-        --font-heading-dynamic: var(--fontHeading);
+        --font-heading-dynamic: 'Sacramento', cursive;
         --font-body-dynamic: var(--fontBody);
         --font-signature: 'Playball', cursive;
         --base-font-size-dynamic: var(--baseSize);
@@ -125,15 +129,15 @@ const orgJsonLd = {
       }
 
       h1, h2, h3, h4, h5, h6, .font-serif {
-        font-family: var(--font-heading-dynamic), var(--font-display), serif;
+        font-family: var(--font-heading-dynamic), var(--font-display), cursive;
         font-weight: var(--heading-weight-dynamic, 400);
       }
     </style>
 	</head>
 	<body>
-    <script>document.documentElement.style.setProperty('--announcement-height', '36px');</script>
+    <script set:html={announcementHeightScript}></script>
     <a href="#main-content" class="skip-link">Direct naar inhoud</a>
-    <AnnouncementBar />
+    <AnnouncementBar banner={homepage.promo_banner} />
     <Header />
     <main id="main-content" tabindex="-1" class="pb-[60px] md:pb-0" style="padding-top: calc(72px + var(--announcement-height, 36px))">
 		  <slot />

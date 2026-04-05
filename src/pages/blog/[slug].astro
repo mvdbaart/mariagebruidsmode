@@ -44,8 +44,8 @@ const dressFallback = '/wp-content/uploads/2023/11/trouwjurk-ladybird-amariah-br
           <span>By {post.author}</span>
         </div>
         <h1 class="text-5xl md:text-6xl font-serif text-accent italic leading-tight mb-12">{post.title}</h1>
-        <div class="aspect-[21/9] overflow-hidden bg-accent/5 shadow-2xl">
-          <img src={post.cover_image || blogFallbackImage} alt={post.title} onerror={`this.onerror=null;this.src='${blogFallbackImage}'`} class="w-full h-full object-cover" loading="lazy" />
+        <div class="aspect-[21/9] overflow-hidden bg-ivory shadow-2xl p-2">
+          <img src={post.cover_image || blogFallbackImage} alt={post.title} onerror={`this.onerror=null;this.src='${blogFallbackImage}'`} class="w-full h-full object-contain" loading="lazy" />
         </div>
       </header>
 
@@ -75,12 +75,12 @@ const dressFallback = '/wp-content/uploads/2023/11/trouwjurk-ladybird-amariah-br
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {relatedProducts.map((prod) => (
             <a href={`/product/${prod.slug}`} class="group bg-white shadow-soft hover:shadow-card transition-all duration-300 overflow-hidden hover:-translate-y-1 block">
-              <div class="aspect-[3/4] bg-linen overflow-hidden">
+              <div class="aspect-[3/4] bg-ivory overflow-hidden p-2">
                 <img
                   src={prod.images?.[0] || dressFallback}
                   alt={prod.name}
                   onerror={`this.onerror=null;this.src='${dressFallback}'`}
-                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  class="w-full h-full object-contain transition-transform duration-500"
                   loading="lazy"
                 />
               </div>

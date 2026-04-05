@@ -20,6 +20,8 @@ const { data: suitProducts } = await supabase
 
 const suitFallbackImage = '/images/team/TKF_9016-scaled.jpg';
 const collectionsForFilter = (collections ?? []).map(({ id, title, slug }) => ({ id, title, slug }));
+const initialBrands = Astro.url.searchParams.getAll('merk').map((value) => value.trim()).filter(Boolean);
+const initialCategories = Astro.url.searchParams.getAll('categorie').map((value) => value.trim()).filter(Boolean);
 ---
 
 <Layout title="Trouwpakken | Mariage Bruidsmode">
@@ -124,6 +126,8 @@ const collectionsForFilter = (collections ?? []).map(({ id, title, slug }) => ({
     products={suitProducts ?? []}
     collections={collectionsForFilter}
     fallbackImage={suitFallbackImage}
+    initialBrands={initialBrands}
+    initialCategories={initialCategories}
   />
 
   <section class="py-24 bg-charcoal text-center">

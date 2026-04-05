@@ -1,11 +1,16 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { supabase } from '../lib/supabase';
+import { CATEGORIEEN } from '../lib/productAttributes';
 import { normalizeHomepageSettings, type HomepageSectionId } from '../lib/homepageSections';
+import {
+  getDefaultHomepageCategorySliderItems,
+  normalizeHomepageCategorySliderItems,
+} from '../lib/homepageCategorySlider';
+import HomepageVirtualTryOnIllustration from '../components/HomepageVirtualTryOnIllustration.astro';
 
 const [
   { data: latestProducts },
-  { data: heroSlides, error: heroSlidesError },
   { data: featuredWedding },
   { data: latestWeddings },
   { data: latestPosts },
@@ -13,7 +18,6 @@ const [
   { data: employees },
 ] = await Promise.all([
   supabase.from('products').select('id, name, slug, brand, images, collections(title, type)').order('created_at', { ascending: false }).limit(8),
-  supabase.from('hero_slides').select('*').eq('is_active', true).order('sort_order', { ascending: true }),
   supabase.from('real_weddings').select('id, slug, bride_name, groom_name, cover_image, wedding_date').order('wedding_date', { ascending: false }).limit(1).maybeSingle(),
   supabase.from('real_weddings').select('id, slug, bride_name, groom_name, cover_image').order('wedding_date', { ascending: false }).limit(3),
   supabase.from('blog_posts').select('id, slug, title, excerpt, cover_image, published_at').order('published_at', { ascending: false }).limit(3),
@@ -27,20 +31,7 @@ const [
     .order('first_name', { ascending: true }),
 ]);
 
-if (heroSlidesError) {
-  console.warn(`[homepage] hero_slides query failed: ${heroSlidesError.message}`);
-}
-
 const hp = normalizeHomepageSettings(settings?.homepage ?? {});
-const parseBooleanSetting = (value: unknown, fallback: boolean) => {
-  if (typeof value === 'boolean') return value;
-  if (typeof value === 'string') {
-    const normalized = value.trim().toLowerCase();
-    if (normalized === 'true') return true;
-    if (normalized === 'false') return false;
-  }
-  return fallback;
-};
 const parseIntSetting = (value: unknown, fallback: number, min: number, max: number) => {
   const parsed = Number.parseInt(String(value ?? ''), 10);
   if (!Number.isFinite(parsed)) return fallback;
@@ -53,30 +44,89 @@ const sectionOrderMap = hp.sections_order.reduce((acc, sectionId, index) => {
 }, {} as Record<HomepageSectionId, number>);
 const isSectionVisible = (sectionId: HomepageSectionId) => hp.sections_visibility[sectionId] !== false;
 const sectionStyle = (sectionId: HomepageSectionId) => `order:${sectionOrderMap[sectionId] ?? 999};`;
+const buildUrl = (path: string, params: Record<string, string | undefined>) => {
+  const url = new URL(path, 'https://www.mariagebruidsmode.nl');
+  for (const [key, value] of Object.entries(params)) {
+    if (value && value.trim().length > 0) {
+      url.searchParams.set(key, value.trim());
+    }
+  }
+  return `${url.pathname}${url.search}`;
+};
 
 // Fallback hero: pick a suit product image
 const heroFallbackImage = '/wp-content/uploads/2023/07/Home-Hero-img.jpg';
 
-const collectionCards = [
+const collectionCardMeta: Record<string, { subtitle: string; image: string }> = {
+  romantisch: {
+    subtitle: 'Bianco Evento, San Patrick, Ladybird',
+    image: '/images/bruid/Bianco Evento/model-kerena/bianco-evento-trouwjurk-kerena_0.webp',
+  },
+  bohemian: {
+    subtitle: 'Libelle Bridal, Morilee, Cosmobella',
+    image: '/images/bruid/Cosmobella/model-8208/cosmobella-trouwjurk-8208_0.webp',
+  },
+  klassiek: {
+    subtitle: 'Demetrios, White One, Modeca',
+    image: '/images/bruid/White One/model-maitai/white-one-trouwjurk-maitai_0.webp',
+  },
+  strak: {
+    subtitle: 'Etoile, Enzoani, Daniela di Marino',
+    image: '/images/bruid/Daniela di Marino/model-6342/trouwjurk-daniela-di-marino-6342_0.webp',
+  },
+  vintage: {
+    subtitle: 'Dany Tabet, Oksana Mukha, Maggie Sottero',
+    image: '/images/bruid/Dany Tabet/model-helena/dany-tabet-trouwjurk-helena_0.webp',
+  },
+  outlet: {
+    subtitle: 'Showroom- en samplemodellen',
+    image: '/images/bruid/White One/model-gentian/trouwjurk-outlet-white-one-gentian_0.webp',
+  },
+};
+
+const collectionCards = CATEGORIEEN.map(({ key, label }) => ({
+  categoryKey: key,
+  title: label,
+  subtitle: collectionCardMeta[key]?.subtitle ?? '',
+  image: collectionCardMeta[key]?.image ?? '/images/jurkvormen/a-lijn.png',
+})).filter((card) => card.image && card.subtitle);
+
+const mensBrandCards = [
   {
-    href: '/boho',
-    title: 'Boho Stijl',
-    image: '/images/jurkvormen/a-lijn.png',
+    brandKey: 'Immediate',
+    kind: 'brand',
+    title: 'Immediate',
+    subtitle: 'Modern & veelzijdig',
   },
   {
-    href: '/modern',
-    title: 'Moderne Stijl',
-    image: '/images/jurkvormen/a-lijn-1.png',
+    brandKey: 'Crinoligne',
+    kind: 'brand',
+    title: 'Crinoligne',
+    subtitle: 'Klassiek & Italiaans',
   },
   {
-    href: '/collectie',
-    title: 'Collectie',
-    image: '/images/jurkvormen/a-lijn-silhouet.png',
+    brandKey: 'Roberto Vicentti',
+    kind: 'brand',
+    title: 'Roberto Vicentti',
+    subtitle: 'Mediterraans & elegant',
   },
   {
-    href: '/a-line',
-    title: 'A-Line Collectie',
-    image: '/images/jurkvormen/photoshop-silhouet2.png',
+    brandKey: 'Cleofe Finati',
+    kind: 'brand',
+    title: 'Cleofe Finati',
+    subtitle: 'Hoog couture herenmode',
+  },
+  {
+    categoryKey: 'modern',
+    kind: 'service',
+    title: 'Maatwerk',
+    subtitle: 'Persoonlijke afstemming & pasvorm',
+  },
+  {
+    categoryKey: 'klassiek',
+    kind: 'service',
+    title: 'Ceremonie',
+    subtitle: 'Feestelijk & volledig gestyled',
   },
 ];
 
@@ -87,6 +137,39 @@ const styleChips = [
   { label: String(sectionContent.style_chips.chip4_label), href: String(sectionContent.style_chips.chip4_url) },
   { label: String(sectionContent.style_chips.chip5_label), href: String(sectionContent.style_chips.chip5_url) },
 ].filter((chip) => chip.label.trim().length > 0 && chip.href.trim().length > 0);
+
+const homepageCategorySliderItems = normalizeHomepageCategorySliderItems(
+  hp.category_slider_items ?? getDefaultHomepageCategorySliderItems(),
+);
+
+const virtualTryOnSteps = [
+  {
+    number: '01',
+    title: 'Kies je favoriete stijl of merk',
+    text: 'Begin met de sfeer die bij jou past en selecteer de collectie waarin je wilt rondkijken.',
+  },
+  {
+    number: '02',
+    title: 'Kies je favoriete jurk',
+    text: 'Open een jurk op de productpagina en gebruik de virtuele pasfunctie als extra eerste indruk.',
+  },
+  {
+    number: '03',
+    title: 'Upload een geschikte foto van jezelf',
+    text: 'Gebruik een foto van voren, met goed licht en liefst full-body, zodat de preview zo realistisch mogelijk wordt.',
+  },
+  {
+    number: '04',
+    title: 'Bekijk direct hoe het je staat',
+    text: 'Je krijgt een AI-preview als voorbereiding op je echte pasmoment in de bruidszaak.',
+  },
+];
+
+const virtualTryOnPills = [
+  'Geen standaard slider',
+  'Volledig virtueel',
+  'Voor je winkelbezoek',
+];
 
 const featuredWeddingCard = {
   slug: featuredWedding?.slug ?? '',
@@ -126,41 +209,6 @@ const galleryItems = galleryImages.length
   ? galleryImages
   : galleryFallbacks.slice(0, 6).map((src, i) => ({ src, alt: `Galerij foto ${i + 1}`, href: '/trouwjurken' }));
 const maxGridItems = parseIntSetting(sectionContent.product_grid.max_items, 6, 3, 12);
-
-const activeSlides = (heroSlides ?? []).filter((slide) =>
-  typeof slide.image_url === 'string' && slide.image_url.trim().length > 0
-);
-const hasSlider = activeSlides.length > 0;
-const heroAutoplayMs = parseIntSetting(sectionContent.hero.autoplay_ms, 5000, 2000, 15000);
-const heroTransitionMs = parseIntSetting(sectionContent.hero.transition_ms, 700, 250, 2000);
-const heroShowArrows = parseBooleanSetting(sectionContent.hero.show_arrows, true);
-const heroShowDots = parseBooleanSetting(sectionContent.hero.show_dots, true);
-const heroPauseOnHover = parseBooleanSetting(sectionContent.hero.pause_on_hover, true);
-const heroFallbackSlide = {
-  id: 'fallback',
-  image_url: heroFallbackImage,
-  eyebrow: String(sectionContent.hero.eyebrow),
-  title: String(sectionContent.hero.title),
-  subtitle: String(sectionContent.hero.subtitle),
-  button1_text: String(sectionContent.hero.button1_text),
-  button1_url: String(sectionContent.hero.button1_url),
-  button2_text: String(sectionContent.hero.button2_text),
-  button2_url: String(sectionContent.hero.button2_url),
-  text_align: 'center',
-  overlay_opacity: 45,
-};
-const slidesForHero = hasSlider
-  ? activeSlides.map((slide) => ({
-      ...heroFallbackSlide,
-      ...slide,
-      overlay_opacity: typeof slide.overlay_opacity === 'number' ? slide.overlay_opacity : heroFallbackSlide.overlay_opacity,
-    }))
-  : [heroFallbackSlide];
-const heroAlignClasses = (align?: string) => {
-  if (align === 'left') return 'items-start text-left';
-  if (align === 'right') return 'items-end text-right';
-  return 'items-center text-center';
-};
 const featuredEmployees = ((employees ?? []) as Array<{
   id: string;
   first_name: string;
@@ -179,59 +227,89 @@ const featuredEmployees = ((employees ?? []) as Array<{
   <div class="flex flex-col">
 
   <!-- ===== HERO ===== -->
-  <section id="hero-slider" class={`relative w-full min-h-[74vh] md:min-h-[82vh] flex items-center justify-center overflow-hidden bg-ivory${isSectionVisible('hero') ? '' : ' hidden'}`} style={sectionStyle('hero')} data-autoplay-ms={String(heroAutoplayMs)} data-transition-ms={String(heroTransitionMs)} data-pause-on-hover={heroPauseOnHover ? 'true' : 'false'}>
-    <div id="hero-track" class="absolute inset-0 z-0 flex h-full" style={`transform: translateX(0px); transition: transform ${heroTransitionMs}ms ease;`}>
-      {slidesForHero.map((slide, index) => (
-        <article class="relative h-full w-full shrink-0">
-          <img
-            src={slide.image_url || heroFallbackImage}
-            alt={slide.title || `Hero slide ${index + 1}`}
-            class="w-full h-full object-cover animate-zoom opacity-90"
-            loading={index === 0 ? 'eager' : 'lazy'}
-          />
-          <div class="absolute inset-0 bg-charcoal" style={`opacity:${Math.min(80, Math.max(0, Number(slide.overlay_opacity ?? 40))) / 100};`}></div>
-          <div class="absolute inset-0 bg-gradient-to-b from-charcoal/20 via-transparent to-ivory/30"></div>
-          <div class={`absolute inset-0 z-10 flex justify-center px-4 sm:px-6 ${heroAlignClasses(slide.text_align)}`}>
-            <div class="w-full max-w-4xl py-16 md:py-24 flex flex-col justify-center">
-              {slide.eyebrow && <p class="romance-kicker text-white/90 mb-4">{slide.eyebrow}</p>}
-              {slide.title && <h1 class="font-display text-white leading-[1.06] mb-5 drop-shadow-sm" style="font-size: clamp(34px, 9vw, 82px); font-weight: 300;">{slide.title}</h1>}
-              {slide.subtitle && <p class="max-w-xl md:max-w-2xl text-sm md:text-base text-white/90 leading-relaxed mb-7 md:mb-8">{slide.subtitle}</p>}
-              <div class="flex flex-col sm:flex-row items-center gap-3 md:gap-4">
-                {slide.button1_text && slide.button1_url && (
-                  <a href={slide.button1_url} class="btn-blush w-full sm:w-auto px-8 md:px-10 py-4">{slide.button1_text}</a>
-                )}
-                {slide.button2_text && slide.button2_url && (
-                  <a href={slide.button2_url} class="btn-gold w-full sm:w-auto border-white text-white hover:border-white hover:bg-white hover:text-charcoal px-8 md:px-10 py-4">{slide.button2_text}</a>
-                )}
-              </div>
-            </div>
-          </div>
-        </article>
-      ))}
+  <section id="hero" class={`relative overflow-hidden bg-gradient-to-b from-ivory via-white to-ivory/70${isSectionVisible('hero') ? '' : ' hidden'}`} style={sectionStyle('hero')}>
+    <div class="absolute inset-0 pointer-events-none">
+      <div class="absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-blush/15 blur-3xl"></div>
+      <div class="absolute bottom-0 right-[-8rem] h-80 w-80 rounded-full bg-champagne/35 blur-3xl"></div>
+      <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-champagne/60 to-transparent"></div>
     </div>
 
-    {heroShowArrows && slidesForHero.length > 1 && (
-      <>
-        <button id="hero-prev" aria-label="Vorige slide" class="absolute left-3 md:left-6 z-20 h-10 w-10 md:h-12 md:w-12 rounded-full border border-white/60 bg-charcoal/25 text-white hover:bg-charcoal/45 transition-colors">
-          <span aria-hidden="true">‹</span>
-        </button>
-        <button id="hero-next" aria-label="Volgende slide" class="absolute right-3 md:right-6 z-20 h-10 w-10 md:h-12 md:w-12 rounded-full border border-white/60 bg-charcoal/25 text-white hover:bg-charcoal/45 transition-colors">
-          <span aria-hidden="true">›</span>
-        </button>
-      </>
-    )}
+    <div class="container mx-auto px-4 sm:px-6 py-16 md:py-24 lg:py-28 relative z-10">
+      <div class="grid grid-cols-1 lg:grid-cols-[1.08fr_0.92fr] gap-10 lg:gap-14 items-center">
+        <div class="max-w-2xl">
+          <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-5">{String(sectionContent.hero.eyebrow)}</p>
+          <h1 class="font-display font-normal text-charcoal leading-[0.95] mb-6" style="font-size: clamp(42px, 7vw, 84px);">
+            {String(sectionContent.hero.title)}
+          </h1>
+          <p class="text-base md:text-lg text-taupe font-light leading-relaxed max-w-xl mb-8">
+            {String(sectionContent.hero.subtitle)}
+          </p>
 
-    {heroShowDots && slidesForHero.length > 1 && (
-      <div class="absolute bottom-5 md:bottom-8 z-20 left-1/2 -translate-x-1/2 flex gap-2">
-        {slidesForHero.map((_, index) => (
-          <button
-            class={`hero-dot h-2.5 w-2.5 rounded-full transition-colors ${index === 0 ? 'bg-white' : 'bg-white/40'}`}
-            aria-label={`Ga naar slide ${index + 1}`}
-            data-index={String(index)}
-          />
-        ))}
+          <div class="flex flex-wrap gap-3 mb-8">
+            {virtualTryOnPills.map((pill) => (
+              <span class="inline-flex items-center rounded-full border border-champagne bg-white px-4 py-2 text-[10px] tracking-[0.22em] uppercase text-taupe font-body shadow-soft">
+                {pill}
+              </span>
+            ))}
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-8">
+            {virtualTryOnSteps.map((step) => (
+              <article class="border border-champagne bg-white/85 p-4 shadow-soft">
+                <p class="text-[9px] tracking-[0.35em] uppercase text-blush-deep font-body mb-3">{step.number}</p>
+                <h2 class="font-display text-charcoal text-lg leading-tight mb-2">{step.title}</h2>
+                <p class="text-sm text-taupe font-light leading-relaxed">{step.text}</p>
+              </article>
+            ))}
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4">
+            <a href={String(sectionContent.hero.button1_url)} class="btn-blush w-full sm:w-auto px-8 md:px-10 py-4">
+              {String(sectionContent.hero.button1_text)}
+            </a>
+            <a href={String(sectionContent.hero.button2_url)} class="btn-gold w-full sm:w-auto px-8 md:px-10 py-4">
+              {String(sectionContent.hero.button2_text)}
+            </a>
+          </div>
+        </div>
+
+        <HomepageVirtualTryOnIllustration />
       </div>
-    )}
+    </div>
+  </section>
+
+  <section
+    class={`bg-white border-b border-champagne/60 py-8 md:py-10 overflow-hidden${isSectionVisible('category_slider') ? '' : ' hidden'}`}
+    style={sectionStyle('category_slider')}
+  >
+    <div class="container mx-auto px-4 sm:px-6 max-w-7xl">
+      <h2 class="font-display text-2xl md:text-4xl text-charcoal text-center mb-6 md:mb-8">Ontdek jouw stijl</h2>
+      <div class="category-slider-track-wrap">
+        <div class="category-slider-track" aria-label="Categorie slider">
+          {[...homepageCategorySliderItems, ...homepageCategorySliderItems].map((item, index) => (
+            <a
+              href={buildUrl('/trouwjurken', { categorie: item.id })}
+              class="category-slider-card group"
+              aria-label={`Bekijk ${item.label}`}
+              data-clone={index >= homepageCategorySliderItems.length ? 'true' : 'false'}
+            >
+              <div class="aspect-[4/5] bg-ivory overflow-hidden">
+                <img
+                  src={item.image_url}
+                  alt={item.label}
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                />
+              </div>
+              <div class="flex items-center justify-between gap-2 pt-3">
+                <span class="font-display text-base md:text-lg text-charcoal">{item.label}</span>
+                <span aria-hidden="true" class="text-taupe group-hover:text-charcoal transition-colors">→</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- Shop by Style (Mobile only) -->
@@ -249,66 +327,77 @@ const featuredEmployees = ((employees ?? []) as Array<{
   </section>
 
   <!-- The Collections Grid -->
-  <section class={`romance-section bg-gradient-to-b from-white to-ivory/40 reveal-fade-up${isSectionVisible('collections') ? '' : ' hidden'}`} style={sectionStyle('collections')}>
+  <section class={`py-20 md:py-28 bg-gradient-to-b from-white to-ivory/40 reveal-fade-up${isSectionVisible('collections') ? '' : ' hidden'}`} style={sectionStyle('collections')}>
     <div class="container mx-auto px-4 sm:px-6 max-w-7xl">
-      <h2 class="romance-heading text-center mb-4">
-        {String(sectionContent.collections.heading)}
-      </h2>
-      <p class="romance-copy text-center max-w-2xl mx-auto mb-14">
-        {String(sectionContent.collections.subheading)}
-      </p>
-      
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 md:h-[1000px]">
-        <!-- Boho Style (Large Left) -->
-        <div class="md:col-span-4 h-full">
-          <a href="/boho" class="block group relative h-full overflow-hidden aspect-[4/5] md:aspect-auto">
-            <img src={collectionCards[0].image} alt={collectionCards[0].title} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-            <div class="romance-image-overlay"></div>
-            <div class="absolute bottom-8 left-0 right-0 text-center px-4">
-              <span class="text-white font-display text-2xl drop-shadow-md">{collectionCards[0].title}</span>
+      <div class="text-center max-w-3xl mx-auto mb-12 md:mb-16">
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">Collecties</p>
+        <h2 class="font-display text-4xl md:text-6xl text-charcoal leading-tight mb-4">
+          {String(sectionContent.collections.heading)}
+        </h2>
+        <p class="romance-copy">
+          {String(sectionContent.collections.subheading)}
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        {collectionCards.map((card) => (
+          <a href={buildUrl('/trouwjurken', { categorie: card.categoryKey })} class="group flex flex-col bg-white border border-champagne shadow-soft overflow-hidden transition-all duration-300 hover:border-blush-deep hover:shadow-card">
+            <div class="aspect-[4/5] bg-ivory p-3 sm:p-4 overflow-hidden">
+              <img
+                src={card.image}
+                alt={card.title}
+                class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
+                loading="lazy"
+              />
+            </div>
+            <div class="flex flex-col gap-2 px-5 py-5 text-center">
+              <p class="text-[10px] tracking-[0.3em] uppercase text-taupe font-body">Bruidscollectie</p>
+              <h3 class="font-display text-2xl text-charcoal">{card.title}</h3>
+              <p class="text-xs text-taupe leading-relaxed">{card.subtitle}</p>
             </div>
           </a>
-        </div>
-        
-        <!-- Center Column -->
-        <div class="md:col-span-4 flex flex-col gap-4 md:gap-6 h-full">
-          <!-- Modern Style (Top) -->
-          <div class="flex-1">
-            <a href="/modern" class="block group relative h-full overflow-hidden">
-              <img src={collectionCards[1].image} alt={collectionCards[1].title} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-              <div class="romance-image-overlay"></div>
-              <div class="absolute bottom-8 left-0 right-0 text-center px-4">
-                <span class="text-white font-display text-2xl drop-shadow-md">{collectionCards[1].title}</span>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Herenmodemerken -->
+  <section class={`py-20 md:py-28 bg-ivory border-t border-champagne reveal-fade-up${isSectionVisible('mens_brands') ? '' : ' hidden'}`} style={sectionStyle('mens_brands')}>
+    <div class="container mx-auto px-4 sm:px-6 max-w-7xl">
+      <div class="text-center max-w-3xl mx-auto mb-12 md:mb-16">
+        <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">Herenmode</p>
+        <h2 class="font-display text-4xl md:text-6xl text-charcoal leading-tight mb-4">
+          Herenmodemerken
+        </h2>
+        <p class="romance-copy">
+          Een selectie van herenmerken en pasvormopties voor het complete trouwpak, in dezelfde visuele stijl als onze bruidscategorieën.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        {mensBrandCards.map((card) => (
+          <a
+            href={card.brandKey
+              ? buildUrl('/trouwpakken', { merk: card.brandKey })
+              : buildUrl('/trouwpakken', { categorie: card.categoryKey })}
+            class="group flex flex-col bg-white border border-champagne shadow-soft overflow-hidden transition-all duration-300 hover:border-blush-deep hover:shadow-card"
+          >
+            <div class="aspect-[4/5] bg-ivory p-4 sm:p-6 flex items-center justify-center overflow-hidden">
+              <div class="w-full h-full border border-champagne/60 bg-white/70 flex flex-col items-center justify-center text-center px-4">
+                <p class="text-[9px] tracking-[0.35em] uppercase text-taupe font-body mb-4">
+                  {card.kind === 'brand' ? 'Herenmerk' : 'Pasvorm'}
+                </p>
+                <h3 class="font-display text-charcoal leading-tight text-[2rem] sm:text-[2.2rem] md:text-[2.6rem] max-w-[10ch]">
+                  {card.title}
+                </h3>
+                <div class="mt-5 h-px w-12 bg-champagne"></div>
               </div>
-            </a>
-          </div>
-          <!-- Wide Bottom -->
-          <div class="md:h-[30%]">
-            <a href="/collectie" class="block group relative h-full overflow-hidden aspect-[4/5] md:aspect-auto">
-              <img src={collectionCards[2].image} alt={collectionCards[2].title} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-            </a>
-          </div>
-        </div>
-        
-        <!-- Right Column -->
-        <div class="md:col-span-4 flex flex-col gap-4 md:gap-6 h-full">
-          <!-- A-Line (Top) -->
-          <div class="md:h-[60%]">
-            <a href="/a-line" class="block group relative h-full overflow-hidden aspect-[4/5] md:aspect-auto">
-              <img src={collectionCards[3].image} alt={collectionCards[3].title} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-              <div class="romance-image-overlay"></div>
-              <div class="absolute bottom-8 left-0 right-0 text-center px-4">
-                <span class="text-white font-display text-2xl drop-shadow-md">{collectionCards[3].title}</span>
-              </div>
-            </a>
-          </div>
-          <!-- Smaller Bottom -->
-          <div class="flex-1">
-            <a href="/collectie" class="block group relative h-full overflow-hidden aspect-[4/5] md:aspect-auto">
-              <img src="/images/jurkvormen/a-lijn.png" alt="Collectie" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-            </a>
-          </div>
-        </div>
+            </div>
+            <div class="flex flex-col gap-2 px-5 py-5 text-center">
+              <p class="text-xs text-taupe leading-relaxed">{card.subtitle}</p>
+            </div>
+          </a>
+        ))}
       </div>
     </div>
   </section>
@@ -521,81 +610,6 @@ const featuredEmployees = ((employees ?? []) as Array<{
 </Layout>
 
 <script>
-  // ===== HERO SLIDER =====
-  const track = document.getElementById('hero-track') as HTMLElement | null;
-  const slider = document.getElementById('hero-slider') as HTMLElement | null;
-  const dots = document.querySelectorAll<HTMLButtonElement>('.hero-dot');
-  const total = track?.children.length ?? 0;
-
-  if (track && total > 0) {
-    const autoplayMsRaw = Number.parseInt(slider?.dataset.autoplayMs ?? '', 10);
-    const transitionMsRaw = Number.parseInt(slider?.dataset.transitionMs ?? '', 10);
-    const autoplayMs = Number.isFinite(autoplayMsRaw) ? autoplayMsRaw : 5000;
-    const transitionMs = Number.isFinite(transitionMsRaw) ? transitionMsRaw : 700;
-    const pauseOnHover = slider?.dataset.pauseOnHover === 'true';
-
-    let current = 0;
-    let timer: ReturnType<typeof setInterval> | null = null;
-    let isHoverPaused = false;
-
-    track.style.transition = `transform ${transitionMs}ms ease`;
-
-    // Use pixel offsets so % is not relative to track's own (= N×slide) width
-    function slideWidth() {
-      return slider?.clientWidth ?? window.innerWidth;
-    }
-
-    function goTo(index: number) {
-      current = ((index % total) + total) % total;
-      track!.style.transform = `translateX(${-current * slideWidth()}px)`;
-      if (dots.length > 0) {
-        dots.forEach((d, i) => {
-          d.classList.toggle('bg-white', i === current);
-          d.classList.toggle('bg-white/40', i !== current);
-        });
-      }
-    }
-
-    // Re-snap on resize (no transition flash)
-    window.addEventListener('resize', () => {
-      track!.style.transition = 'none';
-      track!.style.transform = `translateX(${-current * slideWidth()}px)`;
-      requestAnimationFrame(() => { track!.style.transition = ''; });
-    }, { passive: true });
-
-    function startTimer() {
-      if (timer) clearInterval(timer);
-      if (total > 1) {
-        timer = setInterval(() => {
-          if (!isHoverPaused) goTo(current + 1);
-        }, autoplayMs);
-      }
-    }
-
-    document.getElementById('hero-prev')?.addEventListener('click', () => { goTo(current - 1); startTimer(); });
-    document.getElementById('hero-next')?.addEventListener('click', () => { goTo(current + 1); startTimer(); });
-    dots.forEach((dot, i) => dot.addEventListener('click', () => { goTo(i); startTimer(); }));
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowLeft') { goTo(current - 1); startTimer(); }
-      if (e.key === 'ArrowRight') { goTo(current + 1); startTimer(); }
-    });
-
-    let touchStartX = 0;
-    track.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; }, { passive: true });
-    track.addEventListener('touchend', (e) => {
-      const diff = touchStartX - e.changedTouches[0].clientX;
-      if (Math.abs(diff) > 50) { goTo(current + (diff > 0 ? 1 : -1)); startTimer(); }
-    }, { passive: true });
-
-    if (pauseOnHover && slider) {
-      slider.addEventListener('mouseenter', () => { isHoverPaused = true; });
-      slider.addEventListener('mouseleave', () => { isHoverPaused = false; });
-    }
-
-    startTimer();
-  }
-
   // ===== CONTACT FORM =====
   const quickForm = document.getElementById('quick-contact-form') as HTMLFormElement | null;
   const quickStatus = document.getElementById('quick-contact-status');
