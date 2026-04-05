@@ -1,5 +1,6 @@
 export const HOMEPAGE_SECTION_IDS = [
   'hero',
+  'category_slider',
   'style_chips',
   'collections',
   'product_grid',
@@ -48,6 +49,12 @@ export const HOMEPAGE_SECTION_DEFINITIONS: HomepageSectionDefinition[] = [
       { key: 'show_dots', label: 'Dots tonen', type: 'boolean' },
       { key: 'pause_on_hover', label: 'Pauzeren bij hover', type: 'boolean' },
     ],
+  },
+  {
+    id: 'category_slider',
+    label: 'Categorie Slider',
+    description: 'Carousel met 12 jurkenstijlen onder de hero.',
+    fields: [],
   },
   {
     id: 'style_chips',
@@ -160,6 +167,7 @@ export const HOMEPAGE_DEFAULTS: HomepageSettingsNormalized = {
   sections_order: [...HOMEPAGE_SECTION_IDS],
   sections_visibility: {
     hero: true,
+    category_slider: true,
     style_chips: true,
     collections: true,
     product_grid: true,
@@ -185,6 +193,7 @@ export const HOMEPAGE_DEFAULTS: HomepageSettingsNormalized = {
       show_dots: true,
       pause_on_hover: true,
     },
+    category_slider: {},
     style_chips: {
       chip1_label: 'A-Line',
       chip1_url: '/trouwjurken/a-lijn',

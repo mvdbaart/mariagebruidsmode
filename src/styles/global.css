@@ -369,6 +369,37 @@ h1, h2, h3, h4, h5, h6 {
   display: none;
 }
 
+.category-slider-track-wrap {
+  overflow: hidden;
+}
+
+.category-slider-track {
+  display: flex;
+  align-items: stretch;
+  width: max-content;
+  gap: 1rem;
+  animation: category-carousel 64s linear infinite;
+}
+
+.category-slider-track:hover {
+  animation-play-state: paused;
+}
+
+.category-slider-card {
+  display: block;
+  width: clamp(150px, 15.5vw, 240px);
+  flex: 0 0 auto;
+}
+
+@keyframes category-carousel {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-50% - 0.5rem));
+  }
+}
+
 /* =====================================================
    Admin Layout — CSS variable overrides voor contrast
    Scoped op .admin-layout (<body>). Publieke site
