@@ -90,7 +90,7 @@ const productSpecs = rawFeatures
                   class={`thumb-btn block aspect-square overflow-hidden border-2 transition-all ${i === 0 ? 'border-charcoal' : 'border-transparent hover:border-blush'}`}
                   data-src={img}
                 >
-                  <img src={img} alt={`${product.name} foto ${i + 1}`} onerror={`this.onerror=null;this.src='${primaryFallbackImage}'`} class="w-full h-full object-cover" loading="lazy" />
+                  <img src={img} alt={`${product.name} foto ${i + 1}`} onerror={`this.onerror=null;this.src='${primaryFallbackImage}'`} class="w-full h-full object-contain bg-ivory" loading="lazy" />
                 </button>
               ))}
             </div>
@@ -432,7 +432,17 @@ const productSpecs = rawFeatures
 <script>
   // Thumbnail image switcher
   const thumbBtns = document.querySelectorAll<HTMLButtonElement>('.thumb-btn');
+  const mainMedia = document.getElementById('product-main-media') as HTMLDivElement | null;
   const mainImg = document.getElementById('main-product-image') as HTMLImageElement | null;
+
+  function syncMainMediaAspect(imageEl: HTMLImageElement | null) {
+    if (!mainMedia || !imageEl) return;
+    const width = imageEl.naturalWidth;
+    const height = imageEl.naturalHeight;
+    if (width > 0 && height > 0) {
+      mainMedia.style.setProperty('--product-aspect', `${width} / ${height}`);
+    }
+  }
 
   // Collect all image srcs for lightbox navigation
   const allImages: string[] = [];
@@ -462,6 +472,11 @@ const productSpecs = rawFeatures
   // Smooth opacity transition on main image
   if (mainImg) {
     mainImg.style.transition = 'opacity 0.18s ease';
+    if (mainImg.complete) {
+      syncMainMediaAspect(mainImg);
+    } else {
+      mainImg.addEventListener('load', () => syncMainMediaAspect(mainImg));
+    }
   }
 
   // Lightbox
@@ -717,4 +732,3 @@ const productSpecs = rawFeatures
     transform: none;
   }
 </style>
-

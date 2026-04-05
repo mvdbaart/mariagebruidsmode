@@ -46,7 +46,6 @@ export const normalizeHomepageCategorySliderItems = (input: unknown): HomepageCa
     const incoming = source[index];
     if (!incoming || typeof incoming !== 'object') return fallback;
     const record = incoming as Record<string, unknown>;
-
     return {
       id: fallback.id,
       label: cleanString(record.label, fallback.label) || fallback.label,
