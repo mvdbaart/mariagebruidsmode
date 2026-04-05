@@ -5,6 +5,7 @@ ALTER TABLE IF EXISTS collections ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS real_weddings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS blog_posts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS vacancies ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS appointments ENABLE ROW LEVEL SECURITY;
 
 -- Collections table
@@ -60,6 +61,27 @@ CREATE TABLE IF NOT EXISTS blog_posts (
   tags TEXT[] DEFAULT '{}'
 );
 
+-- Vacatures
+CREATE TABLE IF NOT EXISTS vacancies (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  summary TEXT,
+  description TEXT,
+  department TEXT,
+  location TEXT,
+  employment_type TEXT CHECK (employment_type IN ('full_time', 'part_time', 'temporary', 'internship', 'freelance')),
+  hours_min NUMERIC(5,2),
+  hours_max NUMERIC(5,2),
+  application_email TEXT,
+  application_url TEXT,
+  cta_label TEXT DEFAULT 'Solliciteer direct',
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Appointments (Form Submissions)
 CREATE TABLE IF NOT EXISTS appointments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -107,6 +129,9 @@ CREATE INDEX IF NOT EXISTS employees_active_sort_idx
 CREATE INDEX IF NOT EXISTS employees_team_visible_sort_idx
   ON employees (is_active, show_on_team, team_sort_order, first_name);
 
+CREATE INDEX IF NOT EXISTS vacancies_public_sort_idx
+  ON vacancies (is_active, sort_order, created_at DESC);
+
 CREATE POLICY "Public read active employees" ON employees
   FOR SELECT USING (is_active = true);
 
@@ -115,4 +140,5 @@ CREATE POLICY "Enable read access for all users" ON collections FOR SELECT USING
 CREATE POLICY "Enable read access for all users" ON products FOR SELECT USING (true);
 CREATE POLICY "Enable read access for all users" ON real_weddings FOR SELECT USING (true);
 CREATE POLICY "Enable read access for all users" ON blog_posts FOR SELECT USING (true);
+CREATE POLICY "Enable read access for all users" ON vacancies FOR SELECT USING (true);
 CREATE POLICY "Enable insert for all users" ON appointments FOR INSERT WITH CHECK (true);

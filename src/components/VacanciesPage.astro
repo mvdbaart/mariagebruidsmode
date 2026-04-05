@@ -1,0 +1,157 @@
+---
+type Vacancy = {
+  id: string;
+  title: string;
+  slug: string;
+  summary?: string | null;
+  description?: string | null;
+  department?: string | null;
+  location?: string | null;
+  employment_type?: string | null;
+  hours_min?: number | null;
+  hours_max?: number | null;
+  application_email?: string | null;
+  application_url?: string | null;
+  cta_label?: string | null;
+  is_active?: boolean | null;
+};
+
+const { vacancies = [] } = Astro.props as { vacancies: Vacancy[] };
+
+const employmentLabels: Record<string, string> = {
+  full_time: 'Fulltime',
+  part_time: 'Parttime',
+  temporary: 'Tijdelijk',
+  internship: 'Stage',
+  freelance: 'Freelance',
+};
+
+const formatHours = (min?: number | null, max?: number | null) => {
+  if (min == null && max == null) return '';
+  if (min != null && max != null && min !== max) return `${min}-${max} uur`;
+  const value = min ?? max ?? 0;
+  return `${value} uur`;
+};
+
+const buildApplyHref = (vacancy: Vacancy) => {
+  if (vacancy.application_url?.trim()) return vacancy.application_url.trim();
+  const subject = encodeURIComponent(`Sollicitatie: ${vacancy.title}`);
+  return vacancy.application_email?.trim()
+    ? `mailto:${vacancy.application_email.trim()}?subject=${subject}`
+    : `mailto:bruidsmode@mariagebruidsmode.nl?subject=${subject}`;
+};
+---
+
+<section class="pt-40 pb-24 bg-ivory">
+  <div class="container mx-auto px-6 text-center max-w-3xl">
+    <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-6">Vacatures</p>
+    <h1 class="font-display text-charcoal leading-tight mb-8" style="font-size: clamp(40px, 8vw, 72px); font-weight: 300;">
+      Werk bij <br/><em class="italic font-light text-taupe">Mariage</em>
+    </h1>
+    <p class="text-taupe font-light leading-relaxed text-base max-w-xl mx-auto">
+      We zijn altijd op zoek naar gepassioneerde mensen die ons team willen versterken. Bekijk hieronder de open functies en solliciteer direct.
+    </p>
+  </div>
+</section>
+
+<section class="py-24 bg-white">
+  <div class="container mx-auto px-6 max-w-6xl">
+    <div class="text-center mb-16">
+      <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">Openstaande posities</p>
+      <h2 class="font-display text-charcoal text-4xl mb-4">Open <em class="italic font-light text-taupe">vacatures</em></h2>
+    </div>
+
+    {vacancies.length > 0 ? (
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+        {vacancies.map((vacancy) => (
+          <article class="bg-ivory border border-champagne rounded-[28px] p-6 md:p-8 shadow-soft flex flex-col gap-5">
+            <div class="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-3">
+                  {vacancy.department || 'Vacature'}
+                </p>
+                <h3 class="font-display text-charcoal text-3xl leading-tight mb-3">{vacancy.title}</h3>
+                <div class="flex flex-wrap gap-2 text-[9px] uppercase tracking-[0.18em]">
+                  {vacancy.employment_type && (
+                    <span class="inline-flex items-center rounded-full border border-blush-deep/15 bg-white px-3 py-1 text-taupe">
+                      {employmentLabels[vacancy.employment_type] ?? vacancy.employment_type}
+                    </span>
+                  )}
+                  {vacancy.location && (
+                    <span class="inline-flex items-center rounded-full border border-blush-deep/15 bg-white px-3 py-1 text-taupe">
+                      {vacancy.location}
+                    </span>
+                  )}
+                  {formatHours(vacancy.hours_min, vacancy.hours_max) && (
+                    <span class="inline-flex items-center rounded-full border border-blush-deep/15 bg-white px-3 py-1 text-taupe">
+                      {formatHours(vacancy.hours_min, vacancy.hours_max)}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {vacancy.summary && <p class="text-taupe font-light leading-relaxed text-sm">{vacancy.summary}</p>}
+            {vacancy.description && <p class="text-taupe font-light leading-relaxed text-sm whitespace-pre-line">{vacancy.description}</p>}
+
+            <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between pt-2 border-t border-champagne">
+              <p class="text-[10px] uppercase tracking-[0.22em] text-taupe font-body">
+                {vacancy.cta_label || 'Solliciteer direct'}
+              </p>
+              <a href={buildApplyHref(vacancy)} class="btn-blush px-6 py-3 text-[10px] text-center">
+                Solliciteer
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+    ) : (
+      <div class="border border-champagne bg-ivory/50 py-20 px-8 text-center rounded-[28px]">
+        <div class="w-12 h-12 mx-auto mb-6 text-champagne">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" class="w-full h-full">
+            <path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Z"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/>
+          </svg>
+        </div>
+        <p class="font-display italic text-taupe text-xl mb-2">Geen open vacatures</p>
+        <p class="font-body text-taupe/70 text-sm font-light">
+          Op dit moment hebben wij geen openstaande vacatures. Een open sollicitatie is altijd welkom.
+        </p>
+      </div>
+    )}
+  </div>
+</section>
+
+<section class="py-24 bg-ivory border-t border-champagne">
+  <div class="container mx-auto px-6 max-w-5xl">
+    <div class="text-center mb-16">
+      <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">Waarom Mariage</p>
+      <h2 class="font-display text-charcoal text-4xl mb-4">Werken bij een <em class="italic font-light text-taupe">boutique</em></h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+      {[
+        { titel: 'Passievol werk', tekst: 'Omring jezelf dagelijks met prachtige jurken, gelukkige bruiden en een warm team.' },
+        { titel: 'Persoonlijke groei', tekst: 'Wij investeren in jouw ontwikkeling met trainingen bij ontwerpers en merkopleidingen.' },
+        { titel: 'Fijne sfeer', tekst: 'Een kleine, hechte boutique waar iedereen telt en samenwerken vanzelfsprekend is.' },
+      ].map(({ titel, tekst }) => (
+        <div class="space-y-4">
+          <div class="w-px h-10 bg-blush mx-auto"></div>
+          <h3 class="font-display text-charcoal text-xl">{titel}</h3>
+          <p class="text-taupe font-light text-sm leading-relaxed">{tekst}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="py-24 bg-charcoal text-center">
+  <div class="container mx-auto px-6 max-w-2xl">
+    <p class="text-[10px] tracking-[0.4em] uppercase text-blush font-body mb-4">Open sollicitatie</p>
+    <h2 class="font-display text-warm-white text-4xl mb-6">Zie jij jezelf bij <em class="italic text-blush font-light">Mariage?</em></h2>
+    <p class="text-warm-white/60 font-light mb-10 leading-relaxed">
+      Stuur ons jouw motivatiebrief en cv, en wie weet maak jij binnenkort deel uit van ons team.
+    </p>
+    <a href="mailto:bruidsmode@mariagebruidsmode.nl?subject=Open sollicitatie" class="btn-gold">
+      Stuur open sollicitatie
+    </a>
+  </div>
+</section>

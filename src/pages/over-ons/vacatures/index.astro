@@ -1,0 +1,16 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { supabase } from '../../../lib/supabase';
+import VacanciesPage from '../../../components/VacanciesPage.astro';
+
+const { data: vacancies } = await supabase
+  .from('vacancies')
+  .select('*')
+  .eq('is_active', true)
+  .order('sort_order', { ascending: true, nullsFirst: true })
+  .order('created_at', { ascending: false });
+---
+
+<Layout title="Vacatures | Mariage Bruidsmode">
+  <VacanciesPage vacancies={(vacancies ?? []) as any[]} />
+</Layout>

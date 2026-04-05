@@ -1,0 +1,334 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { getServiceRoleClient } from '../../lib/serverAuth';
+
+const supabase = getServiceRoleClient();
+const { data: vacancies } = await supabase
+  .from('vacancies')
+  .select('*')
+  .order('sort_order', { ascending: true, nullsFirst: true })
+  .order('created_at', { ascending: false });
+---
+
+<AdminLayout title="Vacatures Beheer">
+  <div class="pt-8 pb-24 bg-ivory min-h-screen">
+    <div class="container mx-auto px-6">
+      <div class="flex justify-between items-center mb-12">
+        <h1 class="font-display font-normal text-charcoal text-3xl italic">Vacatures <span class="text-blush-deep opacity-60">Beheer</span></h1>
+        <div class="flex gap-4 items-center">
+          <button id="add-vacancy-btn" class="btn-premium text-[10px]">+ Nieuwe Vacature</button>
+          <a href="/admin" class="text-[10px] uppercase tracking-widest text-taupe hover:text-blush-deep transition-colors">← Dashboard</a>
+        </div>
+      </div>
+
+      <div class="mb-6 rounded-2xl border border-champagne bg-white px-4 py-3 text-sm text-taupe">
+        Maak en beheer hier de vacatures die zichtbaar worden op <a href="/over-ons/vacatures/" class="text-blush-deep hover:underline">/over-ons/vacatures/</a>.
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {(vacancies ?? []).map((vacancy) => (
+          <article class="bg-white border border-champagne shadow-soft rounded-2xl p-6 flex flex-col gap-4" data-vacancy-card data-vacancy={JSON.stringify(vacancy)}>
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">{vacancy.department || 'Vacature'}</p>
+                <h2 class="font-display text-charcoal text-2xl leading-tight">{vacancy.title}</h2>
+                <p class="text-xs text-taupe mt-2">
+                  {vacancy.location || 'Locatie onbekend'}
+                  {vacancy.employment_type ? ` · ${vacancy.employment_type.replace('_', ' ')}` : ''}
+                  {typeof vacancy.sort_order === 'number' ? ` · #${vacancy.sort_order}` : ''}
+                </p>
+              </div>
+              <span class={`text-[9px] uppercase tracking-[0.12em] px-2.5 py-1 rounded-full font-medium shrink-0 ml-2 ${vacancy.is_active ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-500'}`}>
+                {vacancy.is_active ? 'Actief' : 'Inactief'}
+              </span>
+            </div>
+
+            {vacancy.summary && <p class="text-sm text-taupe leading-relaxed line-clamp-3">{vacancy.summary}</p>}
+
+            <div class="flex flex-wrap gap-2">
+              {vacancy.application_email && (
+                <span class="text-[9px] uppercase tracking-[0.12em] px-2.5 py-1 bg-linen text-taupe border border-champagne rounded-full">
+                  {vacancy.application_email}
+                </span>
+              )}
+              {vacancy.cta_label && (
+                <span class="text-[9px] uppercase tracking-[0.12em] px-2.5 py-1 bg-linen text-taupe border border-champagne rounded-full">
+                  {vacancy.cta_label}
+                </span>
+              )}
+            </div>
+
+            <div class="flex gap-2 pt-4 border-t border-champagne">
+              <button
+                class="flex-1 py-2 text-[10px] uppercase tracking-[0.15em] font-medium text-charcoal border border-champagne rounded-lg hover:bg-charcoal hover:text-ivory hover:border-charcoal transition-all edit-vacancy-btn"
+                data-vacancy={JSON.stringify(vacancy)}
+              >Bewerken</button>
+              <button
+                class="py-2 px-3 text-[10px] text-red-400 border border-red-200 rounded-lg hover:bg-red-500 hover:text-white hover:border-red-500 transition-all delete-vacancy-btn"
+                data-id={vacancy.id}
+                data-title={vacancy.title}
+              >✕</button>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      {!vacancies?.length && (
+        <div class="text-center py-24 bg-white border border-dashed border-champagne rounded-2xl">
+          <p class="font-display italic text-taupe">Nog geen vacatures toegevoegd.</p>
+          <p class="text-sm text-taupe/70 mt-2">Maak je eerste vacature aan via de knop hierboven.</p>
+        </div>
+      )}
+    </div>
+  </div>
+</AdminLayout>
+
+<dialog id="vacancy-dialog" class="bg-white border border-champagne shadow-card p-0 max-w-3xl w-full rounded-2xl overflow-hidden">
+  <form id="vacancy-form" class="p-8 space-y-4">
+    <input type="hidden" id="vacancy-id" name="id" />
+    <div class="flex items-center justify-between gap-4">
+      <h2 id="vacancy-dialog-title" class="font-display text-charcoal text-2xl italic">Nieuwe vacature</h2>
+      <button type="button" id="close-vacancy-dialog" class="text-taupe hover:text-charcoal transition-colors" aria-label="Sluiten">✕</button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs uppercase tracking-[0.15em] text-taupe font-medium mb-1">Titel *</label>
+        <input id="vacancy-title" name="title" required class="w-full bg-white border border-champagne px-3 py-2 text-sm rounded-lg" />
+      </div>
+      <div>
+        <label class="block text-xs uppercase tracking-[0.15em] text-taupe font-medium mb-1">Slug</label>
+        <input id="vacancy-slug" name="slug" class="w-full bg-white border border-champagne px-3 py-2 text-sm rounded-lg" />
+      </div>
+      <div>
+        <label class="block text-xs uppercase tracking-[0.15em] text-taupe font-medium mb-1">Afdeling</label>
+        <input id="vacancy-department" name="department" class="w-full bg-white border border-champagne px-3 py-2 text-sm rounded-lg" />
+      </div>
+      <div>
+        <label class="block text-xs uppercase tracking-[0.15em] text-taupe font-medium mb-1">Locatie</label>
+        <input id="vacancy-location" name="location" class="w-full bg-white border border-champagne px-3 py-2 text-sm rounded-lg" />
+      </div>
+      <div>
+        <label class="block text-xs uppercase tracking-[0.15em] text-taupe font-medium mb-1">Type</label>
+        <select id="vacancy-employment-type" name="employment_type" class="w-full bg-white border border-champagne px-3 py-2 text-sm rounded-lg">
+          <option value="">Kies type</option>
+          <option value="full_time">Fulltime</option>
+          <option value="part_time">Parttime</option>
+          <option value="temporary">Tijdelijk</option>
+          <option value="internship">Stage</option>
+          <option value="freelance">Freelance</option>
+        </select>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs uppercase tracking-[0.15em] text-taupe font-medium mb-1">Uren min</label>
+          <input id="vacancy-hours-min" name="hours_min" type="number" step="0.5" class="w-full bg-white border border-champagne px-3 py-2 text-sm rounded-lg" />
+        </div>
+        <div>
+          <label class="block text-xs uppercase tracking-[0.15em] text-taupe font-medium mb-1">Uren max</label>
+          <input id="vacancy-hours-max" name="hours_max" type="number" step="0.5" class="w-full bg-white border border-champagne px-3 py-2 text-sm rounded-lg" />
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs uppercase tracking-[0.15em] text-taupe font-medium mb-1">E-mail sollicitatie</label>
+        <input id="vacancy-application-email" name="application_email" type="email" class="w-full bg-white border border-champagne px-3 py-2 text-sm rounded-lg" />
+      </div>
+      <div>
+        <label class="block text-xs uppercase tracking-[0.15em] text-taupe font-medium mb-1">Externe sollicitatie-URL</label>
+        <input id="vacancy-application-url" name="application_url" class="w-full bg-white border border-champagne px-3 py-2 text-sm rounded-lg" />
+      </div>
+      <div>
+        <label class="block text-xs uppercase tracking-[0.15em] text-taupe font-medium mb-1">CTA label</label>
+        <input id="vacancy-cta-label" name="cta_label" placeholder="Solliciteer direct" class="w-full bg-white border border-champagne px-3 py-2 text-sm rounded-lg" />
+      </div>
+      <div>
+        <label class="block text-xs uppercase tracking-[0.15em] text-taupe font-medium mb-1">Volgorde</label>
+        <input id="vacancy-sort-order" name="sort_order" type="number" step="1" class="w-full bg-white border border-champagne px-3 py-2 text-sm rounded-lg" />
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs uppercase tracking-[0.15em] text-taupe font-medium mb-1">Korte samenvatting</label>
+      <textarea id="vacancy-summary" name="summary" rows="3" class="w-full bg-white border border-champagne px-3 py-2 text-sm rounded-lg"></textarea>
+    </div>
+
+    <div>
+      <label class="block text-xs uppercase tracking-[0.15em] text-taupe font-medium mb-1">Beschrijving</label>
+      <textarea id="vacancy-description" name="description" rows="6" class="w-full bg-white border border-champagne px-3 py-2 text-sm rounded-lg"></textarea>
+    </div>
+
+    <label class="flex items-center gap-3 cursor-pointer text-sm text-charcoal">
+      <input id="vacancy-is-active" name="is_active" type="checkbox" class="w-4 h-4 accent-blush-deep" />
+      Actief op de website
+    </label>
+
+    <div class="flex justify-end gap-3 pt-2">
+      <button type="button" id="vacancy-cancel-btn" class="btn-gold text-[10px]">Annuleren</button>
+      <button type="submit" id="vacancy-save-btn" class="btn-premium text-[10px]">Opslaan</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="vacancy-delete-dialog" class="bg-white border border-champagne shadow-card p-8 max-w-sm w-full rounded-2xl">
+  <h2 class="font-display text-charcoal text-xl mb-3">Vacature verwijderen?</h2>
+  <p id="vacancy-delete-msg" class="text-sm font-body text-taupe mb-6"></p>
+  <div class="flex gap-4">
+    <button id="vacancy-delete-confirm" class="btn-premium text-[10px] bg-red-500 border-red-500 hover:bg-red-600">Verwijderen</button>
+    <button id="vacancy-delete-cancel" class="btn-gold text-[10px]">Annuleren</button>
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.getElementById('vacancy-dialog') as HTMLDialogElement | null;
+  const deleteDialog = document.getElementById('vacancy-delete-dialog') as HTMLDialogElement | null;
+  const form = document.getElementById('vacancy-form') as HTMLFormElement | null;
+  const saveBtn = document.getElementById('vacancy-save-btn') as HTMLButtonElement | null;
+  const titleInput = document.getElementById('vacancy-title') as HTMLInputElement | null;
+  const slugInput = document.getElementById('vacancy-slug') as HTMLInputElement | null;
+  const dialogTitle = document.getElementById('vacancy-dialog-title');
+  const deleteMsg = document.getElementById('vacancy-delete-msg');
+  const idInput = document.getElementById('vacancy-id') as HTMLInputElement | null;
+  const deleteConfirm = document.getElementById('vacancy-delete-confirm');
+  const deleteCancel = document.getElementById('vacancy-delete-cancel');
+  let pendingDeleteId: string | null = null;
+
+  const fields = {
+    title: document.getElementById('vacancy-title') as HTMLInputElement | null,
+    slug: document.getElementById('vacancy-slug') as HTMLInputElement | null,
+    summary: document.getElementById('vacancy-summary') as HTMLTextAreaElement | null,
+    description: document.getElementById('vacancy-description') as HTMLTextAreaElement | null,
+    department: document.getElementById('vacancy-department') as HTMLInputElement | null,
+    location: document.getElementById('vacancy-location') as HTMLInputElement | null,
+    employment_type: document.getElementById('vacancy-employment-type') as HTMLSelectElement | null,
+    hours_min: document.getElementById('vacancy-hours-min') as HTMLInputElement | null,
+    hours_max: document.getElementById('vacancy-hours-max') as HTMLInputElement | null,
+    application_email: document.getElementById('vacancy-application-email') as HTMLInputElement | null,
+    application_url: document.getElementById('vacancy-application-url') as HTMLInputElement | null,
+    cta_label: document.getElementById('vacancy-cta-label') as HTMLInputElement | null,
+    sort_order: document.getElementById('vacancy-sort-order') as HTMLInputElement | null,
+    is_active: document.getElementById('vacancy-is-active') as HTMLInputElement | null,
+  };
+
+  function slugify(value: string) {
+    return value
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .replace(/-{2,}/g, '-');
+  }
+
+  function resetForm() {
+    form?.reset();
+    if (idInput) idInput.value = '';
+    if (dialogTitle) dialogTitle.textContent = 'Nieuwe vacature';
+    if (fields.cta_label) fields.cta_label.value = 'Solliciteer direct';
+    if (fields.sort_order) fields.sort_order.value = '0';
+    if (fields.is_active) fields.is_active.checked = true;
+  }
+
+  function openForm(vacancy) {
+    resetForm();
+    if (vacancy) {
+      if (dialogTitle) dialogTitle.textContent = 'Vacature bewerken';
+      for (const [key, input] of Object.entries(fields)) {
+        if (!input) continue;
+        if (input.type === 'checkbox') {
+          input.checked = Boolean(vacancy[key]);
+        } else {
+          input.value = vacancy[key] ?? '';
+        }
+      }
+      if (idInput) idInput.value = vacancy.id ?? '';
+      if (fields.cta_label && !fields.cta_label.value) fields.cta_label.value = 'Solliciteer direct';
+    }
+    dialog?.showModal();
+  }
+
+  document.getElementById('add-vacancy-btn')?.addEventListener('click', () => openForm(null));
+  document.getElementById('close-vacancy-dialog')?.addEventListener('click', () => dialog?.close());
+  document.getElementById('vacancy-cancel-btn')?.addEventListener('click', () => dialog?.close());
+  dialog?.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
+
+  titleInput?.addEventListener('input', () => {
+    if (slugInput && !slugInput.value.trim()) slugInput.value = slugify(titleInput.value);
+  });
+
+  document.querySelectorAll<HTMLElement>('.edit-vacancy-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const vacancy = JSON.parse(btn.getAttribute('data-vacancy') || '{}');
+      openForm(vacancy);
+    });
+  });
+
+  document.querySelectorAll<HTMLElement>('.delete-vacancy-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      pendingDeleteId = btn.getAttribute('data-id');
+      const title = btn.getAttribute('data-title') ?? 'deze vacature';
+      if (deleteMsg) deleteMsg.textContent = `Weet je zeker dat je "${title}" wilt verwijderen? Dit kan niet ongedaan worden gemaakt.`;
+      deleteDialog?.showModal();
+    });
+  });
+
+  deleteCancel?.addEventListener('click', () => { deleteDialog?.close(); pendingDeleteId = null; });
+  deleteDialog?.addEventListener('click', (e) => { if (e.target === deleteDialog) { deleteDialog.close(); pendingDeleteId = null; } });
+
+  deleteConfirm?.addEventListener('click', async () => {
+    if (!pendingDeleteId) return;
+    const id = pendingDeleteId;
+    deleteDialog?.close();
+
+    const response = await fetch(`/api/admin/vacatures/${id}`, { method: 'DELETE' });
+    if (response.ok) {
+      window.location.reload();
+    } else {
+      alert('Fout bij verwijderen. Probeer opnieuw.');
+    }
+    pendingDeleteId = null;
+  });
+
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const payload = Object.fromEntries(new FormData(form).entries());
+    payload.is_active = fields.is_active?.checked ? 'true' : 'false';
+    if (!String(payload.cta_label || '').trim()) payload.cta_label = 'Solliciteer direct';
+    if (!String(payload.slug || '').trim() && String(payload.title || '').trim()) {
+      payload.slug = slugify(String(payload.title));
+    }
+
+    const vacancyId = idInput?.value?.trim();
+    const method = vacancyId ? 'PUT' : 'POST';
+    const endpoint = vacancyId ? `/api/admin/vacatures/${vacancyId}` : '/api/admin/vacatures';
+
+    if (saveBtn) saveBtn.disabled = true;
+
+    try {
+      const response = await fetch(endpoint, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ error: 'Opslaan mislukt' }));
+        alert('Fout: ' + (err.error || 'Opslaan mislukt'));
+        return;
+      }
+
+      dialog?.close();
+      window.location.reload();
+    } catch {
+      alert('Er is een fout opgetreden.');
+    } finally {
+      if (saveBtn) saveBtn.disabled = false;
+    }
+  });
+</script>
+
+<style>
+  #vacancy-dialog::backdrop,
+  #vacancy-delete-dialog::backdrop {
+    background: rgba(44, 42, 40, 0.5);
+  }
+</style>
