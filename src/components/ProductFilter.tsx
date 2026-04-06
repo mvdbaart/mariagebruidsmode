@@ -416,19 +416,19 @@ export default function ProductFilter({ products, collections, fallbackImage, mo
                   index % 3 === 0 ? 'animate-pan-right' : index % 3 === 1 ? 'animate-pan-left' : 'animate-zoom';
 
                 return (
-                  <div key={prod.id} className="group product-card relative overflow-hidden">
+                  <div key={prod.id} className="group product-card relative overflow-hidden rounded-2xl">
                     {/* Wishlist heart button */}
                     <button
                       onClick={() => toggleWishlist(prod)}
                       aria-label={wishlist.has(prod.slug) ? 'Verwijder uit verlanglijst' : 'Voeg toe aan verlanglijst'}
-                      className="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center bg-white/90 hover:bg-white transition-colors shadow-sm"
+                      className="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center bg-white/90 hover:bg-white transition-colors shadow-sm rounded-full"
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill={wishlist.has(prod.slug) ? '#A66352' : 'none'} stroke={wishlist.has(prod.slug) ? '#A66352' : '#5E534D'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                       </svg>
                     </button>
-                    <a href={`/product/${prod.slug}`} className="block relative aspect-[3/4] overflow-hidden">
-                      <div className="w-full h-full bg-ivory relative overflow-hidden p-2">
+                    <a href={`/product/${prod.slug}`} className="block relative aspect-[3/4] overflow-hidden rounded-2xl">
+                      <div className="w-full h-full bg-ivory relative overflow-hidden p-2 rounded-2xl">
                         <img
                           src={displayImg}
                           alt={prod.name}
@@ -440,7 +440,7 @@ export default function ProductFilter({ products, collections, fallbackImage, mo
                         />
 
                         <div className="absolute inset-0 bg-charcoal/20 md:bg-charcoal/0 md:group-hover:bg-charcoal/20 transition-all duration-500 flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100">
-                          <span className="bg-warm-white text-charcoal px-5 py-2.5 text-[11px] tracking-[0.15em] uppercase font-body font-medium">
+                          <span className="bg-warm-white text-charcoal px-5 py-2.5 text-[11px] tracking-[0.15em] uppercase font-body font-medium rounded-full">
                             Bekijk product
                           </span>
                         </div>
