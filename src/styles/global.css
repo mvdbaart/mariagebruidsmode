@@ -146,6 +146,7 @@ body {
   font-weight: 400; /* Increased from 300 for better legibility */
   line-height: 1.6;
   margin: 0;
+  overflow-x: hidden;
 }
 
 .skip-link {
