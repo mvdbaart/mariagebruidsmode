@@ -139,6 +139,7 @@ html {
   color: var(--color-charcoal);
   -webkit-font-smoothing: antialiased;
   scroll-behavior: smooth;
+  overflow-x: clip;
 }
 
 body {
