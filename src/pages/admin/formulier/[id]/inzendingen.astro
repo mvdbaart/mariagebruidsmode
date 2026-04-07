@@ -31,7 +31,7 @@ const fieldMap = Object.fromEntries(fields.map(f => [f.id, f.label]));
       <div class="flex items-end justify-between mb-12">
         <div>
           <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">{form.name}</p>
-          <h1 class="font-display font-normal text-charcoal text-4xl leading-tight">
+          <h1 class="admin-heading font-normal text-charcoal text-4xl leading-tight">
             Inzendingen
           </h1>
         </div>
@@ -79,7 +79,7 @@ const fieldMap = Object.fromEntries(fields.map(f => [f.id, f.label]));
         </div>
       ) : (
         <div class="text-center py-24 bg-white border border-dashed border-champagne">
-          <p class="font-display text-xl text-taupe italic mb-2">Nog geen inzendingen.</p>
+          <p class="admin-heading text-xl text-taupe italic mb-2">Nog geen inzendingen.</p>
           <p class="text-sm font-body text-taupe">Inzendingen verschijnen hier zodra het formulier is ingevuld.</p>
         </div>
       )}

@@ -52,7 +52,7 @@ const outstanding = priceNum != null ? priceNum - totalPaid : null;
       <div class="flex items-start justify-between mb-12">
         <div>
           <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">Klantprofiel</p>
-          <h1 class="font-display font-normal text-charcoal text-4xl leading-tight">
+          <h1 class="admin-heading font-normal text-charcoal text-4xl leading-tight">
             {klant.first_name} <em class="font-normal italic text-taupe">{klant.last_name}</em>
           </h1>
           <p class="text-xs font-body text-taupe mt-2">Aangemeld op {new Date(klant.created_at).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
@@ -179,7 +179,7 @@ const outstanding = priceNum != null ? priceNum - totalPaid : null;
               {priceNum != null && (
                 <div class="text-right">
                   <p class="text-[9px] uppercase tracking-wider text-taupe font-body">Openstaand</p>
-                  <p class={`text-lg font-display ${outstanding !== null && outstanding > 0 ? 'text-red-600' : 'text-charcoal'}`}>
+                  <p class={`text-lg admin-heading ${outstanding !== null && outstanding > 0 ? 'text-red-600' : 'text-charcoal'}`}>
                     € {outstanding !== null ? outstanding.toFixed(2) : '—'}
                   </p>
                 </div>
@@ -324,7 +324,7 @@ const outstanding = priceNum != null ? priceNum - totalPaid : null;
             {klant.price && (
               <div>
                 <p class="text-[9px] uppercase tracking-wider text-taupe font-body mb-1">Prijs</p>
-                <p class="text-sm font-display text-charcoal">{klant.price}</p>
+                <p class="text-sm admin-heading text-charcoal">{klant.price}</p>
               </div>
             )}
           </div>
@@ -383,7 +383,7 @@ const outstanding = priceNum != null ? priceNum - totalPaid : null;
 </AdminLayout>
 
 <dialog id="delete-dialog" class="bg-white border border-champagne shadow-card p-8 max-w-sm w-full">
-  <h2 class="font-display text-charcoal text-xl mb-3">Klant verwijderen?</h2>
+  <h2 class="admin-heading text-charcoal text-xl mb-3">Klant verwijderen?</h2>
   <p class="text-sm font-body text-taupe mb-6">Alle gegevens van <strong>{klant.first_name} {klant.last_name}</strong> worden permanent verwijderd.</p>
   <div class="flex gap-4">
     <button id="confirm-delete" class="btn-premium text-[10px]" style="background-color: rgb(239,68,68); border-color: rgb(239,68,68)">Verwijderen</button>

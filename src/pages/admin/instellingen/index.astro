@@ -20,7 +20,7 @@ const activeIntegrations = Object.values(integrations).filter((v: any) => v?.api
 
       <div class="mb-12">
         <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">Beheer</p>
-        <h1 class="font-display font-normal text-charcoal text-4xl leading-tight">
+        <h1 class="admin-heading font-normal text-charcoal text-4xl leading-tight">
           Site <em class="font-normal italic text-taupe">Instellingen</em>
         </h1>
       </div>
@@ -36,7 +36,7 @@ const activeIntegrations = Object.values(integrations).filter((v: any) => v?.api
             </div>
             <span class="text-[9px] tracking-widest uppercase font-body text-blush-deep group-hover:underline">Bewerken →</span>
           </div>
-          <h2 class="font-display text-charcoal text-2xl italic mb-2">Bedrijf & Logo</h2>
+          <h2 class="admin-heading text-charcoal text-2xl italic mb-2">Bedrijf & Logo</h2>
           <p class="text-xs font-body text-taupe leading-relaxed">Logo uploaden en adres- en contactgegevens beheren.</p>
         </a>
 
@@ -50,7 +50,7 @@ const activeIntegrations = Object.values(integrations).filter((v: any) => v?.api
             </div>
             <span class="text-[9px] tracking-widest uppercase font-body text-blush-deep group-hover:underline">Bewerken →</span>
           </div>
-          <h2 class="font-display text-charcoal text-2xl italic mb-2">Uiterlijk</h2>
+          <h2 class="admin-heading text-charcoal text-2xl italic mb-2">Uiterlijk</h2>
           <p class="text-xs font-body text-taupe leading-relaxed">Kleuren, typografie, UI-stijl en algemene site-informatie.</p>
         </a>
 
@@ -64,7 +64,7 @@ const activeIntegrations = Object.values(integrations).filter((v: any) => v?.api
             </div>
             <span class="text-[9px] tracking-widest uppercase font-body text-blush-deep group-hover:underline">Bewerken →</span>
           </div>
-          <h2 class="font-display text-charcoal text-2xl italic mb-2">Koppelingen</h2>
+          <h2 class="admin-heading text-charcoal text-2xl italic mb-2">Koppelingen</h2>
           <p class="text-xs font-body text-taupe leading-relaxed">
             Integraties met betalingsproviders en externe platformen.
             {activeIntegrations > 0 && <span class="block mt-1 text-green-600">{activeIntegrations} actief</span>}
@@ -81,7 +81,7 @@ const activeIntegrations = Object.values(integrations).filter((v: any) => v?.api
             </div>
             <span class="text-[9px] tracking-widest uppercase font-body text-blush-deep group-hover:underline">Bewerken →</span>
           </div>
-          <h2 class="font-display text-charcoal text-2xl italic mb-2">Redirects</h2>
+          <h2 class="admin-heading text-charcoal text-2xl italic mb-2">Redirects</h2>
           <p class="text-xs font-body text-taupe leading-relaxed">301/302-redirects beheren voor oude WordPress-URLs.</p>
         </a>
 
@@ -95,7 +95,7 @@ const activeIntegrations = Object.values(integrations).filter((v: any) => v?.api
             </div>
             <span class="text-[9px] tracking-widest uppercase font-body text-taupe">Binnenkort</span>
           </div>
-          <h2 class="font-display text-charcoal text-2xl italic mb-2">SEO & Meta</h2>
+          <h2 class="admin-heading text-charcoal text-2xl italic mb-2">SEO & Meta</h2>
           <p class="text-xs font-body text-taupe leading-relaxed">Sitemap, meta-tags, Open Graph en sociale media previews.</p>
         </div>
       </div>

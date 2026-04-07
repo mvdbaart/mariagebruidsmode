@@ -84,7 +84,7 @@ const appStatusColor: { [key: string]: string } = { pending: 'bg-amber-100 text-
         <div class="lg:col-span-1 bg-charcoal rounded-2xl p-6 flex flex-col justify-between min-h-[180px]">
           <div>
             <p class="text-[9px] uppercase tracking-[0.25em] text-white/40 font-body mb-3">Vandaag</p>
-            <p class="font-display text-white text-5xl leading-none mb-1">{todayAppointmentCount ?? 0}</p>
+            <p class="font-body font-semibold tabular-nums text-white text-5xl leading-none mb-1">{todayAppointmentCount ?? 0}</p>
             <p class="text-xs text-white/50 font-body">afspraken ingepland</p>
           </div>
           <a href="/admin/afspraken" class="mt-6 inline-flex items-center gap-2 text-[10px] uppercase tracking-widest text-blush-deep hover:text-white transition-colors font-body">
@@ -99,7 +99,7 @@ const appStatusColor: { [key: string]: string } = { pending: 'bg-amber-100 text-
             <p class="text-[9px] uppercase tracking-[0.25em] text-taupe font-body">Verlate Taken</p>
             <span class:list={["w-2 h-2 rounded-full shrink-0 mt-0.5", (overdueTaskCount ?? 0) > 0 ? 'bg-red-400' : 'bg-green-400']}></span>
           </div>
-          <p class:list={["font-display text-4xl mt-3", (overdueTaskCount ?? 0) > 0 ? 'text-red-500' : 'text-charcoal']}>{overdueTaskCount ?? 0}</p>
+          <p class:list={["font-body font-semibold tabular-nums text-4xl mt-3", (overdueTaskCount ?? 0) > 0 ? 'text-red-500' : 'text-charcoal']}>{overdueTaskCount ?? 0}</p>
           <p class="text-[10px] text-taupe font-body mt-1 group-hover:text-blush-deep transition-colors">Klantentaken te laat →</p>
         </a>
 
@@ -109,7 +109,7 @@ const appStatusColor: { [key: string]: string } = { pending: 'bg-amber-100 text-
             <p class="text-[9px] uppercase tracking-[0.25em] text-taupe font-body">Verlate Leveringen</p>
             <span class:list={["w-2 h-2 rounded-full shrink-0 mt-0.5", (overdueOrderCount ?? 0) > 0 ? 'bg-amber-400' : 'bg-green-400']}></span>
           </div>
-          <p class:list={["font-display text-4xl mt-3", (overdueOrderCount ?? 0) > 0 ? 'text-amber-600' : 'text-charcoal']}>{overdueOrderCount ?? 0}</p>
+          <p class:list={["font-body font-semibold tabular-nums text-4xl mt-3", (overdueOrderCount ?? 0) > 0 ? 'text-amber-600' : 'text-charcoal']}>{overdueOrderCount ?? 0}</p>
           <p class="text-[10px] text-taupe font-body mt-1 group-hover:text-blush-deep transition-colors">Bestellingen achterstallig →</p>
         </a>
 
@@ -119,7 +119,7 @@ const appStatusColor: { [key: string]: string } = { pending: 'bg-amber-100 text-
             <p class="text-[9px] uppercase tracking-[0.25em] text-taupe font-body">Open Taken</p>
             <span class:list={["w-2 h-2 rounded-full shrink-0 mt-0.5", (pendingTaskCount ?? 0) > 0 ? 'bg-amber-300' : 'bg-green-400']}></span>
           </div>
-          <p class:list={["font-display text-4xl mt-3", (pendingTaskCount ?? 0) > 0 ? 'text-amber-600' : 'text-charcoal']}>{pendingTaskCount ?? 0}</p>
+          <p class:list={["font-body font-semibold tabular-nums text-4xl mt-3", (pendingTaskCount ?? 0) > 0 ? 'text-amber-600' : 'text-charcoal']}>{pendingTaskCount ?? 0}</p>
           <p class="text-[10px] text-taupe font-body mt-1 group-hover:text-blush-deep transition-colors">Totaal openstaand →</p>
         </a>
       </div>
@@ -129,7 +129,7 @@ const appStatusColor: { [key: string]: string } = { pending: 'bg-amber-100 text-
         {stats.map(stat => (
           <a href={stat.href} class="dashboard-tile bg-white border border-champagne rounded-xl p-4 hover:shadow-soft hover:border-blush-deep/30 transition-all duration-200 group flex flex-col items-center text-center">
             <div class="mb-2 text-taupe/50 group-hover:text-blush-deep transition-colors" set:html={stat.icon} />
-            <p class="font-display text-charcoal text-2xl leading-none mb-0.5">{stat.value}</p>
+            <p class="font-body font-semibold tabular-nums text-charcoal text-2xl leading-none mb-0.5">{stat.value}</p>
             <p class="text-[8px] tracking-[0.15em] uppercase text-taupe font-body">{stat.label}</p>
           </a>
         ))}
@@ -155,7 +155,7 @@ const appStatusColor: { [key: string]: string } = { pending: 'bg-amber-100 text-
                       <p class="text-[9px] uppercase tracking-widest text-taupe font-body leading-none">
                         {isToday ? 'Vandaag' : new Date(app.preferred_date + 'T00:00:00').toLocaleDateString('nl-NL', { weekday: 'short' })}
                       </p>
-                      <p class="font-display text-charcoal text-lg leading-tight">
+                      <p class="admin-heading text-charcoal text-lg leading-tight">
                         {new Date(app.preferred_date + 'T00:00:00').getDate()}
                       </p>
                     </div>

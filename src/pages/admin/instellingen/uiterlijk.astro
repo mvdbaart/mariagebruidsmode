@@ -1,9 +1,105 @@
----
+﻿---
 import AdminLayout from '../../../layouts/AdminLayout.astro';
+import {
+  BRIDAL_COLOR_GUIDES,
+  normalizeThemeColorPalettes,
+  SUIT_COLOR_GUIDES,
+} from '../../../lib/colorPresets';
+import type { ColorGuide } from '../../../lib/colorPresets';
 import { getServiceRoleClient } from '../../../lib/serverAuth';
+import {
+  ADMIN_HEADING_FONT_OPTIONS,
+  BRIDAL_TITLE_FONT_OPTIONS,
+  DEFAULT_ADMIN_HEADING_FONT,
+  DEFAULT_BRIDAL_TITLE_FONT,
+  DEFAULT_TAILORED_TITLE_FONT,
+  normalizeFontChoice,
+  TAILORED_TITLE_FONT_OPTIONS,
+} from '../../../lib/fontPresets';
 
 const supabase = getServiceRoleClient();
 const { data: settings } = await supabase.from('site_settings').select('*').eq('id', 'current').single();
+
+const colors = settings?.colors ?? {};
+const typography = settings?.typography ?? {};
+const themeColorPalettes = normalizeThemeColorPalettes(colors);
+const bridalColorGuides = BRIDAL_COLOR_GUIDES;
+const suitColorGuides = SUIT_COLOR_GUIDES;
+const bridalColors = themeColorPalettes.bridal;
+const suitColors = themeColorPalettes.suit;
+
+const bridalTitleFont = normalizeFontChoice(
+  typography.bridal_title_font,
+  BRIDAL_TITLE_FONT_OPTIONS,
+  DEFAULT_BRIDAL_TITLE_FONT,
+);
+
+const tailoredTitleFont = normalizeFontChoice(
+  typography.tailored_title_font,
+  TAILORED_TITLE_FONT_OPTIONS,
+  DEFAULT_TAILORED_TITLE_FONT,
+);
+
+const adminHeadingFont = normalizeFontChoice(
+  typography.admin_heading_font,
+  ADMIN_HEADING_FONT_OPTIONS,
+  DEFAULT_ADMIN_HEADING_FONT,
+);
+
+function getPaletteColorValue(
+  palette: { colors: Record<string, string> },
+  key: string,
+  fallback: string,
+) {
+  return palette.colors[key] ?? fallback;
+}
+
+function getPaletteSections(guides: ColorGuide[]) {
+  return [
+    {
+      description: 'Lichte onderlagen en rustige basisvlakken.',
+      label: 'Achtergrond',
+      items: guides.slice(0, 4),
+    },
+    {
+      description: 'Kleuren voor ondersteuning, detail en zachte merkaccenten.',
+      label: 'Accent',
+      items: guides.slice(4, 7),
+    },
+    {
+      description: 'Donkere en krachtige tinten voor nadruk en contrast.',
+      label: 'Contrast',
+      items: guides.slice(7),
+    },
+  ];
+}
+
+const fontSettings = [
+  {
+    key: 'bridal_title_font',
+    label: 'Bruidsmode titel font',
+    description: 'Wordt gebruikt voor trouwjurken, bruidscollecties en andere vrouwelijke title-cases.',
+    preview: 'Jouw bruidsmode titel',
+    value: bridalTitleFont,
+    options: BRIDAL_TITLE_FONT_OPTIONS,
+  },
+  {
+    key: 'tailored_title_font',
+    label: 'Herenmode titel font',
+    description: 'Wordt gebruikt voor trouwpakken, herenmode en andere tailored title-elementen.',
+    preview: 'Jouw herenmode titel',
+    value: tailoredTitleFont,
+    options: TAILORED_TITLE_FONT_OPTIONS,
+  },
+  {
+    key: 'admin_heading_font',
+    label: 'Admin heading font',
+    description: 'Wordt gebruikt voor koppen en sectietitels in de admin-omgeving.',
+    preview: 'Kleurenpalet',
+    value: adminHeadingFont,
+    options: ADMIN_HEADING_FONT_OPTIONS,
+  },
+];
 ---
 
 <AdminLayout title="Uiterlijk Instellingen">
@@ -11,49 +107,107 @@ const { data: settings } = await supabase.from('site_settings').select('*').eq('
     <div class="container mx-auto px-6 max-w-4xl">
       <nav class="mb-10 flex items-center gap-3 text-[10px] tracking-[0.2em] uppercase text-taupe font-body">
         <a href="/admin" class="hover:text-charcoal transition-colors">Dashboard</a>
-        <span class="text-champagne">›</span>
+        <span class="text-champagne">â€º</span>
         <a href="/admin/instellingen" class="hover:text-charcoal transition-colors">Instellingen</a>
-        <span class="text-champagne">›</span>
+        <span class="text-champagne">â€º</span>
         <span class="text-charcoal">Uiterlijk</span>
       </nav>
 
       <div class="mb-10">
         <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">Instellingen</p>
-        <h1 class="font-display font-normal text-charcoal text-4xl leading-tight">
+        <h1 class="admin-heading font-normal text-charcoal text-4xl leading-tight">
           Uiterlijk <em class="font-normal italic text-taupe">& Stijl</em>
         </h1>
       </div>
 
       <form id="settings-form" class="space-y-10">
-        <!-- Kleurenpalet -->
+        <!-- Kleurenpaletten -->
         <section class="bg-white border border-champagne p-8 shadow-soft space-y-8">
-          <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium border-b border-champagne pb-4">Kleurenpalet</h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {Object.entries(settings?.colors || {}).map(([key, value]) => (
-              <div class="space-y-2">
-                <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body">{key.replace(/_/g, ' ')}</label>
-                <div class="flex items-center gap-4">
-                  <input
-                    type="color"
-                    name={`color_${key}`}
-                    value={String(value)}
-                    class="w-10 h-10 cursor-pointer border border-champagne bg-transparent p-0.5"
-                  />
-                  <input
-                    type="text"
-                    name={`color_text_${key}`}
-                    value={String(value)}
-                    class="flex-grow border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors font-mono uppercase"
-                  />
+          <div class="flex items-start justify-between gap-6 border-b border-champagne pb-4">
+            <div>
+              <h2 class="admin-heading text-sm uppercase tracking-[0.22em] text-charcoal font-medium">Kleurenpaletten</h2>
+              <p class="mt-2 text-xs text-taupe/70 font-body leading-relaxed">
+                Stel afzonderlijk de kleuren in voor bruidsmode en herenmode. De herenmode-pallet wordt alleen toegepast op trouwpakken, bruidegomspaginaâ€™s en suit-producten.
+              </p>
+            </div>
+          </div>
+
+          {[{
+            title: 'Bruidsmode kleuren',
+            colors: bridalColors,
+            guides: bridalColorGuides,
+            sections: getPaletteSections(bridalColorGuides),
+            prefix: 'color_',
+            inputPrefix: 'color_text_',
+            note: 'Gebruikt op trouwjurken en bruidscollecties. Richting: pearl, rose, blush en ivory.',
+          }, {
+            title: 'Herenmode kleuren',
+            colors: suitColors,
+            guides: suitColorGuides,
+            sections: getPaletteSections(suitColorGuides),
+            prefix: 'suit_color_',
+            inputPrefix: 'suit_color_text_',
+            note: 'Gebruikt op trouwpakken, bruidegom en alle suit-producten. Richting: navy, charcoal, silver en cognac.',
+          }].map((palette) => (
+            <article class="border border-champagne bg-ivory/40 p-5 space-y-5">
+              <div class="flex items-start justify-between gap-4 border-b border-champagne pb-3">
+                <div>
+                  <h3 class="admin-heading text-charcoal text-base italic">{palette.title}</h3>
+                  <p class="mt-1 text-[11px] text-taupe/70 font-body leading-relaxed">{palette.note}</p>
                 </div>
               </div>
-            ))}
-          </div>
+              <div class="space-y-6">
+                {palette.sections.map((section) => (
+                  <div class="space-y-4">
+                    <div class="flex items-center justify-between gap-4">
+                      <div>
+                        <h4 class="admin-heading text-[11px] uppercase tracking-[0.22em] text-charcoal font-medium">
+                          {section.label}
+                        </h4>
+                        <p class="mt-1 text-[11px] text-taupe/70 font-body leading-relaxed">
+                          {section.description}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {section.items.map((color) => {
+                        const value = String(getPaletteColorValue(palette, color.key, color.defaultValue));
+                        return (
+                          <article class="border border-champagne bg-white/70 p-4 space-y-4">
+                            <div class="flex items-center gap-4">
+                              <input
+                                type="color"
+                                name={`${palette.prefix}${color.key}`}
+                                value={value}
+                                class="w-12 h-12 cursor-pointer border border-champagne bg-transparent p-0.5 shrink-0"
+                                aria-label={`${palette.title} ${color.label} kleur`}
+                              />
+                              <div class="min-w-0">
+                                <p class="text-[10px] tracking-[0.25em] uppercase text-taupe font-body">{color.label}</p>
+                                <p class="text-[9px] tracking-[0.2em] uppercase text-blush-deep font-body">{color.key}</p>
+                              </div>
+                            </div>
+                            <input
+                              type="text"
+                              name={`${palette.inputPrefix}${color.key}`}
+                              value={value}
+                              class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors font-mono uppercase"
+                            />
+                            <p class="text-xs text-taupe leading-relaxed font-body">{color.usage}</p>
+                          </article>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </article>
+          ))}
         </section>
 
         <!-- Typografie -->
         <section class="bg-white border border-champagne p-8 shadow-soft space-y-8">
-          <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium border-b border-champagne pb-4">Typografie</h2>
+          <h2 class="admin-heading text-sm uppercase tracking-[0.22em] text-charcoal font-medium border-b border-champagne pb-4">Typografie</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
               <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Heading Font</label>
@@ -82,11 +236,35 @@ const { data: settings } = await supabase.from('site_settings').select('*').eq('
               </select>
             </div>
           </div>
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {fontSettings.map((field) => (
+              <article class="border border-champagne bg-ivory/40 p-5 space-y-4">
+                <div>
+                  <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">{field.label}</label>
+                  <select
+                    name={field.key}
+                    data-font-preview-select={field.key}
+                    class="w-full border-0 border-b border-champagne bg-transparent py-2 text-sm font-body text-charcoal focus:outline-none focus:border-blush-deep transition-colors"
+                  >
+                    {field.options.map((option) => (
+                      <option value={option.value} selected={field.value === option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <p class="text-xs text-taupe leading-relaxed font-body">{field.description}</p>
+                <p class="text-sm text-charcoal" data-font-preview={field.key} style={`font-family: ${field.value};`}>
+                  {field.preview}
+                </p>
+              </article>
+            ))}
+          </div>
         </section>
 
         <!-- UI Stijl -->
         <section class="bg-white border border-champagne p-8 shadow-soft space-y-8">
-          <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium border-b border-champagne pb-4">UI Stijl & Rundingen</h2>
+          <h2 class="admin-heading text-sm uppercase tracking-[0.22em] text-charcoal font-medium border-b border-champagne pb-4">UI Stijl & Rundingen</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
               <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Border Radius</label>
@@ -103,7 +281,7 @@ const { data: settings } = await supabase.from('site_settings').select('*').eq('
 
         <!-- Algemeen -->
         <section class="bg-white border border-champagne p-8 shadow-soft space-y-8">
-          <h2 class="text-[10px] uppercase tracking-[0.3em] text-taupe font-body font-medium border-b border-champagne pb-4">Algemeen</h2>
+          <h2 class="admin-heading text-sm uppercase tracking-[0.22em] text-charcoal font-medium border-b border-champagne pb-4">Algemeen</h2>
           <div class="space-y-6">
             <div>
               <label class="block text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-2">Website Titel</label>
@@ -139,6 +317,26 @@ const { data: settings } = await supabase.from('site_settings').select('*').eq('
     textInput?.addEventListener('input', () => { input.value = textInput.value; });
   });
 
+  const fontPreviews = new Map<string, HTMLElement>();
+  document.querySelectorAll<HTMLElement>('[data-font-preview]').forEach((preview) => {
+    const key = preview.dataset.fontPreview;
+    if (key) fontPreviews.set(key, preview);
+  });
+
+  document.querySelectorAll<HTMLSelectElement>('select[data-font-preview-select]').forEach((select) => {
+    const key = select.dataset.fontPreviewSelect;
+    const preview = key ? fontPreviews.get(key) : null;
+    if (!preview) return;
+
+    const syncPreview = () => {
+      preview.style.fontFamily = select.value;
+    };
+
+    select.addEventListener('change', syncPreview);
+    select.addEventListener('input', syncPreview);
+    syncPreview();
+  });
+
   const form = document.getElementById('settings-form') as HTMLFormElement;
   const saveBtn = document.getElementById('save-btn');
   const errorEl = document.getElementById('save-error');
@@ -151,17 +349,29 @@ const { data: settings } = await supabase.from('site_settings').select('*').eq('
     if (saveBtn) { saveBtn.textContent = 'Bezig met opslaan...'; saveBtn.setAttribute('disabled', 'true'); }
 
     const fd = new FormData(form);
+    const bridalColors = Object.fromEntries(
+      Array.from(fd.entries())
+        .filter(([k]) => k.startsWith('color_') && !k.startsWith('color_text_'))
+        .map(([k, v]) => [k.replace('color_', ''), v])
+    );
+    const suitColors = Object.fromEntries(
+      Array.from(fd.entries())
+        .filter(([k]) => k.startsWith('suit_color_') && !k.startsWith('suit_color_text_'))
+        .map(([k, v]) => [k.replace('suit_color_', ''), v])
+    );
     const data = {
-      colors: Object.fromEntries(
-        Array.from(fd.entries())
-          .filter(([k]) => k.startsWith('color_') && !k.startsWith('color_text_'))
-          .map(([k, v]) => [k.replace('color_', ''), v])
-      ),
+      colors: {
+        ...bridalColors,
+        suit: suitColors,
+      },
       typography: {
         heading_font: fd.get('heading_font'),
         body_font: fd.get('body_font'),
         base_size: fd.get('base_size'),
         heading_weight: fd.get('heading_weight'),
+        bridal_title_font: fd.get('bridal_title_font'),
+        tailored_title_font: fd.get('tailored_title_font'),
+        admin_heading_font: fd.get('admin_heading_font'),
         body_weight: '400',
       },
       ui_styles: {
@@ -172,7 +382,7 @@ const { data: settings } = await supabase.from('site_settings').select('*').eq('
       site_metadata: {
         title: fd.get('site_title'),
         description: fd.get('site_description'),
-        footer_text: '© 2026 Mariage Bruidsmode. Alle rechten voorbehouden.',
+        footer_text: 'Â© 2026 Mariage Bruidsmode. Alle rechten voorbehouden.',
       },
     };
 

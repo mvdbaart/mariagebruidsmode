@@ -24,7 +24,7 @@ const activeForms = forms?.filter(f => f.is_active).length ?? 0;
       <div class="flex items-end justify-between mb-12">
         <div>
           <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">Backoffice</p>
-          <h1 class="font-display font-normal text-charcoal text-4xl leading-tight">
+          <h1 class="admin-heading font-normal text-charcoal text-4xl leading-tight">
             Beheer <em class="font-normal italic text-taupe">Formulieren</em>
           </h1>
         </div>
@@ -36,15 +36,15 @@ const activeForms = forms?.filter(f => f.is_active).length ?? 0;
       <!-- Stats -->
       <div class="grid grid-cols-2 md:grid-cols-3 gap-5 mb-16">
         <div class="bg-white border border-champagne p-8 shadow-soft">
-          <p class="text-4xl font-display text-charcoal leading-none mb-2">{forms?.length ?? 0}</p>
+          <p class="text-4xl admin-heading text-charcoal leading-none mb-2">{forms?.length ?? 0}</p>
           <p class="text-[9px] tracking-[0.25em] uppercase text-taupe font-body">Formulieren</p>
         </div>
         <div class="bg-white border border-champagne p-8 shadow-soft">
-          <p class="text-4xl font-display text-charcoal leading-none mb-2">{activeForms}</p>
+          <p class="text-4xl admin-heading text-charcoal leading-none mb-2">{activeForms}</p>
           <p class="text-[9px] tracking-[0.25em] uppercase text-taupe font-body">Actief</p>
         </div>
         <div class="bg-white border border-champagne p-8 shadow-soft">
-          <p class="text-4xl font-display text-charcoal leading-none mb-2">{totalSubmissions}</p>
+          <p class="text-4xl admin-heading text-charcoal leading-none mb-2">{totalSubmissions}</p>
           <p class="text-[9px] tracking-[0.25em] uppercase text-taupe font-body">Inzendingen</p>
         </div>
       </div>
@@ -79,7 +79,7 @@ const activeForms = forms?.filter(f => f.is_active).length ?? 0;
                     </span>
                   </td>
                   <td class="px-6 py-4 text-center">
-                    <a href={`/admin/formulier/${form.id}/inzendingen`} class="font-display text-xl text-charcoal hover:text-blush-deep transition-colors">
+                    <a href={`/admin/formulier/${form.id}/inzendingen`} class="admin-heading text-xl text-charcoal hover:text-blush-deep transition-colors">
                       {form.submission_count ?? 0}
                     </a>
                   </td>
@@ -107,7 +107,7 @@ const activeForms = forms?.filter(f => f.is_active).length ?? 0;
         </div>
       ) : (
         <div class="text-center py-24 bg-white border border-dashed border-champagne">
-          <p class="font-display text-xl text-taupe italic mb-4">Nog geen formulieren.</p>
+          <p class="admin-heading text-xl text-taupe italic mb-4">Nog geen formulieren.</p>
           <a href="/admin/formulier/new" class="btn-premium text-[10px]">+ Eerste formulier aanmaken</a>
         </div>
       )}
@@ -116,7 +116,7 @@ const activeForms = forms?.filter(f => f.is_active).length ?? 0;
 </AdminLayout>
 
 <dialog id="delete-dialog" class="bg-white border border-champagne shadow-card p-8 max-w-sm w-full">
-  <h2 class="font-display text-charcoal text-xl mb-3">Formulier verwijderen?</h2>
+  <h2 class="admin-heading text-charcoal text-xl mb-3">Formulier verwijderen?</h2>
   <p id="delete-dialog-msg" class="text-sm font-body text-taupe mb-2"></p>
   <p class="text-xs font-body text-red-500 mb-6">Alle inzendingen worden ook verwijderd.</p>
   <div class="flex gap-4">

@@ -36,7 +36,7 @@ const statusColor: Record<string, string> = {
           <a href="/admin" class="text-[10px] tracking-[0.2em] uppercase text-taupe hover:text-blush-deep transition-colors mb-2 inline-block">
             ← Terug naar dashboard
           </a>
-          <h1 class="font-display font-normal text-charcoal text-4xl italic">Landingspagina's <span class="text-blush-deep opacity-60">A/B Tests</span></h1>
+          <h1 class="admin-heading font-normal text-charcoal text-4xl italic">Landingspagina's <span class="text-blush-deep opacity-60">A/B Tests</span></h1>
         </div>
         <a href="/admin/landingpages/new" class="btn-premium">
           + Nieuwe test
@@ -46,7 +46,7 @@ const statusColor: Record<string, string> = {
       <!-- Table -->
       {(!pages || pages.length === 0) ? (
         <div class="bg-white border border-champagne p-16 text-center shadow-soft">
-          <p class="font-display text-2xl text-charcoal mb-4 italic">Nog geen landingspagina's</p>
+          <p class="admin-heading text-2xl text-charcoal mb-4 italic">Nog geen landingspagina's</p>
           <p class="font-body text-taupe text-sm mb-8">Maak je eerste A/B test aan om te beginnen met testen.</p>
           <a href="/admin/landingpages/new" class="btn-premium">Eerste test aanmaken</a>
         </div>

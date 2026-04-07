@@ -33,7 +33,7 @@ const statusClasses: Record<string, string> = {
     <div class="container mx-auto px-6">
       <div class="flex justify-between items-start gap-4 mb-10">
         <div>
-          <h1 class="font-display font-normal text-charcoal text-3xl italic">Vacature <span class="text-blush-deep opacity-60">sollicitaties</span></h1>
+          <h1 class="admin-heading font-normal text-charcoal text-3xl italic">Vacature <span class="text-blush-deep opacity-60">sollicitaties</span></h1>
           <p class="text-sm text-taupe mt-3 max-w-2xl">Alle inkomende sollicitaties van de vacaturedetailpagina’s. De entries worden direct opgeslagen en per e-mail doorgestuurd.</p>
         </div>
         <a href="/admin/vacatures" class="text-[10px] uppercase tracking-widest text-taupe hover:text-blush-deep transition-colors">Terug naar vacatures</a>
@@ -48,7 +48,7 @@ const statusClasses: Record<string, string> = {
                   <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">
                     {application.vacancy_title || 'Vacature'}
                   </p>
-                  <h2 class="font-display text-charcoal text-2xl leading-tight">
+                  <h2 class="admin-heading text-charcoal text-2xl leading-tight">
                     {application.full_name}
                   </h2>
                   <p class="text-sm text-taupe mt-2">
@@ -96,7 +96,7 @@ const statusClasses: Record<string, string> = {
         </div>
       ) : (
         <div class="text-center py-24 bg-white border border-dashed border-champagne rounded-2xl">
-          <p class="font-display italic text-taupe">Nog geen sollicitaties ontvangen.</p>
+          <p class="admin-heading italic text-taupe">Nog geen sollicitaties ontvangen.</p>
           <p class="text-sm text-taupe/70 mt-2">Wanneer iemand via de vacaturepagina solliciteert, verschijnt het hier automatisch.</p>
         </div>
       )}

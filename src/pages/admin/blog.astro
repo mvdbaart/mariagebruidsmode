@@ -13,7 +13,7 @@ const { data: posts } = await supabase
   <div class="pt-8 pb-24 bg-ivory min-h-screen">
     <div class="container mx-auto px-6">
       <div class="flex justify-between items-center mb-12">
-        <h1 class="font-display font-normal text-charcoal text-3xl italic">Blog <span class="text-blush-deep opacity-60">Beheer</span></h1>
+        <h1 class="admin-heading font-normal text-charcoal text-3xl italic">Blog <span class="text-blush-deep opacity-60">Beheer</span></h1>
         <div class="flex gap-4 items-center">
           <a href="/admin/blog/new" class="btn-premium text-[10px]">+ Nieuw Artikel</a>
           <a href="/admin" class="text-[10px] uppercase tracking-widest text-taupe hover:text-blush-deep transition-colors">← Dashboard</a>
@@ -35,7 +35,7 @@ const { data: posts } = await supabase
               {posts?.map((post) => (
                 <tr class="hover:bg-cream/60 transition-colors" data-id={post.id}>
                   <td class="px-6 py-4">
-                    <span class="font-display italic text-charcoal text-lg">{post.title}</span>
+                    <span class="admin-heading italic text-charcoal text-lg">{post.title}</span>
                   </td>
                   <td class="px-6 py-4 text-sm font-body font-light text-taupe whitespace-nowrap">{post.author}</td>
                   <td class="px-6 py-4 text-sm font-body font-light text-taupe whitespace-nowrap">{new Date(post.published_at).toLocaleDateString('nl-NL')}</td>
@@ -66,7 +66,7 @@ const { data: posts } = await supabase
 
 <!-- Delete confirmation dialog -->
 <dialog id="delete-dialog" class="bg-white border border-champagne shadow-card p-8 max-w-sm w-full rounded-none">
-  <h2 class="font-display text-charcoal text-xl mb-3">Artikel verwijderen?</h2>
+  <h2 class="admin-heading text-charcoal text-xl mb-3">Artikel verwijderen?</h2>
   <p id="delete-dialog-msg" class="text-sm font-body text-taupe mb-6"></p>
   <div class="flex gap-4">
     <button id="confirm-delete" class="btn-premium text-[10px] bg-red-500 border-red-500 hover:bg-red-600">Verwijderen</button>

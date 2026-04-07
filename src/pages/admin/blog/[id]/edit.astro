@@ -23,7 +23,7 @@ const publishedDate = post.published_at ? new Date(post.published_at).toISOStrin
       </nav>
 
       <div class="bg-white border border-champagne p-10 shadow-soft">
-        <h1 class="font-display font-normal text-charcoal text-3xl mb-10">Bewerk <em class="italic font-light text-blush-deep">{post.title}</em></h1>
+        <h1 class="admin-heading font-normal text-charcoal text-3xl mb-10">Bewerk <em class="italic font-light text-blush-deep">{post.title}</em></h1>
 
         <form id="edit-blog-form" class="space-y-8">
           <input type="hidden" name="id" value={post.id} />

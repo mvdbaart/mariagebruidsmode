@@ -208,7 +208,7 @@ const insights = [
       <div class="flex items-center justify-between mb-10">
         <div>
           <a href="/admin" class="text-[10px] tracking-[0.2em] uppercase text-taupe-light hover:text-blush-deep transition-colors font-body">← Dashboard</a>
-          <h1 class="font-display font-normal text-charcoal text-4xl italic mt-2">Bezoekersflow <span class="text-blush-deep opacity-60">&amp; Uitval</span></h1>
+          <h1 class="admin-heading font-normal text-charcoal text-4xl italic mt-2">Bezoekersflow <span class="text-blush-deep opacity-60">&amp; Uitval</span></h1>
           <p class="text-sm font-body text-taupe mt-1">Analyseer waar bezoekers afhaken en waarom</p>
         </div>
         <!-- Period selector -->
@@ -232,7 +232,7 @@ const insights = [
         <!-- Empty state -->
         <div class="bg-white border border-champagne shadow-soft p-16 text-center mb-10">
           <div class="text-5xl mb-6">📊</div>
-          <h2 class="font-display text-charcoal text-2xl italic mb-3">Nog geen bezoekersgegevens</h2>
+          <h2 class="admin-heading text-charcoal text-2xl italic mb-3">Nog geen bezoekersgegevens</h2>
           <p class="font-body text-taupe max-w-md mx-auto mb-4">
             Er zijn nog geen bezoekersgegevens beschikbaar voor de geselecteerde periode. Zodra bezoekers de website bekijken, verschijnen hier automatisch de statistieken.
           </p>
@@ -244,19 +244,19 @@ const insights = [
         <!-- Summary cards -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
           <div class="bg-white border border-champagne p-6 shadow-soft">
-            <p class="text-3xl font-display text-charcoal">{uniqueSessions.toLocaleString('nl-NL')}</p>
+            <p class="text-3xl admin-heading text-charcoal">{uniqueSessions.toLocaleString('nl-NL')}</p>
             <p class="text-[10px] tracking-[0.2em] uppercase text-taupe-light font-body mt-1">Unieke bezoekers</p>
           </div>
           <div class="bg-white border border-champagne p-6 shadow-soft">
-            <p class="text-3xl font-display text-charcoal">{totalPageviews.toLocaleString('nl-NL')}</p>
+            <p class="text-3xl admin-heading text-charcoal">{totalPageviews.toLocaleString('nl-NL')}</p>
             <p class="text-[10px] tracking-[0.2em] uppercase text-taupe-light font-body mt-1">Paginaweergaven</p>
           </div>
           <div class="bg-white border border-champagne p-6 shadow-soft">
-            <p class="text-3xl font-display text-charcoal">{avgPagesPerSession}</p>
+            <p class="text-3xl admin-heading text-charcoal">{avgPagesPerSession}</p>
             <p class="text-[10px] tracking-[0.2em] uppercase text-taupe-light font-body mt-1">Gem. pagina's/bezoek</p>
           </div>
           <div class="bg-white border border-champagne p-6 shadow-soft">
-            <p class="text-3xl font-display text-charcoal">{conversionRate}%</p>
+            <p class="text-3xl admin-heading text-charcoal">{conversionRate}%</p>
             <p class="text-[10px] tracking-[0.2em] uppercase text-taupe-light font-body mt-1">Conversiepercentage</p>
           </div>
         </div>
@@ -264,7 +264,7 @@ const insights = [
 
       <!-- Funnel -->
       <div class="bg-white border border-champagne shadow-soft p-8 mb-8">
-        <h2 class="font-display text-charcoal text-2xl italic mb-2">Conversiefunnel</h2>
+        <h2 class="admin-heading text-charcoal text-2xl italic mb-2">Conversiefunnel</h2>
         <p class="text-[10px] tracking-[0.2em] uppercase text-taupe-light font-body mb-8">Van bezoek tot afspraak — uitval per stap</p>
 
         <div class="space-y-4">
@@ -319,7 +319,7 @@ const insights = [
 
         <!-- Top pages -->
         <div class="bg-white border border-champagne shadow-soft p-8">
-          <h2 class="font-display text-charcoal text-xl italic mb-6">Populairste pagina's</h2>
+          <h2 class="admin-heading text-charcoal text-xl italic mb-6">Populairste pagina's</h2>
           {hasData && topPages.length > 0 ? (
             <table class="w-full text-sm font-body">
               <thead>
@@ -348,7 +348,7 @@ const insights = [
 
         <!-- Exit pages -->
         <div class="bg-white border border-champagne shadow-soft p-8">
-          <h2 class="font-display text-charcoal text-xl italic mb-6">Uitstappagina's</h2>
+          <h2 class="admin-heading text-charcoal text-xl italic mb-6">Uitstappagina's</h2>
           <p class="text-xs font-body text-taupe-light mb-4">De laatste pagina die bezoekers zagen voor ze weggingen</p>
           {hasData && exitPages.length > 0 ? (
             <table class="w-full text-sm font-body">
@@ -381,7 +381,7 @@ const insights = [
       <!-- CTA performance -->
       {hasData && ctaStats.length > 0 && (
         <div class="bg-white border border-champagne shadow-soft p-8 mb-8">
-          <h2 class="font-display text-charcoal text-xl italic mb-2">CTA prestaties</h2>
+          <h2 class="admin-heading text-charcoal text-xl italic mb-2">CTA prestaties</h2>
           <p class="text-xs font-body text-taupe-light mb-6">Welke knoppen en links worden het meest geklikt</p>
           <table class="w-full text-sm font-body">
             <thead>
@@ -409,7 +409,7 @@ const insights = [
 
       <!-- Insights & recommendations -->
       <div class="mb-8">
-        <h2 class="font-display text-charcoal text-2xl italic mb-2">Inzichten &amp; aanbevelingen</h2>
+        <h2 class="admin-heading text-charcoal text-2xl italic mb-2">Inzichten &amp; aanbevelingen</h2>
         <p class="text-[10px] tracking-[0.2em] uppercase text-taupe-light font-body mb-8">Mogelijke oorzaken en verbeteringstips per uitvalpunt</p>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -419,7 +419,7 @@ const insights = [
                 <span class="text-2xl shrink-0 mt-0.5">{insight.icon}</span>
                 <div class="min-w-0">
                   <p class="text-[10px] tracking-[0.2em] uppercase text-taupe-light font-body mb-1">{insight.step}</p>
-                  <h3 class="font-display text-charcoal text-lg italic mb-4">{insight.title}</h3>
+                  <h3 class="admin-heading text-charcoal text-lg italic mb-4">{insight.title}</h3>
 
                   <p class="text-[10px] tracking-[0.15em] uppercase text-taupe font-body mb-2">Mogelijke oorzaken</p>
                   <ul class="space-y-1.5 mb-5">

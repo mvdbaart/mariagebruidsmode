@@ -14,7 +14,7 @@ const { data: vacancies } = await supabase
   <div class="pt-8 pb-24 bg-ivory min-h-screen">
     <div class="container mx-auto px-6">
       <div class="flex justify-between items-center mb-12">
-        <h1 class="font-display font-normal text-charcoal text-3xl italic">Vacatures <span class="text-blush-deep opacity-60">Beheer</span></h1>
+        <h1 class="admin-heading font-normal text-charcoal text-3xl italic">Vacatures <span class="text-blush-deep opacity-60">Beheer</span></h1>
         <div class="flex gap-4 items-center">
           <button id="add-vacancy-btn" class="btn-premium text-[10px]">+ Nieuwe Vacature</button>
           <a href="/admin" class="text-[10px] uppercase tracking-widest text-taupe hover:text-blush-deep transition-colors">← Dashboard</a>
@@ -31,7 +31,7 @@ const { data: vacancies } = await supabase
             <div class="flex items-start justify-between gap-4">
               <div>
                 <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">{vacancy.department || 'Vacature'}</p>
-                <h2 class="font-display text-charcoal text-2xl leading-tight">{vacancy.title}</h2>
+                <h2 class="admin-heading text-charcoal text-2xl leading-tight">{vacancy.title}</h2>
                 <p class="text-xs text-taupe mt-2">
                   {vacancy.location || 'Locatie onbekend'}
                   {vacancy.employment_type ? ` · ${vacancy.employment_type.replace('_', ' ')}` : ''}
@@ -75,7 +75,7 @@ const { data: vacancies } = await supabase
 
       {!vacancies?.length && (
         <div class="text-center py-24 bg-white border border-dashed border-champagne rounded-2xl">
-          <p class="font-display italic text-taupe">Nog geen vacatures toegevoegd.</p>
+          <p class="admin-heading italic text-taupe">Nog geen vacatures toegevoegd.</p>
           <p class="text-sm text-taupe/70 mt-2">Maak je eerste vacature aan via de knop hierboven.</p>
         </div>
       )}
@@ -87,7 +87,7 @@ const { data: vacancies } = await supabase
   <form id="vacancy-form" class="p-8 space-y-4">
     <input type="hidden" id="vacancy-id" name="id" />
     <div class="flex items-center justify-between gap-4">
-      <h2 id="vacancy-dialog-title" class="font-display text-charcoal text-2xl italic">Nieuwe vacature</h2>
+      <h2 id="vacancy-dialog-title" class="admin-heading text-charcoal text-2xl italic">Nieuwe vacature</h2>
       <button type="button" id="close-vacancy-dialog" class="text-taupe hover:text-charcoal transition-colors" aria-label="Sluiten">✕</button>
     </div>
 
@@ -170,7 +170,7 @@ const { data: vacancies } = await supabase
 </dialog>
 
 <dialog id="vacancy-delete-dialog" class="bg-white border border-champagne shadow-card p-8 max-w-sm w-full rounded-2xl">
-  <h2 class="font-display text-charcoal text-xl mb-3">Vacature verwijderen?</h2>
+  <h2 class="admin-heading text-charcoal text-xl mb-3">Vacature verwijderen?</h2>
   <p id="vacancy-delete-msg" class="text-sm font-body text-taupe mb-6"></p>
   <div class="flex gap-4">
     <button id="vacancy-delete-confirm" class="btn-premium text-[10px] bg-red-500 border-red-500 hover:bg-red-600">Verwijderen</button>

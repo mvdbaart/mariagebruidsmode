@@ -1,5 +1,11 @@
 ---
 import '../styles/global.css';
+import { getSiteSettings } from '../lib/settings';
+import {
+  ADMIN_HEADING_FONT_OPTIONS,
+  DEFAULT_ADMIN_HEADING_FONT,
+  normalizeFontChoice,
+} from '../lib/fontPresets';
 
 interface Props {
   title: string;
@@ -7,6 +13,13 @@ interface Props {
 
 const { title } = Astro.props;
 const currentPath = Astro.url.pathname;
+const settings = await getSiteSettings(Astro);
+const typography = settings?.typography || {};
+const adminHeadingFont = normalizeFontChoice(
+  typography.admin_heading_font,
+  ADMIN_HEADING_FONT_OPTIONS,
+  DEFAULT_ADMIN_HEADING_FONT,
+);
 
 function isActive(href: string) {
   if (href === '/admin') return currentPath === '/admin';
@@ -135,10 +148,18 @@ const navSections = [
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title} | Mariage Admin</title>
     <meta name="robots" content="noindex, nofollow" />
-    <style>
-      h1, h2, h3, h4, h5, h6 {
-        font-family: 'Cormorant Garamond', Georgia, serif;
-        font-weight: 400;
+      <style define:vars={{ adminHeadingFont }}>
+      :global(.admin-layout h1),
+      :global(.admin-layout h2),
+      :global(.admin-layout h3),
+      :global(.admin-layout h4),
+      :global(.admin-layout h5),
+      :global(.admin-layout h6),
+      :global(.admin-layout .font-display),
+      :global(.admin-layout .admin-heading) {
+        font-family: var(--adminHeadingFont), var(--font-body), sans-serif;
+        font-weight: 500;
+        line-height: 1.15;
       }
     </style>
   </head>

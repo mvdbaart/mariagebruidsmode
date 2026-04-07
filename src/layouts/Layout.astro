@@ -5,8 +5,16 @@ import Footer from '../components/Footer.astro';
 import AnnouncementBar from '../components/AnnouncementBar.astro';
 import MobileTabBar from '../components/MobileTabBar.astro';
 import CookieBanner from '../components/CookieBanner.astro';
+import { normalizeThemeColorPalettes } from '../lib/colorPresets';
 import { getSiteSettings } from '../lib/settings';
 import { normalizeHomepageSettings } from '../lib/homepageSections';
+import {
+  BRIDAL_TITLE_FONT_OPTIONS,
+  DEFAULT_BRIDAL_TITLE_FONT,
+  DEFAULT_TAILORED_TITLE_FONT,
+  normalizeFontChoice,
+  TAILORED_TITLE_FONT_OPTIONS,
+} from '../lib/fontPresets';
 
 interface Props {
   title: string;
@@ -14,9 +22,10 @@ interface Props {
   ogImage?: string;
   canonical?: string;
   ogType?: string;
+  theme?: 'bridal' | 'suit';
 }
 
-const { title, description: propDescription, ogImage, canonical, ogType = 'website' } = Astro.props;
+const { title, description: propDescription, ogImage, canonical, ogType = 'website', theme } = Astro.props;
 const siteUrl = import.meta.env.SITE || 'https://www.mariagebruidsmode.nl';
 const canonicalUrl = canonical || new URL(Astro.url.pathname, siteUrl).href;
 
@@ -30,6 +39,20 @@ const typography = settings?.typography || {};
 const ui = settings?.ui_styles || {};
 const meta = settings?.site_metadata || {};
 const contact = settings?.contact_info || {};
+const themeColors = normalizeThemeColorPalettes(colors);
+const isSuitRoute = Astro.url.pathname.startsWith('/trouwpakken') || Astro.url.pathname.startsWith('/bruidegom') || Astro.url.pathname.startsWith('/trouwschoenen');
+const activeTheme = theme ?? (isSuitRoute ? 'suit' : 'bridal');
+const activeColors = activeTheme === 'suit' ? themeColors.suit : themeColors.bridal;
+const bridalTitleFont = normalizeFontChoice(
+  typography.bridal_title_font,
+  BRIDAL_TITLE_FONT_OPTIONS,
+  DEFAULT_BRIDAL_TITLE_FONT,
+);
+const tailoredTitleFont = normalizeFontChoice(
+  typography.tailored_title_font,
+  TAILORED_TITLE_FONT_OPTIONS,
+  DEFAULT_TAILORED_TITLE_FONT,
+);
 
 const pageDescription = propDescription || meta.description || 'Exclusieve bruidsmode in de regio Eindhoven. Trouwjurken, trouwpakken en accessoires. Persoonlijk advies in onze boutique in Geldrop.';
 const pageOgImage = ogImage || meta.og_image || `${siteUrl}/images/og-default.jpg`;
@@ -84,18 +107,20 @@ const orgJsonLd = {
     <script type="application/ld+json" set:html={JSON.stringify(orgJsonLd)} />
 
     <style define:vars={{
-      colorPrimary: colors.primary,
-      colorSecondary: colors.secondary,
-      colorAccent: colors.accent,
-      colorBlush: colors.blush,
-      colorTaupe: colors.taupe,
-      colorChampagne: colors.champagne,
-      colorLinen: colors.linen,
-      colorCharcoal: colors.charcoal,
-      colorCream: colors.cream,
-      colorBlushDeep: colors.blush_deep,
+      colorPrimary: activeColors.primary,
+      colorSecondary: activeColors.secondary,
+      colorAccent: activeColors.accent,
+      colorBlush: activeColors.blush,
+      colorTaupe: activeColors.taupe,
+      colorChampagne: activeColors.champagne,
+      colorLinen: activeColors.linen,
+      colorCharcoal: activeColors.charcoal,
+      colorCream: activeColors.cream,
+      colorBlushDeep: activeColors.blush_deep,
       fontHeading: typography.heading_font,
       fontBody: typography.body_font,
+      fontBridalTitle: bridalTitleFont,
+      fontTailoredTitle: tailoredTitleFont,
       baseSize: typography.base_size,
       borderRadius: ui.border_radius,
       buttonPadding: ui.button_padding,
@@ -113,7 +138,7 @@ const orgJsonLd = {
         --color-cream-dynamic: var(--colorCream);
         --color-blush-deep-dynamic: var(--colorBlushDeep);
         
-        --font-heading-dynamic: 'Sacramento', cursive;
+        --font-heading-dynamic: var(--fontHeading, var(--font-display));
         --font-body-dynamic: var(--fontBody);
         --font-signature: 'Playball', cursive;
         --base-font-size-dynamic: var(--baseSize);

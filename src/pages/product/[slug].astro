@@ -54,7 +54,7 @@ const productSpecs = rawFeatures
   .filter((item: string) => item.length > 0 && !item.startsWith('#'));
 ---
 
-<Layout title={`${productName} — ${product.brand} | Mariage Bruidsmode`}>
+<Layout title={`${productName} — ${product.brand} | Mariage Bruidsmode`} theme={isGroom ? 'suit' : 'bridal'}>
   <!-- Breadcrumb -->
   <div class="pt-28 pb-4 bg-cream border-b border-champagne">
     <div class="container mx-auto px-6">

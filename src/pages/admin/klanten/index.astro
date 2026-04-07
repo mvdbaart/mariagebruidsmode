@@ -29,7 +29,7 @@ const withDate = klanten?.filter(k => k.wedding_date).length ?? 0;
       <div class="flex items-end justify-between mb-12">
         <div>
           <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">Backoffice</p>
-          <h1 class="font-display font-normal text-charcoal text-4xl leading-tight">
+          <h1 class="admin-heading font-normal text-charcoal text-4xl leading-tight">
             Beheer <em class="font-normal italic text-taupe">Klanten</em>
           </h1>
         </div>
@@ -51,15 +51,15 @@ const withDate = klanten?.filter(k => k.wedding_date).length ?? 0;
       <!-- Stats -->
       <div class="grid grid-cols-2 md:grid-cols-3 gap-5 mb-16">
         <div class="bg-white border border-champagne p-8 shadow-soft">
-          <p class="text-4xl font-display text-charcoal leading-none mb-2">{total}</p>
+          <p class="text-4xl admin-heading text-charcoal leading-none mb-2">{total}</p>
           <p class="text-[9px] tracking-[0.25em] uppercase text-taupe font-body">Klanten</p>
         </div>
         <div class="bg-white border border-champagne p-8 shadow-soft">
-          <p class="text-4xl font-display text-charcoal leading-none mb-2">{thisMonth}</p>
+          <p class="text-4xl admin-heading text-charcoal leading-none mb-2">{thisMonth}</p>
           <p class="text-[9px] tracking-[0.25em] uppercase text-taupe font-body">Deze maand</p>
         </div>
         <div class="bg-white border border-champagne p-8 shadow-soft">
-          <p class="text-4xl font-display text-charcoal leading-none mb-2">{withDate}</p>
+          <p class="text-4xl admin-heading text-charcoal leading-none mb-2">{withDate}</p>
           <p class="text-[9px] tracking-[0.25em] uppercase text-taupe font-body">Met trouwdatum</p>
         </div>
       </div>
@@ -115,7 +115,7 @@ const withDate = klanten?.filter(k => k.wedding_date).length ?? 0;
         </div>
       ) : (
         <div class="text-center py-24 bg-white border border-dashed border-champagne">
-          <p class="font-display text-xl text-taupe italic mb-4">Nog geen klanten.</p>
+          <p class="admin-heading text-xl text-taupe italic mb-4">Nog geen klanten.</p>
           <a href="/admin/klanten/new" class="btn-premium text-[10px]">+ Eerste klant toevoegen</a>
         </div>
       )}

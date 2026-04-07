@@ -118,11 +118,11 @@ const labelClass = "block text-xs uppercase tracking-[0.15em] text-taupe font-me
                 <div class="w-12 h-12 rounded-full overflow-hidden bg-linen flex items-center justify-center shrink-0">
                   {emp.profile_photo_url
                     ? <img src={emp.profile_photo_url} alt={`${emp.first_name} ${emp.last_name}`} onerror="this.onerror=null;this.src='/images/logo/Social-Media-profielfoto.jpg'" class="w-full h-full object-cover" />
-                    : <span class="text-sm font-display text-taupe">{emp.first_name.charAt(0)}{emp.last_name.charAt(0)}</span>
+                  : <span class="text-sm admin-heading text-taupe">{emp.first_name.charAt(0)}{emp.last_name.charAt(0)}</span>
                   }
                 </div>
                 <div>
-                  <h3 class="font-display text-charcoal text-lg leading-tight">{emp.first_name} {emp.last_name}</h3>
+                  <h3 class="admin-heading text-charcoal text-lg leading-tight">{emp.first_name} {emp.last_name}</h3>
                   <p class="ds-eyebrow mt-0.5">{emp.role || 'Geen functie'}</p>
                 </div>
               </div>
@@ -205,7 +205,7 @@ const labelClass = "block text-xs uppercase tracking-[0.15em] text-taupe font-me
       <!-- Leeg-state -->
       {(!employees || employees.length === 0) && (
         <div class="text-center py-20 bg-white border border-dashed border-champagne rounded-2xl">
-          <p class="font-display italic text-taupe">Nog geen medewerkers toegevoegd.</p>
+          <p class="admin-heading italic text-taupe">Nog geen medewerkers toegevoegd.</p>
         </div>
       )}
     </div>
@@ -214,7 +214,7 @@ const labelClass = "block text-xs uppercase tracking-[0.15em] text-taupe font-me
     <div id="add-modal" class="fixed inset-0 bg-charcoal/40 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
       <div class="bg-white border border-champagne shadow-card rounded-2xl w-full max-w-lg p-8 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-6">
-          <h2 class="font-display text-charcoal text-2xl italic">Nieuwe Medewerker</h2>
+          <h2 class="admin-heading text-charcoal text-2xl italic">Nieuwe Medewerker</h2>
           <button type="button" id="close-add-modal" class="text-taupe hover:text-charcoal transition-colors" aria-label="Sluiten">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
           </button>
@@ -326,7 +326,7 @@ const labelClass = "block text-xs uppercase tracking-[0.15em] text-taupe font-me
     <div id="edit-modal" class="fixed inset-0 bg-charcoal/40 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
       <div class="bg-white border border-champagne shadow-card rounded-2xl w-full max-w-lg p-8 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-6">
-          <h2 class="font-display text-charcoal text-2xl italic">Medewerker Bewerken</h2>
+          <h2 class="admin-heading text-charcoal text-2xl italic">Medewerker Bewerken</h2>
           <button type="button" id="close-edit-modal" class="text-taupe hover:text-charcoal transition-colors" aria-label="Sluiten">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
           </button>
@@ -335,7 +335,7 @@ const labelClass = "block text-xs uppercase tracking-[0.15em] text-taupe font-me
         <!-- Foto sectie -->
         <div class="mb-6 flex items-center gap-4 p-4 bg-linen border border-champagne rounded-xl">
           <div id="edit-avatar" class="w-16 h-16 rounded-full overflow-hidden bg-champagne flex items-center justify-center shrink-0">
-            <span id="edit-avatar-initials" class="text-base font-display text-taupe"></span>
+            <span id="edit-avatar-initials" class="text-base admin-heading text-taupe"></span>
           </div>
           <div class="flex-1 min-w-0">
             <label class={labelClass}>Profielfoto</label>

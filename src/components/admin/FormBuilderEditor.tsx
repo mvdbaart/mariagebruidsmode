@@ -149,7 +149,7 @@ export default function FormBuilderEditor({
     <div className="space-y-10">
       {/* Form metadata */}
       <div className="bg-white border border-[var(--color-champagne)] p-8 shadow-soft space-y-6">
-        <h2 className="font-display text-charcoal text-xl italic">Formulier instellingen</h2>
+        <h2 className="admin-heading text-charcoal text-xl italic">Formulier instellingen</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
@@ -211,7 +211,7 @@ export default function FormBuilderEditor({
       {/* Fields */}
       <div className="bg-white border border-[var(--color-champagne)] p-8 shadow-soft">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="font-display text-charcoal text-xl italic">Velden</h2>
+          <h2 className="admin-heading text-charcoal text-xl italic">Velden</h2>
           <span className="text-[10px] tracking-widest uppercase font-body text-taupe">{fields.length} {fields.length === 1 ? 'veld' : 'velden'}</span>
         </div>
 

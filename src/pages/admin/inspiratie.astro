@@ -13,7 +13,7 @@ const { data: weddings } = await supabase
   <div class="pt-8 pb-24 bg-ivory min-h-screen">
     <div class="container mx-auto px-6">
       <div class="flex justify-between items-center mb-12">
-        <h1 class="font-display font-normal text-charcoal text-3xl italic">Real Weddings <span class="text-blush-deep opacity-60">Beheer</span></h1>
+        <h1 class="admin-heading font-normal text-charcoal text-3xl italic">Real Weddings <span class="text-blush-deep opacity-60">Beheer</span></h1>
         <div class="flex gap-4 items-center">
           <a href="/admin/inspiratie/new" class="btn-premium text-[10px]">+ Nieuw Verhaal</a>
           <a href="/admin" class="text-[10px] uppercase tracking-widest text-taupe hover:text-blush-deep transition-colors">← Dashboard</a>
@@ -27,7 +27,7 @@ const { data: weddings } = await supabase
               <img src={wedding.cover_image || '/images/team/TKF_9422-scaled.jpg'} alt={`${wedding.bride_name} & ${wedding.groom_name}`} onerror="this.onerror=null;this.src='/images/team/TKF_9422-scaled.jpg'" class="w-full h-full object-cover transition-transform group-hover:scale-105" loading="lazy" />
             </div>
             <div class="p-6">
-              <h3 class="font-display italic text-charcoal text-xl mb-1">{wedding.bride_name} & {wedding.groom_name}</h3>
+              <h3 class="admin-heading italic text-charcoal text-xl mb-1">{wedding.bride_name} & {wedding.groom_name}</h3>
               <p class="text-[10px] font-body text-taupe uppercase tracking-widest mb-4">
                 {wedding.wedding_date ? new Date(wedding.wedding_date).getFullYear() : '—'}
               </p>
@@ -45,7 +45,7 @@ const { data: weddings } = await supabase
 
         {!weddings?.length && (
           <div class="col-span-full text-center py-24 bg-white border border-dashed border-champagne">
-            <p class="font-display text-xl text-taupe italic">Geen inspiratie-verhalen gevonden.</p>
+            <p class="admin-heading text-xl text-taupe italic">Geen inspiratie-verhalen gevonden.</p>
           </div>
         )}
       </div>
@@ -60,7 +60,7 @@ const { data: weddings } = await supabase
 </AdminLayout>
 
 <dialog id="delete-dialog" class="bg-white border border-champagne shadow-card p-8 max-w-sm w-full">
-  <h2 class="font-display text-charcoal text-xl mb-3">Verhaal verwijderen?</h2>
+  <h2 class="admin-heading text-charcoal text-xl mb-3">Verhaal verwijderen?</h2>
   <p id="delete-dialog-msg" class="text-sm font-body text-taupe mb-6"></p>
   <div class="flex gap-4">
     <button id="confirm-delete" class="btn-premium text-[10px]" style="background-color: rgb(239,68,68); border-color: rgb(239,68,68)">Verwijderen</button>

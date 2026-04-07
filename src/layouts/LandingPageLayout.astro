@@ -3,6 +3,13 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { getServiceRoleClient } from '../lib/serverAuth';
+import {
+  BRIDAL_TITLE_FONT_OPTIONS,
+  DEFAULT_BRIDAL_TITLE_FONT,
+  DEFAULT_TAILORED_TITLE_FONT,
+  normalizeFontChoice,
+  TAILORED_TITLE_FONT_OPTIONS,
+} from '../lib/fontPresets';
 
 interface Props {
   title: string;
@@ -24,6 +31,16 @@ const colors = settings?.colors || {};
 const typography = settings?.typography || {};
 const ui = settings?.ui_styles || {};
 const meta = settings?.site_metadata || {};
+const bridalTitleFont = normalizeFontChoice(
+  typography.bridal_title_font,
+  BRIDAL_TITLE_FONT_OPTIONS,
+  DEFAULT_BRIDAL_TITLE_FONT,
+);
+const tailoredTitleFont = normalizeFontChoice(
+  typography.tailored_title_font,
+  TAILORED_TITLE_FONT_OPTIONS,
+  DEFAULT_TAILORED_TITLE_FONT,
+);
 ---
 
 <!doctype html>
@@ -50,6 +67,8 @@ const meta = settings?.site_metadata || {};
       colorBlushDeep: colors.blush_deep,
       fontHeading: typography.heading_font,
       fontBody: typography.body_font,
+      fontBridalTitle: bridalTitleFont,
+      fontTailoredTitle: tailoredTitleFont,
       baseSize: typography.base_size,
       borderRadius: ui.border_radius,
       buttonPadding: ui.button_padding,
@@ -66,7 +85,7 @@ const meta = settings?.site_metadata || {};
         --color-charcoal-dynamic: var(--colorCharcoal);
         --color-cream-dynamic: var(--colorCream);
         --color-blush-deep-dynamic: var(--colorBlushDeep);
-        --font-heading-dynamic: 'Cormorant Garamond', Georgia, serif;
+        --font-heading-dynamic: var(--fontHeading, var(--font-display));
         --font-body-dynamic: var(--fontBody);
         --base-font-size-dynamic: var(--baseSize);
         --heading-weight-dynamic: var(--headingWeight);

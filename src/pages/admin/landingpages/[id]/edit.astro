@@ -63,7 +63,7 @@ const statusOptions = [
           <a href="/admin/landingpages" class="text-[10px] tracking-[0.2em] uppercase text-taupe hover:text-blush-deep transition-colors mb-2 inline-block">
             ← Overzicht
           </a>
-          <h1 class="font-display font-normal text-charcoal text-4xl italic">{page.name}</h1>
+          <h1 class="admin-heading font-normal text-charcoal text-4xl italic">{page.name}</h1>
           <code class="text-xs text-taupe mt-1 inline-block">{siteUrl}/lp/{page.slug}</code>
         </div>
         <div class="flex gap-3">
@@ -133,15 +133,15 @@ const statusOptions = [
                 <h3 class="font-body font-medium text-charcoal mb-4">{variant.name}</h3>
                 <div class="grid grid-cols-3 gap-3 mb-4">
                   <div>
-                    <p class="text-2xl font-display text-charcoal">{stats.views}</p>
+                    <p class="text-2xl admin-heading text-charcoal">{stats.views}</p>
                     <p class="text-[10px] uppercase tracking-[0.15em] text-taupe font-body">Weergaven</p>
                   </div>
                   <div>
-                    <p class="text-2xl font-display text-charcoal">{stats.conversions}</p>
+                    <p class="text-2xl admin-heading text-charcoal">{stats.conversions}</p>
                     <p class="text-[10px] uppercase tracking-[0.15em] text-taupe font-body">Conversies</p>
                   </div>
                   <div>
-                    <p class={`text-2xl font-display ${stats.rate > 0 ? 'text-blush-deep' : 'text-charcoal'}`}>{stats.rate}%</p>
+                    <p class={`text-2xl admin-heading ${stats.rate > 0 ? 'text-blush-deep' : 'text-charcoal'}`}>{stats.rate}%</p>
                     <p class="text-[10px] uppercase tracking-[0.15em] text-taupe font-body">Ratio</p>
                   </div>
                 </div>
