@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useCallback, useRef, useId } from 'react';
+import { normalizeProductName, productTitleClass, resolveCollectionTitleFont } from '../lib/productDisplay';
 
 const WISHLIST_KEY = 'mb_wishlist';
 
@@ -7,6 +8,8 @@ interface WishlistItem {
   name: string;
   image: string;
   url: string;
+  titleFont?: string | null;
+  collectionType?: string | null;
 }
 
 function loadWishlist(): Set<string> {
@@ -53,6 +56,10 @@ interface Product {
   kleur: string[] | null;
   categorieen: string[] | null;
   in_stock: boolean | null;
+  collections?: {
+    title_font?: string | null;
+    type?: string | null;
+  } | null;
 }
 
 interface Collection {
@@ -171,11 +178,23 @@ export default function ProductFilter({ products, collections, fallbackImage, mo
 
   const toggleWishlist = useCallback((prod: Product) => {
     const img = prod.images?.[0] ?? fallbackImage;
+    const displayName = normalizeProductName(prod.name);
+    const titleFont = resolveCollectionTitleFont(
+      prod.collections?.title_font,
+      prod.collections?.type ?? (isSuit ? 'suit' : 'dress'),
+    );
     if (wishlist.has(prod.slug)) {
       removeFromWishlist(prod.slug);
       setWishlist((prev) => { const n = new Set(prev); n.delete(prod.slug); return n; });
     } else {
-      saveToWishlist({ slug: prod.slug, name: prod.name, image: img, url: `/product/${prod.slug}` });
+      saveToWishlist({
+        slug: prod.slug,
+        name: displayName,
+        image: img,
+        url: `/product/${prod.slug}`,
+        titleFont,
+        collectionType: prod.collections?.type ?? null,
+      });
       setWishlist((prev) => new Set(prev).add(prod.slug));
     }
   }, [wishlist, fallbackImage]);
@@ -412,6 +431,11 @@ export default function ProductFilter({ products, collections, fallbackImage, mo
               {filtered.map((prod, index) => {
                 const img = prod.images?.[0];
                 const displayImg = img && img.length > 0 ? img : fallbackImage;
+                const displayName = normalizeProductName(prod.name);
+                const titleFont = resolveCollectionTitleFont(
+                  prod.collections?.title_font,
+                  prod.collections?.type ?? (isSuit ? 'suit' : 'dress'),
+                );
                 const animClass =
                   index % 3 === 0 ? 'animate-pan-right' : index % 3 === 1 ? 'animate-pan-left' : 'animate-zoom';
 
@@ -431,7 +455,7 @@ export default function ProductFilter({ products, collections, fallbackImage, mo
                       <div className="w-full h-full bg-ivory relative overflow-hidden p-2">
                         <img
                           src={displayImg}
-                          alt={prod.name}
+                          alt={displayName}
                           onError={(e) => {
                             (e.currentTarget as HTMLImageElement).src = fallbackImage;
                           }}
@@ -454,7 +478,7 @@ export default function ProductFilter({ products, collections, fallbackImage, mo
                     </a>
 
                     <div className="p-5 border-t border-champagne">
-                      <h3 className="font-display font-normal text-charcoal text-lg leading-tight">{prod.name}</h3>
+                      <h3 className={`${productTitleClass(titleFont, isSuit ? 'suit' : 'dress')} text-charcoal text-lg leading-tight`}>{displayName}</h3>
                     </div>
                   </div>
                 );

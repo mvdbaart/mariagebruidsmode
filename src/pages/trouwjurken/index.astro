@@ -2,6 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import ProductFilter from '../../components/ProductFilter';
 import { supabase } from '../../lib/supabase';
+import { productTitleClass } from '../../lib/productDisplay';
 
 const { data: collections } = await supabase
   .from('collections')
@@ -17,9 +18,14 @@ const { data: dressProducts } = await supabase
   .in('collection_id', collectionIds.length ? collectionIds : ['00000000-0000-0000-0000-000000000000'])
   .order('created_at', { ascending: false });
 
+if (!Array.isArray(dressProducts)) {
+  throw new Error('Kon de trouwjurken niet laden.');
+}
+
 const dressFallbackImage = '/images/jurkvormen/a-lijn.png';
 const collectionsForFilter = (collections ?? []).map(({ id, title, slug }) => ({ id, title, slug }));
 const initialCategories = Astro.url.searchParams.getAll('categorie').map((value) => value.trim()).filter(Boolean);
+const heroTitleClass = productTitleClass(false, 'dress');
 ---
 
 <Layout title="Trouwjurken | Mariage Bruidsmode">
@@ -28,7 +34,7 @@ const initialCategories = Astro.url.searchParams.getAll('categorie').map((value)
       <div class="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div class="max-w-2xl">
           <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-6">Collecties</p>
-          <h1 class="font-display font-normal text-charcoal leading-tight mb-8" style="font-size: clamp(40px, 6vw, 64px);">
+          <h1 class={`${heroTitleClass} text-charcoal leading-tight mb-8`} style="font-size: clamp(40px, 6vw, 64px);">
             De nieuwste <em class="italic font-light text-taupe">trouwjurken</em>
           </h1>
           <p class="text-taupe font-light leading-relaxed max-w-xl">
@@ -53,9 +59,9 @@ const initialCategories = Astro.url.searchParams.getAll('categorie').map((value)
   />
 
   <section class="py-24 bg-charcoal text-center">
-    <div class="container mx-auto px-6 max-w-xl">
-      <p class="text-[10px] tracking-[0.3em] uppercase text-gold-light font-body mb-4">Persoonlijk advies</p>
-      <h2 class="font-display font-normal text-warm-white mb-6" style="font-size: clamp(24px, 3vw, 40px);">
+      <div class="container mx-auto px-6 max-w-xl">
+        <p class="text-[10px] tracking-[0.3em] uppercase text-gold-light font-body mb-4">Persoonlijk advies</p>
+      <h2 class={`${heroTitleClass} text-warm-white mb-6`} style="font-size: clamp(24px, 3vw, 40px);">
         Niet gevonden wat je zocht?
       </h2>
       <p class="text-taupe-light font-light text-sm leading-relaxed mb-10">

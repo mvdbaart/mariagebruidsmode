@@ -75,8 +75,13 @@ const { data: filteredProducts } = await supabase
   .ilike('pasvorm', `%${meta.label}%`)
   .order('created_at', { ascending: false });
 
+if (!Array.isArray(filteredProducts)) {
+  throw new Error(`Kon de ${meta.label.toLowerCase()} jurken niet laden.`);
+}
+
 const dressFallbackImage = '/images/jurkvormen/a-lijn.png';
 const collectionsForFilter = (collections ?? []).map(({ id, title, slug }) => ({ id, title, slug }));
+const heroTitleClass = 'font-bridal-title';
 ---
 
 <Layout title={`${meta.label} Trouwjurken | Mariage Bruidsmode`}>
@@ -90,7 +95,7 @@ const collectionsForFilter = (collections ?? []).map(({ id, title, slug }) => ({
         <span class="text-taupe">{meta.label}</span>
       </nav>
       <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-6">Silhouet</p>
-      <h1 class="font-display font-normal text-charcoal leading-tight mb-6" style="font-size: clamp(36px, 6vw, 60px);">
+      <h1 class={`${heroTitleClass} text-charcoal leading-tight mb-6`} style="font-size: clamp(36px, 6vw, 60px);">
         {meta.label} <em class="italic font-light text-taupe">trouwjurken</em>
       </h1>
       <p class="text-taupe font-light leading-relaxed max-w-2xl mb-4">{meta.beschrijving}</p>
@@ -125,7 +130,7 @@ const collectionsForFilter = (collections ?? []).map(({ id, title, slug }) => ({
     <div class="container mx-auto px-6 max-w-5xl">
       <div class="text-center mb-10">
         <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-3">Ontdek meer</p>
-        <h2 class="font-display text-charcoal text-3xl">Andere <em class="italic font-light text-taupe">silhouetten</em></h2>
+        <h2 class={`${heroTitleClass} text-charcoal text-3xl`}>Andere <em class="italic font-light text-taupe">silhouetten</em></h2>
       </div>
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
         {Object.entries(PASVORM_META).filter(([slug]) => slug !== pasvorm).map(([slug, m]) => (
@@ -141,7 +146,7 @@ const collectionsForFilter = (collections ?? []).map(({ id, title, slug }) => ({
   <section class="py-24 bg-charcoal text-center">
     <div class="container mx-auto px-6 max-w-xl">
       <p class="text-[10px] tracking-[0.3em] uppercase text-gold-light font-body mb-4">Persoonlijk advies</p>
-      <h2 class="font-display font-normal text-warm-white mb-6" style="font-size: clamp(24px, 3vw, 40px);">
+      <h2 class={`${heroTitleClass} text-warm-white mb-6`} style="font-size: clamp(24px, 3vw, 40px);">
         Weet je niet zeker welk silhouet past?
       </h2>
       <p class="text-taupe-light font-light text-sm leading-relaxed mb-10">

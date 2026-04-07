@@ -3,6 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import ProductFilter from '../../components/ProductFilter';
 import NewsletterSignup from '../../components/NewsletterSignup.astro';
 import { supabase } from '../../lib/supabase';
+import { productTitleClass } from '../../lib/productDisplay';
 
 const { data: collections } = await supabase
   .from('collections')
@@ -18,10 +19,15 @@ const { data: suitProducts } = await supabase
   .in('collection_id', collectionIds.length ? collectionIds : ['00000000-0000-0000-0000-000000000000'])
   .order('created_at', { ascending: false });
 
+if (!Array.isArray(suitProducts)) {
+  throw new Error('Kon de trouwpakken niet laden.');
+}
+
 const suitFallbackImage = '/images/team/TKF_9016-scaled.jpg';
 const collectionsForFilter = (collections ?? []).map(({ id, title, slug }) => ({ id, title, slug }));
 const initialBrands = Astro.url.searchParams.getAll('merk').map((value) => value.trim()).filter(Boolean);
 const initialCategories = Astro.url.searchParams.getAll('categorie').map((value) => value.trim()).filter(Boolean);
+const heroTitleClass = productTitleClass('tailored', 'suit');
 ---
 
 <Layout title="Trouwpakken | Mariage Bruidsmode">
@@ -29,7 +35,7 @@ const initialCategories = Astro.url.searchParams.getAll('categorie').map((value)
     <div class="container mx-auto px-6">
       <div class="max-w-2xl">
         <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-6">Collecties</p>
-        <h1 class="font-display font-normal text-charcoal leading-tight mb-8" style="font-size: clamp(40px, 6vw, 64px);">
+        <h1 class={`${heroTitleClass} text-charcoal leading-tight mb-8`} style="font-size: clamp(40px, 6vw, 64px);">
           Stijlvolle <em class="italic font-light text-taupe">trouwpakken</em>
         </h1>
         <p class="text-taupe font-light leading-relaxed max-w-xl">
@@ -41,10 +47,10 @@ const initialCategories = Astro.url.searchParams.getAll('categorie').map((value)
 
   <!-- Kleur & stof gids -->
   <section class="py-20 bg-white border-b border-champagne">
-    <div class="container mx-auto px-6 max-w-6xl">
+      <div class="container mx-auto px-6 max-w-6xl">
       <div class="text-center mb-14">
         <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">Stijlgids</p>
-        <h2 class="font-display text-charcoal text-4xl mb-4">Kleur & <em class="italic font-light text-taupe">stof</em></h2>
+        <h2 class={`${heroTitleClass} text-charcoal text-4xl mb-4`}>Kleur & <em class="italic font-light text-taupe">stof</em></h2>
         <p class="text-taupe font-light max-w-xl mx-auto text-sm leading-relaxed">
           De keuze van kleur en stof bepaalt grotendeels het karakter van uw trouwpak. Ontdek welke combinatie past bij uw stijl en het seizoen.
         </p>
@@ -52,7 +58,7 @@ const initialCategories = Astro.url.searchParams.getAll('categorie').map((value)
 
       <!-- Kleuren -->
       <div class="mb-14">
-        <h3 class="font-body text-[10px] tracking-[0.3em] uppercase text-taupe mb-6 text-center">Populaire kleuren</h3>
+        <h3 class={`${heroTitleClass} text-taupe text-[10px] tracking-[0.3em] uppercase mb-6 text-center`}>Populaire kleuren</h3>
         <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4">
           {[
             { naam: 'Marineblauw', hex: '#1B2A4A', tip: 'Tijdloos, veelzijdig, elegant' },
@@ -78,7 +84,7 @@ const initialCategories = Astro.url.searchParams.getAll('categorie').map((value)
 
       <!-- Stoffen -->
       <div>
-        <h3 class="font-body text-[10px] tracking-[0.3em] uppercase text-taupe mb-6 text-center">Stoffen per seizoen</h3>
+        <h3 class={`${heroTitleClass} text-taupe text-[10px] tracking-[0.3em] uppercase mb-6 text-center`}>Stoffen per seizoen</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
             {
@@ -108,7 +114,7 @@ const initialCategories = Astro.url.searchParams.getAll('categorie').map((value)
           ].map(({ stof, seizoen, beschrijving, icon }) => (
             <div class="border border-champagne bg-ivory/40 p-6 space-y-3">
               <div class="flex items-center justify-between">
-                <h4 class="font-display text-charcoal text-xl">{stof}</h4>
+                <h4 class={`${heroTitleClass} text-charcoal text-xl`}>{stof}</h4>
                 <span class="text-lg text-blush-deep/40">{icon}</span>
               </div>
               <p class="text-[9px] tracking-[0.2em] uppercase text-blush-deep font-body">{seizoen}</p>
@@ -133,7 +139,7 @@ const initialCategories = Astro.url.searchParams.getAll('categorie').map((value)
   <section class="py-24 bg-charcoal text-center">
     <div class="container mx-auto px-6 max-w-xl">
       <p class="text-[10px] tracking-[0.3em] uppercase text-gold-light font-body mb-4">Persoonlijk advies</p>
-      <h2 class="font-display font-normal text-warm-white mb-6" style="font-size: clamp(24px, 3vw, 40px);">
+      <h2 class={`${heroTitleClass} text-warm-white mb-6`} style="font-size: clamp(24px, 3vw, 40px);">
         Niet gevonden wat je zocht?
       </h2>
       <p class="text-taupe-light font-light text-sm leading-relaxed mb-10">
