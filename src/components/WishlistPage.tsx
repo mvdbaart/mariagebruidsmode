@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { normalizeProductName, productTitleClass } from '../lib/productDisplay';
 
 const WISHLIST_KEY = 'mb_wishlist';
 
@@ -7,6 +8,8 @@ interface WishlistItem {
   name: string;
   image: string;
   url: string;
+  titleFont?: string | null;
+  collectionType?: string | null;
 }
 
 function loadWishlist(): WishlistItem[] {
@@ -125,7 +128,7 @@ export default function WishlistPage() {
                 </a>
                 <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
                   <div>
-                    <h3 className="font-display text-charcoal text-lg leading-tight mb-1">{item.name}</h3>
+                    <h3 className={`${productTitleClass(item.titleFont ?? null, item.collectionType ?? null)} text-charcoal text-lg leading-tight mb-1`}>{normalizeProductName(item.name)}</h3>
                     <a
                       href={item.url}
                       className="text-[9px] tracking-[0.2em] uppercase text-blush-deep font-body hover:underline"

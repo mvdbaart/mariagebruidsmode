@@ -13,6 +13,8 @@ const { data: collection, error } = await supabase
 if (error || !collection) {
   return Astro.redirect('/admin/collecties');
 }
+
+const initialTitleFont = collection.title_font ?? (collection.type === 'suit' ? 'tailored' : 'bridal');
 ---
 
 <AdminLayout title={`Bewerk ${collection.title}`}>
@@ -50,6 +52,14 @@ if (error || !collection) {
             <div class="space-y-2">
               <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Slug</label>
               <input type="text" name="slug" value={collection.slug} required class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent" />
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-[10px] tracking-widest uppercase text-accent font-medium">Lettertype</label>
+              <select name="title_font" class="w-full border-b border-accent/20 py-3 focus:border-secondary outline-none transition-colors font-light bg-transparent">
+                <option value="bridal" selected={initialTitleFont === 'bridal'}>Bruidsmode stijl</option>
+                <option value="tailored" selected={initialTitleFont === 'tailored'}>Herenmode stijl</option>
+              </select>
             </div>
           </div>
 
@@ -91,6 +101,7 @@ if (error || !collection) {
     const title = formData.get('title');
     const type = formData.get('type');
     const slug = formData.get('slug');
+    const title_font = formData.get('title_font');
     const description = formData.get('description');
     const image_url = formData.get('image_url');
 
@@ -103,6 +114,7 @@ if (error || !collection) {
         title,
         type,
         slug,
+        title_font,
         description,
         image_url,
       }),

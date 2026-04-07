@@ -266,7 +266,22 @@ const isAccount = pathname.startsWith('/login') || pathname.startsWith('/admin')
   // ── Wishlist helpers ─────────────────────────────────────────────────────────
   const WISHLIST_KEY = 'mariage-wishlist';
 
-  type WishlistItem = { slug: string; name: string; image?: string; url?: string };
+  type WishlistItem = { slug: string; name: string; image?: string; url?: string; titleFont?: string | null; collectionType?: string | null };
+
+  function normalizeProductName(name: string): string {
+    const value = name.trim();
+    if (!value) return value;
+
+    const lettersOnly = value.replace(/[^\p{L}]/gu, '');
+    if (!lettersOnly || lettersOnly !== lettersOnly.toUpperCase()) return value;
+
+    return value.toLowerCase().replace(/\b([\p{L}])/gu, (_, letter: string) => letter.toUpperCase());
+  }
+
+  function wishlistTitleClass(item: WishlistItem): string {
+    if (item.titleFont === 'tailored' || item.collectionType === 'suit') return 'font-tailored-title';
+    return 'font-bridal-title';
+  }
 
   function getWishlist(): WishlistItem[] {
     try {
@@ -298,12 +313,12 @@ const isAccount = pathname.startsWith('/login') || pathname.startsWith('/admin')
     }
   }
 
-  function renderWishlist() {
-    const content = document.getElementById('wishlist-content');
-    if (!content) return;
-    const items = getWishlist();
+    function renderWishlist() {
+      const content = document.getElementById('wishlist-content');
+      if (!content) return;
+      const items = getWishlist();
 
-    if (items.length === 0) {
+      if (items.length === 0) {
       content.innerHTML = `
         <div class="flex flex-col items-center justify-center py-10 text-center">
           <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="text-champagne mb-4" aria-hidden="true">
@@ -317,24 +332,24 @@ const isAccount = pathname.startsWith('/login') || pathname.startsWith('/admin')
       return;
     }
 
-    content.innerHTML = items.map(item => `
-      <div class="flex items-center gap-3 py-3 border-b border-champagne last:border-0">
-        ${item.image
-          ? `<img src="${item.image}" alt="${item.name}" class="w-14 h-14 object-cover flex-shrink-0 bg-ivory" loading="lazy" />`
-          : `<div class="w-14 h-14 bg-linen flex-shrink-0 flex items-center justify-center">
-               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="text-champagne" aria-hidden="true">
-                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-               </svg>
-             </div>`
-        }
-        <div class="flex-1 min-w-0">
-          <a href="${item.url || `/product/${item.slug}`}" class="font-body text-sm text-charcoal hover:text-blush-deep transition-colors truncate block">${item.name}</a>
-        </div>
-        <button
-          data-remove-slug="${item.slug}"
-          aria-label="${item.name} verwijderen uit verlanglijst"
-          class="flex-shrink-0 w-8 h-8 flex items-center justify-center text-taupe hover:text-blush-deep transition-colors"
-        >
+      content.innerHTML = items.map(item => `
+        <div class="flex items-center gap-3 py-3 border-b border-champagne last:border-0">
+          ${item.image
+            ? `<img src="${item.image}" alt="${normalizeProductName(item.name)}" class="w-14 h-14 object-cover flex-shrink-0 bg-ivory" loading="lazy" />`
+            : `<div class="w-14 h-14 bg-linen flex-shrink-0 flex items-center justify-center">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="text-champagne" aria-hidden="true">
+                   <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                 </svg>
+               </div>`
+          }
+          <div class="flex-1 min-w-0">
+            <a href="${item.url || `/product/${item.slug}`}" class="${wishlistTitleClass(item)} text-sm text-charcoal hover:text-blush-deep transition-colors truncate block">${normalizeProductName(item.name)}</a>
+          </div>
+          <button
+            data-remove-slug="${item.slug}"
+            aria-label="${normalizeProductName(item.name)} verwijderen uit verlanglijst"
+            class="flex-shrink-0 w-8 h-8 flex items-center justify-center text-taupe hover:text-blush-deep transition-colors"
+          >
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>

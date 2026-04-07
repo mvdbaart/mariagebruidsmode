@@ -1,0 +1,105 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { getServiceRoleClient } from '../../lib/serverAuth';
+
+const supabase = getServiceRoleClient();
+const { data: applications } = await supabase
+  .from('vacancy_applications')
+  .select('*')
+  .order('created_at', { ascending: false })
+  .limit(100);
+
+const statusLabels: Record<string, string> = {
+  new: 'Nieuw',
+  reviewing: 'In behandeling',
+  contacted: 'Geselecteerd',
+  rejected: 'Afgewezen',
+  hired: 'Aangenomen',
+  archived: 'Gearchiveerd',
+};
+
+const statusClasses: Record<string, string> = {
+  new: 'bg-blue-50 text-blue-700 border-blue-200',
+  reviewing: 'bg-amber-50 text-amber-700 border-amber-200',
+  contacted: 'bg-green-50 text-green-700 border-green-200',
+  rejected: 'bg-red-50 text-red-600 border-red-200',
+  hired: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  archived: 'bg-slate-100 text-slate-600 border-slate-200',
+};
+---
+
+<AdminLayout title="Vacature sollicitaties">
+  <div class="pt-8 pb-24 bg-ivory min-h-screen">
+    <div class="container mx-auto px-6">
+      <div class="flex justify-between items-start gap-4 mb-10">
+        <div>
+          <h1 class="font-display font-normal text-charcoal text-3xl italic">Vacature <span class="text-blush-deep opacity-60">sollicitaties</span></h1>
+          <p class="text-sm text-taupe mt-3 max-w-2xl">Alle inkomende sollicitaties van de vacaturedetailpagina’s. De entries worden direct opgeslagen en per e-mail doorgestuurd.</p>
+        </div>
+        <a href="/admin/vacatures" class="text-[10px] uppercase tracking-widest text-taupe hover:text-blush-deep transition-colors">Terug naar vacatures</a>
+      </div>
+
+      {applications?.length ? (
+        <div class="grid grid-cols-1 gap-6">
+          {applications.map((application) => (
+            <article class="bg-white border border-champagne rounded-2xl shadow-soft p-6 md:p-8">
+              <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                <div>
+                  <p class="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-2">
+                    {application.vacancy_title || 'Vacature'}
+                  </p>
+                  <h2 class="font-display text-charcoal text-2xl leading-tight">
+                    {application.full_name}
+                  </h2>
+                  <p class="text-sm text-taupe mt-2">
+                    {application.email}
+                    {application.phone ? ` · ${application.phone}` : ''}
+                  </p>
+                </div>
+                <div class="flex flex-wrap gap-2 items-center">
+                  <span class={`text-[9px] uppercase tracking-[0.12em] px-3 py-1 rounded-full border font-medium ${statusClasses[application.status] || statusClasses.new}`}>
+                    {statusLabels[application.status] || 'Nieuw'}
+                  </span>
+                  <span class="text-[9px] uppercase tracking-[0.12em] px-3 py-1 rounded-full border border-champagne bg-linen text-taupe">
+                    {application.created_at ? new Date(application.created_at).toLocaleString('nl-NL', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—'}
+                  </span>
+                </div>
+              </div>
+
+              <div class="mt-6 grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-6">
+                <div>
+                  <p class="text-[10px] uppercase tracking-[0.22em] text-taupe font-medium mb-2">Motivatie</p>
+                  <p class="text-sm text-taupe leading-relaxed whitespace-pre-line bg-ivory/60 border border-champagne rounded-2xl p-4">
+                    {application.message || 'Geen motivatie meegegeven.'}
+                  </p>
+                </div>
+                <div class="space-y-3">
+                  <div class="rounded-2xl border border-champagne bg-ivory/50 p-4 text-sm text-taupe">
+                    <p class="text-[10px] uppercase tracking-[0.22em] font-medium mb-2">Vacature</p>
+                    <p>{application.vacancy_title}</p>
+                    <a href={`/over-ons/vacatures/${application.vacancy_slug}/`} class="text-blush-deep hover:underline text-xs inline-block mt-2">Open vacature</a>
+                  </div>
+                  {application.linkedin_url && (
+                    <div class="rounded-2xl border border-champagne bg-ivory/50 p-4 text-sm text-taupe">
+                      <p class="text-[10px] uppercase tracking-[0.22em] font-medium mb-2">LinkedIn / Portfolio</p>
+                      <a href={application.linkedin_url} target="_blank" rel="noreferrer" class="text-blush-deep hover:underline break-all">{application.linkedin_url}</a>
+                    </div>
+                  )}
+                  <div class="flex gap-3 pt-2">
+                    <a href={`mailto:${application.email}?subject=${encodeURIComponent(`Re: ${application.vacancy_title}`)}`} class="btn-blush px-5 py-3 text-[10px]">Mail kandidaat</a>
+                    <a href="/admin/vacatures" class="btn-gold px-5 py-3 text-[10px]">Vacatures</a>
+                  </div>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div class="text-center py-24 bg-white border border-dashed border-champagne rounded-2xl">
+          <p class="font-display italic text-taupe">Nog geen sollicitaties ontvangen.</p>
+          <p class="text-sm text-taupe/70 mt-2">Wanneer iemand via de vacaturepagina solliciteert, verschijnt het hier automatisch.</p>
+        </div>
+      )}
+    </div>
+  </div>
+</AdminLayout>

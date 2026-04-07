@@ -1,5 +1,52 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import { supabase } from '../../lib/supabase';
+import { readdirSync, statSync } from 'node:fs';
+import { resolve, join } from 'node:path';
+
+const IMAGE_ROOT = resolve(process.cwd(), 'public', 'images', 'bruidsmeisjes');
+
+function titleCase(input: string) {
+  return String(input || '')
+    .replace(/[-_]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .split(' ')
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+function productLabelFromSlug(slug: string) {
+  const match = slug.match(/^(.+?)-bruidsmeisjes-jurk-(.+)$/i);
+  if (match) {
+    return `${titleCase(match[1])} bruidsmeisjes jurk - ${match[2].toUpperCase()}`;
+  }
+  return titleCase(slug);
+}
+
+function walkProducts(root: string) {
+  if (!statSync(root).isDirectory()) return [];
+
+  return readdirSync(root, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => {
+      const folder = join(root, entry.name);
+      const images = readdirSync(folder)
+        .filter((file) => /\.(avif|webp|jpe?g|png|gif|svg)$/i.test(file))
+        .sort((a, b) => a.localeCompare(b, 'en', { numeric: true }))
+        .map((file) => `/images/bruidsmeisjes/${entry.name}/${file}`);
+
+      return {
+        slug: entry.name,
+        title: productLabelFromSlug(entry.name),
+        imageCount: images.length,
+        images,
+      };
+    })
+    .filter((product) => product.images.length > 0)
+    .sort((a, b) => a.slug.localeCompare(b.slug, 'en', { numeric: true }));
+}
 
 const stijlen = [
   { naam: 'Klassiek & Tijdloos', beschrijving: 'Elegante jurken in vloeiende stoffen voor een tijdloze uitstraling. Perfect voor een formele bruiloft.' },
@@ -8,6 +55,29 @@ const stijlen = [
 ];
 
 const kleuren = ['Dusty Rose', 'Sage Groen', 'Hemelsblauw', 'Bordeaux', 'Champagne', 'Lavendel', 'Terracotta', 'Navy'];
+const collectie = walkProducts(IMAGE_ROOT);
+
+const collectieSlugs = collectie.map((item) => item.slug);
+const { data: existingProducts } = collectieSlugs.length > 0
+  ? await supabase
+      .from('products')
+      .select('slug, description')
+      .in('slug', collectieSlugs)
+  : { data: [] };
+
+const existingSlugSet = new Set((existingProducts ?? []).map((item) => item.slug));
+const collectieMetLinks = collectie.map((item) => ({
+  ...item,
+  description: (existingProducts ?? []).find((product) => product.slug === item.slug)?.description ?? '',
+  href: existingSlugSet.has(item.slug) ? `/product/${item.slug}` : null,
+}));
+
+function snippet(text: string, maxLength = 120) {
+  const clean = String(text || '').replace(/\s+/g, ' ').trim();
+  if (!clean) return '';
+  if (clean.length <= maxLength) return clean;
+  return `${clean.slice(0, maxLength - 1).trimEnd()}…`;
+}
 ---
 
 <Layout title="Bruidsmeisjesjurken | Mariage Bruidsmode">
@@ -46,6 +116,116 @@ const kleuren = ['Dusty Rose', 'Sage Groen', 'Hemelsblauw', 'Bordeaux', 'Champag
             <p class="text-taupe font-light text-sm leading-relaxed">{beschrijving}</p>
           </div>
         ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Collectie -->
+  <section class="py-24 bg-white border-t border-champagne">
+    <div class="container mx-auto px-6">
+      <div class="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-14 items-start">
+        <div class="max-w-xl">
+          <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-4">Collectie opbouw</p>
+          <h2 class="font-display text-charcoal text-4xl mb-6">
+            Echte productfoto's uit de <em class="italic font-light text-taupe">live collectie</em>
+          </h2>
+          <div class="space-y-4 text-taupe font-light text-sm leading-relaxed">
+            <p>De afbeeldingen hieronder komen rechtstreeks uit de bron en zijn per product opgeslagen in `public/images/bruidsmeisjes`.</p>
+            <p>Elk product heeft zijn eigen map met meerdere foto's, zodat je de collectie straks kunt opbouwen met een herkenbare en schaalbare structuur.</p>
+          </div>
+          <div class="mt-8 grid grid-cols-2 gap-4 max-w-md">
+            <div class="border border-champagne bg-ivory/60 p-5">
+              <div class="text-3xl font-display text-charcoal">{collectie.length}</div>
+              <div class="text-[10px] tracking-[0.25em] uppercase text-taupe mt-1">Producten</div>
+            </div>
+            <div class="border border-champagne bg-ivory/60 p-5">
+              <div class="text-3xl font-display text-charcoal">{collectie.reduce((sum, item) => sum + item.imageCount, 0)}</div>
+              <div class="text-[10px] tracking-[0.25em] uppercase text-taupe mt-1">Afbeeldingen</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {collectieMetLinks.map((product) => (
+            product.href ? (
+              <a href={product.href} class="group border border-champagne bg-ivory/40 p-3 shadow-soft transition-all duration-300 hover:shadow-card hover:-translate-y-1 block">
+                <div class="relative aspect-[3/4] overflow-hidden bg-white">
+                  <img
+                    src={product.images[0]}
+                    alt={product.title}
+                    class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <div class="absolute left-3 top-3 rounded-full bg-charcoal/85 px-3 py-1 text-[10px] tracking-[0.25em] uppercase text-warm-white">
+                    {product.imageCount} foto's
+                  </div>
+                  <div class="absolute right-3 top-3 rounded-full bg-white/90 px-3 py-1 text-[10px] tracking-[0.25em] uppercase text-charcoal opacity-0 group-hover:opacity-100 transition-opacity">
+                    Detailpagina
+                  </div>
+                </div>
+
+                <div class="p-4 pb-3">
+                  <h3 class="font-display text-charcoal text-xl leading-tight">{product.title}</h3>
+                  <p class="mt-2 text-[10px] tracking-[0.3em] uppercase text-taupe">Bruidsmeisjes collectie</p>
+                  {product.description && (
+                    <p class="mt-3 text-sm font-light leading-relaxed text-taupe/90">{snippet(product.description, 125)}</p>
+                  )}
+                </div>
+
+                <div class="grid grid-cols-4 gap-2 px-4 pb-4">
+                  {product.images.slice(1, 5).map((image, index) => (
+                    <div class="aspect-square overflow-hidden bg-white">
+                      <img
+                        src={image}
+                        alt={`${product.title} detail ${index + 1}`}
+                        class="h-full w-full object-cover"
+                        loading="lazy"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </a>
+            ) : (
+              <article class="group border border-champagne bg-ivory/40 p-3 shadow-soft transition-all duration-300">
+                <div class="relative aspect-[3/4] overflow-hidden bg-white">
+                  <img
+                    src={product.images[0]}
+                    alt={product.title}
+                    class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <div class="absolute left-3 top-3 rounded-full bg-charcoal/85 px-3 py-1 text-[10px] tracking-[0.25em] uppercase text-warm-white">
+                    {product.imageCount} foto's
+                  </div>
+                  <div class="absolute right-3 top-3 rounded-full bg-white/90 px-3 py-1 text-[10px] tracking-[0.25em] uppercase text-charcoal">
+                    Details volgen
+                  </div>
+                </div>
+
+                <div class="p-4 pb-3">
+                  <h3 class="font-display text-charcoal text-xl leading-tight">{product.title}</h3>
+                  <p class="mt-2 text-[10px] tracking-[0.3em] uppercase text-taupe">Bruidsmeisjes collectie</p>
+                  {product.description && (
+                    <p class="mt-3 text-sm font-light leading-relaxed text-taupe/90">{snippet(product.description, 125)}</p>
+                  )}
+                </div>
+
+                <div class="grid grid-cols-4 gap-2 px-4 pb-4">
+                  {product.images.slice(1, 5).map((image, index) => (
+                    <div class="aspect-square overflow-hidden bg-white">
+                      <img
+                        src={image}
+                        alt={`${product.title} detail ${index + 1}`}
+                        class="h-full w-full object-cover"
+                        loading="lazy"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </article>
+            )
+          ))}
+        </div>
       </div>
     </div>
   </section>

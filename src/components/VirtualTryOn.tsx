@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { normalizeProductName, productTitleClass } from '../lib/productDisplay';
 
 type ProductType = 'dress' | 'suit';
 
@@ -7,6 +8,8 @@ interface Props {
   productName: string;
   productImage: string;
   productType: ProductType;
+  collectionTitleFont?: string | null;
+  collectionType?: string | null;
   collectionName?: string | null;
   brand?: string | null;
 }
@@ -24,6 +27,8 @@ export default function VirtualTryOn({
   productName,
   productImage,
   productType,
+  collectionTitleFont,
+  collectionType,
   collectionName,
   brand,
 }: Props) {
@@ -36,6 +41,7 @@ export default function VirtualTryOn({
   const [isDragActive, setIsDragActive] = useState(false);
 
   const outfitLabel = useMemo(() => prettyType(productType), [productType]);
+  const displayProductName = useMemo(() => normalizeProductName(productName), [productName]);
 
   useEffect(() => {
     if (!photo) {
@@ -110,13 +116,13 @@ export default function VirtualTryOn({
           <p className="text-[10px] tracking-[0.3em] uppercase text-blush-deep font-body mb-3">
             Pashok
           </p>
-          <h2 className="font-display text-charcoal text-3xl sm:text-4xl leading-tight mb-4">
+          <h2 className={`${productTitleClass(collectionTitleFont ?? productType, collectionType ?? productType)} text-charcoal text-3xl sm:text-4xl leading-tight mb-4`}>
             Pas deze {outfitLabel}
             <em className="italic font-light text-taupe">virtueel</em>
           </h2>
           <p className="text-sm text-taupe font-light leading-relaxed max-w-2xl mb-6">
             Upload een duidelijke foto van jezelf en laat AI een eerste indruk maken van hoe
-            {brand ? ` ${brand}` : ''} {productName} je zou staan. Voor het beste resultaat:
+            {brand ? ` ${brand}` : ''} {displayProductName} je zou staan. Voor het beste resultaat:
             recht van voren, goed licht, handen zichtbaar en bij voorkeur een foto van boven
             tot onder.
           </p>
@@ -189,7 +195,7 @@ export default function VirtualTryOn({
                   <img src={previewUrl} alt="Jouw geüploade foto" className="w-full h-72 object-contain" />
                 </div>
                 <div className="border border-champagne bg-ivory overflow-hidden p-2">
-                  <img src={productImage} alt={productName} className="w-full h-72 object-contain" />
+                  <img src={productImage} alt={displayProductName} className="w-full h-72 object-contain" />
                 </div>
               </div>
             )}
@@ -231,7 +237,7 @@ export default function VirtualTryOn({
             {resultUrl ? (
               <img
                 src={resultUrl}
-                alt={`AI try-on preview van ${productName}`}
+                alt={`AI try-on preview van ${displayProductName}`}
                 className="w-full h-full object-contain bg-ivory"
               />
             ) : (

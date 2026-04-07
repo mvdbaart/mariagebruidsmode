@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { Resend } from 'resend';
+import { normalizeProductName } from '../../../lib/productDisplay';
 
 // Simple in-memory rate limiter: max 3 email sends per IP per hour
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -73,7 +74,7 @@ function buildEmailHtml(recipientName: string, items: WishlistItem[]): string {
             <tr>
               ${imageCell}
               <td style="vertical-align:top;padding-top:4px;">
-                <p style="margin:0 0 6px 0;font-family:Georgia,'Times New Roman',serif;font-size:15px;font-weight:600;color:#2C2A28;line-height:1.3;">${item.name}</p>
+                <p style="margin:0 0 6px 0;font-family:Georgia,'Times New Roman',serif;font-size:15px;font-weight:600;color:#2C2A28;line-height:1.3;">${normalizeProductName(item.name)}</p>
                 <a href="${productUrl}" style="font-family:Arial,sans-serif;font-size:11px;color:#C9A96E;text-decoration:underline;letter-spacing:0.1em;text-transform:uppercase;">Bekijk product &rarr;</a>
               </td>
             </tr>
@@ -197,9 +198,9 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 
   const items: WishlistItem[] = rawItems
     .filter((i: unknown) => i && typeof i === 'object')
-    .map((i: Record<string, unknown>) => ({
+      .map((i: Record<string, unknown>) => ({
       slug: trimString(i.slug, 100) || '',
-      name: trimString(i.name, 200) || '',
+      name: normalizeProductName(trimString(i.name, 200) || ''),
       image: sanitizeUrl(i.image),
       url: sanitizeUrl(i.url),
     }))

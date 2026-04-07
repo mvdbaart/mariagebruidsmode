@@ -2,6 +2,7 @@
 import Layout from '../../../layouts/Layout.astro';
 import { supabase } from '../../../lib/supabase';
 import { getAdminAuthFromCookies } from '../../../lib/serverAuth';
+import { normalizeProductName, productTitleClass } from '../../../lib/productDisplay';
 
 export const prerender = false;
 
@@ -20,6 +21,7 @@ if (!collection) {
 }
 
 const dressFallbackImage = '/images/jurkvormen/a-lijn.png';
+const collectionTitleFontClass = productTitleClass(collection.title_font, collection.type);
 ---
 
 <Layout title={`${collection.title} Collectie`}>
@@ -34,7 +36,7 @@ const dressFallbackImage = '/images/jurkvormen/a-lijn.png';
       </nav>
 
       <div class="max-w-4xl mb-20 text-center mx-auto">
-        <h1 class="text-5xl md:text-6xl font-serif text-accent mb-6 leading-tight italic font-light">{collection.title}</h1>
+        <h1 class={`${collectionTitleFontClass} text-5xl md:text-6xl text-accent mb-6 leading-tight`}>{collection.title}</h1>
         <p class="text-lg text-accent/70 font-light leading-relaxed">
           {collection.description}
         </p>
@@ -46,7 +48,7 @@ const dressFallbackImage = '/images/jurkvormen/a-lijn.png';
             <div class="aspect-[3/4] overflow-hidden bg-ivory mb-6 relative p-2">
               <img
                 src={product.images?.[0] || dressFallbackImage}
-                alt={product.name}
+                alt={normalizeProductName(product.name)}
                 onerror={`this.onerror=null;this.src='${dressFallbackImage}'`}
                 class="w-full h-full object-contain transition-transform duration-700"
                 loading="lazy"
@@ -55,9 +57,11 @@ const dressFallbackImage = '/images/jurkvormen/a-lijn.png';
               <button
                 class="wishlist-btn absolute top-3 right-3 z-10 w-9 h-9 flex items-center justify-center bg-white/85 backdrop-blur-sm hover:bg-white transition-colors shadow-soft"
                 data-slug={product.slug}
-                data-name={product.name}
+                data-name={normalizeProductName(product.name)}
                 data-image={product.images?.[0] || ''}
-                aria-label={`${product.name} toevoegen aan verlanglijst`}
+                data-title-font={collection.title_font ?? (collection.type === 'suit' ? 'tailored' : 'bridal')}
+                data-collection-type={collection.type}
+                aria-label={`${normalizeProductName(product.name)} toevoegen aan verlanglijst`}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="heart-icon transition-colors text-taupe" fill="none">
                   <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
@@ -65,7 +69,7 @@ const dressFallbackImage = '/images/jurkvormen/a-lijn.png';
               </button>
             </div>
             <span class="text-[10px] tracking-[0.3em] uppercase text-secondary block mb-2">{product.brand}</span>
-            <h3 class="text-xl font-serif text-accent mb-2">{product.name}</h3>
+            <h3 class={`${collectionTitleFontClass} text-accent text-xl mb-2`}>{normalizeProductName(product.name)}</h3>
             <p class="text-sm text-accent/60 font-light italic truncate mb-4">{product.description}</p>
             <div class="flex items-center gap-4">
               <a href={`/product/${product.slug}`} class="text-[10px] tracking-widest uppercase border-b border-accent/20 pb-1 hover:border-secondary transition-colors">Details bekijken</a>
@@ -95,6 +99,8 @@ const dressFallbackImage = '/images/jurkvormen/a-lijn.png';
       const slug = btn.dataset.slug!;
       const name = btn.dataset.name!;
       const image = btn.dataset.image || undefined;
+      const titleFont = btn.dataset.titleFont || 'bridal';
+      const collectionType = btn.dataset.collectionType || 'dress';
       const icon = btn.querySelector<SVGElement>('.heart-icon');
 
       function updateIcon(inWishlist: boolean) {
@@ -115,7 +121,7 @@ const dressFallbackImage = '/images/jurkvormen/a-lijn.png';
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        const added = wl.toggle({ slug, name, image, url: `/product/${slug}` });
+        const added = wl.toggle({ slug, name, image, url: `/product/${slug}`, titleFont, collectionType });
         updateIcon(added);
       });
     });

@@ -1,10 +1,11 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { supabase } from '../../lib/supabase';
+import { normalizeProductName, productTitleClass } from '../../lib/productDisplay';
 
 const { data: outletProducts } = await supabase
   .from('products')
-  .select('id, name, slug, brand, price_range, sale_price, images, collection_id, pasvorm, kleur, categorieen, in_stock')
+  .select('id, name, slug, brand, price_range, sale_price, images, collection_id, pasvorm, kleur, categorieen, in_stock, collections(type, title_font)')
   .contains('categorieen', ['outlet'])
   .order('created_at', { ascending: false });
 
@@ -53,7 +54,7 @@ const fallbackImage = '/images/jurkvormen/a-lijn.png';
                   <div class="relative overflow-hidden bg-ivory aspect-[3/4] mb-4 p-2">
                     <img
                       src={img}
-                      alt={product.name}
+                      alt={normalizeProductName(product.name)}
                       class="w-full h-full object-contain transition-transform duration-500"
                       loading="lazy"
                     />
@@ -70,7 +71,7 @@ const fallbackImage = '/images/jurkvormen/a-lijn.png';
                     {product.brand && (
                       <p class="text-[9px] tracking-[0.3em] uppercase text-taupe/60 font-body">{product.brand}</p>
                     )}
-                    <h3 class="font-display text-charcoal text-lg group-hover:text-blush-deep transition-colors">{product.name}</h3>
+                    <h3 class={`${productTitleClass(product.collections?.title_font, product.collections?.type)} text-charcoal text-lg group-hover:text-blush-deep transition-colors`}>{normalizeProductName(product.name)}</h3>
                     {product.pasvorm && (
                       <p class="text-xs text-taupe font-light">{product.pasvorm}</p>
                     )}

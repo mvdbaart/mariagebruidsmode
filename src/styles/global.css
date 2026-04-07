@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Oswald:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Sacramento&display=swap');
 @import "tailwindcss";
 
@@ -425,6 +426,30 @@ h1, h2, h3, h4, h5, h6 {
   .font-laila {
     font-family: 'Laila', sans-serif;
     font-style: normal;
+  }
+
+  .font-suit-title {
+    font-family: 'Oswald', sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: none;
+  }
+
+  .font-tailored-title {
+    font-family: 'Oswald', sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: none;
+  }
+
+  .font-bridal-title {
+    font-family: var(--font-display);
+    font-style: normal;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    text-transform: none;
   }
 
   .admin-heading {

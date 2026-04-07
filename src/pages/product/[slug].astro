@@ -5,6 +5,7 @@ import { getAdminAuthFromCookies } from '../../lib/serverAuth';
 import { PRODUCT_QUALITIES } from '../../lib/productQualities';
 import { labelFor, PASVORM, HALS, MOUW, MATERIALEN, KLEUREN } from '../../lib/productAttributes';
 import { normalizeImageList, normalizeImageUrl } from '../../lib/imageUrls';
+import { normalizeProductName, productTitleClass } from '../../lib/productDisplay';
 import VirtualTryOn from '../../components/VirtualTryOn';
 
 export const prerender = false;
@@ -26,14 +27,16 @@ if (!product) {
 // Related products from same collection
 const { data: related } = await supabase
   .from('products')
-  .select('*')
+  .select('*, collections(type, title_font)')
   .eq('collection_id', product.collection_id)
   .neq('id', product.id)
   .limit(4);
 
 const isGroom = product.collections?.type === 'suit';
-const backHref = isGroom ? '/trouwpakken' : '/trouwjurken';
-const backLabel = isGroom ? 'Trouwpakken' : 'Trouwjurken';
+const isBridesmaids = product.collections?.slug === 'bruidsmeisjes';
+const backHref = isBridesmaids ? '/bruidsmeisjes' : (isGroom ? '/trouwpakken' : '/trouwjurken');
+const backLabel = isBridesmaids ? 'Bruidsmeisjes' : (isGroom ? 'Trouwpakken' : 'Trouwjurken');
+const productName = normalizeProductName(product.name);
 const dressFallbackImage = '/images/jurkvormen/a-lijn.png';
 const suitFallbackImage = '/images/team/TKF_9016-scaled.jpg';
 const primaryFallbackImage = isGroom ? suitFallbackImage : dressFallbackImage;
@@ -51,7 +54,7 @@ const productSpecs = rawFeatures
   .filter((item: string) => item.length > 0 && !item.startsWith('#'));
 ---
 
-<Layout title={`${product.name} — ${product.brand} | Mariage Bruidsmode`}>
+<Layout title={`${productName} — ${product.brand} | Mariage Bruidsmode`}>
   <!-- Breadcrumb -->
   <div class="pt-28 pb-4 bg-cream border-b border-champagne">
     <div class="container mx-auto px-6">
@@ -66,7 +69,7 @@ const productSpecs = rawFeatures
           </>
         )}
         <span class="text-champagne">›</span>
-        <span class="text-charcoal truncate max-w-[180px]">{product.name}</span>
+        <span class="text-charcoal truncate max-w-[180px]">{productName}</span>
       </nav>
       <a href={backHref} class="mt-3 inline-flex items-center gap-1.5 text-[10px] tracking-[0.2em] uppercase font-body text-taupe hover:text-charcoal transition-colors">
         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
@@ -90,22 +93,26 @@ const productSpecs = rawFeatures
                   class={`thumb-btn block aspect-square overflow-hidden border-2 transition-all rounded-xl ${i === 0 ? 'border-charcoal' : 'border-transparent hover:border-blush'}`}
                   data-src={img}
                 >
-                  <img src={img} alt={`${product.name} foto ${i + 1}`} onerror={`this.onerror=null;this.src='${primaryFallbackImage}'`} class="w-full h-full object-contain bg-ivory" loading="lazy" />
+                  <img src={img} alt={`${productName} foto ${i + 1}`} onerror={`this.onerror=null;this.src='${primaryFallbackImage}'`} class="w-full h-full object-contain bg-ivory" loading="lazy" />
                 </button>
               ))}
             </div>
           )}
 
           <!-- Main image -->
-          <div class="flex-1 aspect-[3/4] bg-ivory relative overflow-hidden group shadow-card rounded-2xl">
+          <div
+            id="product-main-media"
+            class="flex-1 bg-ivory relative overflow-hidden group shadow-card self-start"
+            style="aspect-ratio: 3 / 4;"
+          >
             {productImages?.[0] ? (
               <button id="open-lightbox" class="block w-full h-full cursor-zoom-in" aria-label="Afbeelding vergroten">
                 <img
                   id="main-product-image"
                   src={mainImageSrc}
-                  alt={product.name}
+                  alt={productName}
                   onerror={`this.onerror=null;this.src='${primaryFallbackImage}'`}
-                  class="w-full h-full object-contain p-2 sm:p-4 transition-transform duration-700"
+                  class="w-full h-full object-contain transition-transform duration-700"
                   loading="eager"
                 />
               </button>
@@ -131,8 +138,8 @@ const productSpecs = rawFeatures
         <div class="flex flex-col justify-center lg:py-8">
           <p class="text-[10px] tracking-[0.35em] uppercase text-blush-deep font-body mb-3">{product.brand}</p>
 
-          <h1 class="font-display font-normal text-charcoal leading-[1.1] mb-4" style="font-size: clamp(30px, 4vw, 56px);">
-            {product.name}
+          <h1 class={`${productTitleClass(product.collections?.title_font, product.collections?.type)} text-charcoal leading-[1.08] mb-4`} style="font-size: clamp(30px, 4vw, 56px);">
+            {productName}
           </h1>
 
           {product.collections && (
@@ -284,9 +291,11 @@ const productSpecs = rawFeatures
           <VirtualTryOn
             client:load
             productSlug={product.slug}
-            productName={product.name}
+            productName={productName}
             productImage={mainImageSrc}
             productType={isGroom ? 'suit' : 'dress'}
+            collectionTitleFont={product.collections?.title_font}
+            collectionType={product.collections?.type}
             collectionName={product.collections?.title}
             brand={product.brand}
           />
@@ -366,7 +375,7 @@ const productSpecs = rawFeatures
         <polyline points="15 18 9 12 15 6"></polyline>
       </svg>
     </button>
-    <img id="lightbox-img" src="" alt={product.name} class="max-h-[90vh] max-w-[90vw] object-contain" />
+    <img id="lightbox-img" src="" alt={productName} class="max-h-[90vh] max-w-[90vw] object-contain" />
     <button id="lightbox-next" class="absolute right-4 top-1/2 -translate-y-1/2 text-warm-white/70 hover:text-warm-white transition-colors z-10 hidden" aria-label="Volgende afbeelding">
       <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <polyline points="9 18 15 12 9 6"></polyline>
@@ -389,7 +398,7 @@ const productSpecs = rawFeatures
             <a href={`/product/${rel.slug}`} class="group bg-white shadow-soft hover:shadow-card transition-all duration-300 overflow-hidden hover:-translate-y-1 block">
               <div class="aspect-[3/4] bg-ivory overflow-hidden relative p-2">
                 {(rel.images?.[0] || primaryFallbackImage) ? (
-                  <img src={rel.images?.[0] || primaryFallbackImage} alt={rel.name} onerror={`this.onerror=null;this.src='${primaryFallbackImage}'`} class="w-full h-full object-contain transition-transform duration-500" loading="lazy" />
+                  <img src={rel.images?.[0] || primaryFallbackImage} alt={normalizeProductName(rel.name)} onerror={`this.onerror=null;this.src='${primaryFallbackImage}'`} class="w-full h-full object-contain transition-transform duration-500" loading="lazy" />
                 ) : (
                   <div class="w-full h-full flex items-center justify-center bg-cream">
                     <span class="text-3xl opacity-20">👗</span>
@@ -398,7 +407,7 @@ const productSpecs = rawFeatures
               </div>
               <div class="p-4 border-t border-champagne">
                 <p class="text-[9px] tracking-widest uppercase text-blush-deep font-body mb-1">{rel.brand}</p>
-                <h3 class="font-display text-charcoal text-base leading-tight">{rel.name}</h3>
+                <h3 class={`${productTitleClass(rel.collections?.title_font, rel.collections?.type)} text-charcoal text-base leading-tight`}>{normalizeProductName(rel.name)}</h3>
                 {rel.price_range && <p class="text-xs text-taupe font-body mt-1">{rel.price_range}</p>}
               </div>
             </a>
@@ -415,11 +424,11 @@ const productSpecs = rawFeatures
   >
     <div class="hidden md:flex items-center gap-4">
       <div class="w-12 h-16 bg-linen overflow-hidden rounded-sm">
-        <img src={mainImageSrc} alt={product.name} class="w-full h-full object-contain bg-ivory p-1" />
+        <img src={mainImageSrc} alt={productName} class="w-full h-full object-contain bg-ivory p-1" />
       </div>
       <div>
         <p class="text-[9px] tracking-widest uppercase text-blush-deep font-body">{product.brand}</p>
-        <p class="font-display text-lg text-charcoal">{product.name}</p>
+        <p class={`${productTitleClass(product.collections?.title_font, product.collections?.type)} text-lg text-charcoal`}>{productName}</p>
       </div>
     </div>
     <div class="flex items-center gap-4 w-full md:w-auto">
@@ -429,7 +438,7 @@ const productSpecs = rawFeatures
   </div>
 </Layout>
 
-<script>
+<script define:vars={{ initialCollectionTitleFont: product.collections?.title_font ?? null, initialCollectionType: product.collections?.type ?? null }}>
   // Thumbnail image switcher
   const thumbBtns = document.querySelectorAll<HTMLButtonElement>('.thumb-btn');
   const mainMedia = document.getElementById('product-main-media') as HTMLDivElement | null;
@@ -440,7 +449,7 @@ const productSpecs = rawFeatures
     const width = imageEl.naturalWidth;
     const height = imageEl.naturalHeight;
     if (width > 0 && height > 0) {
-      mainMedia.style.setProperty('--product-aspect', `${width} / ${height}`);
+      mainMedia.style.aspectRatio = `${width} / ${height}`;
     }
   }
 
@@ -472,11 +481,8 @@ const productSpecs = rawFeatures
   // Smooth opacity transition on main image
   if (mainImg) {
     mainImg.style.transition = 'opacity 0.18s ease';
-    if (mainImg.complete) {
-      syncMainMediaAspect(mainImg);
-    } else {
-      mainImg.addEventListener('load', () => syncMainMediaAspect(mainImg));
-    }
+    mainImg.addEventListener('load', () => syncMainMediaAspect(mainImg));
+    if (mainImg.complete) syncMainMediaAspect(mainImg);
   }
 
   // Lightbox
@@ -632,6 +638,8 @@ const productSpecs = rawFeatures
     name: '',
     image: (document.getElementById('main-product-image') as HTMLImageElement | null)?.src || '',
     url: window.location.pathname,
+    titleFont: initialCollectionTitleFont,
+    collectionType: initialCollectionType,
   };
 
   function initDetailWishlist() {

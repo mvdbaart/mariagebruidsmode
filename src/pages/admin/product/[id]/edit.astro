@@ -4,6 +4,7 @@ import { supabase } from '../../../../lib/supabase';
 import { PRODUCT_QUALITIES } from '../../../../lib/productQualities';
 import { PASVORM, HALS, MOUW, MATERIALEN, KLEUREN, MATEN, CATEGORIEEN } from '../../../../lib/productAttributes';
 import { normalizeImageUrl } from '../../../../lib/imageUrls';
+import { normalizeProductName } from '../../../../lib/productDisplay';
 
 const { id } = Astro.params;
 
@@ -36,9 +37,10 @@ const productKleuren:    string[] = Array.isArray(product.kleur)        ? produc
 const productMaten:      string[] = Array.isArray(product.maten)        ? product.maten        : [];
 const productCateg:      string[] = Array.isArray(product.categorieen)  ? product.categorieen  : [];
 const productFeatures:   string[] = Array.isArray(product.features)     ? product.features     : [];
+const displayProductName = normalizeProductName(product.name);
 ---
 
-<AdminLayout title={`Bewerk ${product.name}`}>
+<AdminLayout title={`Bewerk ${displayProductName}`}>
   <div class="pt-8 pb-24 bg-accent/5 min-h-screen">
     <div class="container mx-auto px-6">
       <nav class="mb-12 flex items-center gap-4 text-[10px] tracking-[0.2em] uppercase text-accent/40">
@@ -51,7 +53,7 @@ const productFeatures:   string[] = Array.isArray(product.features)     ? produc
 
       <div class="max-w-7xl grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_360px] gap-8 items-start">
         <div class="bg-white border border-secondary/10 shadow-sm p-12">
-        <h1 class="text-3xl font-serif text-accent italic mb-12">Bewerk <span class="text-secondary opacity-50">{product.name}</span></h1>
+        <h1 class="text-3xl font-serif text-accent italic mb-12">Bewerk <span class="text-secondary opacity-50">{displayProductName}</span></h1>
 
         <form id="edit-product-form" class="space-y-8">
           <input type="hidden" name="id" value={product.id} />
@@ -615,7 +617,7 @@ const productFeatures:   string[] = Array.isArray(product.features)     ? produc
               <img
                 id="preview-image"
                 src={initialPreviewImage}
-                alt={product.name}
+                alt={displayProductName}
                 class="w-full h-full object-cover"
                 onerror={`this.onerror=null;this.src='${previewFallbackImage}'`}
               />
@@ -623,7 +625,7 @@ const productFeatures:   string[] = Array.isArray(product.features)     ? produc
             <div class="p-6 space-y-4">
               <p class="text-[9px] tracking-[0.25em] uppercase text-secondary font-body">Live Preview</p>
               <p id="preview-brand" class="text-[10px] tracking-[0.2em] uppercase text-accent/70 font-body">{product.brand ?? ''}</p>
-              <h2 id="preview-name" class="text-2xl font-serif text-accent leading-tight">{product.name}</h2>
+              <h2 id="preview-name" class="text-2xl font-serif text-accent leading-tight">{displayProductName}</h2>
               <p id="preview-price" class="text-sm text-accent/70 font-light">{product.price_range ?? ''}</p>
               <p id="preview-description" class="text-sm text-accent/70 font-light leading-relaxed whitespace-pre-line">{product.description ?? 'Nog geen omschrijving ingevuld.'}</p>
               <div>
@@ -643,6 +645,16 @@ const productFeatures:   string[] = Array.isArray(product.features)     ? produc
 </AdminLayout>
 
 <script>
+  function normalizeProductName(name: string): string {
+    const value = String(name ?? '').trim();
+    if (!value) return value;
+
+    const lettersOnly = value.replace(/[^\p{L}]/gu, '');
+    if (!lettersOnly || lettersOnly !== lettersOnly.toUpperCase()) return value;
+
+    return value.toLowerCase().replace(/\b([\p{L}])/gu, (_, letter: string) => letter.toUpperCase());
+  }
+
   const form = document.getElementById('edit-product-form') as HTMLFormElement;
   const status = document.getElementById('form-status');
   const previewImage = document.getElementById('preview-image') as HTMLImageElement | null;
@@ -705,8 +717,9 @@ const productFeatures:   string[] = Array.isArray(product.features)     ? produc
       previewImage.src = Array.isArray(images) && images.length > 0
         ? normalizePreviewSrc(images[0])
         : previewFallback;
+      previewImage.alt = normalizeProductName(name || 'Product preview');
     }
-    if (previewName) previewName.textContent = name || 'Naam ontbreekt';
+    if (previewName) previewName.textContent = normalizeProductName(name) || 'Naam ontbreekt';
     if (previewBrand) previewBrand.textContent = brand || 'Merk';
     if (previewPrice) previewPrice.textContent = price || 'Prijs op aanvraag';
     if (previewDescription) previewDescription.textContent = description || 'Nog geen omschrijving ingevuld.';

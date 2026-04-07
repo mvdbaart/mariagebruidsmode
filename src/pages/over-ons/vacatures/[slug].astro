@@ -30,18 +30,11 @@ const formatHours = (min?: number | null, max?: number | null) => {
   return `${value} uur`;
 };
 
-const buildApplyHref = () => {
-  if (vacancy.application_url?.trim()) return vacancy.application_url.trim();
-  const subject = encodeURIComponent(`Sollicitatie: ${vacancy.title}`);
-  return vacancy.application_email?.trim()
-    ? `mailto:${vacancy.application_email.trim()}?subject=${subject}`
-    : `mailto:bruidsmode@mariagebruidsmode.nl?subject=${subject}`;
-};
 ---
 
 <Layout title={`${vacancy.title} | Vacatures`}>
   <section class="pt-40 pb-20 bg-ivory">
-    <div class="container mx-auto px-6 max-w-5xl">
+    <div class="container mx-auto px-6 max-w-6xl">
       <nav class="flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase text-taupe font-body mb-8 flex-wrap">
         <a href="/" class="hover:text-charcoal transition-colors">Home</a>
         <span class="text-champagne">›</span>
@@ -50,7 +43,7 @@ const buildApplyHref = () => {
         <span class="text-blush-deep">{vacancy.title}</span>
       </nav>
 
-      <div class="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-10 lg:gap-16 items-start">
+      <div class="grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-10 lg:gap-16 items-start">
         <div>
           <p class="text-[10px] tracking-[0.4em] uppercase text-blush-deep font-body mb-5">
             {vacancy.department || 'Vacature'}
@@ -77,33 +70,118 @@ const buildApplyHref = () => {
           </div>
 
           {vacancy.summary && <p class="text-taupe font-light text-lg leading-relaxed mb-8 max-w-3xl">{vacancy.summary}</p>}
-          {vacancy.description && <p class="text-taupe font-light leading-relaxed whitespace-pre-line">{vacancy.description}</p>}
+          {vacancy.description && <p class="text-taupe font-light leading-relaxed whitespace-pre-line max-w-3xl">{vacancy.description}</p>}
         </div>
 
-        <aside class="bg-white border border-champagne rounded-[28px] p-6 md:p-8 shadow-soft">
+        <aside class="bg-white border border-champagne rounded-[28px] p-6 md:p-8 shadow-soft sticky top-28">
           <p class="text-[10px] tracking-[0.35em] uppercase text-blush-deep font-body mb-4">Solliciteren</p>
-          <h2 class="font-display text-charcoal text-3xl mb-4">Interesse in deze <em class="italic font-light text-taupe">functie?</em></h2>
+          <h2 class="font-display text-charcoal text-3xl mb-4">Stuur je <em class="italic font-light text-taupe">sollicitatie</em></h2>
           <p class="text-taupe font-light leading-relaxed mb-8">
-            Solliciteer direct of neem contact met ons op via e-mail. We reageren zo snel mogelijk.
+            Vul je gegevens in en verstuur direct je motivatie. We ontvangen je sollicitatie meteen in de backend.
           </p>
 
-          <div class="space-y-3">
-            <a href={buildApplyHref()} class="btn-blush w-full justify-center px-8 py-4">
-              {vacancy.cta_label || 'Solliciteer direct'}
-            </a>
+          <form id="vacancy-application-form" action="/api/vacancies/apply" method="post" class="space-y-4">
+            <input type="hidden" name="vacancy_id" value={vacancy.id} />
+            <input type="hidden" name="vacancy_slug" value={vacancy.slug} />
+            <input type="text" name="_hp" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" />
+
+            <div>
+              <label for="full_name" class="block text-[10px] tracking-[0.18em] uppercase text-taupe font-body mb-2">Naam *</label>
+              <input id="full_name" name="full_name" required class="w-full rounded-2xl border border-champagne bg-ivory/60 px-4 py-3 text-sm text-charcoal placeholder:text-taupe/50 focus:border-blush-deep focus:outline-none" placeholder="Je volledige naam" />
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="email" class="block text-[10px] tracking-[0.18em] uppercase text-taupe font-body mb-2">E-mail *</label>
+                <input id="email" name="email" type="email" required class="w-full rounded-2xl border border-champagne bg-ivory/60 px-4 py-3 text-sm text-charcoal placeholder:text-taupe/50 focus:border-blush-deep focus:outline-none" placeholder="naam@email.nl" />
+              </div>
+              <div>
+                <label for="phone" class="block text-[10px] tracking-[0.18em] uppercase text-taupe font-body mb-2">Telefoon</label>
+                <input id="phone" name="phone" type="tel" class="w-full rounded-2xl border border-champagne bg-ivory/60 px-4 py-3 text-sm text-charcoal placeholder:text-taupe/50 focus:border-blush-deep focus:outline-none" placeholder="06..." />
+              </div>
+            </div>
+
+            <div>
+              <label for="linkedin_url" class="block text-[10px] tracking-[0.18em] uppercase text-taupe font-body mb-2">LinkedIn of portfolio</label>
+              <input id="linkedin_url" name="linkedin_url" type="url" class="w-full rounded-2xl border border-champagne bg-ivory/60 px-4 py-3 text-sm text-charcoal placeholder:text-taupe/50 focus:border-blush-deep focus:outline-none" placeholder="https://..." />
+            </div>
+
+            <div>
+              <label for="message" class="block text-[10px] tracking-[0.18em] uppercase text-taupe font-body mb-2">Motivatie *</label>
+              <textarea id="message" name="message" rows="7" required class="w-full rounded-2xl border border-champagne bg-ivory/60 px-4 py-3 text-sm text-charcoal placeholder:text-taupe/50 focus:border-blush-deep focus:outline-none resize-y" placeholder="Vertel kort waarom je bij Mariage wilt werken en wat je meebrengt."></textarea>
+            </div>
+
+            <button type="submit" id="vacancy-application-submit" class="btn-blush w-full justify-center px-8 py-4">
+              Sollicitatie versturen
+            </button>
+
+            <p id="vacancy-application-status" class="min-h-[1.25rem] text-sm text-taupe"></p>
+          </form>
+
+          <div class="mt-8 pt-6 border-t border-champagne text-sm text-taupe font-light space-y-3">
+            {vacancy.application_email && <p>E-mail voor directe sollicitatie: <a href={`mailto:${vacancy.application_email}`} class="text-blush-deep hover:underline">{vacancy.application_email}</a></p>}
+            {vacancy.application_url && (
+              <p>Externe sollicitatie: <a href={vacancy.application_url} target="_blank" rel="noreferrer" class="text-blush-deep hover:underline">Open link</a></p>
+            )}
+            <p>Je sollicitatie komt direct in onze backend binnen en wordt ook per e-mail doorgestuurd.</p>
+          </div>
+
+          <div class="mt-6">
             <a href="/over-ons/vacatures/" class="btn-gold w-full justify-center px-8 py-4">
               Terug naar overzicht
             </a>
           </div>
-
-          {(vacancy.application_email || vacancy.application_url) && (
-            <div class="mt-8 pt-6 border-t border-champagne text-sm text-taupe font-light space-y-2">
-              {vacancy.application_email && <p>E-mail: {vacancy.application_email}</p>}
-              {vacancy.application_url && <p>Solliciteren via link: {vacancy.application_url}</p>}
-            </div>
-          )}
         </aside>
       </div>
     </div>
   </section>
 </Layout>
+
+<script define:vars={{ vacancyId: vacancy.id, vacancySlug: vacancy.slug }}>
+  const form = document.getElementById('vacancy-application-form');
+  const submitButton = document.getElementById('vacancy-application-submit');
+  const statusEl = document.getElementById('vacancy-application-status');
+
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    if (submitButton) {
+      submitButton.setAttribute('disabled', 'true');
+      submitButton.textContent = 'Versturen...';
+    }
+    if (statusEl) statusEl.textContent = '';
+
+    const formData = new FormData(form as HTMLFormElement);
+    formData.set('vacancy_id', vacancyId);
+    formData.set('vacancy_slug', vacancySlug);
+
+    try {
+      const response = await fetch('/api/vacancies/apply', {
+        method: 'POST',
+        headers: { Accept: 'application/json' },
+        body: formData,
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || 'Versturen mislukt');
+      }
+
+      (form as HTMLFormElement).reset();
+      if (statusEl) {
+        statusEl.textContent = 'Bedankt! Je sollicitatie is ontvangen.';
+        statusEl.className = 'min-h-[1.25rem] text-sm text-green-700';
+      }
+    } catch (error) {
+      if (statusEl) {
+        statusEl.textContent = error instanceof Error ? error.message : 'Er ging iets mis.';
+        statusEl.className = 'min-h-[1.25rem] text-sm text-red-500';
+      }
+    } finally {
+      if (submitButton) {
+        submitButton.removeAttribute('disabled');
+        submitButton.textContent = 'Sollicitatie versturen';
+      }
+    }
+  });
+</script>

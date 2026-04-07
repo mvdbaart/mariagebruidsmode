@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { supabase } from '../../lib/supabase';
+import { normalizeProductName, productTitleClass } from '../../lib/productDisplay';
 
 export const prerender = false;
 
@@ -19,7 +20,7 @@ if (!post) {
 // Related products: 3 random products to cross-link to the shop
 const { data: relatedProducts } = await supabase
   .from('products')
-  .select('id, name, slug, brand, images, price_range')
+  .select('id, name, slug, brand, images, price_range, collections(type, title_font)')
   .limit(3);
 
 const blogFallbackImage = '/images/team/TKF_9303-scaled-scaled.jpg';
@@ -78,7 +79,7 @@ const dressFallback = '/wp-content/uploads/2023/11/trouwjurk-ladybird-amariah-br
               <div class="aspect-[3/4] bg-ivory overflow-hidden p-2">
                 <img
                   src={prod.images?.[0] || dressFallback}
-                  alt={prod.name}
+                  alt={normalizeProductName(prod.name)}
                   onerror={`this.onerror=null;this.src='${dressFallback}'`}
                   class="w-full h-full object-contain transition-transform duration-500"
                   loading="lazy"
@@ -86,7 +87,7 @@ const dressFallback = '/wp-content/uploads/2023/11/trouwjurk-ladybird-amariah-br
               </div>
               <div class="p-4 border-t border-champagne">
                 <p class="text-[9px] tracking-widest uppercase text-blush-deep font-body mb-1">{prod.brand}</p>
-                <h3 class="font-display text-charcoal text-base leading-tight">{prod.name}</h3>
+                <h3 class={`${productTitleClass(prod.collections?.title_font, prod.collections?.type)} text-charcoal text-base leading-tight`}>{normalizeProductName(prod.name)}</h3>
                 {prod.price_range && <p class="text-xs text-taupe font-body mt-1">{prod.price_range}</p>}
               </div>
             </a>

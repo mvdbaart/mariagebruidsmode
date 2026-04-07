@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS collections (
   title TEXT NOT NULL,
   slug TEXT UNIQUE NOT NULL,
   type TEXT CHECK (type IN ('dress', 'suit', 'accessory')),
+  title_font TEXT NOT NULL DEFAULT 'bridal',
   description TEXT,
   image_url TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
@@ -82,6 +83,25 @@ CREATE TABLE IF NOT EXISTS vacancies (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Vacancy applications
+CREATE TABLE IF NOT EXISTS vacancy_applications (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  vacancy_id UUID REFERENCES vacancies(id) ON DELETE SET NULL,
+  vacancy_slug TEXT NOT NULL,
+  vacancy_title TEXT NOT NULL,
+  full_name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT,
+  linkedin_url TEXT,
+  message TEXT,
+  source TEXT NOT NULL DEFAULT 'website',
+  status TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'reviewing', 'contacted', 'rejected', 'hired', 'archived')),
+  notes TEXT,
+  ip_address TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Appointments (Form Submissions)
 CREATE TABLE IF NOT EXISTS appointments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -121,6 +141,19 @@ ALTER TABLE IF EXISTS employees
 ALTER TABLE IF EXISTS employees
   ADD COLUMN IF NOT EXISTS team_sort_order INTEGER NOT NULL DEFAULT 0;
 
+ALTER TABLE IF EXISTS collections
+  ADD COLUMN IF NOT EXISTS title_font TEXT;
+
+UPDATE collections
+SET title_font = CASE WHEN type = 'suit' THEN 'tailored' ELSE 'bridal' END
+WHERE title_font IS NULL OR title_font NOT IN ('bridal', 'tailored');
+
+ALTER TABLE IF EXISTS collections
+  ALTER COLUMN title_font SET DEFAULT 'bridal';
+
+ALTER TABLE IF EXISTS collections
+  ALTER COLUMN title_font SET NOT NULL;
+
 ALTER TABLE employees ENABLE ROW LEVEL SECURITY;
 
 CREATE INDEX IF NOT EXISTS employees_active_sort_idx
@@ -131,6 +164,12 @@ CREATE INDEX IF NOT EXISTS employees_team_visible_sort_idx
 
 CREATE INDEX IF NOT EXISTS vacancies_public_sort_idx
   ON vacancies (is_active, sort_order, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS vacancy_applications_created_at_idx
+  ON vacancy_applications (created_at DESC);
+
+CREATE INDEX IF NOT EXISTS vacancy_applications_vacancy_idx
+  ON vacancy_applications (vacancy_id, status, created_at DESC);
 
 CREATE POLICY "Public read active employees" ON employees
   FOR SELECT USING (is_active = true);

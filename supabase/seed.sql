@@ -2,11 +2,11 @@
 -- TRUNCATE collections, products, real_weddings, blog_posts CASCADE;
 
 -- Add real collections
-INSERT INTO collections (title, type, description, image_url, slug) VALUES
-('Enzoani', 'dress', 'Exclusieve en innovatieve designs voor de moderne bruid.', 'https://www.enzoani.com/images/default-source/collections/blue-by-enzoani/2024/bt24-01/main-front.jpg', 'enzoani'),
-('Modeca', 'dress', 'Nederlandse elegantie met een romantische twist.', 'https://www.modeca.com/images/collections/modeca-collection/2024/astrid/astrid-front.jpg', 'modeca'),
-('Roberto Vicentti', 'suit', 'Italiaanse stijl en vakmanschap voor de bruidegom.', 'https://www.robertovicentti.com/wp-content/uploads/2023/10/RV_SS24_01.jpg', 'roberto-vicentti'),
-('Immediate', 'suit', 'Hedendaagse pakken met oog voor elk detail.', 'https://immediate-fashion.nl/wp-content/uploads/2023/11/IM_24_01.jpg', 'immediate');
+INSERT INTO collections (title, type, title_font, description, image_url, slug) VALUES
+('Enzoani', 'dress', 'bridal', 'Exclusieve en innovatieve designs voor de moderne bruid.', 'https://www.enzoani.com/images/default-source/collections/blue-by-enzoani/2024/bt24-01/main-front.jpg', 'enzoani'),
+('Modeca', 'dress', 'bridal', 'Nederlandse elegantie met een romantische twist.', 'https://www.modeca.com/images/collections/modeca-collection/2024/astrid/astrid-front.jpg', 'modeca'),
+('Roberto Vicentti', 'suit', 'tailored', 'Italiaanse stijl en vakmanschap voor de bruidegom.', 'https://www.robertovicentti.com/wp-content/uploads/2023/10/RV_SS24_01.jpg', 'roberto-vicentti'),
+('Immediate', 'suit', 'tailored', 'Hedendaagse pakken met oog voor elk detail.', 'https://immediate-fashion.nl/wp-content/uploads/2023/11/IM_24_01.jpg', 'immediate');
 
 -- Add real products
 INSERT INTO products (collection_id, name, slug, brand, description, images, features) VALUES

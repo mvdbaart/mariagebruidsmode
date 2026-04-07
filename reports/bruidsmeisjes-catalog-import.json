@@ -1,0 +1,46 @@
+{
+  "generated_at": "2026-04-07T10:51:07.829Z",
+  "mode": "apply",
+  "collection": {
+    "title": "Bruidsmeisjes",
+    "slug": "bruidsmeisjes",
+    "type": "accessory",
+    "description": "Bruidsmeisjesjurken uit de live collectie",
+    "image_url": "/images/bruidsmeisjes/lilly-bruidsmeisjes-jurk-08-440-cr/lilly-bruidsmeisjes-jurk-08-440-cr-01.webp"
+  },
+  "totals": {
+    "source_products": 5,
+    "created": 0,
+    "updated": 5,
+    "unchanged": 0
+  },
+  "created": [],
+  "updated": [
+    {
+      "slug": "lilly-bruidsmeisjes-jurk-08-440-cr",
+      "before_image_count": 1,
+      "after_image_count": 1
+    },
+    {
+      "slug": "lilly-bruidsmeisjes-jurk-08-440-nu",
+      "before_image_count": 4,
+      "after_image_count": 4
+    },
+    {
+      "slug": "lilly-bruidsmeisjes-jurk-08-452-nu",
+      "before_image_count": 3,
+      "after_image_count": 3
+    },
+    {
+      "slug": "lilly-bruidsmeisjes-jurk-08-453-nu",
+      "before_image_count": 3,
+      "after_image_count": 3
+    },
+    {
+      "slug": "lilly-bruidsmeisjes-jurk-08-455-lr",
+      "before_image_count": 3,
+      "after_image_count": 3
+    }
+  ],
+  "unchanged": []
+}
