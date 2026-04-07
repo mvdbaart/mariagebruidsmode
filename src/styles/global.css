@@ -139,6 +139,7 @@ html {
   color: var(--color-charcoal);
   -webkit-font-smoothing: antialiased;
   scroll-behavior: smooth;
+  overflow-x: clip;
 }
 
 body {
@@ -146,6 +147,7 @@ body {
   font-weight: 400; /* Increased from 300 for better legibility */
   line-height: 1.6;
   margin: 0;
+  overflow-x: hidden;
 }
 
 .skip-link {
@@ -191,6 +193,7 @@ h1, h2, h3, h4, h5, h6 {
     background-color: var(--color-charcoal);
     color: var(--color-warm-white);
     padding: 14px 36px;
+    border-radius: var(--radius-pill);
   }
 
   .btn-premium:hover {
@@ -202,6 +205,7 @@ h1, h2, h3, h4, h5, h6 {
     background-color: var(--color-blush-deep);
     color: var(--color-warm-white);
     padding: 14px 36px;
+    border-radius: var(--radius-pill);
   }
 
   .btn-blush:hover {
@@ -214,6 +218,7 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--color-gold);
     padding: 13px 35px;
     border: 1px solid var(--color-gold);
+    border-radius: var(--radius-pill);
   }
 
   .btn-gold:hover {
@@ -227,6 +232,7 @@ h1, h2, h3, h4, h5, h6 {
     background-color: var(--color-charcoal);
     color: var(--color-warm-white);
     padding: 14px 36px;
+    border-radius: var(--radius-pill);
   }
 
   .btn-primary:hover {
@@ -235,6 +241,7 @@ h1, h2, h3, h4, h5, h6 {
 
   .glass-card {
     @apply bg-white shadow-card overflow-hidden transition-all duration-300;
+    border-radius: var(--radius-lg);
   }
 
   .glass-card:hover {
